@@ -1,0 +1,324 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Custom Components and Enhancements */
+@layer components {
+    /* Enhanced Button Styles */
+    .btn-primary {
+        @apply inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    }
+    
+    .btn-secondary {
+        @apply inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+    }
+    
+    .btn-success {
+        @apply inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+    }
+    
+    .btn-danger {
+        @apply inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+    }
+
+    /* Enhanced Card Styles */
+    .card {
+        @apply bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
+    }
+    
+    .card-header {
+        @apply px-6 py-4 border-b border-gray-200;
+    }
+    
+    .card-body {
+        @apply p-6;
+    }
+
+    /* Enhanced Form Styles */
+    .form-input {
+        @apply block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+    }
+    
+    .form-select {
+        @apply block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+    }
+    
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 mb-2;
+    }
+
+    /* Enhanced Table Styles */
+    .table {
+        @apply min-w-full divide-y divide-gray-200;
+    }
+    
+    .table-header {
+        @apply bg-gray-50;
+    }
+    
+    .table-header-cell {
+        @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-150;
+    }
+    
+    .table-row {
+        @apply hover:bg-gray-50 transition-colors duration-150;
+    }
+    
+    .table-cell {
+        @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+    }
+
+    /* Enhanced Badge Styles */
+    .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+    
+    .badge-success {
+        @apply bg-green-100 text-green-800;
+    }
+    
+    .badge-warning {
+        @apply bg-yellow-100 text-yellow-800;
+    }
+    
+    .badge-danger {
+        @apply bg-red-100 text-red-800;
+    }
+    
+    .badge-info {
+        @apply bg-blue-100 text-blue-800;
+    }
+
+    /* Enhanced Icon Button Styles */
+    .icon-button {
+        @apply p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-all duration-200;
+    }
+    
+    .icon-button-primary {
+        @apply text-blue-600 hover:text-blue-900 hover:bg-blue-50;
+    }
+    
+    .icon-button-danger {
+        @apply text-red-600 hover:text-red-900 hover:bg-red-50;
+    }
+    
+    .icon-button-success {
+        @apply text-green-600 hover:text-green-900 hover:bg-green-50;
+    }
+
+    /* Enhanced Stats Card Styles */
+    .stats-card {
+        @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200;
+    }
+    
+    .stats-icon {
+        @apply w-12 h-12 rounded-lg flex items-center justify-center;
+    }
+    
+    .stats-icon-blue {
+        @apply bg-blue-100 text-blue-600;
+    }
+    
+    .stats-icon-green {
+        @apply bg-green-100 text-green-600;
+    }
+    
+    .stats-icon-orange {
+        @apply bg-orange-100 text-orange-600;
+    }
+    
+    .stats-icon-purple {
+        @apply bg-purple-100 text-purple-600;
+    }
+
+    /* Enhanced Filter Styles */
+    .filter-section {
+        @apply bg-white rounded-xl shadow-sm border border-gray-200;
+    }
+    
+    .filter-toggle {
+        @apply text-gray-500 hover:text-gray-700 transition-colors duration-200;
+    }
+
+    /* Enhanced Import/Export Styles */
+    .import-export-card {
+        @apply bg-gradient-to-br rounded-lg p-6 border;
+    }
+    
+    .import-export-card-blue {
+        @apply from-blue-50 to-blue-100 border-blue-200;
+    }
+    
+    .import-export-card-green {
+        @apply from-green-50 to-green-100 border-green-200;
+    }
+
+    /* Enhanced File Upload Styles */
+    .file-upload {
+        @apply relative;
+    }
+    
+    .file-input {
+        @apply hidden;
+    }
+    
+    .file-label {
+        @apply flex items-center justify-center w-full px-4 py-2 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200;
+    }
+    
+    .file-label-blue {
+        @apply border-blue-300 hover:border-blue-400;
+    }
+    
+    .file-label-green {
+        @apply border-green-300 hover:border-green-400;
+    }
+
+    /* Enhanced Animation Classes */
+    .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .slide-up {
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    .scale-in {
+        animation: scaleIn 0.2s ease-out;
+    }
+
+    /* Enhanced Focus States */
+    .focus-ring {
+        @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+    
+    .focus-ring-blue {
+        @apply focus:ring-blue-500;
+    }
+    
+    .focus-ring-green {
+        @apply focus:ring-green-500;
+    }
+    
+    .focus-ring-red {
+        @apply focus:ring-red-500;
+    }
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Enhanced Responsive Utilities */
+@layer utilities {
+    .text-shadow {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .text-shadow-lg {
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
+    
+    .backdrop-blur {
+        backdrop-filter: blur(8px);
+    }
+    
+    .glass {
+        @apply bg-white/80 backdrop-blur border border-white/20;
+    }
+}
+
+/* Enhanced Scrollbar Styles */
+@layer utilities {
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(156 163 175) transparent;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: rgb(156 163 175);
+        border-radius: 3px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(107 114 128);
+    }
+}
+
+/* Enhanced Loading States */
+@layer components {
+    .loading {
+        @apply animate-pulse bg-gray-200 rounded;
+    }
+    
+    .loading-text {
+        @apply loading h-4 w-24;
+    }
+    
+    .loading-circle {
+        @apply loading h-8 w-8 rounded-full;
+    }
+    
+    .loading-bar {
+        @apply loading h-2 w-full;
+    }
+}
+
+/* Enhanced Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-break {
+        page-break-before: always;
+    }
+    
+    .print-break-after {
+        page-break-after: always;
+    }
+}

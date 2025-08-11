@@ -1,0 +1,68 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('articles', function (Blueprint $table) {
+            $table->id();
+            $table->integer('annee')->default(now()->year);
+            $table->string('numero')->nullable(); 
+            $table->date('date')->default(now());
+
+            $table->boolean('invendu')->default(false);
+
+            $table->decimal('prix_de_retrait', 10, 2)->nullable();
+            
+            $table->foreignId('situation_administrative_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('foret_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('essence_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('nature_de_coupe_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('session_adjudication_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('localisation_id')->nullable()->constrained()->onDelete('cascade');
+
+            $table->integer('lot')->nullable();
+            $table->integer('parcelle')->nullable();
+            $table->string('superficie')->nullable();
+
+            $table->integer('bo_m3')->nullable();
+            $table->integer('bi_m3')->nullable();
+            $table->integer('bf_st')->nullable();
+            $table->integer('tanin_t')->nullable();
+            $table->integer('fleur_acacia_t')->nullable();
+            $table->integer('caroube_t')->nullable();
+            $table->integer('romarin_t')->nullable();
+            $table->integer('ps_t')->nullable();
+            $table->integer('liége_st')->nullable();
+            $table->integer('charbon_bois_ox')->nullable();
+
+            $table->decimal('prix_vente', 10, 2)->nullable();
+            $table->decimal('fourniture_mise_charge', 10, 2)->nullable();
+
+            $table->string('lat')->nullable();
+            $table->string('log')->nullable();
+
+            $table->date('date_dr')->nullable(); 
+            $table->text('observations')->nullable();
+            $table->boolean('is_deleted')->default(false);
+            
+            $table->timestamps();
+
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('articles');
+    }
+};
