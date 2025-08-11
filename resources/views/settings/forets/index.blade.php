@@ -3,15 +3,15 @@
 @section('title', 'Forêts')
 
 @section('page-actions')
-    <a href="{{ route('settings.index') }}" class="btn-secondary">
+    <!-- <a href="{{ route('settings.index') }}" class="btn-secondary">
         <i class="material-icons mr-2 text-base">arrow_back</i>
         Retour aux Paramètres
-    </a>
+    </a> -->
 @endsection
 
 @section('content')
     {{-- Enhanced Statistics Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="stats-card">
             <div class="stats-icon bg-blue-100 text-blue-600">
                 <i class="material-icons text-blue-600">park</i>
@@ -51,10 +51,63 @@
                 <p class="text-2xl font-bold text-gray-900">{{ $stats['unique'] }}</p>
             </div>
         </div>
-    </div>
+    </div> -->
 
+    
+    {{-- Enhanced Create Form Section --}}
+    <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-900">Ajouter une nouvelle forêt</h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ route('settings.forets.store') }}" method="POST" class="space-y-4">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="foret" class="form-label">Nom de la forêt</label>
+                        <input type="text" class="form-control" id="foret" name="foret" required class="form-input" placeholder="Ex: Forêt de la Mamora">
+                    </div>
+                    <div>
+                        <label for="province" class="form-label">Province</label>
+                        <select id="province" name="province" required class="form-select">
+                            <option value="">Sélectionner une province</option>
+                            <option value="Casablanca-Settat">Casablanca-Settat</option>
+                            <option value="Rabat-Salé-Kénitra">Rabat-Salé-Kénitra</option>
+                            <option value="Marrakech-Safi">Marrakech-Safi</option>
+                            <option value="Fès-Meknès">Fès-Meknès</option>
+                            <option value="Tanger-Tétouan-Al Hoceima">Tanger-Tétouan-Al Hoceima</option>
+                            <option value="Oriental">Oriental</option>
+                            <option value="Souss-Massa">Souss-Massa</option>
+                            <option value="Drâa-Tafilalet">Drâa-Tafilalet</option>
+                            <option value="Béni Mellal-Khénifra">Béni Mellal-Khénifra</option>
+                            <option value="Guelmim-Oued Noun">Guelmim-Oued Noun</option>
+                            <option value="Laâyoune-Sakia El Hamra">Laâyoune-Sakia El Hamra</option>
+                            <option value="Dakhla-Oued Ed-Dahab">Dakhla-Oued Ed-Dahab</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="lat" class="form-label">Latitude</label>
+                        <input type="number" class="form-control" id="lat" name="lat" step="any" class="form-input" placeholder="Ex: 34.0209">
+                    </div>
+                    <div>
+                        <label for="log" class="form-label">Longitude</label>
+                        <input type="number" class="form-control" id="log" name="log" step="any" class="form-input" placeholder="Ex: -6.8416">
+                    </div>
+                </div>
+                <div class="flex justify-end" style="margin-top: 10px;">
+                    <button type="submit" class="btn-primary">
+                        <i class="material-icons mr-2 text-base">add</i>
+                        Ajouter la forêt
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     {{-- Enhanced Advanced Filter Section --}}
-    <div class="card mb-8">
+    <div class="card" style="margin-bottom: 1rem;">
         <div id="filter-content" class="card-body">
             <form method="GET" action="{{ route('settings.forets') }}" class="space-y-4">
                 <div class="row g-3 align-items-end">
@@ -62,7 +115,7 @@
                         <label for="search" class="form-label">Rechercher</label>
                         <div class="relative">
                             <i class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</i>
-                            <input type="text" id="search" name="search" value="{{ request('search') }}" class="form-input pl-10 w-full" placeholder="Rechercher dans les forêts...">
+                            <input type="text" class="form-control" id="search" name="search" value="{{ request('search') }}" class="form-input pl-10 w-full" placeholder="Rechercher dans les forêts...">
                         </div>
                     </div>
                     <div class="col-md-3 col-6">
@@ -94,11 +147,11 @@
                     </div>
                     <div class="col-md-3 col-6">
                         <label for="date_from" class="form-label">Du</label>
-                        <input type="date" id="date_from" name="date_from" value="{{ request('date_from') }}" class="form-input w-full">
+                        <input type="date" class="form-control" id="date_from" name="date_from" value="{{ request('date_from') }}" class="form-input w-full">
                     </div>
                     <div class="col-md-3 col-6">
                         <label for="date_to" class="form-label">Au</label>
-                        <input type="date" id="date_to" name="date_to" value="{{ request('date_to') }}" class="form-input w-full">
+                        <input type="date" class="form-control" id="date_to" name="date_to" value="{{ request('date_to') }}" class="form-input w-full">
                     </div>
                     <div class="col-md-3 col-6">
                         <label for="sort" class="form-label">Trier par</label>
@@ -125,132 +178,19 @@
                             <i class="material-icons mr-2 text-xs">filter_alt</i>
                             Appliquer
                         </button>
-                        <a href="{{ route('settings.forets') }}" class="btn-outline d-flex">
+                        <!-- <a href="{{ route('settings.forets') }}" class="btn-outline d-flex">
                             <i class="material-icons mr-2 text-xs">restart_alt</i>
                             Réinitialiser
-                        </a>
+                        </a> -->
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- Enhanced Import/Export Section --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {{-- Export Section --}}
-        <div class="import-export-card bg-gradient-to-r from-blue-500 to-blue-600">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-semibold text-white">Exporter les données</h3>
-                    <p class="text-blue-100">Téléchargez toutes les forêts au format Excel</p>
-                </div>
-                <svg class="w-8 h-8 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-            </div>
-            <form action="{{ route('settings.forets.export') }}" method="GET" class="mt-4">
-                @foreach(request()->except(['page']) as $key => $value)
-                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                @endforeach
-                <button type="submit" class="w-full btn-white">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Exporter Excel
-                </button>
-            </form>
-        </div>
-
-        {{-- Import Section --}}
-        <div class="import-export-card bg-gradient-to-r from-green-500 to-green-600">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-semibold text-white">Importer des données</h3>
-                    <p class="text-green-100">Ajoutez des forêts depuis un fichier Excel</p>
-                </div>
-                <svg class="w-8 h-8 text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                </svg>
-            </div>
-            <form action="{{ route('excel.import-all') }}" method="POST" enctype="multipart/form-data" class="mt-4">
-                @csrf
-                <input type="hidden" name="type" value="forets">
-                <div class="file-upload">
-                    <input type="file" id="forets-file" name="file" accept=".xlsx,.xls,.csv" class="file-input" onchange="updateFileName(this, 'forets-file-name')" required>
-                    <label for="forets-file" class="file-label">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        Choisir un fichier
-                    </label>
-                </div>
-                <div id="forets-file-name" class="text-sm text-green-100 mt-2 hidden"></div>
-                <button type="submit" class="w-full btn-white mt-3">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                    </svg>
-                    Importer
-                </button>
-            </form>
-        </div>
-    </div>
-
-    {{-- Enhanced Create Form Section --}}
-    <div class="card mb-6">
-        <div class="card-header">
-            <h3 class="text-lg font-semibold text-gray-900">Ajouter une nouvelle forêt</h3>
-        </div>
-        <div class="card-body">
-            <form action="{{ route('settings.forets.store') }}" method="POST" class="space-y-4">
-                @csrf
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="foret" class="form-label">Nom de la forêt</label>
-                        <input type="text" id="foret" name="foret" required class="form-input" placeholder="Ex: Forêt de la Mamora">
-                    </div>
-                    <div>
-                        <label for="province" class="form-label">Province</label>
-                        <select id="province" name="province" required class="form-select">
-                            <option value="">Sélectionner une province</option>
-                            <option value="Casablanca-Settat">Casablanca-Settat</option>
-                            <option value="Rabat-Salé-Kénitra">Rabat-Salé-Kénitra</option>
-                            <option value="Marrakech-Safi">Marrakech-Safi</option>
-                            <option value="Fès-Meknès">Fès-Meknès</option>
-                            <option value="Tanger-Tétouan-Al Hoceima">Tanger-Tétouan-Al Hoceima</option>
-                            <option value="Oriental">Oriental</option>
-                            <option value="Souss-Massa">Souss-Massa</option>
-                            <option value="Drâa-Tafilalet">Drâa-Tafilalet</option>
-                            <option value="Béni Mellal-Khénifra">Béni Mellal-Khénifra</option>
-                            <option value="Guelmim-Oued Noun">Guelmim-Oued Noun</option>
-                            <option value="Laâyoune-Sakia El Hamra">Laâyoune-Sakia El Hamra</option>
-                            <option value="Dakhla-Oued Ed-Dahab">Dakhla-Oued Ed-Dahab</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="lat" class="form-label">Latitude</label>
-                        <input type="number" id="lat" name="lat" step="any" class="form-input" placeholder="Ex: 34.0209">
-                    </div>
-                    <div>
-                        <label for="log" class="form-label">Longitude</label>
-                        <input type="number" id="log" name="log" step="any" class="form-input" placeholder="Ex: -6.8416">
-                    </div>
-                </div>
-                <div class="flex justify-end">
-                    <button type="submit" class="btn-primary">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        Ajouter la forêt
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     {{-- Enhanced Data Table --}}
-    <div class="card">
+    <div class="card" style="margin-bottom: 1rem;">
         <div class="card-header">
             <h3 class="text-lg font-semibold text-gray-900">Liste des forêts</h3>
             <p class="text-sm text-gray-600">Affichage de {{ $forets->firstItem() ?? 0 }} à {{ $forets->lastItem() ?? 0 }} sur {{ $forets->total() }} résultats</p>
@@ -263,25 +203,19 @@
                             <th class="table-header-cell cursor-pointer" onclick="sortTable('id')">
                                 <div class="flex items-center space-x-1">
                                     <span>ID</span>
-                                    <svg class="w-4 h-4 sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                    </svg>
+                                    <i class="material-icons text-sm">swap_vert</i>
                                 </div>
                             </th>
                             <th class="table-header-cell cursor-pointer" onclick="sortTable('foret')">
                                 <div class="flex items-center space-x-1">
                                     <span>Forêt</span>
-                                    <svg class="w-4 h-4 sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                    </svg>
+                                    <i class="material-icons text-sm">swap_vert</i>
                                 </div>
                             </th>
                             <th class="table-header-cell cursor-pointer" onclick="sortTable('province')">
                                 <div class="flex items-center space-x-1">
                                     <span>Province</span>
-                                    <svg class="w-4 h-4 sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                    </svg>
+                                    <i class="material-icons text-sm">swap_vert</i>
                                 </div>
                             </th>
                             <th class="table-header-cell">Coordonnées</th>
@@ -289,9 +223,7 @@
                             <th class="table-header-cell cursor-pointer" onclick="sortTable('created_at')">
                                 <div class="flex items-center space-x-1">
                                     <span>Date de création</span>
-                                    <svg class="w-4 h-4 sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                    </svg>
+                                    <i class="material-icons text-sm">swap_vert</i>
                                 </div>
                             </th>
                             <th class="table-header-cell">Actions</th>
@@ -323,23 +255,18 @@
                                 <td class="table-cell">
                                     <div class="flex items-center space-x-2">
                                         <button onclick="editForet({{ $foret->id }})" class="icon-button icon-button-primary" title="Modifier">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
+                                            <i class="material-icons text-base">edit</i>
                                         </button>
-                                        <svg onclick="deleteForet({{ $foret->id }})" title="Supprimer" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
+                                        <button onclick="deleteForet({{ $foret->id }})" class="icon-button icon-button-danger" title="Supprimer">
+                                            <i class="material-icons text-base">delete</i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="7" class="table-cell text-center py-8 text-gray-500">
-                                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
+                                    <i class="material-icons text-gray-300 text-6xl">search_off</i>
                                     <p class="text-lg font-medium">Aucune forêt trouvée</p>
                                     <p class="text-sm">Commencez par ajouter votre première forêt</p>
                                 </td>
@@ -356,6 +283,56 @@
                 {{ $forets->appends(request()->except('page'))->links() }}
             </div>
         @endif
+    </div>
+
+    {{-- Enhanced Import/Export Section --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {{-- Export Section --}}
+        <div class="import-export-card bg-gradient-to-r from-blue-500 to-blue-600">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-white">Exporter les données</h3>
+                    <p class="text-blue-100">Téléchargez toutes les forêts au format Excel</p>
+                </div>
+                <i class="material-icons text-blue-200 text-3xl">file_download</i>
+            </div>
+            <form action="{{ route('settings.forets.export') }}" method="GET" class="mt-4">
+                @foreach(request()->except(['page']) as $key => $value)
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endforeach
+                <button type="submit" class="w-full btn-white">
+                    <i class="material-icons mr-2 text-base">file_download</i>
+                    Exporter Excel
+                </button>
+            </form>
+        </div>
+
+        {{-- Import Section --}}
+        <div class="import-export-card bg-gradient-to-r from-green-500 to-green-600">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-white">Importer des données</h3>
+                    <p class="text-green-100">Ajoutez des forêts depuis un fichier Excel</p>
+                </div>
+                <i class="material-icons text-green-200 text-3xl">cloud_upload</i>
+            </div>
+            <form action="{{ route('excel.import-all') }}" method="POST" enctype="multipart/form-data" class="mt-4">
+                @csrf
+                <input type="hidden" name="type" value="forets">
+                <div class="file-upload">
+                    <input type="file" id="forets-file" name="file" accept=".xlsx,.xls,.csv" class="file-input" onchange="updateFileName(this, 'forets-file-name')" required>
+                    <label for="forets-file" class="file-label">
+                        <i class="material-icons mr-2 text-base">attach_file</i>
+                        Choisir un fichier
+                    </label>
+                </div>
+                <div id="forets-file-name" class="text-sm text-green-100 mt-2 hidden"></div>
+                <button type="submit" class="w-full btn-white mt-3">
+                    <i class="material-icons mr-2 text-base">cloud_upload</i>
+                    Importer
+                </button>
+            </form>
+        </div>
     </div>
 
     {{-- Success/Error Messages --}}

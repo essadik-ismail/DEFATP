@@ -3,18 +3,15 @@
 @section('title', 'Situations Administratives')
 
 @section('page-actions')
-    <div class="page-actions">
-        <button class="mdc-button mdc-button--outlined" onclick="window.location.href='{{ route('settings.index') }}'">
-            <span class="mdc-button__ripple"></span>
-            <i class="material-icons mdc-button__icon">arrow_back</i>
-            <span class="mdc-button__label">Retour aux Paramètres</span>
-        </button>
-    </div>
+    <a href="{{ route('settings.index') }}" class="btn-secondary">
+        <i class="material-icons mr-2 text-base">arrow_back</i>
+        Retour aux Paramètres
+    </a>
 @endsection
 
 @section('content')
     <!-- Material Design Stats Cards -->
-    <div class="mdc-layout-grid">
+    <!-- <div class="mdc-layout-grid">
         <div class="mdc-layout-grid__inner">
             <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3">
                 <div class="mdc-card stats-card">
@@ -80,113 +77,10 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Material Design Filter Card -->
-    <div class="mdc-card filter-card">
-        <div class="mdc-card__primary">
-            <h2 class="mdc-typography--headline6">
-                <i class="material-icons">filter_list</i>
-                Filtres de Recherche
-            </h2>
-            <h3 class="mdc-typography--subtitle2">Affinez votre recherche de situations administratives</h3>
-        </div>
-        <div class="mdc-card__secondary mdc-typography--body2">
-            <form method="GET" action="{{ route('settings.situation-administratives') }}" class="filter-form">
-                <div class="mdc-layout-grid">
-                    <div class="mdc-layout-grid__inner">
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3">
-                            <label class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
-                                <span class="mdc-notched-outline">
-                                    <span class="mdc-notched-outline__leading"></span>
-                                    <span class="mdc-notched-outline__notch">
-                                        <span class="mdc-floating-label" id="commune-label">Commune</span>
-                                    </span>
-                                    <span class="mdc-notched-outline__trailing"></span>
-                                </span>
-                                <i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading">location_city</i>
-                                <input type="text" name="commune" id="commune" class="mdc-text-field__input" 
-                                       value="{{ request('commune') }}" 
-                                       placeholder="Ex: Rabat..." aria-labelledby="commune-label">
-                            </label>
-                        </div>
-                        
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3">
-                            <label class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
-                                <span class="mdc-notched-outline">
-                                    <span class="mdc-notched-outline__leading"></span>
-                                    <span class="mdc-notched-outline__notch">
-                                        <span class="mdc-floating-label" id="province-label">Province</span>
-                                    </span>
-                                    <span class="mdc-notched-outline__trailing"></span>
-                                </span>
-                                <i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading">location_city</i>
-                                <input type="text" name="province" id="province" class="mdc-text-field__input" 
-                                       value="{{ request('province') }}" 
-                                       placeholder="Ex: Casablanca..." aria-labelledby="province-label">
-                            </label>
-                        </div>
-                        
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3">
-                            <label class="mdc-select mdc-select--outlined">
-                                <span class="mdc-notched-outline">
-                                    <span class="mdc-notched-outline__leading"></span>
-                                    <span class="mdc-notched-outline__notch">
-                                        <span class="mdc-floating-label">Tri</span>
-                                    </span>
-                                    <span class="mdc-notched-outline__trailing"></span>
-                                </span>
-                                <i class="material-icons mdc-select__icon">sort</i>
-                                <select name="sort" id="sort" class="mdc-select__anchor">
-                                    <option value="commune_asc" {{ request('sort') == 'commune_asc' ? 'selected' : '' }}>Commune (A-Z)</option>
-                                    <option value="commune_desc" {{ request('sort') == 'commune_desc' ? 'selected' : '' }}>Commune (Z-A)</option>
-                                    <option value="created_desc" {{ request('sort') == 'created_desc' ? 'selected' : '' }}>Plus récentes</option>
-                                    <option value="created_asc" {{ request('sort') == 'created_asc' ? 'selected' : '' }}>Plus anciennes</option>
-                                </select>
-                            </label>
-                        </div>
-                        
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3">
-                            <label class="mdc-select mdc-select--outlined">
-                                <span class="mdc-notched-outline">
-                                    <span class="mdc-notched-outline__leading"></span>
-                                    <span class="mdc-notched-outline__notch">
-                                        <span class="mdc-floating-label">Affichage</span>
-                                    </span>
-                                    <span class="mdc-notched-outline__trailing"></span>
-                                </span>
-                                <i class="material-icons mdc-select__icon">view_list</i>
-                                <select name="per_page" id="per_page" class="mdc-select__anchor">
-                                    <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10 par page</option>
-                                    <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25 par page</option>
-                                    <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50 par page</option>
-                                    <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100 par page</option>
-                                </select>
-                            </label>
-                        </div>
-                        
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-9">
-                            <div class="filter-actions">
-                                <button type="submit" class="mdc-button mdc-button--raised">
-                                    <span class="mdc-button__ripple"></span>
-                                    <i class="material-icons mdc-button__icon">search</i>
-                                    <span class="mdc-button__label">Appliquer les filtres</span>
-                                </button>
-                                <button type="button" class="mdc-button mdc-button--outlined" onclick="window.location.href='{{ route('settings.situation-administratives') }}'">
-                                    <span class="mdc-button__ripple"></span>
-                                    <i class="material-icons mdc-button__icon">clear</i>
-                                    <span class="mdc-button__label">Réinitialiser</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    </div> -->
 
     <!-- Create Form Card -->
-    <div class="mdc-card create-form-card">
+    <div class="mdc-card create-form-card" style="margin-bottom: 1rem;">
         <div class="mdc-card__primary">
             <h2 class="mdc-typography--headline6">
                 <i class="material-icons">add_circle</i>
@@ -252,60 +146,55 @@
         </div>
     </div>
 
-    <!-- Import/Export Card -->
-    <div class="mdc-card import-export-card">
-        <div class="mdc-card__primary">
-            <h2 class="mdc-typography--headline6">
-                <i class="material-icons">file_upload</i>
-                Import/Export
-            </h2>
-            <h3 class="mdc-typography--subtitle2">Gérez vos données de situations administratives</h3>
-        </div>
-        <div class="mdc-card__secondary mdc-typography--body2">
-            <div class="mdc-layout-grid">
-                <div class="mdc-layout-grid__inner">
-                    <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6">
-                        <div class="export-section">
-                            <h4 class="mdc-typography--subtitle1">
-                                <i class="material-icons">download</i>
-                                Exporter les données
-                            </h4>
-                            <p class="mdc-typography--body2">Téléchargez toutes les situations administratives au format Excel</p>
-                            <a href="{{ route('settings.situation-administratives.export') }}" class="mdc-button mdc-button--raised">
-                                <span class="mdc-button__ripple"></span>
-                                <i class="material-icons mdc-button__icon">file_download</i>
-                                <span class="mdc-button__label">Exporter (.xlsx)</span>
-                            </a>
+    {{-- Enhanced Advanced Filter Section --}}
+    <div class="card" style="margin-bottom: 1rem;">
+        <div id="filter-content" class="card-body">
+            <form method="GET" action="{{ route('settings.situation-administratives') }}" class="space-y-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3 col-6">
+                        <label for="commune" class="form-label">Commune</label>
+                        <div class="relative">
+                            <i class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">location_city</i>
+                            <input type="text" class="form-control" name="commune" id="commune" value="{{ request('commune') }}" class="form-input pl-10" placeholder="Ex: Rabat...">
                         </div>
                     </div>
-                    
-                    <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6">
-                        <div class="import-section">
-                            <h4 class="mdc-typography--subtitle1">
-                                <i class="material-icons">upload</i>
-                                Importer des données
-                            </h4>
-                            <p class="mdc-typography--body2">Importez des situations administratives depuis un fichier Excel</p>
-                            <form action="{{ route('settings.situation-administratives.import') }}" method="POST" enctype="multipart/form-data" class="import-form">
-                                @csrf
-                                <div class="file-input-wrapper">
-                                    <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required class="file-input">
-                                    <label for="file" class="mdc-button mdc-button--outlined">
-                                        <span class="mdc-button__ripple"></span>
-                                        <i class="material-icons mdc-button__icon">attach_file</i>
-                                        <span class="mdc-button__label">Choisir un fichier</span>
-                                    </label>
-                                </div>
-                                <button type="submit" class="mdc-button mdc-button--raised">
-                                    <span class="mdc-button__ripple"></span>
-                                    <i class="material-icons mdc-button__icon">cloud_upload</i>
-                                    <span class="mdc-button__label">Importer</span>
-                                </button>
-                            </form>
+                    <div class="col-md-3 col-6">
+                        <label for="province" class="form-label">Province</label>
+                        <div class="relative">
+                            <i class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">location_city</i>
+                            <input type="text" class="form-control" name="province" id="province" value="{{ request('province') }}" class="form-input pl-10" placeholder="Ex: Casablanca...">
                         </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <label for="sort" class="form-label">Trier par</label>
+                        <select name="sort" id="sort" class="form-select w-full">
+                            <option value="commune_asc" {{ request('sort') == 'commune_asc' ? 'selected' : '' }}>Commune (A-Z)</option>
+                            <option value="commune_desc" {{ request('sort') == 'commune_desc' ? 'selected' : '' }}>Commune (Z-A)</option>
+                            <option value="created_desc" {{ request('sort') == 'created_desc' ? 'selected' : '' }}>Plus récentes</option>
+                            <option value="created_asc" {{ request('sort') == 'created_asc' ? 'selected' : '' }}>Plus anciennes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <label for="per_page" class="form-label">Par page</label>
+                        <select name="per_page" id="per_page" class="form-select w-full">
+                            <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-6 d-flex gap-3 align-items-center">
+                        <button type="submit" class="btn-primary d-flex">
+                            <i class="material-icons mr-2 text-xs">filter_alt</i>
+                            Appliquer
+                        </button>
+                        <!-- <a href="{{ route('settings.situation-administratives') }}" class="btn-outline d-flex">
+                            <i class="material-icons mr-2 text-xs">restart_alt</i>
+                            Réinitialiser
+                        </a> -->
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -326,91 +215,115 @@
     @endif
 
     <!-- Data Table Card -->
-    <div class="mdc-card data-table-card">
-        <div class="mdc-card__primary">
-            <h2 class="mdc-typography--headline6">
-                <i class="material-icons">table_chart</i>
-                Liste des Situations Administratives
-            </h2>
-            <h3 class="mdc-typography--subtitle2">{{ $situationAdministratives->total() }} situation(s) trouvée(s)</h3>
+    <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-header">
+            <h5 class="card-title">Liste des Situations Administratives</h5>
+            <p class="text-sm text-gray-600">{{ $situationAdministratives->total() }} situation(s) trouvée(s)</p>
         </div>
-        <div class="mdc-card__secondary">
-            <div class="table-container">
-                <table class="mdc-data-table__table">
-                    <thead>
-                        <tr class="mdc-data-table__header-row">
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">ID</div>
-                                </div>
-                            </th>
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">Commune</div>
-                                </div>
-                            </th>
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">Province</div>
-                                </div>
-                            </th>
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">Créé le</div>
-                                </div>
-                            </th>
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">Mis à jour le</div>
-                                </div>
-                            </th>
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">Actions</div>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="mdc-data-table__content">
-                        @forelse($situationAdministratives as $situationAdministrative)
-                            <tr class="mdc-data-table__row">
-                                <td class="mdc-data-table__cell">{{ $situationAdministrative->id }}</td>
-                                <td class="mdc-data-table__cell">
-                                    <span class="commune-badge">{{ $situationAdministrative->commune }}</span>
-                                </td>
-                                <td class="mdc-data-table__cell">{{ $situationAdministrative->province ?: '-' }}</td>
-                                <td class="mdc-data-table__cell">{{ $situationAdministrative->created_at?->format('d/m/Y H:i') }}</td>
-                                <td class="mdc-data-table__cell">{{ $situationAdministrative->updated_at?->format('d/m/Y H:i') }}</td>
-                                <td class="mdc-data-table__cell">
-                                    <div class="action-buttons">
-                                        <button class="mdc-icon-button material-icons" onclick="editSituation({{ $situationAdministrative->id }}, '{{ $situationAdministrative->commune }}')" title="Modifier">
-                                            edit
-                                        </button>
-                                        <button class="mdc-icon-button material-icons" onclick="deleteSituation({{ $situationAdministrative->id }})" title="Supprimer">
-                                            delete
-                                        </button>
-                                    </div>
-                                </td>
+        <div class="card-body" id="datatable-section">
+            @if($situationAdministratives->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="table-header-cell">ID</th>
+                                <th class="table-header-cell">Commune</th>
+                                <th class="table-header-cell">Province</th>
+                                <th class="table-header-cell">Créé le</th>
+                                <th class="table-header-cell">Mis à jour le</th>
+                                <th class="table-header-cell">Actions</th>
                             </tr>
-                        @empty
-                            <tr class="mdc-data-table__row">
-                                <td colspan="6" class="mdc-data-table__cell text-center">
-                                    <div class="empty-state">
-                                        <i class="material-icons">location_city</i>
-                                        <p>Aucune situation administrative trouvée.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            @if($situationAdministratives->hasPages())
-                <div class="pagination-wrapper">
+                        </thead>
+                        <tbody class="table-body">
+                            @foreach($situationAdministratives as $situationAdministrative)
+                                <tr class="table-row">
+                                    <td class="table-cell">{{ $situationAdministrative->id }}</td>
+                                    <td class="table-cell">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ $situationAdministrative->commune }}</span>
+                                    </td>
+                                    <td class="table-cell">{{ $situationAdministrative->province ?: '-' }}</td>
+                                    <td class="table-cell">{{ $situationAdministrative->created_at?->format('d/m/Y H:i') }}</td>
+                                    <td class="table-cell">{{ $situationAdministrative->updated_at?->format('d/m/Y H:i') }}</td>
+                                    <td class="table-cell">
+                                        <div class="flex items-center gap-2">
+                                            <button class="icon-button icon-button-primary" onclick="editSituation({{ $situationAdministrative->id }}, '{{ $situationAdministrative->commune }}')" title="Modifier">
+                                                <i class="material-icons text-base">edit</i>
+                                            </button>
+                                            <button class="icon-button icon-button-danger" onclick="deleteSituation({{ $situationAdministrative->id }})" title="Supprimer">
+                                                <i class="material-icons text-base">delete</i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6">
                     {{ $situationAdministratives->appends(request()->query())->links() }}
                 </div>
+            @else
+                <div class="empty-state">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="material-icons text-gray-400 text-2xl">location_city</i>
+                    </div>
+                    <p class="text-gray-500 font-medium">Aucune situation administrative trouvée</p>
+                    <p class="text-gray-400 text-sm">Essayez de modifier vos filtres ou ajoutez une nouvelle situation</p>
+                </div>
             @endif
+        </div>
+    </div>
+
+        <!-- Import/Export Card -->
+        <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-header">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                    <i class="material-icons text-green-600">cloud_upload</i>
+                </div>
+                <div>
+                    <h5 class="card-title">Import/Export</h5>
+                    <p class="text-sm text-gray-600">Gérez vos données de situations administratives</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body" id="import-export-section">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="export-section">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-blue-600 text-sm">file_download</i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-900">Exporter les données</h4>
+                    </div>
+                    <p class="text-gray-600 mb-4">Téléchargez toutes les situations administratives au format Excel</p>
+                    <a href="{{ route('settings.situation-administratives.export') }}" class="btn-white">
+                        <i class="material-icons mr-2 text-base">file_download</i>
+                        Exporter (.xlsx)
+                    </a>
+                </div>
+                
+                <div class="import-section">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-green-600 text-sm">cloud_upload</i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-900">Importer des données</h4>
+                    </div>
+                    <p class="text-gray-600 mb-4">Importez des situations administratives depuis un fichier Excel</p>
+                    <form action="{{ route('settings.situation-administratives.import') }}" method="POST" enctype="multipart/form-data" class="import-form">
+                        @csrf
+                        <div class="flex items-center gap-4">
+                            <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required 
+                                   class="block w-full form-control">
+                            <button type="submit" class="btn-white">
+                                <i class="material-icons mr-2 text-base">cloud_upload</i>
+                                Importer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

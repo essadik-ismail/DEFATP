@@ -3,12 +3,15 @@
 @section('title', 'Localisations')
 
 @section('page-actions')
-    <div class="page-actions">
-        <button class="mdc-button mdc-button--raised" onclick="window.location.href='{{ route('settings.localisations.export') }}'">
-            <span class="mdc-button__ripple"></span>
-            <i class="material-icons mdc-button__icon">download</i>
-            <span class="mdc-button__label">Exporter</span>
-        </button>
+    <div class="flex items-center gap-3">
+        <a href="{{ route('settings.localisations.export') }}" class="btn-white">
+            <i class="material-icons mr-2 text-base">file_download</i>
+            Exporter
+        </a>
+        <a href="{{ route('settings.index') }}" class="btn-secondary">
+            <i class="material-icons mr-2 text-base">arrow_back</i>
+            Retour aux Paramètres
+        </a>
     </div>
 @endsection
 
@@ -82,105 +85,53 @@
         </div>
     </div>
 
-    <!-- Material Design Filter Card -->
-    <div class="mdc-card filter-card">
-        <div class="mdc-card__primary">
-            <h2 class="mdc-typography--headline6">
-                <i class="material-icons">filter_list</i>
-                Filtres de Recherche
-            </h2>
-            <h3 class="mdc-typography--subtitle2">Affinez votre recherche de localisations</h3>
-        </div>
-        <div class="mdc-card__secondary mdc-typography--body2">
-            <form method="GET" action="{{ route('localisations') }}" class="filter-form">
-                <div class="mdc-layout-grid">
-                    <div class="mdc-layout-grid__inner">
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3">
-                            <label class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon">
-                                <span class="mdc-notched-outline">
-                                    <span class="mdc-notched-outline__leading"></span>
-                                    <span class="mdc-notched-outline__notch">
-                                        <span class="mdc-floating-label" id="code-label">Code</span>
-                                    </span>
-                                    <span class="mdc-notched-outline__trailing"></span>
-                                </span>
-                                <i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading">code</i>
-                                <input type="text" name="code" id="code" class="mdc-text-field__input" 
-                                       value="{{ request('code') }}" 
-                                       placeholder="Ex: L001" aria-labelledby="code-label">
-                            </label>
+    {{-- Enhanced Advanced Filter Section --}}
+    <div class="card mb-8">
+        <div id="filter-content" class="card-body">
+            <form method="GET" action="{{ route('settings.localisations') }}" class="space-y-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3 col-6">
+                        <label for="code" class="form-label">Code</label>
+                        <div class="relative">
+                            <i class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">code</i>
+                            <input type="text" name="code" id="code" value="{{ request('code') }}" class="form-input pl-10" placeholder="Ex: L001">
                         </div>
-                        
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3">
-                            <label class="mdc-select mdc-select--outlined">
-                                <span class="mdc-notched-outline">
-                                    <span class="mdc-notched-outline__leading"></span>
-                                    <span class="mdc-notched-outline__notch">
-                                        <span class="mdc-floating-label">Tri</span>
-                                    </span>
-                                    <span class="mdc-notched-outline__trailing"></span>
-                                </span>
-                                <i class="material-icons mdc-select__icon">sort</i>
-                                <select name="sort" id="sort" class="mdc-select__anchor">
-                                    <option value="code_asc" {{ request('sort') == 'code_asc' ? 'selected' : '' }}>Code (A-Z)</option>
-                                    <option value="code_desc" {{ request('sort') == 'code_desc' ? 'selected' : '' }}>Code (Z-A)</option>
-                                    <option value="created_desc" {{ request('sort') == 'created_desc' ? 'selected' : '' }}>Plus récentes</option>
-                                    <option value="created_asc" {{ request('sort') == 'created_asc' ? 'selected' : '' }}>Plus anciennes</option>
-                                </select>
-                            </label>
-                        </div>
-                        
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3">
-                            <label class="mdc-select mdc-select--outlined">
-                                <span class="mdc-notched-outline">
-                                    <span class="mdc-notched-outline__leading"></span>
-                                    <span class="mdc-notched-outline__notch">
-                                        <span class="mdc-floating-label">Affichage</span>
-                                    </span>
-                                    <span class="mdc-notched-outline__trailing"></span>
-                                </span>
-                                <i class="material-icons mdc-select__icon">view_list</i>
-                                <select name="per_page" id="per_page" class="mdc-select__anchor">
-                                    <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10 par page</option>
-                                    <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25 par page</option>
-                                    <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50 par page</option>
-                                    <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100 par page</option>
-                                </select>
-                            </label>
-                        </div>
-                        
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3">
-                            <label class="mdc-select mdc-select--outlined">
-                                <span class="mdc-notched-outline">
-                                    <span class="mdc-notched-outline__leading"></span>
-                                    <span class="mdc-notched-outline__notch">
-                                        <span class="mdc-floating-label">Statut</span>
-                                    </span>
-                                    <span class="mdc-notched-outline__trailing"></span>
-                                </span>
-                                <i class="material-icons mdc-select__icon">label</i>
-                                <select name="status" id="status" class="mdc-select__anchor">
-                                    <option value="">Tous les statuts</option>
-                                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actives</option>
-                                    <option value="recent" {{ request('status') == 'recent' ? 'selected' : '' }}>Récentes</option>
-                                </select>
-                            </label>
-                        </div>
-                        
-                        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-9">
-                            <div class="filter-actions">
-                                <button type="submit" class="mdc-button mdc-button--raised">
-                                    <span class="mdc-button__ripple"></span>
-                                    <i class="material-icons mdc-button__icon">search</i>
-                                    <span class="mdc-button__label">Appliquer les filtres</span>
-                                </button>
-                                <button type="button" class="mdc-button mdc-button--outlined" onclick="window.location.href='{{ route('localisations') }}'">
-                                    <span class="mdc-button__ripple"></span>
-                                    <i class="material-icons mdc-button__icon">clear</i>
-                                    <span class="mdc-button__label">Réinitialiser</span>
-                                </button>
-                            </div>
-                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <label for="sort" class="form-label">Trier par</label>
+                        <select name="sort" id="sort" class="form-select w-full">
+                            <option value="code_asc" {{ request('sort') == 'code_asc' ? 'selected' : '' }}>Code (A-Z)</option>
+                            <option value="code_desc" {{ request('sort') == 'code_desc' ? 'selected' : '' }}>Code (Z-A)</option>
+                            <option value="created_desc" {{ request('sort') == 'created_desc' ? 'selected' : '' }}>Plus récentes</option>
+                            <option value="created_asc" {{ request('sort') == 'created_asc' ? 'selected' : '' }}>Plus anciennes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <label for="per_page" class="form-label">Par page</label>
+                        <select name="per_page" id="per_page" class="form-select w-full">
+                            <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <label for="status" class="form-label">Statut</label>
+                        <select name="status" id="status" class="form-select w-full">
+                            <option value="">Tous les statuts</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actives</option>
+                            <option value="recent" {{ request('status') == 'recent' ? 'selected' : '' }}>Récentes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-6 d-flex gap-3 align-items-center">
+                        <button type="submit" class="btn-primary d-flex">
+                            <i class="material-icons mr-2 text-xs">filter_alt</i>
+                            Appliquer
+                        </button>
+                        <a href="{{ route('settings.localisations') }}" class="btn-outline d-flex">
+                            <i class="material-icons mr-2 text-xs">restart_alt</i>
+                            Réinitialiser
+                        </a>
                     </div>
                 </div>
             </form>
@@ -188,57 +139,53 @@
     </div>
 
     <!-- Import/Export Card -->
-    <div class="mdc-card import-export-card">
-        <div class="mdc-card__primary">
-            <h2 class="mdc-typography--headline6">
-                <i class="material-icons">file_upload</i>
-                Import/Export
-            </h2>
-            <h3 class="mdc-typography--subtitle2">Gérez vos données de localisations</h3>
+    <div class="card my-8">
+        <div class="card-header">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                    <i class="material-icons text-green-600">cloud_upload</i>
+                </div>
+                <div>
+                    <h5 class="card-title">Import/Export</h5>
+                    <p class="text-sm text-gray-600">Gérez vos données de localisations</p>
+                </div>
+            </div>
         </div>
-        <div class="mdc-card__secondary mdc-typography--body2">
-            <div class="mdc-layout-grid">
-                <div class="mdc-layout-grid__inner">
-                    <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6">
-                        <div class="export-section">
-                            <h4 class="mdc-typography--subtitle1">
-                                <i class="material-icons">download</i>
-                                Exporter les données
-                            </h4>
-                            <p class="mdc-typography--body2">Téléchargez toutes les localisations au format Excel</p>
-                            <a href="{{ route('settings.localisations.export') }}" class="mdc-button mdc-button--raised">
-                                <span class="mdc-button__ripple"></span>
-                                <i class="material-icons mdc-button__icon">file_download</i>
-                                <span class="mdc-button__label">Exporter (.xlsx)</span>
-                            </a>
+        <div class="card-body" id="import-export-section">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="export-section">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-blue-600 text-sm">file_download</i>
                         </div>
+                        <h4 class="text-lg font-semibold text-gray-900">Exporter les données</h4>
                     </div>
-                    
-                    <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6">
-                        <div class="import-section">
-                            <h4 class="mdc-typography--subtitle1">
-                                <i class="material-icons">upload</i>
-                                Importer des données
-                            </h4>
-                            <p class="mdc-typography--body2">Importez des localisations depuis un fichier Excel</p>
-                            <form action="{{ route('settings.localisations.import') }}" method="POST" enctype="multipart/form-data" class="import-form">
-                                @csrf
-                                <div class="file-input-wrapper">
-                                    <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required class="file-input">
-                                    <label for="file" class="mdc-button mdc-button--outlined">
-                                        <span class="mdc-button__ripple"></span>
-                                        <i class="material-icons mdc-button__icon">attach_file</i>
-                                        <span class="mdc-button__label">Choisir un fichier</span>
-                                    </label>
-                                </div>
-                                <button type="submit" class="mdc-button mdc-button--raised">
-                                    <span class="mdc-button__ripple"></span>
-                                    <i class="material-icons mdc-button__icon">cloud_upload</i>
-                                    <span class="mdc-button__label">Importer</span>
-                                </button>
-                            </form>
+                    <p class="text-gray-600 mb-4">Téléchargez toutes les localisations au format Excel</p>
+                    <a href="{{ route('settings.localisations.export') }}" class="btn-white">
+                        <i class="material-icons mr-2 text-base">file_download</i>
+                        Exporter (.xlsx)
+                    </a>
+                </div>
+                
+                <div class="import-section">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                            <i class="material-icons text-green-600 text-sm">cloud_upload</i>
                         </div>
+                        <h4 class="text-lg font-semibold text-gray-900">Importer des données</h4>
                     </div>
+                    <p class="text-gray-600 mb-4">Importez des localisations depuis un fichier Excel</p>
+                    <form action="{{ route('settings.localisations.import') }}" method="POST" enctype="multipart/form-data" class="import-form">
+                        @csrf
+                        <div class="flex items-center gap-4">
+                            <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required 
+                                   class="block w-full form-control">
+                            <button type="submit" class="btn-white">
+                                <i class="material-icons mr-2 text-base">cloud_upload</i>
+                                Importer
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -261,68 +208,47 @@
     @endif
 
     <!-- Data Table Card -->
-    <div class="mdc-card data-table-card">
-        <div class="mdc-card__primary">
-            <h2 class="mdc-typography--headline6">
-                <i class="material-icons">table_chart</i>
-                Liste des Localisations
-            </h2>
-            <h3 class="mdc-typography--subtitle2">{{ $localisations->total() }} localisation(s) trouvée(s)</h3>
+    <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-header">
+            <h5 class="card-title">Liste des Localisations</h5>
+            <p class="text-sm text-gray-600">{{ $localisations->total() }} localisation(s) trouvée(s)</p>
         </div>
-        <div class="mdc-card__secondary">
-            <div class="table-container">
-                <table class="mdc-data-table__table">
-                    <thead>
-                        <tr class="mdc-data-table__header-row">
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">ID</div>
-                                </div>
-                            </th>
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">Code</div>
-                                </div>
-                            </th>
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">Créé le</div>
-                                </div>
-                            </th>
-                            <th class="mdc-data-table__header-cell" role="columnheader" scope="col">
-                                <div class="mdc-data-table__header-cell-wrapper">
-                                    <div class="mdc-data-table__header-cell-label">Mis à jour le</div>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="mdc-data-table__content">
-                        @forelse($localisations as $localisation)
-                            <tr class="mdc-data-table__row">
-                                <td class="mdc-data-table__cell">{{ $localisation->id }}</td>
-                                <td class="mdc-data-table__cell">
-                                    <span class="code-badge">{{ $localisation->CODE }}</span>
-                                </td>
-                                <td class="mdc-data-table__cell">{{ $localisation->created_at?->format('d/m/Y H:i') }}</td>
-                                <td class="mdc-data-table__cell">{{ $localisation->updated_at?->format('d/m/Y H:i') }}</td>
+        <div class="card-body" id="datatable-section">
+            @if($localisations->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="table-header-cell">ID</th>
+                                <th class="table-header-cell">Code</th>
+                                <th class="table-header-cell">Créé le</th>
+                                <th class="table-header-cell">Mis à jour le</th>
                             </tr>
-                        @empty
-                            <tr class="mdc-data-table__row">
-                                <td colspan="4" class="mdc-data-table__cell text-center">
-                                    <div class="empty-state">
-                                        <i class="material-icons">location_off</i>
-                                        <p>Aucune localisation trouvée.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            @if($localisations->hasPages())
-                <div class="pagination-wrapper">
+                        </thead>
+                        <tbody class="table-body">
+                            @foreach($localisations as $localisation)
+                                <tr class="table-row">
+                                    <td class="table-cell">{{ $localisation->id }}</td>
+                                    <td class="table-cell">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ $localisation->CODE }}</span>
+                                    </td>
+                                    <td class="table-cell">{{ $localisation->created_at?->format('d/m/Y H:i') }}</td>
+                                    <td class="table-cell">{{ $localisation->updated_at?->format('d/m/Y H:i') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6">
                     {{ $localisations->appends(request()->query())->links() }}
+                </div>
+            @else
+                <div class="empty-state">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="material-icons text-gray-400 text-2xl">location_off</i>
+                    </div>
+                    <p class="text-gray-500 font-medium">Aucune localisation trouvée</p>
+                    <p class="text-gray-400 text-sm">Essayez de modifier vos filtres ou importez des localisations</p>
                 </div>
             @endif
         </div>
