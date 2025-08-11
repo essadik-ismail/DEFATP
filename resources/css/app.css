@@ -53,11 +53,11 @@
 
     /* Enhanced Form Styles */
     .form-input {
-        @apply block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+        @apply form-control;
     }
     
     .form-select {
-        @apply block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+        @apply form-control;
     }
     
     .form-label {
@@ -83,6 +83,12 @@
     
     .table-cell {
         @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+    }
+
+    /* DataTable sort icon */
+    .sort-icon {
+        @apply text-gray-400 ml-1 align-middle;
+        font-size: 16px;
     }
 
     /* Enhanced Badge Styles */

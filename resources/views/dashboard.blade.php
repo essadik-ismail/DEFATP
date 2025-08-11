@@ -12,7 +12,7 @@
 
 @section('content')
     <!-- Enhanced Statistics Overview Cards -->
-    <div class="stats-grid mb-8">
+    <div class="stats-grid mx-8">
         <div class="stat-card purple">
             <div class="stat-content">
                 <div class="stat-icon">
@@ -79,7 +79,7 @@
     </div>
 
     <!-- Recent Activities and Quick Actions -->
-    <div class="dashboard-grid mb-8">
+    <div class="dashboard-grid mx-8">
         <!-- Recent Articles -->
         <div class="dashboard-card">
             <div class="card-header">

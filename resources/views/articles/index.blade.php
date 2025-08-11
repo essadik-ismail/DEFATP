@@ -3,15 +3,15 @@
 @section('title', 'Articles - Exploitation')
 
 @section('page-actions')
-    <div class="page-actions">
-        <button class="btn-primary" onclick="window.location.href='{{ route('articles.create') }}'">
-            <i class="fas fa-plus mr-2"></i>
+    <div class="flex items-center gap-3">
+        <a href="{{ route('articles.create') }}" class="btn-primary">
+            <i class="material-icons mr-2 text-base">add</i>
             Nouvel Article
-        </button>
-        <button class="btn-secondary" onclick="window.location.href='{{ route('articles.export') }}'">
-            <i class="fas fa-download mr-2"></i>
+        </a>
+        <!-- <a href="{{ route('articles.export', request()->query()) }}" class="btn-outline">
+            <i class="material-icons mr-2 text-base">file_download</i>
             Exporter
-        </button>
+        </a> -->
     </div>
 @endsection
 
@@ -67,75 +67,48 @@
         </div>
     </div>
 
-    <!-- Enhanced Filter Card -->
-    <div class="dashboard-card mb-8">
-        <div class="card-header">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-filter text-white"></i>
-                </div>
-                <div>
-                    <h5 class="card-title">Filtres de Recherche</h5>
-                    <p class="text-sm text-gray-600">Affinez votre recherche d'articles</p>
-                </div>
-            </div>
-            <button class="collapse-toggle" onclick="toggleCollapse('filter-section')" id="filter-toggle">
-                <i class="fas fa-chevron-down" id="filter-icon"></i>
-            </button>
-        </div>
-        <div class="card-body collapse-content" id="filter-section">
-            <form method="GET" action="{{ route('articles.index') }}" class="filter-form">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <div class="form-group">
+    {{-- Enhanced Advanced Filter Section (matching articles) --}}
+    <div class="card" style="margin-bottom: 1rem;">
+        <div id="filter-content" class="card-body">
+            <form method="GET" action="{{ route('articles.index') }}" class="space-y-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3 col-6">
                         <label for="annee" class="form-label">Année</label>
-                        <input type="number" name="annee" id="annee" 
-                               value="{{ request('annee') }}" min="2000" max="2100" 
-                               placeholder="Ex: 2024" class="form-input">
+                        <input type="number" class="form-control" name="annee" id="annee" value="{{ request('annee') }}" min="2000" max="2100" class="form-input" placeholder="Ex: 2024">
                     </div>
-                    
-                    <div class="form-group">
+                    <div class="col-md-3 col-6">
                         <label for="foret_id" class="form-label">Forêt</label>
-                        <select name="foret_id" id="foret_id" class="form-select">
-                            <option value="">Toutes les forêts</option>
+                        <select name="foret_id" id="foret_id" class="form-select w-full">
+                            <option value="">Toutes</option>
                             @foreach($forets as $foret)
-                                <option value="{{ $foret->id }}" {{ request('foret_id') == $foret->id ? 'selected' : '' }}>
-                                    {{ $foret->foret }}
-                                </option>
+                                <option value="{{ $foret->id }}" {{ request('foret_id') == $foret->id ? 'selected' : '' }}>{{ $foret->foret }}</option>
                             @endforeach
                         </select>
                     </div>
-                    
-                    <div class="form-group">
+                    <div class="col-md-3 col-6">
                         <label for="essence_id" class="form-label">Essence</label>
-                        <select name="essence_id" id="essence_id" class="form-select">
-                            <option value="">Toutes les essences</option>
-                            @foreach($essences as $essence)
-                                <option value="{{ $essence->id }}" {{ request('essence_id') == $essence->id ? 'selected' : '' }}>
-                                    {{ $essence->essence }}
-                                </option>
+                        <select name="essence_id" id="essence_id" class="form-select w-full">
+                            <option value="">Toutes</option>
+                            @foreach($articles as $essence)
+                                <option value="{{ $essence->id }}" {{ request('essence_id') == $essence->id ? 'selected' : '' }}>{{ $essence->essence }}</option>
                             @endforeach
                         </select>
                     </div>
-                    
-                    <div class="form-group">
+                    <div class="col-md-3 col-6">
                         <label for="invendu" class="form-label">Statut</label>
-                        <select name="invendu" id="invendu" class="form-select">
-                            <option value="">Tous les statuts</option>
+                        <select name="invendu" id="invendu" class="form-select w-full">
+                            <option value="">Tous</option>
                             <option value="0" {{ request('invendu') === '0' ? 'selected' : '' }}>Vendus</option>
                             <option value="1" {{ request('invendu') === '1' ? 'selected' : '' }}>Invendus</option>
                         </select>
                     </div>
-                    
-                    <div class="form-group">
+                    <div class="col-md-3 col-6">
                         <label for="numero" class="form-label">Numéro</label>
-                        <input type="text" name="numero" id="numero" 
-                               value="{{ request('numero') }}" 
-                               placeholder="Ex: 001, 002..." class="form-input">
+                        <input type="text" name="numero" id="numero" value="{{ request('numero') }}" class="form-input" placeholder="Ex: 001, 002...">
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="sort" class="form-label">Tri</label>
-                        <select name="sort" id="sort" class="form-select">
+                    <div class="col-md-3 col-6">
+                        <label for="sort" class="form-label">Trier par</label>
+                        <select name="sort" id="sort" class="form-select w-full">
                             <option value="created_desc" {{ request('sort') == 'created_desc' ? 'selected' : '' }}>Plus récents</option>
                             <option value="created_asc" {{ request('sort') == 'created_asc' ? 'selected' : '' }}>Plus anciens</option>
                             <option value="prix_desc" {{ request('sort') == 'prix_desc' ? 'selected' : '' }}>Prix décroissant</option>
@@ -144,87 +117,30 @@
                             <option value="numero_desc" {{ request('sort') == 'numero_desc' ? 'selected' : '' }}>Numéro (Z-A)</option>
                         </select>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="per_page" class="form-label">Affichage</label>
-                        <select name="per_page" id="per_page" class="form-select">
-                            <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10 par page</option>
-                            <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25 par page</option>
-                            <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50 par page</option>
-                            <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100 par page</option>
+                    <div class="col-md-3 col-6">
+                        <label for="per_page" class="form-label">Par page</label>
+                        <select name="per_page" id="per_page" class="form-select w-full">
+                            <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
                         </select>
                     </div>
-                </div>
-                
-                <div class="flex items-center gap-4 mt-6">
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-search mr-2"></i>
-                        Appliquer les filtres
-                    </button>
-                    <button type="button" class="btn-secondary" onclick="window.location.href='{{ route('articles.index') }}'">
-                        <i class="fas fa-times mr-2"></i>
-                        Réinitialiser
-                    </button>
+                    <div class="col-md-3 col-6 d-flex gap-3 align-items-center">
+                        <button type="submit" class="btn-primary d-flex">
+                            <i class="material-icons mr-2 text-xs">filter_alt</i>
+                            Appliquer
+                        </button>
+                        <!-- <a href="{{ route('articles.index') }}" class="btn-outline d-flex">
+                            <i class="material-icons mr-2 text-xs">restart_alt</i>
+                            Réinitialiser
+                        </a> -->
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Import/Export Card -->
-    <div class="dashboard-card mb-8">
-        <div class="card-header">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-file-upload text-white"></i>
-                </div>
-                <div>
-                    <h5 class="card-title">Import/Export</h5>
-                    <p class="text-sm text-gray-600">Gérez vos données d'articles</p>
-                </div>
-            </div>
-            <button class="collapse-toggle" onclick="toggleCollapse('import-export-section')" id="import-export-toggle">
-                <i class="fas fa-chevron-down" id="import-export-icon"></i>
-            </button>
-        </div>
-        <div class="card-body collapse-content" id="import-export-section">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="export-section">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-download text-white text-sm"></i>
-                        </div>
-                        <h4 class="text-lg font-semibold text-gray-900">Exporter les données</h4>
-                    </div>
-                    <p class="text-gray-600 mb-4">Téléchargez tous les articles au format Excel avec les filtres actuels appliqués</p>
-                    <a href="{{ route('articles.export', request()->query()) }}" class="btn-primary">
-                        <i class="fas fa-file-download mr-2"></i>
-                        Exporter (.xlsx)
-                    </a>
-                </div>
-                
-                <div class="import-section">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-upload text-white text-sm"></i>
-                        </div>
-                        <h4 class="text-lg font-semibold text-gray-900">Importer des données</h4>
-                    </div>
-                    <p class="text-gray-600 mb-4">Importez des articles depuis un fichier Excel</p>
-                    <form action="{{ route('articles.import') }}" method="POST" enctype="multipart/form-data" class="import-form">
-                        @csrf
-                        <div class="flex items-center gap-4">
-                            <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required 
-                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
-                            <button type="submit" class="btn-primary">
-                                <i class="fas fa-cloud-upload-alt mr-2"></i>
-                                Importer
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Alert Messages -->
     @if(session('success'))
@@ -251,85 +167,72 @@
         </div>
     @endif
 
-    <!-- Data Table Card -->
-    <div class="dashboard-card">
+    {{-- Data Table --}}
+    <div class="card" style="margin-bottom: 1rem;">
         <div class="card-header">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-table text-white"></i>
-                </div>
-                <div>
-                    <h5 class="card-title">Liste des Articles</h5>
-                    <p class="text-sm text-gray-600">{{ $articles->total() }} article(s) trouvé(s)</p>
-                </div>
-            </div>
-            <button class="collapse-toggle" onclick="toggleCollapse('datatable-section')" id="datatable-toggle">
-                <i class="fas fa-chevron-down" id="datatable-icon"></i>
-            </button>
+            <h5 class="card-title">Liste des Articles</h5>
+            <p class="text-sm text-gray-600">{{ $articles->total() }} article(s) trouvé(s)</p>
         </div>
-        <div class="card-body collapse-content" id="datatable-section">
+        <div class="card-body" id="datatable-section">
             @if($articles->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                    <table class="table">
+                        <thead class="table-header">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Année</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Numéro</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Forêt</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Essence</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix Vente</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="table-header-cell">ID</th>
+                                <th class="table-header-cell">Année</th>
+                                <th class="table-header-cell">Numéro</th>
+                                <th class="table-header-cell">Forêt</th>
+                                <th class="table-header-cell">Essence</th>
+                                <th class="table-header-cell">Prix Vente</th>
+                                <th class="table-header-cell">Statut</th>
+                                <th class="table-header-cell">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="table-body">
                             @foreach($articles as $article)
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $article->id }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                <tr class="table-row">
+                                    <td class="table-cell">{{ $article->id }}</td>
+                                    <td class="table-cell">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                             {{ $article->annee }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="table-cell">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                             {{ $article->numero }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article->foret->foret ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article->essence->essence ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="table-cell">{{ $article->foret->foret ?? '-' }}</td>
+                                    <td class="table-cell">{{ $article->essence->essence ?? '-' }}</td>
+                                    <td class="table-cell">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             {{ number_format($article->prix_vente, 2) }} DH
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="table-cell">
                                         @if($article->invendu)
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                                <i class="fas fa-clock mr-1"></i>
+                                                <i class="material-icons mr-1 text-xs">schedule</i>
                                                 Invendu
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                <i class="fas fa-check mr-1"></i>
+                                                <i class="material-icons mr-1 text-xs">check</i>
                                                 Vendu
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <td class="table-cell">
                                         <div class="flex items-center gap-2">
-                                            <a href="{{ route('articles.show', $article) }}" class="text-blue-600 hover:text-blue-900" title="Voir">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('articles.edit', $article) }}" class="text-indigo-600 hover:text-indigo-900" title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
+                                            <!-- <a href="{{ route('articles.edit', $article) }}" class="icon-button icon-button-primary" title="Modifier">
+                                                <i class="material-icons text-base">edit</i>
+                                            </a> -->
                                             <form action="{{ route('articles.destroy', $article) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
-                                                    <i class="fas fa-trash"></i>
+                                                <button type="submit" class="btn btn-danger" title="Supprimer">
+                                                    <i class="material-icons text-base">delete</i>
                                                 </button>
                                             </form>
                                         </div>
@@ -355,6 +258,72 @@
             @endif
         </div>
     </div>
+    
+
+    {{-- Enhanced Import/Export Section --}}
+    <div class="card"  style="margin-bottom: 2rem;">
+        <div id="import-export-content" class="card-body hidden">
+            <div class="d-flex mx-2">  <!-- Added negative margin to compensate for padding -->
+                {{-- Export Section --}}
+                <div class="col-md-6 col-6 px-2 mb-4 md:mb-0">  <!-- 50% width on medium screens and up -->
+                    <div class="h-full p-4  flex flex-col">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="material-icons text-blue-600">file_download</i>
+                </div>
+                <div>
+                                <h3 class="text-base font-semibold text-gray-800">Export Data</h3>
+                                <p class="text-sm text-gray-500">Download articles in Excel format</p>
+                </div>
+            </div>
+                        <form action="{{ route('excel.export.articles') }}" method="GET" class="mt-auto">
+                            @foreach(request()->except(['page']) as $key => $value)
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endforeach
+                            <button type="submit" class="w-full btn-primary py-2">
+                                <i class="material-icons mr-2 text-base">file_download</i>
+                                Export Excel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                {{-- Import Section --}}
+                <div class="wcol-md-6 col-6 px-2">  <!-- 50% width on medium screens and up -->
+                    <div class="h-full flex flex-col">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="bg-green-100 p-2 rounded-full">
+                                <i class="material-icons text-green-600">cloud_upload</i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-800">Import Data</h3>
+                                <p class="text-sm text-gray-500">Upload essences from Excel file</p>
+                            </div>
+                        </div>
+                        <form action="{{ route('excel.import.articles') }}" method="POST" enctype="multipart/form-data" class="mt-auto">
+                            @csrf
+                            <input type="hidden" name="type" value="essences">
+                            <div class="mb-3">
+                                <div class="file-upload">
+                                    <input type="file" id="essences-file" name="file" accept=".xlsx,.xls,.csv" class="file-input" onchange="updateFileName(this, 'essences-file-name')" required>
+                                    <!-- <label for="essences-file" class="file-label">
+                                        <i class="material-icons mr-2 text-base">attach_file</i>
+                                        Choose File
+                                    </label> -->
+                                </div>
+                                <div id="articles-file-name" class="text-xs text-gray-500 mt-1 hidden"></div>
+                </div>
+                            <button type="submit" class="w-full btn-primary py-2">
+                                <i class="material-icons mr-2 text-base">cloud_upload</i>
+                                Import
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('styles')

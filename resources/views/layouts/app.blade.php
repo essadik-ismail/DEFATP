@@ -1475,7 +1475,7 @@
                     </button>
                             <div class="greeting">
                     <h1>Bonjour, {{ auth()->user()->name }}</h1>
-                                <p>Aujourd'hui nous sommes {{ now()->format('l j F Y') }}</p>
+                                <p>Aujourd'hui nous sommes {{ now()->format('d/m/Y') }}</p>
                             </div>
                 </div>
                 <div class="header-actions">
