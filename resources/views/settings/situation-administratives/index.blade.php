@@ -246,12 +246,8 @@
                                     <td class="table-cell">{{ $situationAdministrative->updated_at?->format('d/m/Y H:i') }}</td>
                                     <td class="table-cell">
                                         <div class="flex items-center gap-2">
-                                            <button class="icon-button icon-button-primary" onclick="editSituation({{ $situationAdministrative->id }}, '{{ $situationAdministrative->commune }}')" title="Modifier">
-                                                <i class="material-icons text-base">edit</i>
-                                            </button>
-                                            <button class="icon-button icon-button-danger" onclick="deleteSituation({{ $situationAdministrative->id }})" title="Supprimer">
-                                                <i class="material-icons text-base">delete</i>
-                                            </button>
+                                                <i onclick="editSituation({{ $situationAdministrative->id }}, '{{ $situationAdministrative->commune }}')" title="Modifier" class="material-icons text-base">edit</i>
+                                                <i onclick="deleteSituation({{ $situationAdministrative->id }})" title="Supprimer" class="material-icons text-base">delete</i>
                                         </div>
                                     </td>
                                 </tr>
@@ -274,58 +270,71 @@
         </div>
     </div>
 
-        <!-- Import/Export Card -->
-        <div class="card" style="margin-bottom: 1rem;">
-        <div class="card-header">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
-                    <i class="material-icons text-green-600">cloud_upload</i>
+
+    {{-- Enhanced Import/Export Section --}}
+    <div class="card"  style="margin-bottom: 2rem;">
+        <div id="import-export-content" class="card-body hidden">
+            <div class="d-flex mx-2">  <!-- Added negative margin to compensate for padding -->
+                {{-- Export Section --}}
+                <div class="col-md-6 col-6 px-2 mb-4 md:mb-0">  <!-- 50% width on medium screens and up -->
+                    <div class="h-full p-4  flex flex-col">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="material-icons text-blue-600">file_download</i>
                 </div>
                 <div>
-                    <h5 class="card-title">Import/Export</h5>
-                    <p class="text-sm text-gray-600">Gérez vos données de situations administratives</p>
+                                <h3 class="text-base font-semibold text-gray-800">Export Data</h3>
+                                <p class="text-sm text-gray-500">Download ituation administrative in Excel format</p>
                 </div>
             </div>
-        </div>
-        <div class="card-body" id="import-export-section">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="export-section">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                            <i class="material-icons text-blue-600 text-sm">file_download</i>
-                        </div>
-                        <h4 class="text-lg font-semibold text-gray-900">Exporter les données</h4>
+                        <form action="{{ route('settings.situation-administratives.export') }}" method="GET" class="mt-auto">
+                            @foreach(request()->except(['page']) as $key => $value)
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endforeach
+                            <button type="submit" class="w-full btn-primary py-2">
+                                <i class="material-icons mr-2 text-base">file_download</i>
+                                Export Excel
+                            </button>
+                        </form>
                     </div>
-                    <p class="text-gray-600 mb-4">Téléchargez toutes les situations administratives au format Excel</p>
-                    <a href="{{ route('settings.situation-administratives.export') }}" class="btn-white">
-                        <i class="material-icons mr-2 text-base">file_download</i>
-                        Exporter (.xlsx)
-                    </a>
                 </div>
                 
-                <div class="import-section">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
-                            <i class="material-icons text-green-600 text-sm">cloud_upload</i>
+                {{-- Import Section --}}
+                <div class="wcol-md-6 col-6 px-2">  <!-- 50% width on medium screens and up -->
+                    <div class="h-full flex flex-col">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="bg-green-100 p-2 rounded-full">
+                                <i class="material-icons text-green-600">cloud_upload</i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-800">Import Data</h3>
+                                <p class="text-sm text-gray-500">Upload ituation administrative from Excel file</p>
+                            </div>
                         </div>
-                        <h4 class="text-lg font-semibold text-gray-900">Importer des données</h4>
-                    </div>
-                    <p class="text-gray-600 mb-4">Importez des situations administratives depuis un fichier Excel</p>
-                    <form action="{{ route('settings.situation-administratives.import') }}" method="POST" enctype="multipart/form-data" class="import-form">
-                        @csrf
-                        <div class="flex items-center gap-4">
-                            <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required 
-                                   class="block w-full form-control">
-                            <button type="submit" class="btn-white">
+                        <form action="{{ route('settings.situation-administratives.import') }}" method="POST" enctype="multipart/form-data" class="mt-auto">
+                            @csrf
+                            <input type="hidden" name="type" value="ituation-administrative">
+                            <div class="mb-3">
+                                <div class="file-upload">
+                                    <input type="file" id="ituation-administrative-file" name="file" accept=".xlsx,.xls,.csv" class="file-input" onchange="updateFileName(this, 'ituation-administrative-file-name')" required>
+                                    <!-- <label for="ituation-administrative-file" class="file-label">
+                                        <i class="material-icons mr-2 text-base">attach_file</i>
+                                        Choose File
+                                    </label> -->
+                                </div>
+                                <div id="ituation-administrative-file-name" class="text-xs text-gray-500 mt-1 hidden"></div>
+                </div>
+                            <button type="submit" class="w-full btn-primary py-2">
                                 <i class="material-icons mr-2 text-base">cloud_upload</i>
-                                Importer
+                                Import
                             </button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 @endsection
 
 @push('styles')

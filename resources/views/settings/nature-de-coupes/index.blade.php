@@ -3,192 +3,151 @@
 @section('title', 'Nature de Coupes')
 
 @section('page-actions')
-    <!-- <div class="flex items-center space-x-3">
-        <a href="{{ route('settings.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Retour
-        </a>
-    </div> -->
+    <div class="flex items-center gap-3">
+        <button onclick="showCreateForm()" class="btn-primary">
+            <i class="fas fa-plus mr-2 text-base"></i>
+            Nouvelle Nature de Coupe
+        </button>
+        <!-- <button onclick="toggleImportExport()" class="btn-outline">
+            <i class="fas fa-download mr-2 text-base"></i>
+            Import/Export
+        </button> -->
+    </div>
 @endsection
 
 @section('content')
     <!-- Enhanced Statistics Cards -->
-    <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                            </div>
-                        </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Total Natures</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
-                    </div>
+    <div class="stats-grid" style="margin-bottom: 1rem;">
+        <div class="stat-card purple">
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">{{ $natureDeCoupes->total() }}</h3>
+                    <p class="stat-label">Total Natures</p>
                 </div>
             </div>
-            
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                            </div>
-                        </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Natures Actives</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['active'] }}</p>
-                    </div>
-                </div>
-            </div>
-            
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                            </div>
-                        </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Ajoutées ce mois</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['recent'] }}</p>
-                    </div>
-                </div>
-            </div>
-            
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                        </svg>
-                            </div>
-                        </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Types Uniques</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['unique'] }}</p>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
-    
-    <!-- Create Form Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8" style="margin-bottom: 1rem;">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Ajouter une Nouvelle Nature de Coupe</h3>
-            <p class="text-sm text-gray-600">Créez une nouvelle nature de coupe dans le système</p>
         </div>
         
-        <div class="p-6">
+        <div class="stat-card green">
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">{{ $natureDeCoupes->where('deleted_at', null)->count() }}</h3>
+                    <p class="stat-label">Natures Actives</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card orange">
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">{{ $natureDeCoupes->where('created_at', '>=', now()->startOfMonth())->count() }}</h3>
+                    <p class="stat-label">Ajoutées ce mois</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card blue">
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="stat-number">{{ $natureDeCoupes->unique('nature_de_coupe')->count() }}</h3>
+                    <p class="stat-label">Types Uniques</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Form Section (Hidden by default) -->
+    <div id="createFormSection" class="card" style="margin-bottom: 1rem;">
+        <div class="card-header">
+            <h5 class="card-title">Ajouter une Nouvelle Nature de Coupe</h5>
+        </div>
+        <div class="card-body">
             <form action="{{ route('settings.nature-de-coupes.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2">
-                        <label for="new-nature" class="block text-sm font-medium text-gray-700 mb-2">Nature de Coupe</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                </svg>
+                        <div class="form-group">
+                            <label for="new-nature" class="form-label"> <i class="fas fa-cut h-5 w-5 text-gray-400"></i> Nature de Coupe
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                </div>
+                                <input type="text" class="form-control" name="nature_de_coupe" id="new-nature" 
+                                       value="{{ old('nature_de_coupe') }}" 
+                                       class="form-input pl-10"
+                                       placeholder="Ex: Coupe rase, Coupe sélective..." required>
                             </div>
-                            <input type="text" name="nature_de_coupe" id="new-nature" 
-                                   value="{{ old('nature_de_coupe') }}" 
-                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                   placeholder="Ex: Coupe rase, Coupe sélective..." required>
-        </div>
-                        @error('nature_de_coupe')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-     </div>
+                            @error('nature_de_coupe')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
 
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
+                    <div class="flex items-end" style="margin-top:10px";>
+                        <button type="submit" class="btn-primary w-full">
+                            <i class="fas fa-check mr-2"></i>
                             Ajouter
                         </button>
                     </div>
                 </div>
             </form>
-            </div>
+        </div>
     </div>
 
-    <!-- Advanced Filter Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8" style="margin-bottom: 1rem;">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900">Filtres Avancés</h3>
-                    <p class="text-sm text-gray-600">Affinez votre recherche avec des critères précis</p>
-                </div>
-                <button onclick="toggleFilters()" class="text-gray-500 hover:text-gray-700">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
+    <!-- Enhanced Advanced Filter Section -->
+    <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-header">
+            <h5 class="card-title">Filtres Avancés</h5>
         </div>
-                        </div>
-                        
-        <div id="filterSection" class="px-6 py-4">
-            <form method="GET" action="{{ route('settings.nature-de-coupes') }}" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Search Input -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label>
+        <div id="filter-content" class="card-body">
+            <form method="GET" action="{{ route('settings.nature-de-coupes') }}" class="space-y-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3 col-6">
+                        <label for="search" class="form-label">Recherche</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                </svg>
+                                <i class="fas fa-search h-5 w-5 text-gray-400"></i>
                             </div>
-                            <input type="text" name="search" value="{{ request('search') }}" 
-                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            <input type="text" class="form-control" name="search" value="{{ request('search') }}" 
+                                   class="form-input pl-10"
                                    placeholder="Rechercher une nature de coupe...">
                         </div>
-                        </div>
-                        
-                    <!-- Status Filter -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
-                        <select name="status" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="">Tous les statuts</option>
-                                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actives</option>
+                    </div>
+                    
+                    <div class="col-md-3 col-6">
+                        <label for="status" class="form-label">Statut</label>
+                        <select name="status" class="form-select">
+                            <option value="">Tous les statuts</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actives</option>
                             <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Supprimées</option>
-                                    <option value="recent" {{ request('status') == 'recent' ? 'selected' : '' }}>Récentes</option>
-                                </select>
+                            <option value="recent" {{ request('status') == 'recent' ? 'selected' : '' }}>Récentes</option>
+                        </select>
                     </div>
 
-                    <!-- Date From -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Date de début</label>
-                        <input type="date" name="date_from" value="{{ request('date_from') }}"
-                               class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="col-md-3 col-6">
+                        <label for="date_from" class="form-label">Date de début</label>
+                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-input">
                     </div>
 
-                    <!-- Date To -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Date de fin</label>
-                        <input type="date" name="date_to" value="{{ request('date_to') }}"
-                               class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="col-md-3 col-6">
+                        <label for="date_to" class="form-label">Date de fin</label>
+                        <input type="date" class="form-control" name="date_to" value="{{ request('date_to') }}" class="form-input">
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Sort Field -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Trier par</label>
-                        <select name="sort" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="col-md-3 col-6">
+                        <label for="sort" class="form-label">Trier par</label>
+                        <select name="sort" class="form-select">
                             <option value="nature_de_coupe" {{ request('sort') == 'nature_de_coupe' ? 'selected' : '' }}>Nature de coupe</option>
                             <option value="created_at" {{ request('sort') == 'created_at' ? 'selected' : '' }}>Date de création</option>
                             <option value="updated_at" {{ request('sort') == 'updated_at' ? 'selected' : '' }}>Date de modification</option>
@@ -196,398 +155,664 @@
                         </select>
                     </div>
 
-                    <!-- Sort Direction -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Direction</label>
-                        <select name="direction" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="col-md-3 col-6">
+                        <label for="direction" class="form-label">Direction</label>
+                        <select name="direction" class="form-select">
                             <option value="asc" {{ request('direction') == 'asc' ? 'selected' : '' }}>Croissant</option>
                             <option value="desc" {{ request('direction') == 'desc' ? 'selected' : '' }}>Décroissant</option>
                         </select>
-                        </div>
+                    </div>
                         
-                    <!-- Per Page -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Par page</label>
-                        <select name="per_page" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="col-md-3 col-6">
+                        <label for="per_page" class="form-label">Par page</label>
+                        <select name="per_page" class="form-select">
                             <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
                             <option value="15" {{ request('per_page') == '15' ? 'selected' : '' }}>15</option>
                             <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
                             <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
                             <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
                         </select>
-                            </div>
-                        </div>
-
-                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div class="text-sm text-gray-600">
-                        {{ $natureDeCoupes->total() }} résultat(s) trouvé(s)
                     </div>
-                    <div class="flex space-x-3">
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                            Appliquer les filtres
+
+                    <div class="col-md-3 col-6 d-flex gap-3 align-items-center">
+                        <button type="submit" class="btn-primary d-flex">
+                            <i class="fas fa-filter mr-2 text-xs"></i>
+                            Appliquer
                         </button>
-                        <a href="{{ route('settings.nature-de-coupes') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
+                        <!-- <a href="{{ route('settings.nature-de-coupes') }}" class="btn-outline d-flex">
+                            <i class="fas fa-times mr-2 text-xs"></i>
                             Réinitialiser
-                        </a>
+                        </a> -->
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-
-
-
-    <!-- Enhanced DataTable -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200" style="margin-bottom: 1rem;">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900">Liste des Natures de Coupe</h3>
-                    <p class="text-sm text-gray-600">{{ $natureDeCoupes->total() }} nature(s) trouvée(s)</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="refreshTable()" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors duration-200" title="Actualiser">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                    </button>
-            </div>
-        </div>
-        </div>
-        
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('id')">
-                            <div class="flex items-center space-x-1">
-                                <span>ID</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                </svg>
-                                </div>
-                            </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('nature_de_coupe')">
-                            <div class="flex items-center space-x-1">
-                                <span>Nature de Coupe</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                </svg>
-                                </div>
-                            </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('created_at')">
-                            <div class="flex items-center space-x-1">
-                                <span>Créé le</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                </svg>
-                                </div>
-                            </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('updated_at')">
-                            <div class="flex items-center space-x-1">
-                                <span>Mis à jour le</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                </svg>
-                                </div>
-                            </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                            </th>
-                        </tr>
-                    </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($natureDeCoupes as $natureDeCoupe)
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                #{{ $natureDeCoupe->id }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    {{ $natureDeCoupe->nature_de_coupe }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $natureDeCoupe->created_at?->format('d/m/Y H:i') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $natureDeCoupe->updated_at?->format('d/m/Y H:i') }}
-                                </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex items-center space-x-2">
-                                    <button onclick="editNature({{ $natureDeCoupe->id }}, '{{ $natureDeCoupe->nature_de_coupe }}')" 
-                                            class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-200" title="Modifier">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                        </button>
-                                    <button onclick="deleteNature({{ $natureDeCoupe->id }})" 
-                                            class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-200" title="Supprimer">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
-                                <div class="text-gray-500">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                    <p class="text-lg font-medium text-gray-900 mb-2">Aucune nature de coupe trouvée</p>
-                                    <p class="text-gray-600">Commencez par ajouter votre première nature de coupe ou ajustez vos filtres de recherche.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            @if($natureDeCoupes->hasPages())
-            <div class="px-6 py-4 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-700">
-                        Affichage de {{ $natureDeCoupes->firstItem() }} à {{ $natureDeCoupes->lastItem() }} sur {{ $natureDeCoupes->total() }} résultats
-                    </div>
-                    <div class="flex items-center space-x-2">
-                    {{ $natureDeCoupes->appends(request()->query())->links() }}
-                    </div>
-                </div>
-                </div>
-            @endif
-    </div>
-
-    <!-- Enhanced Import/Export Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8" style="margin-bottom: 1rem;" >
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Import/Export de Données</h3>
-            <p class="text-sm text-gray-600">Gérez vos données de natures de coupe</p>
-        </div>
-        
-        <div class="p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Export Section -->
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                                </div>
-                        <div>
-                            <h4 class="text-lg font-semibold text-blue-900">Exporter les données</h4>
-                            <p class="text-blue-700">Téléchargez toutes les natures de coupe</p>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <div class="flex items-center text-sm text-blue-700">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Format Excel (.xlsx)
-                        </div>
-                        <div class="flex items-center text-sm text-blue-700">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Inclut toutes les colonnes
-                </div>
-                        <div class="flex items-center text-sm text-blue-700">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Mise en forme automatique
-        </div>
-    </div>
-
-                    <a href="{{ route('settings.nature-de-coupes.export') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Exporter (.xlsx)
-                    </a>
-                </div>
-
-                <!-- Import Section -->
-                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="text-lg font-semibold text-green-900">Importer des données</h4>
-                            <p class="text-green-700">Importez depuis un fichier Excel</p>
-                        </div>
-                    </div>
-                    
-                    <form action="{{ route('settings.nature-de-coupes.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                                @csrf
-                        <div class="space-y-3">
-                            <div class="flex items-center text-sm text-green-700">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Formats supportés: .xlsx, .xls, .csv
-                            </div>
-                            <div class="flex items-center text-sm text-green-700">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Taille max: 10 MB
-                            </div>
-                            <div class="flex items-center text-sm text-green-700">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Validation automatique des données
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-3">
-                            <div class="relative">
-                                <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required 
-                                       class="hidden" onchange="updateFileName(this)">
-                                <label for="file" class="flex items-center justify-center w-full px-4 py-2 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:border-green-400 transition-colors duration-200">
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-8 w-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                        </svg>
-                                        <p class="mt-1 text-sm text-green-600">
-                                            <span id="fileName" class="font-medium">Cliquez pour sélectionner un fichier</span>
-                                        </p>
-                                    </div>
-                                    </label>
-                                </div>
-                            
-                            <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                </svg>
-                                Importer le fichier
-                                </button>
-                        </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-    </div>
-
-    <!-- Success/Error Messages -->
+    <!-- Alert Messages -->
     @if(session('success'))
-        <div id="successMessage" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                {{ session('success') }}
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-700 p-6 rounded-xl mb-6 shadow-lg">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-check-circle text-2xl"></i>
+                <div>
+                    <h3 class="font-semibold text-lg">Succès!</h3>
+                    <p>{{ session('success') }}</p>
+                </div>
             </div>
         </div>
     @endif
 
     @if(session('error'))
-        <div id="errorMessage" class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                {{ session('error') }}
+        <div class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 text-red-700 p-6 rounded-xl mb-6 shadow-lg">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-exclamation-triangle text-2xl"></i>
+                <div>
+                    <h3 class="font-semibold text-lg">Erreur!</h3>
+                    <p>{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Enhanced DataTable -->
+    <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-header">
+            <h5 class="card-title">Liste des Natures de Coupe</h5>
+            <p class="text-sm text-gray-600">{{ $natureDeCoupes->total() }} nature(s) trouvée(s)</p>
+        </div>
+        <div class="card-body" id="datatable-section">
+            @if($natureDeCoupes->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="table-header-cell">ID</th>
+                                <th class="table-header-cell">Nature de Coupe</th>
+                                <th class="table-header-cell">Créé le</th>
+                                <th class="table-header-cell">Mis à jour le</th>
+                                <th class="table-header-cell">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-body">
+                            @foreach($natureDeCoupes as $natureDeCoupe)
+                                <tr class="table-row">
+                                    <td class="table-cell">#{{ $natureDeCoupe->id }}</td>
+                                    <td class="table-cell">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            {{ $natureDeCoupe->nature_de_coupe }}
+                                        </span>
+                                    </td>
+                                    <td class="table-cell">{{ $natureDeCoupe->created_at?->format('d/m/Y H:i') }}</td>
+                                    <td class="table-cell">{{ $natureDeCoupe->updated_at?->format('d/m/Y H:i') }}</td>
+                                    <td class="table-cell">
+                                        <div class="flex items-center gap-2">
+                                                <i nclick="editNature({{ $natureDeCoupe->id }}, '{{ $natureDeCoupe->nature_de_coupe }}')" 
+                                                title="Modifier" class="fas fa-edit text-base"></i>
+                                                <i onclick="deleteNature({{ $natureDeCoupe->id }})" 
+                                                title="Supprimer" class="fas fa-trash text-base"></i>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                @if($natureDeCoupes->hasPages())
+                    <div class="mt-6">
+                        {{ $natureDeCoupes->appends(request()->query())->links() }}
+                    </div>
+                @endif
+            @else
+                <div class="empty-state">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-inbox text-gray-400 text-2xl"></i>
+                    </div>
+                    <p class="text-gray-500 font-medium">Aucune nature de coupe trouvée</p>
+                    <p class="text-gray-400 text-sm">Essayez de modifier vos filtres ou ajoutez votre première nature de coupe</p>
+                </div>
+            @endif
         </div>
     </div>
-    @endif
+
+    <!-- Enhanced Import/Export Section -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Import/Export de Données</h5>
+        </div>
+        <div id="import-export-content" class="card-body hidden">
+            <div class="d-flex mx-2">
+                <!-- Export Section -->
+                <div class="col-md-6 col-6 px-2 mb-4 md:mb-0">
+                    <div class="h-full p-4 flex flex-col">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="fas fa-download text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-800">Exporter les données</h3>
+                                <p class="text-sm text-gray-500">Téléchargez toutes les natures de coupe</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center text-sm text-blue-700">
+                                <i class="fas fa-check mr-2"></i>
+                                Format Excel (.xlsx)
+                            </div>
+                            <div class="flex items-center text-sm text-blue-700">
+                                <i class="fas fa-check mr-2"></i>
+                                Inclut toutes les colonnes
+                            </div>
+                            <div class="flex items-center text-sm text-blue-700">
+                                <i class="fas fa-check mr-2"></i>
+                                Mise en forme automatique
+                            </div>
+                        </div>
+
+                        <a href="{{ route('settings.nature-de-coupes.export') }}" class="mt-4 btn-primary w-full text-center">
+                            <i class="fas fa-download mr-2"></i>
+                            Exporter (.xlsx)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Import Section -->
+                <div class="col-md-6 col-6 px-2">
+                    <div class="h-full flex flex-col">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="bg-green-100 p-2 rounded-full">
+                                <i class="fas fa-upload text-green-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-800">Importer des données</h3>
+                                <p class="text-sm text-gray-500">Importez depuis un fichier Excel</p>
+                            </div>
+                        </div>
+                        
+                        <form action="{{ route('settings.nature-de-coupes.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                            @csrf
+                            <div class="space-y-3">
+                                <div class="flex items-center text-sm text-green-700">
+                                    <i class="fas fa-check mr-2"></i>
+                                    Formats supportés: .xlsx, .xls, .csv
+                                </div>
+                                <div class="flex items-center text-sm text-green-700">
+                                    <i class="fas fa-check mr-2"></i>
+                                    Taille max: 10 MB
+                                </div>
+                                <div class="flex items-center text-sm text-green-700">
+                                    <i class="fas fa-check mr-2"></i>
+                                    Validation automatique des données
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required 
+                                           class="hidden" onchange="updateFileName(this)">
+                                    <label for="file" class="flex items-center justify-center w-full px-4 py-2 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:border-green-400 transition-colors duration-200">
+                                        <div class="text-center">
+                                            <i class="fas fa-upload mx-auto h-8 w-8 text-green-400"></i>
+                                            <p class="mt-1 text-sm text-green-600">
+                                                <span id="fileName" class="font-medium">Cliquez pour sélectionner un fichier</span>
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
+                            
+                                <button type="submit" class="w-full btn-primary py-2">
+                                    <i class="fas fa-upload mr-2"></i>
+                                    Importer le fichier
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
+@push('styles')
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--purple-color), var(--accent-color));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.15),
+                0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card.purple::before {
+            background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+        }
+
+        .stat-card.blue::before {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+        }
+
+        .stat-card.orange::before {
+            background: linear-gradient(90deg, #ea580c, #f97316);
+        }
+
+        .stat-card.green::before {
+            background: linear-gradient(90deg, #059669, #10b981);
+        }
+
+        .stat-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon i {
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .stat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-number {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 0.25rem 0;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.15),
+                0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+        }
+
+        .card-title {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.125rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .collapse-toggle {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .collapse-toggle:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .collapse-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .collapse-toggle.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .form-input, .form-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.875rem;
+            color: white;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(74, 124, 89, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            box-shadow: 0 8px 24px rgba(74, 124, 89, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .icon-button {
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-button-primary {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .icon-button-primary:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(1.05);
+        }
+
+        .icon-button-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .icon-button-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: scale(1.05);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-header {
+            background: rgba(248, 250, 252, 0.8);
+        }
+
+        .table-header-cell {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table-body {
+            background: white;
+        }
+
+        .table-row {
+            transition: background-color 0.2s ease;
+        }
+
+        .table-row:hover {
+            background-color: rgba(248, 250, 252, 0.5);
+        }
+
+        .table-cell {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .card-header {
+                padding: 1rem 1.5rem;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+@endpush
+
 @push('scripts')
-<script>
-// Toggle filter section
-function toggleFilters() {
-    const filterSection = document.getElementById('filterSection');
-    filterSection.classList.toggle('hidden');
-}
+    <script>
+        // Toggle filter section
+        function toggleFilters() {
+            const filterContent = document.getElementById('filter-content');
+            const toggle = document.getElementById('filter-toggle');
+            const icon = document.getElementById('filter-icon');
+            
+            if (filterContent.classList.contains('hidden')) {
+                filterContent.classList.remove('hidden');
+                toggle.classList.remove('collapsed');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                filterContent.classList.add('hidden');
+                toggle.classList.add('collapsed');
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
 
-// Update file name display
-function updateFileName(input) {
-    const fileName = input.files[0]?.name || 'Cliquez pour sélectionner un fichier';
-    document.getElementById('fileName').textContent = fileName;
-}
+        // Toggle import/export section
+        function toggleImportExport() {
+            const importExportContent = document.getElementById('import-export-content');
+            const toggle = document.getElementById('import-export-toggle');
+            const icon = document.getElementById('import-export-icon');
+            
+            if (importExportContent.classList.contains('hidden')) {
+                importExportContent.classList.remove('hidden');
+                toggle.classList.remove('collapsed');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                importExportContent.classList.add('hidden');
+                toggle.classList.add('collapsed');
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
 
-// Sort table functionality
-function sortTable(field) {
-    const currentSort = '{{ request("sort") }}';
-    const currentDirection = '{{ request("direction") }}';
-    
-    let newDirection = 'asc';
-    if (currentSort === field && currentDirection === 'asc') {
-        newDirection = 'desc';
-    }
-    
-    const url = new URL(window.location);
-    url.searchParams.set('sort', field);
-    url.searchParams.set('direction', newDirection);
-    window.location.href = url.toString();
-}
+        // Show create form
+        function showCreateForm() {
+            document.getElementById('createFormSection').classList.remove('hidden');
+        }
 
-// Refresh table
-function refreshTable() {
-    window.location.reload();
-}
+        // Hide create form
+        function hideCreateForm() {
+            document.getElementById('createFormSection').classList.add('hidden');
+        }
 
-// Edit nature function
-function editNature(id, nature) {
-    // Implement edit functionality
-    console.log('Edit nature:', id, nature);
-    // You can implement a modal or redirect to edit page
-}
+        // Update file name display
+        function updateFileName(input) {
+            const fileName = input.files[0]?.name || 'Cliquez pour sélectionner un fichier';
+            document.getElementById('fileName').textContent = fileName;
+        }
 
-// Delete nature function
-function deleteNature(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette nature de coupe ?')) {
-        // Implement delete functionality
-        console.log('Delete nature:', id);
-        // You can implement AJAX delete or redirect to delete route
-    }
-}
+        // Edit nature function
+        function editNature(id, nature) {
+            // Implement edit functionality
+            console.log('Edit nature:', id, nature);
+            // You can implement a modal or redirect to edit page
+        }
 
-// Auto-hide success/error messages
-document.addEventListener('DOMContentLoaded', function() {
-    const successMessage = document.getElementById('successMessage');
-    const errorMessage = document.getElementById('errorMessage');
-    
-    if (successMessage) {
-        setTimeout(() => {
-            successMessage.style.opacity = '0';
-            setTimeout(() => successMessage.remove(), 300);
-        }, 5000);
-    }
-    
-    if (errorMessage) {
-        setTimeout(() => {
-            errorMessage.style.opacity = '0';
-            setTimeout(() => errorMessage.remove(), 300);
-        }, 5000);
-    }
-});
+        // Delete nature function
+        function deleteNature(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette nature de coupe ?')) {
+                // Implement delete functionality
+                console.log('Delete nature:', id);
+                // You can implement AJAX delete or redirect to delete route
+            }
+        }
 
-// Real-time search functionality
-let searchTimeout;
-document.querySelector('input[name="search"]').addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        this.form.submit();
-    }, 500);
-});
-</script>
+        // Auto-hide success/error messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const successMessage = document.querySelector('.bg-gradient-to-r.from-green-50');
+            const errorMessage = document.querySelector('.bg-gradient-to-r.from-red-50');
+            
+            if (successMessage) {
+                setTimeout(() => {
+                    successMessage.style.opacity = '0';
+                    setTimeout(() => successMessage.remove(), 300);
+                }, 5000);
+            }
+            
+            if (errorMessage) {
+                setTimeout(() => {
+                    errorMessage.style.opacity = '0';
+                    setTimeout(() => errorMessage.remove(), 300);
+                }, 5000);
+            }
+        });
+
+        // Real-time search functionality
+        let searchTimeout;
+        document.querySelector('input[name="search"]').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.form.submit();
+            }, 500);
+        });
+    </script>
 @endpush 
