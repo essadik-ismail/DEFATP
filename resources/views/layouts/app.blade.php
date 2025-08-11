@@ -122,6 +122,7 @@
             min-height: 100vh;
             background: transparent;
             position: relative;
+            overflow-x: hidden;
         }
 
         .dashboard-container::before {
@@ -149,8 +150,7 @@
             padding: 0;
             position: fixed;
             height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             z-index: 1000;
@@ -159,7 +159,7 @@
                 1px 0 3px rgba(0, 0, 0, 0.05);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             box-sizing: border-box;
-            position: relative;
+            will-change: transform, width;
         }
 
         .sidebar::before {
@@ -180,11 +180,14 @@
 
         .sidebar.collapsed {
             width: 70px;
-            overflow: hidden;
             min-width: 70px;
             box-shadow: 
                 4px 0 20px rgba(0, 0, 0, 0.15),
                 1px 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar.collapsed .sidebar-content {
+            overflow: hidden;
         }
 
         .sidebar-content {
@@ -197,6 +200,7 @@
             overflow-x: hidden;
             position: relative;
             z-index: 1;
+            padding-bottom: 80px; /* Add space for the toggle button */
         }
 
         /* Custom scrollbar for sidebar */
@@ -328,6 +332,8 @@
             white-space: nowrap;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
+            cursor: pointer;
+            user-select: none;
         }
 
         .sidebar.collapsed .nav-link {
@@ -345,8 +351,33 @@
             display: none;
         }
 
+        .sidebar.collapsed .nav-link i {
+            margin: 0;
+        }
+
         .sidebar.collapsed .nav-link.has-submenu::after {
             display: none;
+        }
+
+        .sidebar.collapsed .submenu {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            width: 200px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-item:hover .submenu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
         }
 
         .nav-link::before {
@@ -383,6 +414,26 @@
             width: 4px;
         }
 
+        /* Ensure active states work properly */
+        .nav-link.active i {
+            color: var(--primary-color);
+        }
+
+        .submenu-item.active {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
+            color: var(--primary-color);
+            transform: translateX(6px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+        }
+
+        .submenu-item.active::before {
+            width: 3px;
+        }
+
+        .submenu-item.active i {
+            color: var(--primary-color);
+        }
+
         .nav-link i {
             width: 20px;
             text-align: center;
@@ -390,6 +441,7 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             z-index: 1;
+            flex-shrink: 0;
         }
 
         .nav-link:hover i {
@@ -533,7 +585,8 @@
         .sidebar-toggle {
             position: absolute;
             bottom: 20px;
-            right: -12px;
+            right: 50%;
+            transform: translateX(50%);
             width: 24px;
             height: 24px;
             background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
@@ -547,12 +600,23 @@
             font-size: 10px;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1001;
+            z-index: 1002;
             box-sizing: border-box;
         }
 
+        /* Ensure sidebar toggle is always visible */
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        .sidebar-toggle:active {
+            transform: scale(0.95);
+        }
+
         .sidebar.collapsed .sidebar-toggle {
-            right: -15px;
+            right: 50%;
+            transform: translateX(50%);
         }
 
         .sidebar-toggle:hover {
@@ -746,8 +810,7 @@
 
         .main-content {
             flex: 1;
-            margin-left: 0;
-            /* padding-left: 280px; */
+            margin-left: 280px;
             background: linear-gradient(135deg, var(--background-light) 0%, var(--background-medium) 50%, var(--background-dark) 100%);
             min-height: 100vh;
             position: relative;
@@ -779,7 +842,7 @@
         }
 
         .main-content.expanded {
-            padding-left: 70px;
+            margin-left: 70px;
         }
 
         .main-content.expanded::before {
@@ -1252,21 +1315,47 @@
                 transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 width: 100%;
                 max-width: 280px;
+                z-index: 1001;
+                overflow: hidden;
             }
 
             .sidebar.show {
                 transform: translateX(0);
             }
+
+            .sidebar.show .sidebar-content {
+                overflow-y: auto;
+            }
+
+            /* Mobile backdrop overlay */
+            .sidebar::after {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: -1;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+            }
+
+            .sidebar.show::after {
+                opacity: 1;
+                pointer-events: auto;
+            }
             
             .main-content {
-                padding-left: 0;
+                margin-left: 0;
             }
 
             .main-content.expanded {
-                padding-left: 0;
-        }
+                margin-left: 0;
+            }
         
-        .sidebar-toggle {
+            .sidebar-toggle {
                 display: none;
             }
 
@@ -1513,15 +1602,24 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
-            sidebar.classList.toggle('show');
+            if (sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+            } else {
+                sidebar.classList.add('show');
+            }
         }
 
         function toggleSidebarCollapse() {
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
             
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            } else {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            }
         }
         
         function toggleSubmenu(element) {
@@ -1578,6 +1676,35 @@
                 sidebar.classList.remove('show');
             }
         });
+
+        // Initialize sidebar state from localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            // Check if sidebar was collapsed
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            }
+        });
+
+        // Save sidebar state to localStorage
+        function toggleSidebarCollapse() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+                localStorage.setItem('sidebarCollapsed', 'false');
+            } else {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+                localStorage.setItem('sidebarCollapsed', 'true');
+            }
+        }
     </script>
     
     @stack('scripts')

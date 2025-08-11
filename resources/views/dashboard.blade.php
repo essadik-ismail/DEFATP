@@ -81,7 +81,7 @@
     <!-- Recent Activities and Quick Actions -->
     <div class="dashboard-grid mx-8">
         <!-- Recent Articles -->
-        <div class="dashboard-card">
+        <!-- <div class="dashboard-card">
             <div class="card-header">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
@@ -132,10 +132,10 @@
                     </div>
                 @endif
             </div>
-        </div>
+        </div> -->
 
         <!-- Quick Actions -->
-        <div class="dashboard-card">
+        <!-- <div class="dashboard-card">
             <div class="card-header">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -178,11 +178,11 @@
                     </a>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <!-- System Status -->
-    <div class="dashboard-card">
+    <!-- <div class="dashboard-card">
         <div class="card-header">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
@@ -229,7 +229,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 @endsection
 
 @push('styles')
