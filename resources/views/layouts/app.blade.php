@@ -1333,8 +1333,8 @@
             </button>
             <div class="sidebar-content">
                 <div class="logo">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>DEFATP</span>
+                <i class="fas fa-tree logo-icon"></i>
+                    <span>SylvaNet</span>
                 </div>
                 
                 <ul class="nav-menu">

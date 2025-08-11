@@ -23,15 +23,15 @@
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                    </div>
-                </div>
+                            </div>
+                        </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Total Natures</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
-
+            
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -39,15 +39,15 @@
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                    </div>
-                </div>
+                            </div>
+                        </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Natures Actives</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['active'] }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
-
+            
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -55,15 +55,15 @@
                         <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                    </div>
-                </div>
+                            </div>
+                        </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Ajoutées ce mois</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['recent'] }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
-
+            
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -71,8 +71,8 @@
                         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                         </svg>
-                    </div>
-                </div>
+                            </div>
+                        </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Types Uniques</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['unique'] }}</p>
@@ -94,9 +94,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-            </div>
         </div>
-        
+                        </div>
+                        
         <div id="filterSection" class="px-6 py-4">
             <form method="GET" action="{{ route('settings.nature-de-coupes') }}" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -113,17 +113,17 @@
                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                    placeholder="Rechercher une nature de coupe...">
                         </div>
-                    </div>
-
+                        </div>
+                        
                     <!-- Status Filter -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
                         <select name="status" class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Tous les statuts</option>
-                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actives</option>
+                                    <option value="">Tous les statuts</option>
+                                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actives</option>
                             <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Supprimées</option>
-                            <option value="recent" {{ request('status') == 'recent' ? 'selected' : '' }}>Récentes</option>
-                        </select>
+                                    <option value="recent" {{ request('status') == 'recent' ? 'selected' : '' }}>Récentes</option>
+                                </select>
                     </div>
 
                     <!-- Date From -->
@@ -160,8 +160,8 @@
                             <option value="asc" {{ request('direction') == 'asc' ? 'selected' : '' }}>Croissant</option>
                             <option value="desc" {{ request('direction') == 'desc' ? 'selected' : '' }}>Décroissant</option>
                         </select>
-                    </div>
-
+                        </div>
+                        
                     <!-- Per Page -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Par page</label>
@@ -172,8 +172,8 @@
                             <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
                             <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
                         </select>
-                    </div>
-                </div>
+                            </div>
+                        </div>
 
                 <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                     <div class="text-sm text-gray-600">
@@ -214,7 +214,7 @@
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                        </div>
+                                </div>
                         <div>
                             <h4 class="text-lg font-semibold text-blue-900">Exporter les données</h4>
                             <p class="text-blue-700">Téléchargez toutes les natures de coupe</p>
@@ -233,15 +233,15 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                             Inclut toutes les colonnes
-                        </div>
+                </div>
                         <div class="flex items-center text-sm text-blue-700">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                             Mise en forme automatique
-                        </div>
-                    </div>
-                    
+        </div>
+    </div>
+
                     <a href="{{ route('settings.nature-de-coupes.export') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -265,7 +265,7 @@
                     </div>
                     
                     <form action="{{ route('settings.nature-de-coupes.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
+                                @csrf
                         <div class="space-y-3">
                             <div class="flex items-center text-sm text-green-700">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,21 +300,21 @@
                                             <span id="fileName" class="font-medium">Cliquez pour sélectionner un fichier</span>
                                         </p>
                                     </div>
-                                </label>
-                            </div>
+                                    </label>
+                                </div>
                             
                             <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                 </svg>
                                 Importer le fichier
-                            </button>
+                                </button>
                         </div>
-                    </form>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
     <!-- Create Form Section -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
@@ -339,12 +339,12 @@
                                    value="{{ old('nature_de_coupe') }}" 
                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                    placeholder="Ex: Coupe rase, Coupe sélective..." required>
-                        </div>
+        </div>
                         @error('nature_de_coupe')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
-                    </div>
-                    
+    </div>
+
                     <div class="flex items-end">
                         <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -355,8 +355,8 @@
                     </div>
                 </div>
             </form>
+            </div>
         </div>
-    </div>
 
     <!-- Enhanced DataTable -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -372,8 +372,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
                     </button>
-                </div>
             </div>
+        </div>
         </div>
         
         <div class="overflow-x-auto">
@@ -386,39 +386,39 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                                 </svg>
-                            </div>
-                        </th>
+                                </div>
+                            </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('nature_de_coupe')">
                             <div class="flex items-center space-x-1">
                                 <span>Nature de Coupe</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                                 </svg>
-                            </div>
-                        </th>
+                                </div>
+                            </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('created_at')">
                             <div class="flex items-center space-x-1">
                                 <span>Créé le</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                                 </svg>
-                            </div>
-                        </th>
+                                </div>
+                            </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('updated_at')">
                             <div class="flex items-center space-x-1">
                                 <span>Mis à jour le</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
                                 </svg>
-                            </div>
-                        </th>
+                                </div>
+                            </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Actions
-                        </th>
-                    </tr>
-                </thead>
+                            </th>
+                        </tr>
+                    </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($natureDeCoupes as $natureDeCoupe)
+                        @forelse($natureDeCoupes as $natureDeCoupe)
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 #{{ $natureDeCoupe->id }}
@@ -433,7 +433,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ $natureDeCoupe->updated_at?->format('d/m/Y H:i') }}
-                            </td>
+                                </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-2">
                                     <button onclick="editNature({{ $natureDeCoupe->id }}, '{{ $natureDeCoupe->nature_de_coupe }}')" 
@@ -441,17 +441,17 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
-                                    </button>
+                                        </button>
                                     <button onclick="deleteNature({{ $natureDeCoupe->id }})" 
                                             class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-200" title="Supprimer">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
                         <tr>
                             <td colspan="5" class="px-6 py-12 text-center">
                                 <div class="text-gray-500">
@@ -460,26 +460,26 @@
                                     </svg>
                                     <p class="text-lg font-medium text-gray-900 mb-2">Aucune nature de coupe trouvée</p>
                                     <p class="text-gray-600">Commencez par ajouter votre première nature de coupe ou ajustez vos filtres de recherche.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        
-        @if($natureDeCoupes->hasPages())
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            
+            @if($natureDeCoupes->hasPages())
             <div class="px-6 py-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="text-sm text-gray-700">
                         Affichage de {{ $natureDeCoupes->firstItem() }} à {{ $natureDeCoupes->lastItem() }} sur {{ $natureDeCoupes->total() }} résultats
                     </div>
                     <div class="flex items-center space-x-2">
-                        {{ $natureDeCoupes->appends(request()->query())->links() }}
+                    {{ $natureDeCoupes->appends(request()->query())->links() }}
                     </div>
                 </div>
-            </div>
-        @endif
+                </div>
+            @endif
     </div>
 
     <!-- Success/Error Messages -->
@@ -501,8 +501,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
                 {{ session('error') }}
-            </div>
         </div>
+    </div>
     @endif
 @endsection
 
