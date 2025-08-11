@@ -3,19 +3,19 @@
 @section('title', 'Nature de Coupes')
 
 @section('page-actions')
-    <div class="flex items-center space-x-3">
+    <!-- <div class="flex items-center space-x-3">
         <a href="{{ route('settings.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
             Retour
         </a>
-    </div>
+    </div> -->
 @endsection
 
 @section('content')
     <!-- Enhanced Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -79,10 +79,53 @@
                 </div>
             </div>
         </div>
+    </div> -->
+
+    
+    <!-- Create Form Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8" style="margin-bottom: 1rem;">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Ajouter une Nouvelle Nature de Coupe</h3>
+            <p class="text-sm text-gray-600">Créez une nouvelle nature de coupe dans le système</p>
+        </div>
+        
+        <div class="p-6">
+            <form action="{{ route('settings.nature-de-coupes.store') }}" method="POST" class="space-y-4">
+                @csrf
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                        <label for="new-nature" class="block text-sm font-medium text-gray-700 mb-2">Nature de Coupe</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                            <input type="text" name="nature_de_coupe" id="new-nature" 
+                                   value="{{ old('nature_de_coupe') }}" 
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Ex: Coupe rase, Coupe sélective..." required>
+        </div>
+                        @error('nature_de_coupe')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+     </div>
+
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Ajouter
+                        </button>
+                    </div>
+                </div>
+            </form>
+            </div>
     </div>
 
     <!-- Advanced Filter Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8" style="margin-bottom: 1rem;">
         <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
@@ -198,168 +241,11 @@
         </div>
     </div>
 
-    <!-- Enhanced Import/Export Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Import/Export de Données</h3>
-            <p class="text-sm text-gray-600">Gérez vos données de natures de coupe</p>
-        </div>
-        
-        <div class="p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Export Section -->
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                                </div>
-                        <div>
-                            <h4 class="text-lg font-semibold text-blue-900">Exporter les données</h4>
-                            <p class="text-blue-700">Téléchargez toutes les natures de coupe</p>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <div class="flex items-center text-sm text-blue-700">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Format Excel (.xlsx)
-                        </div>
-                        <div class="flex items-center text-sm text-blue-700">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Inclut toutes les colonnes
-                </div>
-                        <div class="flex items-center text-sm text-blue-700">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Mise en forme automatique
-        </div>
-    </div>
 
-                    <a href="{{ route('settings.nature-de-coupes.export') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Exporter (.xlsx)
-                    </a>
-                </div>
 
-                <!-- Import Section -->
-                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="text-lg font-semibold text-green-900">Importer des données</h4>
-                            <p class="text-green-700">Importez depuis un fichier Excel</p>
-                        </div>
-                    </div>
-                    
-                    <form action="{{ route('settings.nature-de-coupes.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                                @csrf
-                        <div class="space-y-3">
-                            <div class="flex items-center text-sm text-green-700">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Formats supportés: .xlsx, .xls, .csv
-                            </div>
-                            <div class="flex items-center text-sm text-green-700">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Taille max: 10 MB
-                            </div>
-                            <div class="flex items-center text-sm text-green-700">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Validation automatique des données
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-3">
-                            <div class="relative">
-                                <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required 
-                                       class="hidden" onchange="updateFileName(this)">
-                                <label for="file" class="flex items-center justify-center w-full px-4 py-2 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:border-green-400 transition-colors duration-200">
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-8 w-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                        </svg>
-                                        <p class="mt-1 text-sm text-green-600">
-                                            <span id="fileName" class="font-medium">Cliquez pour sélectionner un fichier</span>
-                                        </p>
-                                    </div>
-                                    </label>
-                                </div>
-                            
-                            <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                </svg>
-                                Importer le fichier
-                                </button>
-                        </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-    <!-- Create Form Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Ajouter une Nouvelle Nature de Coupe</h3>
-            <p class="text-sm text-gray-600">Créez une nouvelle nature de coupe dans le système</p>
-        </div>
-        
-        <div class="p-6">
-            <form action="{{ route('settings.nature-de-coupes.store') }}" method="POST" class="space-y-4">
-                @csrf
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2">
-                        <label for="new-nature" class="block text-sm font-medium text-gray-700 mb-2">Nature de Coupe</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                </svg>
-                            </div>
-                            <input type="text" name="nature_de_coupe" id="new-nature" 
-                                   value="{{ old('nature_de_coupe') }}" 
-                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                   placeholder="Ex: Coupe rase, Coupe sélective..." required>
-        </div>
-                        @error('nature_de_coupe')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-    </div>
-
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Ajouter
-                        </button>
-                    </div>
-                </div>
-            </form>
-            </div>
-        </div>
 
     <!-- Enhanced DataTable -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200" style="margin-bottom: 1rem;">
         <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
@@ -480,6 +366,124 @@
                 </div>
                 </div>
             @endif
+    </div>
+
+    <!-- Enhanced Import/Export Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8" style="margin-bottom: 1rem;" >
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Import/Export de Données</h3>
+            <p class="text-sm text-gray-600">Gérez vos données de natures de coupe</p>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Export Section -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                                </div>
+                        <div>
+                            <h4 class="text-lg font-semibold text-blue-900">Exporter les données</h4>
+                            <p class="text-blue-700">Téléchargez toutes les natures de coupe</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center text-sm text-blue-700">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Format Excel (.xlsx)
+                        </div>
+                        <div class="flex items-center text-sm text-blue-700">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Inclut toutes les colonnes
+                </div>
+                        <div class="flex items-center text-sm text-blue-700">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Mise en forme automatique
+        </div>
+    </div>
+
+                    <a href="{{ route('settings.nature-de-coupes.export') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Exporter (.xlsx)
+                    </a>
+                </div>
+
+                <!-- Import Section -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold text-green-900">Importer des données</h4>
+                            <p class="text-green-700">Importez depuis un fichier Excel</p>
+                        </div>
+                    </div>
+                    
+                    <form action="{{ route('settings.nature-de-coupes.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                                @csrf
+                        <div class="space-y-3">
+                            <div class="flex items-center text-sm text-green-700">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Formats supportés: .xlsx, .xls, .csv
+                            </div>
+                            <div class="flex items-center text-sm text-green-700">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Taille max: 10 MB
+                            </div>
+                            <div class="flex items-center text-sm text-green-700">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Validation automatique des données
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="relative">
+                                <input type="file" name="file" id="file" accept=".xlsx,.xls,.csv" required 
+                                       class="hidden" onchange="updateFileName(this)">
+                                <label for="file" class="flex items-center justify-center w-full px-4 py-2 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:border-green-400 transition-colors duration-200">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-8 w-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                        </svg>
+                                        <p class="mt-1 text-sm text-green-600">
+                                            <span id="fileName" class="font-medium">Cliquez pour sélectionner un fichier</span>
+                                        </p>
+                                    </div>
+                                    </label>
+                                </div>
+                            
+                            <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                Importer le fichier
+                                </button>
+                        </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
     </div>
 
     <!-- Success/Error Messages -->

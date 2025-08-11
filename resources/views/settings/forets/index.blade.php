@@ -254,12 +254,8 @@
                                 <td class="table-cell text-center">{{ $foret->created_at?->format('d/m/Y H:i') }}</td>
                                 <td class="table-cell">
                                     <div class="flex items-center space-x-2">
-                                        <button onclick="editForet({{ $foret->id }})" class="icon-button icon-button-primary" title="Modifier">
-                                            <i class="material-icons text-base">edit</i>
-                                        </button>
-                                        <button onclick="deleteForet({{ $foret->id }})" class="icon-button icon-button-danger" title="Supprimer">
-                                            <i class="material-icons text-base">delete</i>
-                                        </button>
+                                            <i  onclick="editForet({{ $foret->id }})" class="material-icons text-base">edit</i>
+                                            <i onclick="deleteForet({{ $foret->id }})" class="material-icons text-base">delete</i>
                                     </div>
                                 </td>
                             </tr>
@@ -286,54 +282,65 @@
     </div>
 
     {{-- Enhanced Import/Export Section --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {{-- Export Section --}}
-        <div class="import-export-card bg-gradient-to-r from-blue-500 to-blue-600">
-            <div class="flex items-center justify-between">
+    <div class="card"  style="margin-bottom: 2rem;">
+        <div id="import-export-content" class="card-body hidden">
+            <div class="d-flex mx-2">  <!-- Added negative margin to compensate for padding -->
+                {{-- Export Section --}}
+                <div class="col-md-6 col-6 px-2 mb-4 md:mb-0">  <!-- 50% width on medium screens and up -->
+                    <div class="h-full p-4  flex flex-col">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="material-icons text-blue-600">file_download</i>
+                </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-white">Exporter les données</h3>
-                    <p class="text-blue-100">Téléchargez toutes les forêts au format Excel</p>
+                                <h3 class="text-base font-semibold text-gray-800">Export Data</h3>
+                                <p class="text-sm text-gray-500">Download forets in Excel format</p>
                 </div>
-                <i class="material-icons text-blue-200 text-3xl">file_download</i>
             </div>
-            <form action="{{ route('settings.forets.export') }}" method="GET" class="mt-4">
-                @foreach(request()->except(['page']) as $key => $value)
-                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                @endforeach
-                <button type="submit" class="w-full btn-white">
-                    <i class="material-icons mr-2 text-base">file_download</i>
-                    Exporter Excel
-                </button>
-            </form>
-        </div>
-
-        {{-- Import Section --}}
-        <div class="import-export-card bg-gradient-to-r from-green-500 to-green-600">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-semibold text-white">Importer des données</h3>
-                    <p class="text-green-100">Ajoutez des forêts depuis un fichier Excel</p>
+                        <form action="{{ route('settings.forets.export') }}" method="GET" class="mt-auto">
+                            @foreach(request()->except(['page']) as $key => $value)
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endforeach
+                            <button type="submit" class="w-full btn-primary py-2">
+                                <i class="material-icons mr-2 text-base">file_download</i>
+                                Export Excel
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <i class="material-icons text-green-200 text-3xl">cloud_upload</i>
+                
+                {{-- Import Section --}}
+                <div class="wcol-md-6 col-6 px-2">  <!-- 50% width on medium screens and up -->
+                    <div class="h-full flex flex-col">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="bg-green-100 p-2 rounded-full">
+                                <i class="material-icons text-green-600">cloud_upload</i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-800">Import Data</h3>
+                                <p class="text-sm text-gray-500">Upload forets from Excel file</p>
+                            </div>
+                        </div>
+                        <form action="{{ route('excel.import.forets') }}" method="POST" enctype="multipart/form-data" class="mt-auto">
+                            @csrf
+                            <input type="hidden" name="type" value="forets">
+                            <div class="mb-3">
+                                <div class="file-upload">
+                                    <input type="file" id="forets-file" name="file" accept=".xlsx,.xls,.csv" class="file-input" onchange="updateFileName(this, 'forets-file-name')" required>
+                                </div>
+                                <div id="forets-file-name" class="text-xs text-gray-500 mt-1 hidden"></div>
+                </div>
+                            <button type="submit" class="w-full btn-primary py-2">
+                                <i class="material-icons mr-2 text-base">cloud_upload</i>
+                                Import
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <form action="{{ route('excel.import-all') }}" method="POST" enctype="multipart/form-data" class="mt-4">
-                @csrf
-                <input type="hidden" name="type" value="forets">
-                <div class="file-upload">
-                    <input type="file" id="forets-file" name="file" accept=".xlsx,.xls,.csv" class="file-input" onchange="updateFileName(this, 'forets-file-name')" required>
-                    <label for="forets-file" class="file-label">
-                        <i class="material-icons mr-2 text-base">attach_file</i>
-                        Choisir un fichier
-                    </label>
-                </div>
-                <div id="forets-file-name" class="text-sm text-green-100 mt-2 hidden"></div>
-                <button type="submit" class="w-full btn-white mt-3">
-                    <i class="material-icons mr-2 text-base">cloud_upload</i>
-                    Importer
-                </button>
-            </form>
         </div>
     </div>
+
 
     {{-- Success/Error Messages --}}
     @if(session('success'))
