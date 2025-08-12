@@ -1,18 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Exploitation')</title>
-    
-    <!-- Material Design Web Components -->
-    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS (for compatibility) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    @include('partials.head')
+    @include('partials.styles')
     
     <style>
         :root {
@@ -103,6 +93,333 @@
             --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             --gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+        }
+
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --mdc-theme-background: #1a1a1a;
+            --mdc-theme-surface: #2d2d2d;
+            --mdc-theme-on-surface: #ffffff;
+            --text-primary: #ffffff;
+            --text-secondary: #d1d5db;
+            --text-muted: #9ca3af;
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #374151;
+            --border-color: #4b5563;
+            --border-light: #374151;
+            --border-dark: #6b7280;
+            --google-gray: #9ca3af;
+            --google-light-gray: #374151;
+            --google-border: #4b5563;
+            --google-text: #ffffff;
+        }
+
+        /* Dark Mode Body Background */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #374151 100%);
+        }
+
+        /* Dark Mode Dashboard Container */
+        body.dark-mode .dashboard-container::before {
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(45, 90, 39, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(74, 124, 89, 0.1) 0%, transparent 50%);
+        }
+
+        /* Dark Mode Sidebar */
+        body.dark-mode .sidebar {
+            background: linear-gradient(180deg, rgba(45, 45, 45, 0.95) 0%, rgba(55, 65, 81, 0.95) 100%);
+            border-right: 1px solid rgba(75, 85, 99, 0.3);
+        }
+
+        body.dark-mode .sidebar::before {
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(45, 90, 39, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+        }
+
+        /* Dark Mode Logo */
+        body.dark-mode .logo {
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+        }
+
+        /* Dark Mode Navigation */
+        body.dark-mode .nav-link {
+            color: var(--text-primary);
+            background: rgba(45, 45, 45, 0.1);
+        }
+
+        body.dark-mode .nav-link:hover {
+            background: linear-gradient(135deg, rgba(74, 124, 89, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
+        }
+
+        body.dark-mode .nav-link.active {
+            background: linear-gradient(135deg, rgba(74, 124, 89, 0.3) 0%, rgba(245, 158, 11, 0.3) 100%);
+        }
+
+        body.dark-mode .submenu {
+            background: linear-gradient(135deg, rgba(55, 65, 81, 0.9) 0%, rgba(45, 45, 45, 0.95) 100%);
+        }
+
+        body.dark-mode .submenu-item {
+            background: rgba(45, 45, 45, 0.1);
+        }
+
+        body.dark-mode .submenu-item:hover {
+            background: linear-gradient(135deg, rgba(74, 124, 89, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
+        }
+
+        /* Dark Mode Top Bar */
+        body.dark-mode .top-bar {
+            background: linear-gradient(135deg, rgba(45, 45, 45, 0.98) 0%, rgba(55, 65, 81, 0.98) 100%);
+            border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+            left: 280px;
+            right: 0;
+        }
+
+        body.dark-mode .sidebar.collapsed + .main-content .top-bar {
+            left: 70px;
+        }
+
+        /* Dark Mode Content Header */
+        body.dark-mode .content-header {
+            background: linear-gradient(135deg, rgba(45, 45, 45, 0.95) 0%, rgba(55, 65, 81, 0.95) 100%);
+            border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+        }
+
+        /* Dark Mode Top Bar Buttons */
+        body.dark-mode .top-bar-btn {
+            background: rgba(45, 45, 45, 0.8);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .top-bar-btn:hover {
+            background: rgba(55, 65, 81, 0.95);
+            border-color: var(--primary-color);
+        }
+
+        /* Dark Mode Dropdowns */
+        body.dark-mode .notification-panel,
+        body.dark-mode .profile-panel {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .notification-header {
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        body.dark-mode .notification-item {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .notification-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        body.dark-mode .notification-footer {
+            border-top: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .profile-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .profile-menu-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        body.dark-mode .profile-menu-divider {
+            background: var(--border-color);
+        }
+
+        /* Dark Mode Breadcrumbs */
+        body.dark-mode .breadcrumb-item {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .breadcrumb-separator {
+            color: var(--text-muted);
+        }
+
+        /* Dark Mode Main Content */
+        body.dark-mode .main-content::before {
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+        }
+
+        /* Dark Mode Cards and Components */
+        body.dark-mode .card,
+        body.dark-mode .dashboard-card,
+        body.dark-mode .settings-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .card-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .card-title {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .card-subtitle {
+            color: var(--text-secondary);
+        }
+
+        /* Dark Mode Tables */
+        body.dark-mode .table,
+        body.dark-mode .data-table {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .table th,
+        body.dark-mode .data-table th {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .table td,
+        body.dark-mode .data-table td {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .table-row:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Dark Mode Forms */
+        body.dark-mode .form-control,
+        body.dark-mode .form-select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .form-control:focus,
+        body.dark-mode .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(74, 124, 89, 0.25);
+        }
+
+        body.dark-mode .form-label {
+            color: var(--text-primary);
+        }
+
+        /* Dark Mode Buttons */
+        body.dark-mode .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        body.dark-mode .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        body.dark-mode .btn-outline {
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .btn-outline:hover {
+            background: var(--bg-secondary);
+            border-color: var(--primary-color);
+        }
+
+        /* Dark Mode Alerts */
+        body.dark-mode .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        body.dark-mode .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        /* Dark Mode Stats Grid */
+        body.dark-mode .stats-grid {
+            background: var(--bg-primary);
+        }
+
+        body.dark-mode .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .stat-number {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .stat-label {
+            color: var(--text-secondary);
+        }
+
+        /* Dark Mode Activity Items */
+        body.dark-mode .activity-item {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .activity-title {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .activity-description {
+            color: var(--text-secondary);
+        }
+
+        body.dark-mode .activity-time {
+            color: var(--text-muted);
+        }
+
+        /* Dark Mode Empty States */
+        body.dark-mode .empty-state {
+            color: var(--text-secondary);
+        }
+
+        body.dark-mode .empty-state h4 {
+            color: var(--text-primary);
+        }
+
+        /* Dark Mode Quick Actions */
+        body.dark-mode .quick-action-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .quick-action-item:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--primary-color);
+        }
+
+        /* Dark Mode Status Items */
+        body.dark-mode .status-item {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body.dark-mode .status-title {
+            color: var(--text-primary);
+        }
+
+        body.dark-mode .status-description {
+            color: var(--text-secondary);
         }
 
         body {
@@ -816,11 +1133,12 @@
             position: relative;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-x: hidden;
+            padding-top: 80px; /* Account for fixed top bar */
         }
 
         .main-content::before {
             content: '';
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
             right: 0;
@@ -847,6 +1165,13 @@
 
         .main-content.expanded::before {
             left: 70px;
+        }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content::before {
+                left: 0;
+            }
         }
 
         .content-wrapper {
@@ -1057,6 +1382,7 @@
         /* Creative Content Area */
         .content-area {
             padding: 2rem 3rem;
+            padding-top: 6rem; /* Add top padding to account for fixed top bar */
             position: relative;
         }
 
@@ -1349,10 +1675,16 @@
             
             .main-content {
                 margin-left: 0;
+                padding-top: 70px; /* Smaller padding for mobile */
             }
 
             .main-content.expanded {
                 margin-left: 0;
+            }
+            
+            .top-bar {
+                left: 0;
+                padding: 1rem;
             }
         
             .sidebar-toggle {
@@ -1411,152 +1743,438 @@
         .main-content::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, var(--anef-dark-green), var(--anef-green));
         }
+
+        /* Top Bar Styles */
+        .top-bar {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 280px;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar.collapsed + .main-content .top-bar {
+            left: 70px;
+        }
+
+        .top-bar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb-separator {
+            color: var(--text-muted);
+        }
+
+        .breadcrumb-item {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .top-bar-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .top-bar-btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 124, 89, 0.2);
+        }
+
+        /* Notification Styles */
+        .notification-dropdown {
+            position: relative;
+        }
+
+        .notification-btn {
+            position: relative;
+            min-width: auto;
+            padding: 0.75rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, var(--danger-color), var(--danger-dark));
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 2px solid white;
+        }
+
+        .notification-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 380px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            margin-top: 0.5rem;
+        }
+
+        .notification-panel.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .notification-header {
+            padding: 1.5rem 1.5rem 1rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .mark-all-read {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 0.875rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .mark-all-read:hover {
+            background: rgba(74, 124, 89, 0.1);
+        }
+
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            gap: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .notification-item.unread {
+            background: rgba(74, 124, 89, 0.05);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .notification-text {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .notification-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-light);
+            text-align: center;
+        }
+
+        .view-all-notifications {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .view-all-notifications:hover {
+            text-decoration: underline;
+        }
+
+        /* Dark Mode Button */
+        .dark-mode-btn {
+            min-width: auto;
+            padding: 0.75rem;
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-btn {
+            min-width: auto;
+            padding: 0.75rem 1rem;
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .profile-name {
+            color: var(--text-primary);
+        }
+
+        .profile-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 280px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            margin-top: 0.5rem;
+        }
+
+        .profile-panel.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            background: var(--bg-secondary);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .profile-avatar-large {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .profile-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .profile-name-large {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-email {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .profile-menu {
+            padding: 0.5rem 0;
+        }
+
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .profile-menu-item:hover {
+            background: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        .profile-menu-item i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .profile-menu-divider {
+            height: 1px;
+            background: var(--border-light);
+            margin: 0.5rem 0;
+        }
+
+        .logout-btn {
+            color: var(--danger-color);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 1rem;
+            }
+
+            .top-bar-content {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .top-bar-left {
+                justify-content: center;
+            }
+
+            .top-bar-right {
+                justify-content: center;
+            }
+
+            .top-bar-actions {
+                justify-content: center;
+            }
+
+            .profile-btn .profile-name {
+                display: none;
+            }
+
+            .notification-panel,
+            .profile-panel {
+                width: 320px;
+                right: -80px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <button class="sidebar-toggle" onclick="toggleSidebarCollapse()">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="sidebar-content">
-                <div class="logo">
-                <i class="fas fa-tree logo-icon"></i>
-                    <span>SylvaNet</span>
-                </div>
-                
-                <ul class="nav-menu">
-                    <!-- Dashboard -->
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}" data-title="Tableau de Bord">
-                            <i class="fas fa-tachometer-alt"></i>
-                            <span>Tableau de Bord</span>
-                        </a>
-                    </li>
-
-                    <!-- Exploitation Régulière -->
-                    <li class="nav-item has-submenu">
-                        <a class="nav-link has-submenu {{ request()->routeIs('articles.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)" data-title="Exploitation régulière">
-                            <i class="fas fa-industry"></i>
-                            <span>Exploitation régulière</span>
-                        </a>
-                        <div class="submenu">
-                            <a class="submenu-item {{ request()->routeIs('articles.*') ? 'active' : '' }}" href="{{ route('articles.index') }}">
-                                <i class="fas fa-list"></i> <span>Articles</span>
-                            </a>
-                            <a class="submenu-item {{ request()->routeIs('articles.create') ? 'active' : '' }}" href="{{ route('articles.create') }}">
-                                <i class="fas fa-plus"></i> <span>Nouvel Article</span>
-                            </a>
-                            <a class="submenu-item {{ request()->routeIs('settings.essences') ? 'active' : '' }}" href="{{ route('settings.essences') }}">
-                                <i class="fas fa-seedling"></i> <span>Essences</span>
-                            </a>
-                            <a class="submenu-item {{ request()->routeIs('settings.forets') ? 'active' : '' }}" href="{{ route('settings.forets') }}">
-                                <i class="fas fa-mountain"></i> <span>Forêts</span>
-                            </a>
-                            <a class="submenu-item {{ request()->routeIs('settings.nature-de-coupes') ? 'active' : '' }}" href="{{ route('settings.nature-de-coupes') }}">
-                                <i class="fas fa-axe"></i> <span>Nature de Coupes</span>
-                            </a>
-                            <a class="submenu-item {{ request()->routeIs('settings.situation-administratives') ? 'active' : '' }}" href="{{ route('settings.situation-administratives') }}">
-                                <i class="fas fa-building"></i> <span>Situations Administratives</span>
-                            </a>
-                            <a class="submenu-item {{ request()->routeIs('settings.session-adjudications') ? 'active' : '' }}" href="{{ route('settings.session-adjudications') }}">
-                                <i class="fas fa-hammer"></i> <span>Sessions d'Adjudication</span>
-                            </a>
-                            <a class="submenu-item {{ request()->routeIs('settings.exploitants') ? 'active' : '' }}" href="{{ route('settings.exploitants') }}">
-                                <i class="fas fa-user-tie"></i> <span>Exploitants</span>
-                            </a>
-                        </div>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-title="Contract De Partenariat">
-                            <i class="fas fa-handshake"></i>
-                            <span>Contract De Partenariat</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item has-submenu">
-                        <a class="nav-link has-submenu" onclick="toggleSubmenu(this)" data-title="Carte Professionnelle">
-                            <i class="fas fa-id-card"></i>
-                            <span>Carte Professionnelle</span>
-                        </a>
-                        <div class="submenu">
-                            <a class="submenu-item {{ request()->routeIs('settings.exploitants') ? 'active' : '' }}" href="{{ route('settings.exploitants') }}">
-                                <i class="fas fa-user-tie"></i> <span>Exploitants</span>
-                            </a>
-                        </div>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-title="Bois Particulier">
-                            <i class="fas fa-tree"></i>
-                            <span>Bois Particulier</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}" data-title="Rapports">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Rapports</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('excel.*') ? 'active' : '' }}" href="{{ route('excel.index') }}" data-title="Import/Export Excel">
-                            <i class="fas fa-file-excel"></i>
-                            <span>Import/Export Excel</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item has-submenu">
-                        <a class="nav-link has-submenu" onclick="toggleSubmenu(this)" data-title="Utilisateurs">
-                            <i class="fas fa-user-shield"></i>
-                            <span>Utilisateurs</span>
-                        </a>
-                        <div class="submenu">
-                            <a class="submenu-item {{ request()->routeIs('auth.users.*') ? 'active' : '' }}" href="{{ route('auth.users.index') }}">
-                                <i class="fas fa-users-cog"></i> <span>Gestion des Utilisateurs</span>
-                            </a>
-                            <a class="submenu-item {{ request()->routeIs('auth.profile') ? 'active' : '' }}" href="{{ route('auth.profile') }}">
-                                <i class="fas fa-user-circle"></i> <span>Mon Profil</span>
-                            </a>
-                        </div>
-                    </li>
-                    
-                </ul>
-                                 <div class="sidebar-footer">
-                     <div class="user-info-card">
-                         <!-- <div class="user-avatar">
-                             <i class="fas fa-tree"></i>
-                         </div> -->
-                         <!-- <div class="user-details">
-                             <div class="user-name">{{ auth()->user()->name }}</div>
-                             <div class="user-email">{{ auth()->user()->ppr }}</div>
-                         </div> -->
-                         <div class="user-actions">
-                             <button class="action-btn" title="Mode Sombre" onclick="toggleDarkMode()">
-                                 <i class="fas fa-moon" id="dark-mode-icon"></i>
-                             </button>
-                             <a href="{{ route('auth.profile') }}" class="action-btn" title="Mon Profil">
-                                 <i class="fas fa-user"></i>
-                             </a>
-                             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                                 @csrf
-                                 <button type="submit" class="action-btn" title="Déconnexion">
-                                     <i class="fas fa-sign-out-alt"></i>
-                                 </button>
-                             </form>
-                         </div>
-                     </div>
-                 </div>
-            </div>
-        </nav>
+        @include('partials.sidebar')
 
         <!-- Main Content -->
         <main class="main-content">
             <div class="content-wrapper">
-            <div class="content-header">
+                @include('partials.top-bar')
+
+                <div class="content-header">
                     <div class="header-content">
                         <div class="greeting-section">
                     <button class="mobile-menu-toggle d-md-none" onclick="toggleSidebar()">
@@ -1573,175 +2191,11 @@
                 </div>
             </div>
 
-                <div class="content-area">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @yield('content')
-                </div>
+                @include('partials.content-wrapper')
             </div>
         </main>
     </div>
 
-    <!-- Material Design Web Components JS -->
-    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar');
-            if (sidebar.classList.contains('show')) {
-                sidebar.classList.remove('show');
-            } else {
-                sidebar.classList.add('show');
-            }
-        }
-
-        function toggleSidebarCollapse() {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            
-            if (sidebar.classList.contains('collapsed')) {
-                sidebar.classList.remove('collapsed');
-                mainContent.classList.remove('expanded');
-            } else {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.add('expanded');
-            }
-        }
-        
-        function toggleSubmenu(element) {
-            const navItem = element.closest('.nav-item');
-            const submenu = navItem.querySelector('.submenu');
-            const isExpanded = element.classList.contains('expanded');
-            
-            // Close all other submenus
-            document.querySelectorAll('.nav-link.has-submenu').forEach(link => {
-                if (link !== element) {
-                    link.classList.remove('expanded');
-                    const otherSubmenu = link.closest('.nav-item').querySelector('.submenu');
-                    if (otherSubmenu) {
-                        otherSubmenu.classList.remove('expanded');
-                    }
-                }
-            });
-            
-            // Toggle current submenu
-            element.classList.toggle('expanded');
-            if (submenu) {
-                submenu.classList.toggle('expanded');
-            }
-        }
-        
-        // Auto-expand submenu if current page is active
-        document.addEventListener('DOMContentLoaded', function() {
-            const activeSubmenuItem = document.querySelector('.submenu-item.active');
-            if (activeSubmenuItem) {
-                const submenu = activeSubmenuItem.closest('.submenu');
-                const navLink = submenu.previousElementSibling;
-                navLink.classList.add('expanded');
-                submenu.classList.add('expanded');
-            }
-        });
-        
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.querySelector('.sidebar');
-            const mobileToggle = document.querySelector('.mobile-menu-toggle');
-            
-            if (window.innerWidth <= 768 && 
-                !sidebar.contains(event.target) && 
-                !mobileToggle.contains(event.target) &&
-                sidebar.classList.contains('show')) {
-                sidebar.classList.remove('show');
-            }
-        });
-        
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            const sidebar = document.querySelector('.sidebar');
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('show');
-            }
-        });
-
-        // Initialize sidebar state from localStorage
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            
-            // Check if sidebar was collapsed
-            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (isCollapsed) {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.add('expanded');
-            }
-        });
-
-        // Save sidebar state to localStorage
-        function toggleSidebarCollapse() {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            
-            if (sidebar.classList.contains('collapsed')) {
-                sidebar.classList.remove('collapsed');
-                mainContent.classList.remove('expanded');
-                localStorage.setItem('sidebarCollapsed', 'false');
-            } else {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.add('expanded');
-                localStorage.setItem('sidebarCollapsed', 'true');
-            }
-        }
-    </script>
-    
-    @stack('scripts')
-    
-    <script>
-        // Initialize Material Design Components globally
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all Material Design buttons
-            const buttons = document.querySelectorAll('.mdc-button');
-            buttons.forEach(button => {
-                mdc.ripple.MDCRipple.attachTo(button);
-            });
-            
-            // Initialize all Material Design text fields
-            const textFields = document.querySelectorAll('.mdc-text-field');
-            textFields.forEach(field => {
-                new mdc.textField.MDCTextField(field);
-            });
-            
-            // Initialize all Material Design selects
-            const selects = document.querySelectorAll('.mdc-select');
-            selects.forEach(select => {
-                new mdc.select.MDCSelect(select);
-            });
-            
-            // Initialize all Material Design data tables
-            const dataTables = document.querySelectorAll('.mdc-data-table');
-            dataTables.forEach(table => {
-                new mdc.dataTable.MDCDataTable(table);
-            });
-            
-            // Initialize all Material Design cards
-            const cards = document.querySelectorAll('.mdc-card');
-            cards.forEach(card => {
-                new mdc.card.MDCCard(card);
-            });
-        });
-    </script>
+    @include('partials.scripts')
 </body>
 </html> 

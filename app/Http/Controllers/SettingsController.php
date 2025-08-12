@@ -8,7 +8,7 @@ use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\SituationForestiere;
 use App\Models\Exploitant;
-use App\Models\SessionAdjudication;
+
 use App\Models\ZDTF;
 use App\Models\DPANEF;
 use App\Models\DRANEF;
@@ -23,8 +23,7 @@ use App\Http\Requests\StoreSituationAdministrativeRequest;
 use App\Http\Requests\UpdateSituationAdministrativeRequest;
 use App\Http\Requests\StoreExploitantRequest;
 use App\Http\Requests\UpdateExploitantRequest;
-use App\Http\Requests\StoreSessionAdjudicationRequest;
-use App\Http\Requests\UpdateSessionAdjudicationRequest;
+
 use App\Http\Requests\StoreZdtfRequest;
 use App\Http\Requests\UpdateZdtfRequest;
 use App\Http\Requests\StoreDpanefRequest;
@@ -38,7 +37,7 @@ use App\Exports\ForetsExport;
 use App\Exports\NatureDeCoupesExport;
 use App\Exports\SituationAdministrativesExport;
 use App\Exports\ExploitantsExport;
-use App\Exports\SessionAdjudicationsExport;
+
 use App\Exports\LocalisationsExport;
 use App\Imports\EssencesImport;
 use App\Imports\ForetsImport;
@@ -46,7 +45,7 @@ use App\Imports\NatureDeCoupesImport;
 use App\Imports\SituationAdministrativesImport;
 use App\Imports\ExploitantsImport;
 use App\Imports\LocalisationsImport;
-use App\Imports\SessionAdjudicationsImport;
+
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -128,6 +127,11 @@ class SettingsController extends Controller
     {
         Essence::create($request->only('essence'));
         return redirect()->route('settings.essences')->with('success', 'Essence ajoutée avec succès.');
+    }
+
+    public function editEssence(Essence $essence): View
+    {
+        return view('settings.essences.edit', compact('essence'));
     }
 
     public function updateEssence(UpdateEssenceRequest $request, Essence $essence): RedirectResponse
@@ -216,6 +220,11 @@ class SettingsController extends Controller
         return redirect()->route('settings.forets')->with('success', 'Forêt ajoutée avec succès.');
     }
 
+    public function editForet(Foret $foret): View
+    {
+        return view('settings.forets.edit', compact('foret'));
+    }
+
     public function updateForet(UpdateForetRequest $request, Foret $foret): RedirectResponse
     {
         $foret->update($request->only(['foret', 'lat', 'log', 'province']));
@@ -295,6 +304,11 @@ class SettingsController extends Controller
     {
         NatureDeCoupe::create($request->only('nature_de_coupe'));
         return redirect()->route('settings.nature-de-coupes')->with('success', 'Nature de coupe ajoutée avec succès.');
+    }
+
+    public function editNatureDeCoupe(NatureDeCoupe $natureDeCoupe): View
+    {
+        return view('settings.nature-de-coupes.edit', compact('natureDeCoupe'));
     }
 
     public function updateNatureDeCoupe(UpdateNatureDeCoupeRequest $request, NatureDeCoupe $natureDeCoupe): RedirectResponse
@@ -383,6 +397,11 @@ class SettingsController extends Controller
         return redirect()->route('settings.situation-administratives')->with('success', 'Situation administrative ajoutée avec succès.');
     }
 
+    public function editSituationAdministrative(SituationAdministrative $situationAdministrative): View
+    {
+        return view('settings.situation-administratives.edit', compact('situationAdministrative'));
+    }
+
     public function updateSituationAdministrative(UpdateSituationAdministrativeRequest $request, SituationAdministrative $situationAdministrative): RedirectResponse
     {
         $situationAdministrative->update($request->only(['commune', 'province']));
@@ -468,6 +487,11 @@ class SettingsController extends Controller
         return redirect()->route('settings.exploitants')->with('success', 'Exploitant ajouté avec succès.');
     }
 
+    public function editExploitant(Exploitant $exploitant): View
+    {
+        return view('settings.exploitants.edit', compact('exploitant'));
+    }
+
     public function updateExploitant(UpdateExploitantRequest $request, Exploitant $exploitant): RedirectResponse
     {
         $exploitant->update($request->all());
@@ -478,95 +502,6 @@ class SettingsController extends Controller
     {
         $exploitant->update(['is_deleted' => true]);
         return redirect()->route('settings.exploitants')->with('success', 'Exploitant supprimé avec succès.');
-    }
-
-    // Session Adjudications Management
-    public function sessionAdjudications(Request $request): View
-    {
-        $query = SessionAdjudication::query();
-
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->get('search');
-            $query->where('description', 'like', "%{$search}%");
-        }
-
-        // Date filter
-        if ($request->filled('date_from')) {
-            $query->where('date', '>=', $request->get('date_from'));
-        }
-        if ($request->filled('date_to')) {
-            $query->where('date', '<=', $request->get('date_to'));
-        }
-
-        // Status filter
-        if ($request->filled('status')) {
-            switch ($request->get('status')) {
-                case 'active':
-                    $query->where('is_deleted', false);
-                    break;
-                case 'deleted':
-                    $query->where('is_deleted', true);
-                    break;
-                case 'recent':
-                    $query->where('created_at', '>=', now()->subDays(30));
-                    break;
-            }
-        }
-
-        // Date range filter for creation
-        if ($request->filled('created_from')) {
-            $query->where('created_at', '>=', $request->get('created_from'));
-        }
-        if ($request->filled('created_to')) {
-            $query->where('created_at', '<=', $request->get('created_to') . ' 23:59:59');
-        }
-
-        // Sorting
-        $sortField = $request->get('sort', 'date');
-        $sortDirection = $request->get('direction', 'desc');
-        
-        $allowedSortFields = ['id', 'date', 'description', 'created_at', 'updated_at'];
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        }
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $allowedPerPage = [10, 15, 25, 50, 100];
-        if (!in_array($perPage, $allowedPerPage)) {
-            $perPage = 15;
-        }
-
-        $sessionAdjudications = $query->paginate($perPage);
-
-        // Get statistics for the current filtered results
-        $stats = [
-            'total' => $query->count(),
-            'active' => $query->where('is_deleted', false)->count(),
-            'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
-            'unique' => $query->distinct('description')->count(),
-        ];
-
-        return view('settings.adjudications.index', compact('sessionAdjudications', 'stats'));
-    }
-
-    public function storeSessionAdjudication(StoreSessionAdjudicationRequest $request): RedirectResponse
-    {
-        SessionAdjudication::create($request->validated());
-        return redirect()->route('settings.session-adjudications')->with('success', 'Session d\'adjudication ajoutée avec succès.');
-    }
-
-    public function updateSessionAdjudication(UpdateSessionAdjudicationRequest $request, SessionAdjudication $sessionAdjudication): RedirectResponse
-    {
-        $sessionAdjudication->update($request->validated());
-        return redirect()->route('settings.session-adjudications')->with('success', 'Session d\'adjudication mise à jour avec succès.');
-    }
-
-    public function destroySessionAdjudication(SessionAdjudication $sessionAdjudication): RedirectResponse
-    {
-        $sessionAdjudication->update(['is_deleted' => true]);
-        return redirect()->route('settings.session-adjudications')->with('success', 'Session d\'adjudication supprimée avec succès.');
     }
 
     // Localisations Management
@@ -782,11 +717,7 @@ class SettingsController extends Controller
         return Excel::download(new ExploitantsExport($filters), 'exploitants_' . date('Y-m-d_H-i-s') . '.xlsx');
     }
 
-    public function exportSessionAdjudications(Request $request)
-    {
-        $filters = $request->only(['search', 'date_from', 'date_to', 'status', 'created_from', 'created_to', 'sort', 'direction']);
-        return Excel::download(new SessionAdjudicationsExport($filters), 'session_adjudications_' . date('Y-m-d_H-i-s') . '.xlsx');
-    }
+
 
     public function exportLocalisations(Request $request)
     {
@@ -879,17 +810,5 @@ class SettingsController extends Controller
         }
     }
 
-    public function importSessionAdjudications(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
-        ]);
 
-        try {
-            Excel::import(new SessionAdjudicationsImport, $request->file('file'));
-            return redirect()->route('settings.session-adjudications')->with('success', 'Sessions d\'adjudication importées avec succès.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
-        }
-    }
 } 

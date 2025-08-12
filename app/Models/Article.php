@@ -18,7 +18,7 @@ class Article extends Model
         'foret_id',
         'essence_id',
         'nature_de_coupe_id',
-        'session_adjudication_id',
+
         'localisation_id',
         'lot',
         'parcelle',
@@ -107,13 +107,7 @@ class Article extends Model
         return $this->belongsTo(NatureDeCoupe::class, 'nature_de_coupe_id');
     }
 
-    /**
-     * Get the session adjudication for this article.
-     */
-    public function sessionAdjudication(): BelongsTo
-    {
-        return $this->belongsTo(SessionAdjudication::class, 'session_adjudication_id');
-    }
+
 
     /**
      * Get the localisation for this article.

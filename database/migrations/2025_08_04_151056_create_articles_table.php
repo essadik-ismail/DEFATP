@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('annee')->default(now()->year);
             $table->string('numero')->nullable(); 
-            $table->date('date')->default(now());
+            $table->date('date_adjudication')->default(now());
 
             $table->boolean('invendu')->default(false);
 
@@ -25,7 +25,6 @@ return new class extends Migration
             $table->foreignId('foret_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('essence_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('nature_de_coupe_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('session_adjudication_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('localisation_id')->nullable()->constrained()->onDelete('cascade');
 
             $table->integer('lot')->nullable();
@@ -51,6 +50,23 @@ return new class extends Migration
 
             $table->date('date_dr')->nullable(); 
             $table->text('observations')->nullable();
+
+
+            $table->enum('type', ['appel_doffre', 'adjudication']);
+            // $table->date('date')->default(now()); 
+            $table->string('numero_adjudication')->nullable(); 
+            // $table->string('nature_juridique')->nullable(); 
+
+            $table->string('adjudicatire')->nullable(); 
+
+            $table->boolean('dc')->default(false);
+            $table->boolean('rc')->default(false);
+            $table->date('date_de_resiliation')->nullable();
+            $table->date('date_de_decheance')->nullable();
+
+            $table->foreignId('exploitant_id')->nullable()->constrained()->onDelete('cascade');
+
+            $table->boolean('is_validated')->default(false);
             $table->boolean('is_deleted')->default(false);
             
             $table->timestamps();

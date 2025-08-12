@@ -25,7 +25,7 @@ class UpdateArticleRequest extends FormRequest
         return [
             'annee' => ['required', 'integer', 'min:2000', 'max:2100'],
             'numero' => ['nullable', 'string', 'max:255'],
-            'date' => ['required', 'date'],
+            'date_adjudication' => ['required', 'date'],
             'invendu' => ['boolean'],
             'prix_de_retrait' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
             
@@ -34,7 +34,7 @@ class UpdateArticleRequest extends FormRequest
             'foret_id' => ['nullable', 'exists:forets,id'],
             'essence_id' => ['nullable', 'exists:essences,id'],
             'nature_de_coupe_id' => ['nullable', 'exists:nature_de_coupes,id'],
-            'session_adjudication_id' => ['nullable', 'exists:session_adjudications,id'],
+    
             'localisation_id' => ['nullable', 'exists:localisations,id'],
 
             'lot' => ['nullable', 'integer', 'min:0'],
@@ -61,6 +61,19 @@ class UpdateArticleRequest extends FormRequest
 
             'date_dr' => ['nullable', 'date'],
             'observations' => ['nullable', 'string'],
+
+            // Contract modal fields
+            'type' => ['required', 'in:appel_doffre,adjudication'],
+            'nature_juridique' => ['nullable', 'string', 'max:255'],
+            'adjudicatire' => ['nullable', 'string', 'max:255'],
+            'dc' => ['boolean'],
+            'rc' => ['boolean'],
+            'date_de_resiliation' => ['nullable', 'date'],
+            'date_de_decheance' => ['nullable', 'date'],
+
+            'exploitant_id' => ['nullable', 'exists:exploitants,id'],
+            'is_validated' => ['boolean'],
+            'is_deleted' => ['boolean'],
         ];
     }
 
@@ -76,15 +89,26 @@ class UpdateArticleRequest extends FormRequest
             'annee.integer' => 'L\'année doit être un nombre entier.',
             'annee.min' => 'L\'année doit être supérieure ou égale à 2000.',
             'annee.max' => 'L\'année doit être inférieure ou égale à 2100.',
-            'date.required' => 'La date est requise.',
-            'date.date' => 'La date doit être une date valide.',
+            'date_adjudication.required' => 'La date d\'adjudication est requise.',
+            'date_adjudication.date' => 'La date d\'adjudication doit être une date valide.',
+            'type.required' => 'Le type est requis.',
+            'type.in' => 'Le type doit être "appel_doffre" ou "adjudication".',
             'prix_de_retrait.numeric' => 'Le prix de retrait doit être un nombre.',
             'prix_de_retrait.min' => 'Le prix de retrait ne peut pas être négatif.',
             'prix_vente.numeric' => 'Le prix de vente doit être un nombre.',
             'prix_vente.min' => 'Le prix de vente ne peut pas être négatif.',
             'fourniture_mise_charge.numeric' => 'La fourniture mise en charge doit être un nombre.',
             'fourniture_mise_charge.min' => 'La fourniture mise en charge ne peut pas être négative.',
+            'foret_id.exists' => 'La forêt sélectionnée n\'existe pas.',
+            'essence_id.exists' => 'L\'essence sélectionnée n\'existe pas.',
+            'nature_de_coupe_id.exists' => 'La nature de coupe sélectionnée n\'existe pas.',
+            'situation_administrative_id.exists' => 'La situation administrative sélectionnée n\'existe pas.',
+    
+            'localisation_id.exists' => 'La localisation sélectionnée n\'existe pas.',
+            'exploitant_id.exists' => 'L\'exploitant sélectionné n\'existe pas.',
             'date_dr.date' => 'La date DR doit être une date valide.',
+            'date_de_resiliation.date' => 'La date de résiliation doit être une date valide.',
+            'date_de_decheance.date' => 'La date de déchéance doit être une date valide.',
         ];
     }
 }

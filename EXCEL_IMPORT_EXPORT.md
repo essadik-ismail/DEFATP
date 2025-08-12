@@ -25,7 +25,7 @@ This Laravel application now includes comprehensive Excel import and export func
 4. **NatureDeCoupes** - Cutting nature types
 5. **SituationAdministratives** - Administrative situations
 6. **Exploitants** - Operator/contractor data
-7. **SessionAdjudications** - Bidding session data
+
 8. **Localisations** - Location codes
 
 ## File Formats Supported
@@ -157,7 +157,7 @@ Located in `app/Exports/`:
 - `NatureDeCoupesExport.php`
 - `SituationAdministrativesExport.php`
 - `ExploitantsExport.php`
-- `SessionAdjudicationsExport.php`
+
 - `LocalisationsExport.php`
 
 ### Import Classes

@@ -10,7 +10,7 @@ use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 
 use App\Models\Exploitant;
-use App\Models\SessionAdjudication;
+
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Requests\IndexArticleRequest;
@@ -31,7 +31,7 @@ class ArticleController extends Controller
             'foret',
             'essence',
             'natureDeCoupe',
-            'sessionAdjudication',
+
             'localisation'
         ]);
 
@@ -68,7 +68,7 @@ class ArticleController extends Controller
         $essences = Essence::orderBy('essence')->get();
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
         $exploitants = Exploitant::orderBy('nom_complet')->get();
-        $sessionAdjudications = SessionAdjudication::orderBy('date', 'desc')->get();
+
         $localisations = Localisation::orderBy('CODE')->get();
 
         return view('articles.create', compact(
@@ -77,7 +77,7 @@ class ArticleController extends Controller
             'essences',
             'natureDeCoupes',
             'exploitants',
-            'sessionAdjudications',
+
             'localisations'
         ));
     }
@@ -113,27 +113,7 @@ class ArticleController extends Controller
             }
         }
 
-        // Handle contract data
-        if ($request->filled('invendu') || $request->filled('exploitant_id') || $request->filled('type')) {
-            // Create session adjudication if contract data is provided
-            $sessionData = [
-                'type' => $request->type,
-                'date' => $request->session_date,
-                'numero' => $request->session_numero,
-                'nature_juridique' => $request->nature_juridique,
-                'adjudicatire' => $request->adjudicatire,
-                'dc' => $request->has('dc'),
-                'rc' => $request->has('rc'),
-                'date_de_resiliation' => $request->date_de_resiliation,
-                'date_de_decheance' => $request->date_de_decheance,
-                'exploitant_id' => $request->exploitant_id,
-                'is_validated' => false
-            ];
 
-            $sessionAdjudication = SessionAdjudication::create($sessionData);
-            $articleData['session_adjudication_id'] = $sessionAdjudication->id;
-            $articleData['invendu'] = $request->invendu;
-        }
 
         // Create the article
         Article::create($articleData);
@@ -149,7 +129,7 @@ class ArticleController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'sessionAdjudication',
+
             'localisation'
         ]);
 
@@ -163,7 +143,7 @@ class ArticleController extends Controller
         $essences = Essence::orderBy('essence')->get();
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
         $exploitants = Exploitant::orderBy('nom_complet')->get();
-        $sessionAdjudications = SessionAdjudication::orderBy('date', 'desc')->get();
+
         $localisations = Localisation::orderBy('CODE')->get();
 
         return view('articles.edit', compact(
@@ -173,7 +153,7 @@ class ArticleController extends Controller
             'essences',
             'natureDeCoupes',
             'exploitants',
-            'sessionAdjudications',
+
             'localisations'
         ));
     }

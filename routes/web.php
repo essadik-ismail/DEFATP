@@ -41,6 +41,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     // Essences
     Route::get('/essences', [SettingsController::class, 'essences'])->name('essences');
     Route::post('/essences', [SettingsController::class, 'storeEssence'])->name('essences.store');
+    Route::get('/essences/{essence}/edit', [SettingsController::class, 'editEssence'])->name('essences.edit');
     Route::put('/essences/{essence}', [SettingsController::class, 'updateEssence'])->name('essences.update');
     Route::delete('/essences/{essence}', [SettingsController::class, 'destroyEssence'])->name('essences.destroy');
     Route::get('/essences/export', [SettingsController::class, 'exportEssences'])->name('essences.export');
@@ -49,6 +50,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     // Forets
     Route::get('/forets', [SettingsController::class, 'forets'])->name('forets');
     Route::post('/forets', [SettingsController::class, 'storeForet'])->name('forets.store');
+    Route::get('/forets/{foret}/edit', [SettingsController::class, 'editForet'])->name('forets.edit');
     Route::put('/forets/{foret}', [SettingsController::class, 'updateForet'])->name('forets.update');
     Route::delete('/forets/{foret}', [SettingsController::class, 'destroyForet'])->name('forets.destroy');
     Route::get('/forets/export', [SettingsController::class, 'exportForets'])->name('forets.export');
@@ -57,6 +59,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     // Nature de Coupes
     Route::get('/nature-de-coupes', [SettingsController::class, 'natureDeCoupes'])->name('nature-de-coupes');
     Route::post('/nature-de-coupes', [SettingsController::class, 'storeNatureDeCoupe'])->name('nature-de-coupes.store');
+    Route::get('/nature-de-coupes/{natureDeCoupe}/edit', [SettingsController::class, 'editNatureDeCoupe'])->name('nature-de-coupes.edit');
     Route::put('/nature-de-coupes/{natureDeCoupe}', [SettingsController::class, 'updateNatureDeCoupe'])->name('nature-de-coupes.update');
     Route::delete('/nature-de-coupes/{natureDeCoupe}', [SettingsController::class, 'destroyNatureDeCoupe'])->name('nature-de-coupes.destroy');
     Route::get('/nature-de-coupes/export', [SettingsController::class, 'exportNatureDeCoupes'])->name('nature-de-coupes.export');
@@ -65,6 +68,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     // Situation Administratives
     Route::get('/situation-administratives', [SettingsController::class, 'situationAdministratives'])->name('situation-administratives');
     Route::post('/situation-administratives', [SettingsController::class, 'storeSituationAdministrative'])->name('situation-administratives.store');
+    Route::get('/situation-administratives/{situationAdministrative}/edit', [SettingsController::class, 'editSituationAdministrative'])->name('situation-administratives.edit');
     Route::put('/situation-administratives/{situationAdministrative}', [SettingsController::class, 'updateSituationAdministrative'])->name('situation-administratives.update');
     Route::delete('/situation-administratives/{situationAdministrative}', [SettingsController::class, 'destroySituationAdministrative'])->name('situation-administratives.destroy');
     Route::get('/situation-administratives/export', [SettingsController::class, 'exportSituationAdministratives'])->name('situation-administratives.export');
@@ -73,18 +77,13 @@ Route::prefix('settings')->name('settings.')->group(function () {
     // Exploitants
     Route::get('/exploitants', [SettingsController::class, 'exploitants'])->name('exploitants');
     Route::post('/exploitants', [SettingsController::class, 'storeExploitant'])->name('exploitants.store');
+    Route::get('/exploitants/{exploitant}/edit', [SettingsController::class, 'editExploitant'])->name('exploitants.edit');
     Route::put('/exploitants/{exploitant}', [SettingsController::class, 'updateExploitant'])->name('exploitants.update');
     Route::delete('/exploitants/{exploitant}', [SettingsController::class, 'destroyExploitant'])->name('exploitants.destroy');
     Route::get('/exploitants/export', [SettingsController::class, 'exportExploitants'])->name('exploitants.export');
     Route::post('/exploitants/import', [SettingsController::class, 'importExploitants'])->name('exploitants.import');
     
-    // Session Adjudications
-Route::get('/session-adjudications', [SettingsController::class, 'sessionAdjudications'])->name('session-adjudications');
-Route::post('/session-adjudications', [SettingsController::class, 'storeSessionAdjudication'])->name('session-adjudications.store');
-Route::put('/session-adjudications/{sessionAdjudication}', [SettingsController::class, 'updateSessionAdjudication'])->name('session-adjudications.update');
-Route::delete('/session-adjudications/{sessionAdjudication}', [SettingsController::class, 'destroySessionAdjudication'])->name('session-adjudications.destroy');
-Route::get('/session-adjudications/export', [SettingsController::class, 'exportSessionAdjudications'])->name('session-adjudications.export');
-Route::post('/session-adjudications/import', [SettingsController::class, 'importSessionAdjudications'])->name('session-adjudications.import');
+
     
     // Localisations
     Route::get('/localisations', [SettingsController::class, 'localisations'])->name('localisations');
@@ -129,7 +128,7 @@ Route::post('/session-adjudications/import', [SettingsController::class, 'import
         Route::get('/export/nature-de-coupes', [ExcelController::class, 'exportNatureDeCoupes'])->name('export.nature-de-coupes');
         Route::get('/export/situation-administratives', [ExcelController::class, 'exportSituationAdministratives'])->name('export.situation-administratives');
         Route::get('/export/exploitants', [ExcelController::class, 'exportExploitants'])->name('export.exploitants');
-        Route::get('/export/session-adjudications', [ExcelController::class, 'exportSessionAdjudications'])->name('export.session-adjudications');
+
         Route::get('/export/localisations', [ExcelController::class, 'exportLocalisations'])->name('export.localisations');
         
         // Individual imports
@@ -139,7 +138,7 @@ Route::post('/session-adjudications/import', [SettingsController::class, 'import
         Route::post('/import/nature-de-coupes', [ExcelController::class, 'importNatureDeCoupes'])->name('import.nature-de-coupes');
         Route::post('/import/situation-administratives', [ExcelController::class, 'importSituationAdministratives'])->name('import.situation-administratives');
         Route::post('/import/exploitants', [ExcelController::class, 'importExploitants'])->name('import.exploitants');
-        Route::post('/import/session-adjudications', [ExcelController::class, 'importSessionAdjudications'])->name('import.session-adjudications');
+
         Route::post('/import/localisations', [ExcelController::class, 'importLocalisations'])->name('import.localisations');
     });
 

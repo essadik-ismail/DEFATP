@@ -5,119 +5,105 @@
 
 @section('content')
     <div class="settings-grid">
-        <div class="settings-card">
-            <div class="card-icon">
-                <i class="fas fa-seedling"></i>
-            </div>
+        <x-card title="Essences" subtitle="Types d'arbres forestiers" collapsible="false">
             <div class="card-content">
-                <h4>Essences</h4>
-                <p>Types d'arbres forestiers</p>
                 <div class="card-stats">
                     <span class="stat-number">{{ \App\Models\Essence::count() }}</span>
                     <span class="stat-label">essences</span>
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{{ route('settings.essences') }}" class="btn btn-primary">
-                    <i class="fas fa-cog me-2"></i>Gérer
-                </a>
+                <x-button href="{{ route('settings.essences') }}" variant="primary" icon="fas fa-cog">
+                    Gérer
+                </x-button>
             </div>
-        </div>
+        </x-card>
         
-        <div class="settings-card">
-            <div class="card-icon">
-                <i class="fas fa-tree"></i>
-            </div>
+        <x-card title="Forêts" subtitle="Zones forestières" collapsible="false">
             <div class="card-content">
-                <h4>Forêts</h4>
-                <p>Zones forestières</p>
                 <div class="card-stats">
                     <span class="stat-number">{{ \App\Models\Foret::count() }}</span>
                     <span class="stat-label">forêts</span>
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{{ route('settings.forets') }}" class="btn btn-primary">
-                    <i class="fas fa-cog me-2"></i>Gérer
-                </a>
+                <x-button href="{{ route('settings.forets') }}" variant="primary" icon="fas fa-cog">
+                    Gérer
+                </x-button>
             </div>
-        </div>
+        </x-card>
         
-        <div class="settings-card">
-            <div class="card-icon">
-                <i class="fas fa-cut"></i>
-            </div>
+        <x-card title="Nature de Coupes" subtitle="Méthodes d'exploitation" collapsible="false">
             <div class="card-content">
-                <h4>Nature de Coupes</h4>
-                <p>Méthodes d'exploitation</p>
                 <div class="card-stats">
                     <span class="stat-number">{{ \App\Models\NatureDeCoupe::count() }}</span>
                     <span class="stat-label">types</span>
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{{ route('settings.nature-de-coupes') }}" class="btn btn-primary">
-                    <i class="fas fa-cog me-2"></i>Gérer
-                </a>
+                <x-button href="{{ route('settings.nature-de-coupes') }}" variant="primary" icon="fas fa-cog">
+                    Gérer
+                </x-button>
             </div>
-        </div>
+        </x-card>
         
-        <div class="settings-card">
-            <div class="card-icon">
-                <i class="fas fa-map-marker-alt"></i>
-            </div>
+        <x-card title="Situations Administratives" subtitle="Communes & Provinces" collapsible="false">
             <div class="card-content">
-                <h4>Situations Administratives</h4>
-                <p>Communes & Provinces</p>
                 <div class="card-stats">
                     <span class="stat-number">{{ \App\Models\SituationAdministrative::count() }}</span>
                     <span class="stat-label">situations</span>
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{{ route('settings.situation-administratives') }}" class="btn btn-primary">
-                    <i class="fas fa-cog me-2"></i>Gérer
-                </a>
+                <x-button href="{{ route('settings.situation-administratives') }}" variant="primary" icon="fas fa-cog">
+                    Gérer
+                </x-button>
             </div>
-        </div>
+        </x-card>
         
-        <div class="settings-card">
-            <div class="card-icon">
-                <i class="fas fa-users"></i>
-            </div>
+        <x-card title="Exploitants" subtitle="Gestion des exploitants" collapsible="false">
             <div class="card-content">
-                <h4>Exploitants</h4>
-                <p>Gestion des exploitants</p>
                 <div class="card-stats">
                     <span class="stat-number">{{ \App\Models\Exploitant::count() }}</span>
                     <span class="stat-label">exploitants</span>
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{{ route('settings.exploitants') }}" class="btn btn-primary">
-                    <i class="fas fa-cog me-2"></i>Gérer
-                </a>
+                <x-button href="{{ route('settings.exploitants') }}" variant="primary" icon="fas fa-cog">
+                    Gérer
+                </x-button>
             </div>
-        </div>
+        </x-card>
         
-        <div class="settings-card">
-            <div class="card-icon">
-                <i class="fas fa-gavel"></i>
-            </div>
+
+        
+        <x-card title="Localisations" subtitle="Gestion des localisations" collapsible="false">
             <div class="card-content">
-                <h4>Sessions d'Adjudication</h4>
-                <p>Gestion des sessions</p>
                 <div class="card-stats">
-                    <span class="stat-number">{{ \App\Models\SessionAdjudication::count() }}</span>
-                    <span class="stat-label">sessions</span>
+                    <span class="stat-number">{{ \App\Models\Localisation::count() }}</span>
+                    <span class="stat-label">localisations</span>
                 </div>
             </div>
             <div class="card-actions">
-                <a href="{{ route('settings.session-adjudications') }}" class="btn btn-primary">
-                    <i class="fas fa-cog me-2"></i>Gérer
-                </a>
+                <x-button href="{{ route('settings.localisations') }}" variant="primary" icon="fas fa-cog">
+                    Gérer
+                </x-button>
             </div>
-        </div>
+        </x-card>
+        
+        <x-card title="Import/Export" subtitle="Gestion des données" collapsible="false">
+            <div class="card-content">
+                <div class="card-stats">
+                    <span class="stat-number">-</span>
+                    <span class="stat-label">fonctionnalités</span>
+                </div>
+            </div>
+            <div class="card-actions">
+                <x-button href="{{ route('excel.index') }}" variant="primary" icon="fas fa-cog">
+                    Gérer
+                </x-button>
+            </div>
+        </x-card>
     </div>
 @endsection
 

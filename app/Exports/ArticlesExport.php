@@ -26,7 +26,7 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             'foret',
             'essence',
             'natureDeCoupe',
-            'sessionAdjudication',
+
             'localisation'
         ]);
 
@@ -64,7 +64,7 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             'Forêt',
             'Essence',
             'Nature de coupe',
-            'Session Adjudication',
+
             'Localisation',
             'Lot',
             'Parcelle',
@@ -100,7 +100,7 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             $article->foret?->foret,
             $article->essence?->essence,
             $article->natureDeCoupe?->nature_de_coupe,
-            $article->sessionAdjudication?->date,
+
             $article->localisation?->CODE,
             $article->lot,
             $article->parcelle,

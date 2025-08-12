@@ -206,20 +206,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="mb-3">
-                        <label for="session_adjudication_id" class="form-label">Session d'Adjudication</label>
-                        <select class="form-select @error('session_adjudication_id') is-invalid @enderror" id="session_adjudication_id" name="session_adjudication_id">
-                            <option value="">Sélectionner</option>
-                            @foreach($sessionAdjudications as $sessionAdjudication)
-                                <option value="{{ $sessionAdjudication->id }}" {{ old('session_adjudication_id', $article->session_adjudication_id) == $sessionAdjudication->id ? 'selected' : '' }}>
-                                    {{ $sessionAdjudication->nom }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('session_adjudication_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+
                 </div>
             </div>
 

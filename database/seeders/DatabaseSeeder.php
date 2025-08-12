@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             ForetSeeder::class,
             NatureDeCoupeSeeder::class,
             SituationAdministrativeSeeder::class,
-            SessionAdjudicationSeeder::class,
+            // SessionAdjudicationSeeder::class,
             ExploitantSeeder::class,
         ]);
     }

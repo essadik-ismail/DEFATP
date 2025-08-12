@@ -8,7 +8,7 @@ use App\Exports\ForetsExport;
 use App\Exports\NatureDeCoupesExport;
 use App\Exports\SituationAdministrativesExport;
 use App\Exports\ExploitantsExport;
-use App\Exports\SessionAdjudicationsExport;
+
 use App\Exports\LocalisationsExport;
 use App\Imports\ArticlesImport;
 use App\Imports\EssencesImport;
@@ -17,7 +17,7 @@ use App\Imports\NatureDeCoupesImport;
 use App\Imports\SituationAdministrativesImport;
 use App\Imports\ExploitantsImport;
 use App\Imports\LocalisationsImport;
-use App\Imports\SessionAdjudicationsImport;
+
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -47,7 +47,7 @@ class ExcelController extends Controller
             $this->addToZip($zip, new NatureDeCoupesExport(), "nature_de_coupes_{$timestamp}.xlsx");
             $this->addToZip($zip, new SituationAdministrativesExport(), "situation_administratives_{$timestamp}.xlsx");
             $this->addToZip($zip, new ExploitantsExport(), "exploitants_{$timestamp}.xlsx");
-            $this->addToZip($zip, new SessionAdjudicationsExport(), "session_adjudications_{$timestamp}.xlsx");
+
             $this->addToZip($zip, new LocalisationsExport(), "localisations_{$timestamp}.xlsx");
 
             $zip->close();
@@ -98,9 +98,7 @@ class ExcelController extends Controller
                 } elseif (str_contains($filename, 'exploitants') || str_contains($filename, 'Exploitants')) {
                     Excel::import(new ExploitantsImport, $file);
                     $results[] = "Exploitants importés avec succès depuis {$filename}";
-                } elseif (str_contains($filename, 'session') || str_contains($filename, 'adjudication') || str_contains($filename, 'Session') || str_contains($filename, 'Adjudication')) {
-                    Excel::import(new SessionAdjudicationsImport, $file);
-                    $results[] = "Sessions d'adjudication importées avec succès depuis {$filename}";
+
                 } elseif (str_contains($filename, 'localisations') || str_contains($filename, 'Localisations')) {
                     Excel::import(new LocalisationsImport, $file);
                     $results[] = "Localisations importées avec succès depuis {$filename}";
@@ -147,10 +145,7 @@ class ExcelController extends Controller
         return Excel::download(new ExploitantsExport, 'exploitants_' . date('Y-m-d_H-i-s') . '.xlsx');
     }
 
-    public function exportSessionAdjudications()
-    {
-        return Excel::download(new SessionAdjudicationsExport, 'session_adjudications_' . date('Y-m-d_H-i-s') . '.xlsx');
-    }
+
 
     public function exportLocalisations()
     {
@@ -256,17 +251,5 @@ class ExcelController extends Controller
         }
     }
 
-    public function importSessionAdjudications(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
-        ]);
 
-        try {
-            Excel::import(new SessionAdjudicationsImport, $request->file('file'));
-            return redirect()->back()->with('success', 'Sessions d\'adjudication importées avec succès.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
-        }
-    }
 }

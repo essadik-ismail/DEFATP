@@ -178,18 +178,7 @@
                     </a>
                 </div>
                 
-                <div class="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-amber-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-hammer text-white"></i>
-                        </div>
-                        <h4 class="font-semibold text-gray-900">Sessions d'adjudication</h4>
-                    </div>
-                    <a href="{{ route('excel.export.session-adjudications') }}" class="text-amber-600 hover:text-amber-800 font-medium text-sm flex items-center gap-2 group-hover:gap-3 transition-all">
-                        <span>Exporter les sessions d'adjudication</span>
-                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                </div>
+
                 
                 <div class="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-pink-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
                     <div class="flex items-center gap-3 mb-4">
@@ -363,23 +352,7 @@
                     </form>
                 </div>
                 
-                <div class="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-amber-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-hammer text-white"></i>
-                        </div>
-                        <h4 class="font-semibold text-gray-900">Sessions d'adjudication</h4>
-                    </div>
-                    <form action="{{ route('excel.import.session-adjudications') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <input type="file" name="file" accept=".xlsx,.xls,.csv" 
-                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 mb-3 transition-all">
-                        <button type="submit" class="text-amber-600 hover:text-amber-800 font-medium text-sm flex items-center gap-2 group-hover:gap-3 transition-all">
-                            <span>Importer les sessions d'adjudication</span>
-                            <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                        </button>
-                    </form>
-                </div>
+
                 
                 <div class="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-pink-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
                     <div class="flex items-center gap-3 mb-4">

@@ -10,7 +10,7 @@ use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\SituationForestiere;
 use App\Models\Exploitant;
-use App\Models\SessionAdjudication;
+
 use App\Http\Requests\ArticlesByYearRequest;
 use App\Http\Requests\ArticlesByForetRequest;
 use App\Http\Requests\ArticlesByEssenceRequest;
@@ -37,7 +37,6 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'sessionAdjudication',
             'localisation'
         ])
         ->where('annee', $year)
@@ -68,7 +67,6 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'sessionAdjudication',
             'localisation'
         ]);
 
@@ -101,7 +99,6 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'sessionAdjudication',
             'localisation'
         ]);
 
@@ -134,7 +131,6 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'sessionAdjudication',
             'localisation'
         ]);
 
@@ -165,7 +161,6 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'sessionAdjudication',
             'localisation'
         ])
         ->where('invendu', true)
@@ -189,7 +184,6 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'sessionAdjudication',
             'localisation'
         ])
         ->where('invendu', false)
@@ -269,7 +263,7 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'sessionAdjudication',
+
             'localisation'
         ])->orderBy('date', 'desc')->get();
 
@@ -287,7 +281,7 @@ class ReportController extends Controller
             fputcsv($file, [
                 'ID', 'Année', 'Numéro', 'Date', 'Statut', 'Prix de retrait', 'Prix de vente',
                 'Commune', 'Province', 'DFP', 'ZDTF', 'DPANEF', 'DRANEF', 'Année Situation',
-                'Forêt', 'Essence', 'Nature de coupe', 'Exploitant', 'Session Adjudication',
+                'Forêt', 'Essence', 'Nature de coupe', 'Exploitant',
                 'Localisation', 'Lot', 'Parcelle', 'Superficie', 'Fourniture mise en charge',
                 'Date DR', 'Observations'
             ]);
@@ -312,7 +306,7 @@ class ReportController extends Controller
                     $article->essence?->essence,
                     $article->natureDeCoupe?->nature_de_coupe,
                     $article->exploitant ? ($article->exploitant->nom . ' ' . $article->exploitant->prenom) : '',
-                    $article->sessionAdjudication?->date,
+
                     $article->localisation?->display_name,
                     $article->lot,
                     $article->parcelle,

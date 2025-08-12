@@ -1,0 +1,243 @@
+@props([
+    'type' => 'text',
+    'name',
+    'label' => null,
+    'placeholder' => null,
+    'value' => null,
+    'required' => false,
+    'icon' => null,
+    'help' => null,
+    'disabled' => false,
+    'readonly' => false,
+    'min' => null,
+    'max' => null,
+    'step' => null,
+    'rows' => 3,
+    'options' => [],
+    'selected' => null,
+    'multiple' => false,
+    'accept' => null
+])
+
+<div class="form-group">
+    @if($label)
+        <label for="{{ $name }}" class="form-label">
+            {{ $label }}
+            @if($required)
+                <span class="text-red-500">*</span>
+            @endif
+        </label>
+    @endif
+
+    <div class="input-wrapper {{ $icon ? 'has-icon' : '' }}">
+        @if($icon)
+            <div class="input-icon">
+                <i class="{{ $icon }}"></i>
+            </div>
+        @endif
+
+        @if($type === 'textarea')
+            <textarea
+                name="{{ $name }}"
+                id="{{ $name }}"
+                rows="{{ $rows }}"
+                placeholder="{{ $placeholder }}"
+                {{ $required ? 'required' : '' }}
+                {{ $disabled ? 'disabled' : '' }}
+                {{ $readonly ? 'readonly' : '' }}
+                {{ $attributes->merge(['class' => 'form-control ' . ($icon ? 'pl-10' : '')]) }}
+            >{{ $value ?? old($name) }}</textarea>
+        @elseif($type === 'select')
+            <select
+                name="{{ $name }}"
+                id="{{ $name }}"
+                {{ $required ? 'required' : '' }}
+                {{ $disabled ? 'disabled' : '' }}
+                {{ $multiple ? 'multiple' : '' }}
+                {{ $attributes->merge(['class' => 'form-select ' . ($icon ? 'pl-10' : '')]) }}
+            >
+                @if(!$multiple)
+                    <option value="">{{ $placeholder ?? 'Sélectionner...' }}</option>
+                @endif
+                @foreach($options as $option)
+                    @if(is_array($option))
+                        <option value="{{ $option['value'] }}" {{ $selected == $option['value'] ? 'selected' : '' }}>
+                            {{ $option['label'] }}
+                        </option>
+                    @else
+                        <option value="{{ $option }}" {{ $selected == $option ? 'selected' : '' }}>
+                            {{ $option }}
+                        </option>
+                    @endif
+                @endforeach
+            </select>
+        @elseif($type === 'checkbox')
+            <div class="checkbox-wrapper">
+                <input
+                    type="checkbox"
+                    name="{{ $name }}"
+                    id="{{ $name }}"
+                    value="1"
+                    {{ $value ? 'checked' : '' }}
+                    {{ $disabled ? 'disabled' : '' }}
+                    {{ $attributes->merge(['class' => 'form-checkbox']) }}
+                >
+                <label for="{{ $name }}" class="checkbox-label">{{ $placeholder }}</label>
+            </div>
+        @else
+            <input
+                type="{{ $type }}"
+                name="{{ $name }}"
+                id="{{ $name }}"
+                value="{{ $value ?? old($name) }}"
+                placeholder="{{ $placeholder }}"
+                {{ $required ? 'required' : '' }}
+                {{ $disabled ? 'disabled' : '' }}
+                {{ $readonly ? 'readonly' : '' }}
+                @if($min) min="{{ $min }}" @endif
+                @if($max) max="{{ $max }}" @endif
+                @if($step) step="{{ $step }}" @endif
+                @if($accept) accept="{{ $accept }}" @endif
+                {{ $attributes->merge(['class' => 'form-control ' . ($icon ? 'pl-10' : '')]) }}
+            >
+        @endif
+    </div>
+
+    @if($help)
+        <p class="form-help">{{ $help }}</p>
+    @endif
+
+    @error($name)
+        <p class="form-error">{{ $message }}</p>
+    @enderror
+</div>
+
+@push('styles')
+<style>
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .input-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .input-wrapper.has-icon {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    .form-control, .form-select, .form-textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        background-color: white;
+        transition: all 0.2s ease;
+        line-height: 1.5;
+    }
+
+    .form-control:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-control:disabled, .form-select:disabled, .form-textarea:disabled {
+        background-color: #f9fafb;
+        color: #6b7280;
+        cursor: not-allowed;
+    }
+
+    .form-control.pl-10, .form-select.pl-10, .form-textarea.pl-10 {
+        padding-left: 2.5rem;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-checkbox {
+        width: 1rem;
+        height: 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.25rem;
+        background-color: white;
+        cursor: pointer;
+    }
+
+    .form-checkbox:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+
+    .checkbox-label {
+        font-size: 0.875rem;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    .form-help {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .form-error {
+        font-size: 0.75rem;
+        color: #dc2626;
+        margin: 0;
+    }
+
+    .form-control.error, .form-select.error, .form-textarea.error {
+        border-color: #dc2626;
+    }
+
+    .form-control.error:focus, .form-select.error:focus, .form-textarea.error:focus {
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .form-control, .form-select, .form-textarea {
+            padding: 0.625rem 0.875rem;
+            font-size: 1rem;
+        }
+        
+        .form-control.pl-10, .form-select.pl-10, .form-textarea.pl-10 {
+            padding-left: 2.25rem;
+        }
+        
+        .input-icon {
+            left: 0.625rem;
+        }
+    }
+</style>
+@endpush
