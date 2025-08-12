@@ -56,47 +56,55 @@
         --shadow-lighter: rgba(0, 0, 0, 0.1);
     }
 
-    /* Content Overflow Styling */
+    /* Content Container - Depends on App Overflow */
     .content-scroll-container {
-        overflow-y: auto;
-        overflow-x: hidden;
-        max-height: calc(100vh - 200px); /* Adjusted for proper spacing */
-        padding-right: 8px; /* Space for scrollbar */
-        scrollbar-width: thin;
-        scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        height: auto;
+        min-height: auto;
+        overflow-y: auto; /* Enable vertical scrolling with custom style */
+        overflow-x: hidden; /* Hide horizontal overflow */
+        padding: 0.5rem 0; /* Add some internal spacing */
+        margin: 0 -0.5rem; /* Compensate for padding */
+        position: relative;
+        scrollbar-width: none; /* Hide default Firefox scrollbar */
+        -ms-overflow-style: none; /* Hide default IE scrollbar */
     }
 
-    /* Custom Scrollbar Styling */
+    /* Custom Sidebar-Style Scrollbar */
     .content-scroll-container::-webkit-scrollbar {
-        width: 8px;
+        width: 6px; /* Thin scrollbar like sidebar */
     }
 
     .content-scroll-container::-webkit-scrollbar-track {
         background: transparent;
-        border-radius: 4px;
+        border-radius: 3px;
     }
 
     .content-scroll-container::-webkit-scrollbar-thumb {
-        background: rgba(156, 163, 175, 0.5);
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        border-radius: 3px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .content-scroll-container::-webkit-scrollbar-thumb:hover {
-        background: rgba(156, 163, 175, 0.8);
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+        transform: scaleX(1.2);
+        box-shadow: 0 2px 8px rgba(74, 124, 89, 0.3);
     }
 
     .content-scroll-container::-webkit-scrollbar-corner {
         background: transparent;
     }
 
-    /* Dark Mode Scrollbar */
+    /* Dark Mode Sidebar-Style Scrollbar */
     .dark-mode .content-scroll-container::-webkit-scrollbar-thumb {
-        background: rgba(156, 163, 175, 0.3);
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .dark-mode .content-scroll-container::-webkit-scrollbar-thumb:hover {
-        background: rgba(156, 163, 175, 0.6);
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+        box-shadow: 0 2px 8px rgba(74, 124, 89, 0.5);
     }
 
     /* Top Bar Fixed Sizing */
@@ -112,15 +120,15 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.3);
         position: fixed;
         top: 0;
-        left: 280px;
+        left: 280px; /* Perfect alignment with sidebar */
         right: 0;
         z-index: 1000;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: left 0.3s cubic-bezier(0.4, 0, 2, 1);
     }
 
     .sidebar.collapsed + .main-content .top-bar {
-        left: 70px;
+        left: 70px; /* Perfect alignment with collapsed sidebar */
     }
 
     .top-bar-content {
@@ -249,22 +257,34 @@
 
     /* Content Area Styling */
     .content-area {
-        padding: 2rem 3rem;
-        padding-top: 1rem; /* Reduced top padding since top bar is fixed */
-        position: relative;
+        /* padding: 1.5rem 2rem; /* Match top bar padding
+        padding-top: 1.5rem; Better top spacing for content */
         height: 100%;
+        box-sizing: border-box;
+        max-width: 1400px; /* Match top bar max-width */
+        margin: 0 auto; /* Center content on wide screens */
+        background: transparent; /* Inherit from main-content */
+        backdrop-filter: none; /* No additional blur */
     }
 
     .main-content {
-        margin-left: 280px;
-        padding-top: 70px; /* Match top bar height */
+        /* width: 100%; */
+        margin-left: 280px; /* Perfect alignment with sidebar */
+        padding: 0;
+        margin-top: 85px; /* Increased top spacing for better breathing room */
         min-height: 100vh;
         position: relative;
         transition: margin-left 0.3s ease;
+        box-sizing: border-box;
+        /* overflow: visible; Default overflow for cards */
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .main-content.expanded {
-        margin-left: 70px;
+        margin-left: 70px; /* Perfect alignment with collapsed sidebar */
     }
 
     /* Content Header Styling */
@@ -275,7 +295,6 @@
         padding: 1.5rem 3rem;
         margin-bottom: 2rem;
         position: relative;
-        overflow: hidden;
         border-radius: 16px;
         margin: 0 0 2rem 0;
     }
@@ -315,7 +334,8 @@
     @media (max-width: 768px) {
         .main-content {
             margin-left: 0;
-            padding-top: 70px;
+            padding: 0;
+            padding-top: 85px; /* Consistent with desktop */
         }
 
         .main-content.expanded {
@@ -328,8 +348,9 @@
         }
 
         .content-area {
-            padding: 1rem;
-            padding-top: 1rem;
+            overflow: none;
+            padding: 1rem 1.5rem; /* Match top bar mobile padding */
+            max-width: 100%; /* Full width on mobile */
         }
 
         .content-header {
@@ -338,8 +359,13 @@
         }
 
         .content-scroll-container {
-            max-height: calc(100vh - 180px);
-            padding-right: 4px;
+            height: auto;
+            min-height: auto;
+            overflow-y: auto; /* Maintain sidebar-style scrollbar on mobile */
+            overflow-x: hidden;
+            padding: 0.25rem 0; /* Reduced padding on mobile */
+            scrollbar-width: none; /* Hide default Firefox scrollbar */
+            -ms-overflow-style: none; /* Hide default IE scrollbar */
         }
 
         .greeting h1 {
@@ -372,22 +398,135 @@
         }
     }
 
-    /* Smooth Scrolling */
+    /* Small Mobile Responsive */
+    @media (max-width: 480px) {
+        .main-content {
+            padding: 0;
+            padding-top: 80px; /* Better small mobile spacing */
+        }
+        
+        .content-area {
+            padding: 0.75rem 1rem; /* Match top bar small mobile padding */
+        }
+        
+        .content-scroll-container {
+            padding: 0.125rem 0; /* Minimal padding on small mobile */
+            overflow-y: auto; /* Maintain sidebar-style scrollbar on small mobile */
+            overflow-x: hidden;
+            scrollbar-width: none; /* Hide default Firefox scrollbar */
+            -ms-overflow-style: none; /* Hide default IE scrollbar */
+        }
+    }
+
+    /* Content Container inherits app scrolling behavior */
     .content-scroll-container {
-        scroll-behavior: smooth;
+        /* Inherits app overflow and scrolling behavior */
     }
 
-    /* Focus Styles for Accessibility */
-    .content-scroll-container:focus {
-        outline: 2px solid var(--primary-color);
-        outline-offset: 2px;
+    /* Main Content - Default Overflow */
+    .main-content {
+        /* overflow: visible; Default overflow for cards */
     }
 
+    /* Enhanced Content Spacing */
+    .content-scroll-container > * {
+        margin-bottom: 1.5rem; /* Consistent spacing between content blocks */
+    }
+    
+    /* Main Content Visual Integration with Top Bar */
+    .main-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.5) 20%, 
+            rgba(255, 255, 255, 0.8) 50%, 
+            rgba(255, 255, 255, 0.5) 80%, 
+            transparent 100%);
+        z-index: 1;
+    }
+    
+    /* Content Area Visual Enhancement */
+    .content-area::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, 
+            var(--primary-color) 0%, 
+            var(--accent-color) 25%, 
+            var(--success-color) 50%, 
+            var(--info-color) 75%, 
+            var(--purple-color) 100%);
+        opacity: 0.1;
+        border-radius: 0 0 2px 2px;
+    }
+    
+    .content-scroll-container > *:last-child {
+        margin-bottom: 0; /* No margin on last element */
+    }
+    
+    /* Card and Component Spacing */
+    .card, .x-card, [class*="card"] {
+        margin-bottom: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card:hover, .x-card:hover, [class*="card"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* Stats Grid Spacing */
+    .stats-grid, [class*="stats"] {
+        margin-bottom: 2rem;
+        gap: 1.5rem;
+    }
+    
+    /* Filter Section Spacing */
+    .filter-section, [class*="filter"] {
+        margin-bottom: 2rem;
+    }
+    
+    /* Data Table Spacing */
+    .data-table, [class*="table"] {
+        margin-bottom: 2rem;
+    }
+    
+    /* Import Export Section Spacing */
+    .import-export-section, [class*="import"], [class*="export"] {
+        margin-bottom: 2rem;
+    }
+    
+    /* Alert Spacing */
+    .alert, [class*="alert"] {
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+    }
+    
+    /* Form Spacing */
+    form {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Button Group Spacing */
+    .btn-group, .button-group, [class*="btn"], [class*="button"] {
+        margin-bottom: 1rem;
+    }
+    
     /* Print Styles */
     @media print {
         .content-scroll-container {
+            height: auto;
             overflow: visible;
-            max-height: none;
         }
     }
 </style>

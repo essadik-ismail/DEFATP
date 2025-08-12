@@ -4,7 +4,8 @@
 
 @section('page-actions')
     <div class="flex items-center gap-3">
-        <x-button href="{{ route('articles.create') }}" variant="primary" icon="material-icons mr-2 text-base">add</x-button>
+        <x-button href="{{ route('articles.create') }}" variant="primary" icon="material-icons mr-2 text-base">
+            <i class="material-icons mr-2 text-base">add</i>
             Nouvel Article
         </x-button>
     </div>
@@ -91,13 +92,13 @@
                     ['value' => '50', 'label' => '50'],
                     ['value' => '100', 'label' => '100']
                 ]" :selected="request('per_page')" />
-    </div>
+            </div>
 
             <div class="filter-actions">
                 <x-button type="submit" variant="primary" icon="fas fa-filter">Appliquer</x-button>
                 <x-button href="{{ route('articles.index') }}" variant="outline" icon="fas fa-undo">Réinitialiser</x-button>
-                </div>
-            </form>
+            </div>
+        </form>
     </x-filter-section>
 
     {{-- Alert Messages --}}
@@ -122,7 +123,7 @@
             emptyMessage="Aucun article trouvé"
             emptySubmessage="Essayez de modifier vos filtres ou ajoutez un nouvel article"
         >
-                            @foreach($articles as $article)
+            @foreach($articles as $article)
                                 <tr class="table-row">
                                     <td class="table-cell">{{ $article->id }}</td>
                                     <td class="table-cell">
@@ -132,9 +133,9 @@
                                     </td>
                                     <td class="table-cell">
                         @if($article->numero)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                            {{ $article->numero }}
-                                        </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                {{ $article->numero }}
+                            </span>
                         @else
                             <span class="text-gray-400">-</span>
                         @endif

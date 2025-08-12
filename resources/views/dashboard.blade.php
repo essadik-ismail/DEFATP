@@ -311,20 +311,20 @@
     <style>
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .stat-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 2.5rem;
+            border-radius: 20px;
+            padding: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
             box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
+                0 6px 24px rgba(0, 0, 0, 0.1),
                 0 2px 8px rgba(0, 0, 0, 0.05);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             animation: fadeInUp 0.6s ease-out;
@@ -465,12 +465,11 @@
         .dashboard-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 24px;
+            border-radius: 20px;
             box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
+                0 6px 24px rgba(0, 0, 0, 0.1),
                 0 2px 8px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            overflow: hidden;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -482,7 +481,7 @@
         }
 
         .card-header {
-            padding: 2rem;
+            padding: 1.5rem;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
@@ -498,7 +497,7 @@
         }
 
         .card-body {
-            padding: 2rem;
+            padding: 1.5rem;
         }
 
         .activity-list {
@@ -511,7 +510,7 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 1.5rem;
+            padding: 1.25rem;
             border-radius: 16px;
             background: rgba(248, 250, 252, 0.8);
             transition: all 0.3s ease;
@@ -580,15 +579,15 @@
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .quick-action-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1rem;
-            padding: 2rem 1.5rem;
+            gap: 0.75rem;
+            padding: 1.5rem 1.25rem;
             border-radius: 16px;
             background: rgba(248, 250, 252, 0.8);
             text-decoration: none;
@@ -636,15 +635,15 @@
 
         .status-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
         }
 
         .status-item {
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 1.5rem;
+            padding: 1.25rem;
             border-radius: 16px;
             background: rgba(248, 250, 252, 0.8);
             border: 1px solid rgba(0, 0, 0, 0.05);
@@ -704,14 +703,14 @@
 
         .welcome-header {
             background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            padding: 4rem 2rem;
-            border-radius: 24px;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .welcome-content {
@@ -779,14 +778,14 @@
         }
 
         .stats-section {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .stats-header {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .section-title {
@@ -805,19 +804,19 @@
         .dashboard-main {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .dashboard-left {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         .dashboard-right {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         .card-title-section {
@@ -857,7 +856,7 @@
             justify-content: space-around;
             background: rgba(248, 250, 252, 0.8);
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 1.25rem;
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
@@ -1049,7 +1048,7 @@
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: 1fr;
-                gap: 1rem;
+                gap: 0.75rem;
             }
             
             .quick-actions {
@@ -1061,21 +1060,21 @@
             }
             
             .stat-card {
-                padding: 2rem;
+                padding: 1.5rem;
             }
             
             .card-header {
-                padding: 1.5rem;
+                padding: 1.25rem;
             }
             
             .card-body {
-                padding: 1.5rem;
+                padding: 1.25rem;
             }
 
             .welcome-header {
                 flex-direction: column;
                 text-align: center;
-                padding: 3rem 2rem;
+                padding: 2rem 1.5rem;
             }
 
             .welcome-actions {
@@ -1173,7 +1172,7 @@
 
         @media (max-width: 480px) {
             .welcome-header {
-                padding: 2rem 1rem;
+                padding: 1.5rem 1rem;
             }
 
             .welcome-title {
@@ -1189,19 +1188,19 @@
             }
 
             .stats-grid {
-                gap: 0.75rem;
+                gap: 0.5rem;
             }
 
             .stat-card {
-                padding: 1.5rem;
+                padding: 1.25rem;
             }
 
             .dashboard-main {
-                gap: 1rem;
+                gap: 0.75rem;
             }
 
             .dashboard-card {
-                margin-bottom: 0.75rem;
+                margin-bottom: 0.5rem;
             }
 
             .card-header {
@@ -1213,36 +1212,36 @@
             }
 
             .activity-item {
-                padding: 1rem;
+                padding: 0.875rem;
             }
 
             .quick-action-item {
-                padding: 1rem;
+                padding: 0.875rem;
             }
 
             .status-grid {
-                gap: 1rem;
-            }
-
-            .status-item {
-                padding: 1rem;
-            }
-
-            .activity-summary {
-                padding: 1rem;
-            }
-
-            .summary-item {
                 gap: 0.75rem;
             }
 
+            .status-item {
+                padding: 0.875rem;
+            }
+
+            .activity-summary {
+                padding: 0.875rem;
+            }
+
+            .summary-item {
+                gap: 0.5rem;
+            }
+
             .summary-icon {
-                width: 36px;
-                height: 36px;
+                width: 32px;
+                height: 32px;
             }
 
             .summary-value {
-                font-size: 1.25rem;
+                font-size: 1.125rem;
             }
 
             .summary-label {

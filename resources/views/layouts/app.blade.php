@@ -1127,13 +1127,15 @@
 
         .main-content {
             flex: 1;
-            margin-left: 280px;
+            margin-left: 280px; /* Perfect alignment with sidebar */
             background: linear-gradient(135deg, var(--background-light) 0%, var(--background-medium) 50%, var(--background-dark) 100%);
             min-height: 100vh;
             position: relative;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow-x: hidden;
-            padding-top: 80px; /* Account for fixed top bar */
+            padding: 0;
+            padding-top: 75px; /* Optimal top spacing */
+            box-sizing: border-box;
+            overflow: visible; /* Default overflow for cards */
         }
 
         .main-content::before {
@@ -1160,11 +1162,11 @@
         }
 
         .main-content.expanded {
-            margin-left: 70px;
+            margin-left: 70px; /* Perfect alignment with collapsed sidebar */
         }
 
         .main-content.expanded::before {
-            left: 70px;
+            left: 70px; /* Account for collapsed sidebar width */
         }
         
         /* Mobile responsive adjustments */
@@ -1172,13 +1174,42 @@
             .main-content::before {
                 left: 0;
             }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 0;
+                padding-top: 70px; /* Reduced mobile top spacing */
+            }
+            
+            .main-content.expanded {
+                margin-left: 0;
+            }
+            
+            .content-wrapper {
+                padding: 1.25rem 1.5rem 2rem 1.5rem; /* Better mobile padding */
+            }
+        }
+
+        /* Small Mobile Responsive */
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 0;
+                padding-top: 65px; /* Optimized small mobile top spacing */
+            }
+            
+            .content-wrapper {
+                padding: 1rem 1.25rem 1.5rem 1.25rem; /* Better small mobile padding */
+            }
         }
 
         .content-wrapper {
             position: relative;
             z-index: 1;
-            padding: 0;
+            padding: 1.5rem 2rem 2.5rem 2rem; /* Better bottom padding for breathing room */
             min-height: 100vh;
+            box-sizing: border-box;
+            max-width: 100%;
+            margin: 0 auto;
         }
 
         /* Creative Header Design */
@@ -1381,8 +1412,8 @@
 
         /* Creative Content Area */
         .content-area {
-            padding: 2rem 3rem;
-            padding-top: 6rem; /* Add top padding to account for fixed top bar */
+            padding: 1rem 2rem;
+            padding-top: 1rem; /* Reduced top padding since main-content already has padding-top */
             position: relative;
         }
 
@@ -1675,7 +1706,8 @@
             
             .main-content {
                 margin-left: 0;
-                padding-top: 70px; /* Smaller padding for mobile */
+                padding: 0;
+                padding-top: 80px; /* Smaller padding for mobile */
             }
 
             .main-content.expanded {
@@ -1752,7 +1784,7 @@
             padding: 1rem 2rem;
             position: fixed;
             top: 0;
-            left: 280px;
+            left: 280px; /* Perfect alignment with sidebar */
             right: 0;
             z-index: 1000;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -1760,7 +1792,7 @@
         }
 
         .sidebar.collapsed + .main-content .top-bar {
-            left: 70px;
+            left: 70px; /* Perfect alignment with collapsed sidebar */
         }
 
         .top-bar-content {
@@ -2170,30 +2202,27 @@
         @include('partials.sidebar')
 
         <!-- Main Content -->
-        <main class="main-content">
-            <div class="content-wrapper">
-                @include('partials.top-bar')
+        <div class="content-wrapper">
+            @include('partials.top-bar')
 
-                <div class="content-header">
-                    <div class="header-content">
-                        <div class="greeting-section">
-                    <button class="mobile-menu-toggle d-md-none" onclick="toggleSidebar()">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                            <div class="greeting">
-                    <h1>Bonjour, {{ auth()->user()->name }}</h1>
-                                <p>Aujourd'hui nous sommes {{ now()->format('d/m/Y') }}</p>
-                            </div>
-                </div>
-                <div class="header-actions">
-                    @yield('page-actions')
+            <!-- <div class="content-header">
+                <div class="header-content">
+                    <div class="greeting-section">
+                <button class="mobile-menu-toggle d-md-none" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                        <div class="greeting">
+                <h1>Bonjour, {{ auth()->user()->name }}</h1>
+                            <p>Aujourd'hui nous sommes {{ now()->format('d/m/Y') }}</p>
                         </div>
-                </div>
-            </div>
+            </div> -->
+            <!-- <div class="header-actions">
+                @yield('page-actions')
+            </div> -->
+            <!-- </div> -->
 
-                @include('partials.content-wrapper')
-            </div>
-        </main>
+            @include('partials.content-wrapper')
+        </div>
     </div>
 
     @include('partials.scripts')

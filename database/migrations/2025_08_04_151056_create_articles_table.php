@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
+            $table->date('date_adjudication')->default(now());
             $table->integer('annee')->default(now()->year);
             $table->string('numero')->nullable(); 
-            $table->date('date_adjudication')->default(now());
 
             $table->boolean('invendu')->default(false);
 
