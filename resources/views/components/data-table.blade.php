@@ -47,8 +47,10 @@
         </div>
         
         @if($pagination)
-            <div class="pagination-wrapper mt-6">
-                {{ $pagination }}
+            <div class="pagination-wrapper mt-4">
+                <div class="d-flex justify-content-center">
+                    {{ $pagination }}
+                </div>
             </div>
         @endif
     @else
@@ -66,24 +68,27 @@
 <style>
     .data-table-wrapper {
         width: 100%;
+        overflow: hidden;
     }
 
     .table-info {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
 
     .data-table {
         width: 100%;
-        min-width: 800px; /* Ensure minimum width for readability */
+        min-width: 100%;
         border-collapse: collapse;
         font-size: 0.875rem;
         background: white;
         border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        table-layout: fixed; /* Better column width distribution */
+        table-layout: auto; /* Allow natural column sizing on mobile */
     }
 
     .table-header {
@@ -92,7 +97,7 @@
     }
 
     .table-header-cell {
-        padding: 0.5rem 0.75rem;
+        padding: 0.75rem 0.5rem;
         text-align: left;
         font-weight: 600;
         color: #374151;
@@ -105,21 +110,8 @@
         position: sticky;
         top: 0;
         z-index: 10;
+        min-width: 80px; /* Minimum column width */
     }
-
-    /* Column width management for wide tables */
-    .data-table th:nth-child(1), .data-table td:nth-child(1) { width: 60px; } /* ID */
-    .data-table th:nth-child(2), .data-table td:nth-child(2) { width: 80px; } /* Année */
-    .data-table th:nth-child(3), .data-table td:nth-child(3) { width: 100px; } /* Numéro */
-    .data-table th:nth-child(4), .data-table td:nth-child(4) { width: 120px; } /* Date */
-    .data-table th:nth-child(5), .data-table td:nth-child(5) { width: 120px; } /* Forêt */
-    .data-table th:nth-child(6), .data-table td:nth-child(6) { width: 120px; } /* Essence */
-    .data-table th:nth-child(7), .data-table td:nth-child(7) { width: 120px; } /* Localisation */
-    .data-table th:nth-child(8), .data-table td:nth-child(8) { width: 120px; } /* Prix Retrait */
-    .data-table th:nth-child(9), .data-table td:nth-child(9) { width: 120px; } /* Prix Vente */
-    .data-table th:nth-child(10), .data-table td:nth-child(10) { width: 120px; } /* Type */
-    .data-table th:nth-child(11), .data-table td:nth-child(11) { width: 100px; } /* Statut */
-    .data-table th:nth-child(12), .data-table td:nth-child(12) { width: 150px; } /* Actions */
 
     .table-body {
         background-color: white;
@@ -135,7 +127,7 @@
     }
 
     .table-cell {
-        padding: 0.5rem 0.75rem;
+        padding: 0.75rem 0.5rem;
         font-size: 0.875rem;
         color: #374151;
         vertical-align: top;
@@ -143,6 +135,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        min-width: 80px; /* Minimum column width */
     }
 
     /* Allow text wrapping for specific columns that need it */
@@ -198,34 +191,48 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        margin-top: 1.5rem;
+        padding: 1rem 0;
+        border-top: 1px solid #e5e7eb;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
 
-    @media (max-width: 768px) {
-        .table-responsive {
-            border: 0;
-        }
-        
-        .data-table {
-            min-width: 600px; /* Smaller minimum width on mobile */
-        }
-        
-        .table-header-cell, .table-cell {
-            padding: 0.5rem;
-            font-size: 0.75rem;
-        }
-        
-        .empty-state {
-            padding: 2rem 1rem;
-        }
-        
-        .empty-icon {
-            width: 3rem;
-            height: 3rem;
-        }
-        
-        .empty-icon i {
-            font-size: 1.5rem;
-        }
+    .pagination-wrapper .pagination {
+        margin: 0;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .pagination-wrapper .page-link {
+        color: #374151;
+        background-color: #ffffff;
+        border: 1px solid #d1d5db;
+        padding: 0.5rem 0.75rem;
+        margin: 0 0.125rem;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .pagination-wrapper .page-link:hover {
+        background-color: #f3f4f6;
+        border-color: #9ca3af;
+        color: #1f2937;
+    }
+
+    .pagination-wrapper .page-item.active .page-link {
+        background-color: #4a7c59;
+        border-color: #4a7c59;
+        color: #ffffff;
+    }
+
+    .pagination-wrapper .page-item.disabled .page-link {
+        color: #9ca3af;
+        background-color: #f9fafb;
+        border-color: #e5e7eb;
+        cursor: not-allowed;
     }
 
     /* Ensure table responsiveness works properly */
@@ -236,6 +243,7 @@
         overflow-y: hidden;
         max-width: 100%;
         box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
 
     /* Table scroll hint styling */
@@ -264,6 +272,199 @@
 
     .table-responsive::-webkit-scrollbar-thumb:hover {
         background: #a8a8a8;
+    }
+
+    /* Responsive Design - Mobile First Approach */
+    
+    /* Extra Small devices (phones, 576px and down) */
+    @media (max-width: 575.98px) {
+        .data-table {
+            min-width: 100%;
+            font-size: 0.75rem;
+        }
+        
+        .table-header-cell, .table-cell {
+            padding: 0.5rem 0.25rem;
+            font-size: 0.75rem;
+            min-width: 60px;
+        }
+        
+        .table-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .table-scroll-hint {
+            display: none !important;
+        }
+        
+        .empty-state {
+            padding: 2rem 1rem;
+        }
+        
+        .empty-icon {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .empty-icon i {
+            font-size: 1.5rem;
+        }
+        
+        .pagination-wrapper .page-link {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.75rem;
+            min-width: 35px;
+        }
+        
+        .pagination-wrapper .pagination {
+            gap: 0.25rem;
+        }
+    }
+
+    /* Small devices (landscape phones, 576px and up) */
+    @media (min-width: 576px) and (max-width: 767.98px) {
+        .data-table {
+            min-width: 100%;
+            font-size: 0.8rem;
+        }
+        
+        .table-header-cell, .table-cell {
+            padding: 0.625rem 0.375rem;
+            font-size: 0.8rem;
+            min-width: 70px;
+        }
+        
+        .table-info {
+            flex-direction: row;
+            align-items: center;
+        }
+        
+        .pagination-wrapper .page-link {
+            padding: 0.5rem 0.625rem;
+            min-width: 38px;
+        }
+    }
+
+    /* Medium devices (tablets, 768px and up) */
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .data-table {
+            min-width: 100%;
+            font-size: 0.85rem;
+        }
+        
+        .table-header-cell, .table-cell {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+            min-width: 80px;
+        }
+        
+        .pagination-wrapper .page-link {
+            padding: 0.5rem 0.75rem;
+            min-width: 40px;
+        }
+    }
+
+    /* Large devices (desktops, 992px and up) */
+    @media (min-width: 992px) and (max-width: 1199.98px) {
+        .data-table {
+            min-width: 100%;
+            font-size: 0.875rem;
+        }
+        
+        .table-header-cell, .table-cell {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.875rem;
+            min-width: 80px;
+        }
+    }
+
+    /* Extra large devices (large desktops, 1200px and up) */
+    @media (min-width: 1200px) {
+        .data-table {
+            min-width: 100%;
+            font-size: 0.875rem;
+        }
+        
+        .table-header-cell, .table-cell {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.875rem;
+            min-width: 80px;
+        }
+    }
+
+    /* Landscape orientation adjustments */
+    @media (orientation: landscape) and (max-height: 500px) {
+        .table-header-cell, .table-cell {
+            padding: 0.5rem 0.375rem;
+        }
+        
+        .pagination-wrapper {
+            margin-top: 1rem;
+            padding: 0.75rem 0;
+        }
+    }
+
+    /* High DPI displays */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .table-responsive {
+            border-width: 0.5px;
+        }
+        
+        .table-header-cell, .table-cell {
+            border-bottom-width: 0.5px;
+        }
+    }
+
+    /* Print styles */
+    @media print {
+        .table-responsive {
+            overflow: visible;
+            border: none;
+            box-shadow: none;
+        }
+        
+        .data-table {
+            box-shadow: none;
+            border: 1px solid #000;
+        }
+        
+        .pagination-wrapper {
+            display: none;
+        }
+        
+        .table-scroll-hint {
+            display: none;
+        }
+    }
+
+    /* Accessibility improvements */
+    .table-header-cell:focus,
+    .table-cell:focus {
+        outline: 2px solid #4a7c59;
+        outline-offset: -2px;
+    }
+
+    /* Reduced motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+        .table-row,
+        .pagination-wrapper .page-link {
+            transition: none;
+        }
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .table-header-cell,
+        .table-cell {
+            border-color: #000;
+        }
+        
+        .table-row:hover {
+            background-color: #000;
+            color: #fff;
+        }
     }
 </style>
 @endpush

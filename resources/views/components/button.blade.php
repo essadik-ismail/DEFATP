@@ -16,14 +16,14 @@
     
     $variantClasses = [
         'primary' => 'btn-primary',
-        'secondary' => 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500 shadow-sm hover:shadow-md',
-        'success' => 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 shadow-sm hover:shadow-md',
-        'danger' => 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md',
-        'warning' => 'bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500 shadow-sm hover:shadow-md',
-        'info' => 'bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400 shadow-sm hover:shadow-md',
-        'outline' => 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-500 shadow-sm hover:shadow-md',
-        'ghost' => 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
-        'link' => 'text-blue-600 hover:text-blue-800 underline focus:ring-blue-500'
+        'secondary' => 'btn-secondary',
+        'success' => 'btn-primary',
+        'danger' => 'btn-danger',
+        'warning' => 'btn-warning',
+        'info' => 'btn-worning',
+        'outline' => 'btn-outline',
+        'ghost' => 'btn-ghost',
+        'link' => 'btn-primary'
     ];
     
     $sizeClasses = [

@@ -9,7 +9,7 @@
                 </div>
                 <div class="stat-info">
                     <h3 class="stat-number">{{ $stat['value'] }}</h3>
-                    <p class="stat-label">{{ $stat['label'] }}</p>
+                    <p class="stat-label">{{ $stat['title'] }}</p>
                 </div>
             </div>
         </div>
