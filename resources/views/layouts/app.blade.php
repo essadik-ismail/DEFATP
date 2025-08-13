@@ -2050,6 +2050,14 @@
     </style>
 </head>
 <body>
+    <!-- Mobile Sidebar Toggle Button -->
+    <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle Sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" onclick="closeMobileSidebar()"></div>
+
     <div class="dashboard-container">
         @include('partials.sidebar')
 
