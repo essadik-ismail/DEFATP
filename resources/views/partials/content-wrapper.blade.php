@@ -1,5 +1,5 @@
 <!-- Main Content Area -->
-<main class="main-content">
+<main>
     <!-- Content Area -->
     <div class="content-area">
         <!-- Session Alerts -->

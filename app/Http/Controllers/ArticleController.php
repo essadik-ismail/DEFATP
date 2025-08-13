@@ -143,7 +143,7 @@ class ArticleController extends Controller
             'date_adjudication', 'annee', 'numero', 'localisation_id', 'situation_administrative_id',
             'parcelle', 'foret_id', 'essence_id', 'nature_de_coupe_id', 'lot',
             'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-            'romarin_t', 'ps_t', 'liege_st', 'charbon_bois_ox', 'invendu', 'prix_de_retrait',
+            'romarin_t', 'ps_t', 'charbon_bois_ox', 'invendu', 'prix_de_retrait',
             'date_dr', 'exploitant_id', 'type', 'prix_vente', 'dc', 'rc', 'date_de_resiliation',
             'date_de_decheance', 'is_validated', 'observations'
         ]);
@@ -159,7 +159,6 @@ class ArticleController extends Controller
             'has_caroube_t' => 'caroube_t',
             'has_romarin_t' => 'romarin_t',
             'has_ps_t' => 'ps_t',
-            'has_liege_st' => 'liege_st',
             'has_charbon_bois_ox' => 'charbon_bois_ox'
         ];
 

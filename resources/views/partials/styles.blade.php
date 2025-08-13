@@ -112,7 +112,7 @@
         height: 70px; /* Fixed height */
         min-height: 70px;
         max-height: 70px;
-        padding: 0 2rem;
+        padding: 0 2.5rem; /* Increased horizontal padding for better spacing */
         display: flex;
         align-items: center;
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
@@ -120,15 +120,30 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.3);
         position: fixed;
         top: 0;
-        left: 280px; /* Perfect alignment with sidebar */
+        left: 280px; /* Perfect alignment with expanded sidebar */
         right: 0;
         z-index: 1000;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        transition: left 0.3s cubic-bezier(0.4, 0, 2, 1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .sidebar.collapsed + .main-content .top-bar {
+    /* Top Bar when sidebar is collapsed */
+    .sidebar.collapsed ~ .content-wrapper .top-bar {
         left: 70px; /* Perfect alignment with collapsed sidebar */
+        padding: 0 2rem; /* Slightly reduced padding when collapsed */
+        transform: translateX(0); /* Smooth transition */
+    }
+
+    /* Top Bar when sidebar is expanded */
+    .sidebar:not(.collapsed) ~ .content-wrapper .top-bar {
+        left: 280px; /* Perfect alignment with expanded sidebar */
+        padding: 0 2.5rem; /* Full padding when expanded */
+        transform: translateX(0); /* Smooth transition */
+    }
+
+    /* Smooth transition for top bar content */
+    .top-bar-content {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .top-bar-content {
@@ -138,6 +153,7 @@
         width: 100%;
         max-width: 1400px;
         margin: 0 auto;
+        gap: 2rem; /* Better spacing between left and right sections */
     }
 
     /* Top Bar Elements Styling */
@@ -149,9 +165,10 @@
     .breadcrumbs {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem; /* Increased gap between breadcrumb items */
         font-size: 0.875rem;
         color: var(--text-secondary);
+        padding: 0.5rem 0; /* Add vertical padding for better touch targets */
     }
 
     .breadcrumb-item {
@@ -174,25 +191,27 @@
     .top-bar-actions {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.5rem; /* Increased gap between action buttons */
+        margin-left: auto; /* Push actions to the right */
     }
 
     .top-bar-btn {
         background: rgba(255, 255, 255, 0.8);
         border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 12px;
-        padding: 0.75rem;
+        padding: 0.75rem 1rem; /* Increased horizontal padding */
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem; /* Increased gap between icon and text */
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         backdrop-filter: blur(10px);
         color: var(--text-primary);
         font-size: 0.875rem;
         font-weight: 500;
-        height: 44px; /* Fixed height for consistency */
-        min-width: 44px;
+        height: 48px; /* Slightly increased height for better proportions */
+        min-width: 48px; /* Increased minimum width */
+        box-sizing: border-box;
     }
 
     .top-bar-btn:hover {
@@ -202,43 +221,58 @@
         box-shadow: 0 4px 12px rgba(74, 124, 89, 0.2);
     }
 
+    .top-bar-btn:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+        background: rgba(255, 255, 255, 0.95);
+        border-color: var(--primary-color);
+    }
+
+    .top-bar-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(74, 124, 89, 0.3);
+    }
+
     .notification-btn {
         position: relative;
-        min-width: 44px;
+        min-width: 48px; /* Match new button size */
         justify-content: center;
+        padding: 0.75rem; /* Consistent padding */
     }
 
     .notification-badge {
         position: absolute;
-        top: -5px;
-        right: -5px;
+        top: -6px;
+        right: -6px;
         background: linear-gradient(135deg, var(--danger-color), var(--danger-dark));
         color: white;
         border-radius: 50%;
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 0.75rem;
         font-weight: 600;
         border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .dark-mode-btn {
-        min-width: 44px;
+        min-width: 48px; /* Match new button size */
         justify-content: center;
+        padding: 0.75rem; /* Consistent padding */
     }
 
     .profile-btn {
         min-width: auto;
-        padding: 0.75rem 1rem;
-        height: 44px;
+        padding: 0.75rem 1.25rem; /* Increased horizontal padding */
+        height: 48px; /* Match new button height */
     }
 
     .profile-avatar {
-        width: 28px;
-        height: 28px;
+        width: 32px; /* Slightly larger avatar */
+        height: 32px;
         border-radius: 50%;
         background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
         display: flex;
@@ -246,44 +280,71 @@
         justify-content: center;
         color: white;
         font-weight: 600;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 2px 8px rgba(74, 124, 89, 0.2);
     }
 
     .profile-name {
         color: var(--text-primary);
         font-size: 0.875rem;
         font-weight: 500;
+        margin-left: 0.5rem; /* Better spacing from avatar */
+    }
+
+    /* Dark Mode Top Bar Enhancements */
+    .dark-mode .top-bar {
+        background: linear-gradient(135deg, rgba(31, 41, 55, 0.98) 0%, rgba(17, 24, 39, 0.98) 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dark-mode .top-bar-btn {
+        background: rgba(31, 41, 55, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+    }
+
+    .dark-mode .top-bar-btn:hover {
+        background: rgba(31, 41, 55, 0.95);
+        border-color: var(--primary-color);
     }
 
     /* Content Area Styling */
     .content-area {
-        /* padding: 1.5rem 2rem; /* Match top bar padding
-        padding-top: 1.5rem; Better top spacing for content */
+        padding: 1.5rem 2rem; /* Match top bar padding */
+        padding-top: 1.5rem; /* Better top spacing for content */
         height: 100%;
         box-sizing: border-box;
         max-width: 1400px; /* Match top bar max-width */
         margin: 0 auto; /* Center content on wide screens */
-        background: transparent; /* Inherit from main-content */
+        background: transparent; /* Inherit from content-wrapper */
         backdrop-filter: none; /* No additional blur */
+        position: relative; /* For pseudo-element positioning */
     }
 
+    /* Main content positioning - now handled by content-wrapper */
     .main-content {
-        /* width: 100%; */
-        margin-left: 280px; /* Perfect alignment with sidebar */
         padding: 0;
-        margin-top: 85px; /* Increased top spacing for better breathing room */
         min-height: 100vh;
         position: relative;
-        transition: margin-left 0.3s ease;
         box-sizing: border-box;
-        /* overflow: visible; Default overflow for cards */
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
-        backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        background: transparent; /* Inherit from content-wrapper */
+        backdrop-filter: none;
+        border-bottom: none;
+        box-shadow: none;
     }
 
-    .main-content.expanded {
+    /* Content Wrapper positioning for sidebar toggle */
+    .content-wrapper {
+        margin-left: 280px; /* Perfect alignment with expanded sidebar */
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        min-height: 100vh;
+        position: relative;
+        padding-top: 85px; /* Account for top bar height */
+        box-sizing: border-box;
+    }
+
+    .sidebar.collapsed ~ .content-wrapper {
         margin-left: 70px; /* Perfect alignment with collapsed sidebar */
     }
 
@@ -332,13 +393,13 @@
 
     /* Mobile Responsive */
     @media (max-width: 768px) {
-        .main-content {
+        .content-wrapper {
             margin-left: 0;
             padding: 0;
             padding-top: 85px; /* Consistent with desktop */
         }
 
-        .main-content.expanded {
+        .sidebar.collapsed ~ .content-wrapper {
             margin-left: 0;
         }
 
@@ -348,7 +409,7 @@
         }
 
         .content-area {
-            overflow: none;
+            overflow: visible; /* Fixed invalid 'none' value */
             padding: 1rem 1.5rem; /* Match top bar mobile padding */
             max-width: 100%; /* Full width on mobile */
         }
@@ -377,30 +438,66 @@
         }
 
         .top-bar-btn {
-            height: 40px;
-            min-width: 40px;
-            padding: 0.5rem;
+            height: 44px; /* Maintain proportion on mobile */
+            min-width: 44px;
+            padding: 0.5rem 0.75rem; /* Adjusted padding for mobile */
         }
 
         .profile-btn {
-            height: 40px;
-            padding: 0.5rem 0.75rem;
+            height: 44px; /* Maintain proportion on mobile */
+            padding: 0.5rem 1rem; /* Adjusted padding for mobile */
         }
 
         .profile-avatar {
-            width: 24px;
-            height: 24px;
-            font-size: 0.7rem;
+            width: 28px; /* Maintain proportion on mobile */
+            height: 28px;
+            font-size: 0.75rem;
         }
 
         .profile-name {
             font-size: 0.8rem;
         }
+
+        /* Mobile-specific dark mode adjustments */
+        .dark-mode .top-bar {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
+        }
+
+        /* Additional Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .top-bar-content {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .top-bar-left {
+                justify-content: center;
+            }
+
+            .top-bar-right {
+                justify-content: center;
+            }
+
+            .top-bar-actions {
+                justify-content: center;
+            }
+
+            .profile-btn .profile-name {
+                display: none;
+            }
+
+            .notification-panel,
+            .profile-panel {
+                width: 320px;
+                right: -80px;
+            }
+        }
     }
 
     /* Small Mobile Responsive */
     @media (max-width: 480px) {
-        .main-content {
+        .content-wrapper {
             padding: 0;
             padding-top: 80px; /* Better small mobile spacing */
         }
@@ -416,16 +513,11 @@
             scrollbar-width: none; /* Hide default Firefox scrollbar */
             -ms-overflow-style: none; /* Hide default IE scrollbar */
         }
-    }
 
-    /* Content Container inherits app scrolling behavior */
-    .content-scroll-container {
-        /* Inherits app overflow and scrolling behavior */
-    }
-
-    /* Main Content - Default Overflow */
-    .main-content {
-        /* overflow: visible; Default overflow for cards */
+        /* Small mobile scrollbar adjustments */
+        .content-scroll-container::-webkit-scrollbar {
+            width: 4px; /* Even thinner on small mobile */
+        }
     }
 
     /* Enhanced Content Spacing */
@@ -433,8 +525,17 @@
         margin-bottom: 1.5rem; /* Consistent spacing between content blocks */
     }
     
-    /* Main Content Visual Integration with Top Bar */
-    .main-content::before {
+    /* Enhanced Content Spacing */
+    .content-scroll-container > * {
+        margin-bottom: 1.5rem; /* Consistent spacing between content blocks */
+    }
+    
+    .content-scroll-container > *:last-child {
+        margin-bottom: 0; /* No margin on last element */
+    }
+    
+    /* Content Wrapper Visual Integration with Top Bar */
+    .content-wrapper::before {
         content: '';
         position: absolute;
         top: 0;
@@ -467,22 +568,44 @@
         opacity: 0.1;
         border-radius: 0 0 2px 2px;
     }
-    
-    .content-scroll-container > *:last-child {
-        margin-bottom: 0; /* No margin on last element */
+
+    /* Dark Mode Content Enhancements */
+    .dark-mode .content-wrapper {
+        background: linear-gradient(135deg, rgba(31, 41, 55, 0.98) 0%, rgba(17, 24, 39, 0.98) 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dark-mode .content-area::before {
+        opacity: 0.2; /* More visible in dark mode */
+    }
+
+    .dark-mode .content-header {
+        background: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, var(--background-light) 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     /* Card and Component Spacing */
     .card, .x-card, [class*="card"] {
         margin-bottom: 1.5rem;
         border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); */
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .card:hover, .x-card:hover, [class*="card"]:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        /* box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); */
+    }
+
+    /* Dark Mode Card Enhancements */
+    .dark-mode .card, .dark-mode .x-card, .dark-mode [class*="card"] {
+        background: var(--background-light);
+        border: 1px solid var(--border-light);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark-mode .card:hover, .dark-mode .x-card:hover, .dark-mode [class*="card"]:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
     }
     
     /* Stats Grid Spacing */
@@ -527,6 +650,60 @@
         .content-scroll-container {
             height: auto;
             overflow: visible;
+        }
+        
+        .top-bar,
+        .sidebar,
+        .content-wrapper::before,
+        .content-area::before {
+            display: none; /* Hide decorative elements in print */
+        }
+        
+        .content-wrapper {
+            margin: 0;
+            padding: 1rem;
+            background: white;
+            box-shadow: none;
+        }
+    }
+
+    /* Performance Optimizations */
+    .top-bar,
+    .content-wrapper,
+    .content-area {
+        /* will-change: transform, left, margin-left; */
+        backface-visibility: hidden;
+    }
+
+    /* High Contrast Mode Support */
+    @media (prefers-contrast: high) {
+        .top-bar-btn {
+            border-width: 2px;
+        }
+        
+        .content-area::before {
+            opacity: 0.3;
+        }
+    }
+
+    /* Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+        .top-bar,
+        .content-wrapper,
+        .top-bar-btn,
+        .card,
+        .x-card,
+        [class*="card"] {
+            transition: none;
+            animation: none;
+        }
+        
+        .top-bar-btn:hover {
+            transform: none;
+        }
+        
+        .card:hover, .x-card:hover, [class*="card"]:hover {
+            transform: none;
         }
     }
 </style>

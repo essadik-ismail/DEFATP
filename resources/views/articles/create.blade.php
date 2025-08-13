@@ -17,11 +17,19 @@
     <div class="card-body">
         <form action="{{ route('articles.store') }}" method="POST" id="articleForm">
             @csrf
+
             
-            <!-- 1. Date d'Adjudication Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-calendar-alt text-primary"></i> Date d'Adjudication</h6>
+            <!-- 2. Année Section -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="annee" class="form-label">Année <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control @error('annee') is-invalid @enderror" 
+                               id="annee" name="annee" value="{{ old('annee', date('Y')) }}" min="2000" max="2100" required>
+                        @error('annee')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -33,46 +41,15 @@
                         @enderror
                     </div>
                 </div>
-            </div>
-
-            <!-- 2. Année Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-calendar text-info"></i> Année</h6>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="annee" class="form-label">Année <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control @error('annee') is-invalid @enderror" 
-                               id="annee" name="annee" value="{{ old('annee', date('Y')) }}" min="2000" max="2100" required>
-                        @error('annee')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. Numéro Article Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-hashtag text-success"></i> Numéro Article</h6>
-                </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="numero" class="form-label">Numéro Article</label>
-                        <input type="text" class="form-control @error('numero') is-invalid @enderror" 
+                        <input type="number" class="form-control @error('numero') is-invalid @enderror" 
                                id="numero" name="numero" value="{{ old('numero') }}" maxlength="255" placeholder="Ex: 001, 002...">
                         @error('numero')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
-            </div>
-
-            <!-- 4. Localisation Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-map-marker-alt text-warning"></i> Localisation</h6>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -81,7 +58,7 @@
                             <option value="">Sélectionner une localisation</option>
                             @foreach($localisations as $localisation)
                                 <option value="{{ $localisation->id }}" {{ old('localisation_id') == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->CODE }} - {{ $localisation->localisation }}
+                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }}
                                 </option>
                             @endforeach
                         </select>
@@ -90,13 +67,6 @@
                         @enderror
                     </div>
                 </div>
-            </div>
-
-            <!-- 5. Situation Administrative Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-building text-secondary"></i> Situation Administrative</h6>
-                </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="situation_administrative_id" class="form-label">Situation Administrative <span class="text-danger">*</span></label>
@@ -104,7 +74,7 @@
                             <option value="">Sélectionner une situation administrative</option>
                             @foreach($situationAdministratives as $situation)
                                 <option value="{{ $situation->id }}" {{ old('situation_administrative_id') == $situation->id ? 'selected' : '' }}>
-                                    {{ $situation->commune }}
+                                    {{ $situation->commune }} - {{ $situation->province }}
                                 </option>
                             @endforeach
                         </select>
@@ -113,14 +83,7 @@
                         @enderror
                     </div>
                 </div>
-            </div>
-
-            <!-- 6. Parcelle, Forêt, Essence, Nature de Coupe, Lot Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-tree text-success"></i> Détails de la Parcelle</h6>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="mb-3">
                         <label for="parcelle" class="form-label">Parcelle</label>
                         <input type="number" min="0" class="form-control @error('parcelle') is-invalid @enderror" 
@@ -130,7 +93,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="mb-3">
                         <label for="foret_id" class="form-label">Forêt <span class="text-danger">*</span></label>
                         <select class="form-select @error('foret_id') is-invalid @enderror" id="foret_id" name="foret_id" required>
@@ -146,7 +109,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="mb-3">
                         <label for="essence_id" class="form-label">Essence <span class="text-danger">*</span></label>
                         <select class="form-select @error('essence_id') is-invalid @enderror" id="essence_id" name="essence_id" required>
@@ -162,7 +125,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="mb-3">
                         <label for="nature_de_coupe_id" class="form-label">Nature de Coupe <span class="text-danger">*</span></label>
                         <select class="form-select @error('nature_de_coupe_id') is-invalid @enderror" id="nature_de_coupe_id" name="nature_de_coupe_id" required>
@@ -178,10 +141,10 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="mb-3">
                         <label for="lot" class="form-label">Lot</label>
-                        <input type="text" class="form-control @error('lot') is-invalid @enderror" 
+                        <input type="number" class="form-control @error('lot') is-invalid @enderror" 
                                id="lot" name="lot" value="{{ old('lot') }}" placeholder="Numéro de lot">
                         @error('lot')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -191,7 +154,7 @@
             </div>
 
             <!-- 7. Spécifications Techniques Section -->
-            <div class="row mb-4">
+            <div class="row mt-5">
                 <div class="col-12">
                     <h6 class="section-title"><i class="fas fa-cogs text-primary"></i> Spécifications Techniques</h6>
                 </div>
@@ -331,20 +294,7 @@
                     </div>
                 </div>
 
-                <!-- Liège (st) -->
-                <div class="col-md-3">
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="has_liege_st" name="has_liege_st" value="1">
-                            <label class="form-check-label" for="has_liege_st">Liège (st)</label>
-                        </div>
-                        <input type="number" step="0.01" min="0" class="form-control mt-2 @error('liege_st') is-invalid @enderror" 
-                               id="liege_st" name="liege_st" value="{{ old('liege_st') }}" style="display: none;">
-                        @error('liege_st')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
+
 
                 <!-- Charbon Bois (ox) -->
                 <div class="col-md-3">
@@ -363,7 +313,7 @@
             </div>
 
             <!-- 8. Suivi de l'Article Section -->
-            <div class="row mb-4">
+            <div class="row mt-5">
                 <div class="col-12">
                     <h6 class="section-title"><i class="fas fa-file-contract text-warning"></i> Suivi de l'Article</h6>
                 </div>
@@ -531,99 +481,99 @@
 </div>
 
 <style>
-.card {
-    border: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border-radius: 15px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
+    .card {
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
 
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
 
-.card-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 1px solid #dee2e6;
-    padding: 20px;
-}
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+        padding: 20px;
+    }
 
-.card-header h5 {
-    margin: 0;
-    font-weight: 600;
-    color: #495057;
-}
+    .card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        color: #495057;
+    }
 
-.card-body {
-    padding: 25px;
-}
+    .card-body {
+        padding: 25px;
+    }
 
-.section-title {
-    color: #495057;
-    font-weight: 600;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #e9ecef;
-}
+    .section-title {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e9ecef;
+    }
 
-.form-label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 8px;
-}
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+    }
 
-.form-control, .form-select {
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
-    padding: 12px 15px;
-    transition: all 0.3s ease;
-}
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
 
-.form-control:focus, .form-select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-}
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
 
-.form-check-input:checked {
-    background-color: #667eea;
-    border-color: #667eea;
-}
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
 
-.alert {
-    border-radius: 10px;
-    border: none;
-}
+    .alert {
+        border-radius: 10px;
+        border: none;
+    }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle checkboxes for technical specifications
-    const checkboxes = [
-        'has_superficie', 'has_bo_m3', 'has_bi_m3', 'has_bf_st', 
-        'has_tanin_t', 'has_fleur_acacia_t', 'has_caroube_t', 'has_romarin_t', 
-        'has_ps_t', 'has_liege_st', 'has_charbon_bois_ox'
-    ];
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle checkboxes for technical specifications
+        const checkboxes = [
+            'has_superficie', 'has_bo_m3', 'has_bi_m3', 'has_bf_st', 
+            'has_tanin_t', 'has_fleur_acacia_t', 'has_caroube_t', 'has_romarin_t', 
+            'has_ps_t', 'has_charbon_bois_ox'
+        ];
 
-    checkboxes.forEach(function(checkboxId) {
-        const checkbox = document.getElementById(checkboxId);
-        const inputId = checkboxId.replace('has_', '');
-        const input = document.getElementById(inputId);
-        
-        if (checkbox && input) {
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    input.style.display = 'block';
-                    input.required = true;
-                } else {
-                    input.style.display = 'none';
-                    input.required = false;
-                    input.value = '';
-                }
-            });
-        }
+        checkboxes.forEach(function(checkboxId) {
+            const checkbox = document.getElementById(checkboxId);
+            const inputId = checkboxId.replace('has_', '');
+            const input = document.getElementById(inputId);
+            
+            if (checkbox && input) {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        input.style.display = 'block';
+                        input.required = true;
+                    } else {
+                        input.style.display = 'none';
+                        input.required = false;
+                        input.value = '';
+                    }
+                });
+            }
+        });
     });
-});
 </script>
 @endsection 

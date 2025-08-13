@@ -52,10 +52,10 @@
                             @endforeach
                         @endif
                         
-                        <x-button type="submit" variant="primary" fullWidth>
+                        <button type="submit" class="btn-primary">
                             <i class="material-icons mr-2">file_download</i>
                             {{ $exportLabel }}
-                        </x-button>
+                        </button>
                     </form>
                 </div>
             @endif
@@ -92,10 +92,10 @@
                             <div id="{{ $id }}-file-name" class="file-name-display hidden"></div>
                         </div>
                         
-                        <x-button type="submit" variant="success" fullWidth>
+                        <button type="submit" class="btn-primary">
                             <i class="material-icons mr-2">cloud_upload</i>
                             {{ $importLabel }}
-                        </x-button>
+                        </button>
                     </form>
                 </div>
             @endif

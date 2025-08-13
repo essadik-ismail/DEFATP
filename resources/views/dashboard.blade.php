@@ -9,7 +9,7 @@
             <div class="welcome-text">
                 <h1 class="welcome-title">Bonjour, {{ auth()->user()->name }} 👋</h1>
                 <p class="welcome-subtitle">Bienvenue sur votre tableau de bord SylvaNet</p>
-                <p class="welcome-date">Aujourd'hui nous sommes {{ now()->format('l j F Y') }}</p>
+                <p class="welcome-date">Aujourd'hui nous sommes {{ now()->format('d/m/Y') }}</p>
             </div>
             <div class="welcome-actions">
                 <a href="{{ route('articles.create') }}" class="welcome-btn primary">

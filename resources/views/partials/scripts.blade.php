@@ -15,14 +15,11 @@
 
     function toggleSidebarCollapse() {
         const sidebar = document.querySelector('.sidebar');
-        const mainContent = document.querySelector('.main-content');
         
         if (sidebar.classList.contains('collapsed')) {
             sidebar.classList.remove('collapsed');
-            mainContent.classList.remove('expanded');
         } else {
             sidebar.classList.add('collapsed');
-            mainContent.classList.add('expanded');
         }
     }
     

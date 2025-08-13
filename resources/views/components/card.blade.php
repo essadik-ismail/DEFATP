@@ -88,7 +88,7 @@
     }
 
     .card-body {
-        padding: 2rem;
+        /* padding: 2rem; */
     }
 
     .card-footer {

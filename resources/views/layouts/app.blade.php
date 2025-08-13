@@ -180,7 +180,7 @@
             right: 0;
         }
 
-        body.dark-mode .sidebar.collapsed + .main-content .top-bar {
+        body.dark-mode .sidebar.collapsed ~ .content-wrapper .top-bar {
             left: 70px;
         }
 
@@ -249,10 +249,10 @@
         }
 
         /* Dark Mode Main Content */
-        body.dark-mode .main-content::before {
+        body.dark-mode .content-wrapper::before {
             background: 
                 radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.2) 0%, transparent 50%),
                 radial-gradient(circle at 40% 40%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
 
@@ -1125,66 +1125,17 @@
 
 
 
-        .main-content {
-            flex: 1;
-            margin-left: 280px; /* Perfect alignment with sidebar */
-            background: linear-gradient(135deg, var(--background-light) 0%, var(--background-medium) 50%, var(--background-dark) 100%);
-            min-height: 100vh;
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 0;
-            padding-top: 75px; /* Optimal top spacing */
-            box-sizing: border-box;
-            overflow: visible; /* Default overflow for cards */
-        }
-
-        .main-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 100vh;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
-                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="rgba(37,99,235,0.1)"/><circle cx="90" cy="20" r="0.5" fill="rgba(245,158,11,0.1)"/><circle cx="30" cy="80" r="0.8" fill="rgba(37,99,235,0.1)"/><circle cx="70" cy="70" r="0.6" fill="rgba(245,158,11,0.1)"/><circle cx="50" cy="30" r="0.4" fill="rgba(168,85,247,0.1)"/></svg>');
-            pointer-events: none;
-            z-index: 0;
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: float 20s ease-in-out infinite;
-        }
+        /* Main content styles moved to styles.blade.php */
 
         @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        .main-content.expanded {
-            margin-left: 70px; /* Perfect alignment with collapsed sidebar */
-        }
-
-        .main-content.expanded::before {
-            left: 70px; /* Account for collapsed sidebar width */
-        }
+        /* Content wrapper positioning handled in styles.blade.php */
         
         /* Mobile responsive adjustments */
         @media (max-width: 768px) {
-            .main-content::before {
-                left: 0;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 0;
-                padding-top: 70px; /* Reduced mobile top spacing */
-            }
-            
-            .main-content.expanded {
-                margin-left: 0;
-            }
-            
             .content-wrapper {
                 padding: 1.25rem 1.5rem 2rem 1.5rem; /* Better mobile padding */
             }
@@ -1192,25 +1143,12 @@
 
         /* Small Mobile Responsive */
         @media (max-width: 480px) {
-            .main-content {
-                padding: 0;
-                padding-top: 65px; /* Optimized small mobile top spacing */
-            }
-            
             .content-wrapper {
                 padding: 1rem 1.25rem 1.5rem 1.25rem; /* Better small mobile padding */
             }
         }
 
-        .content-wrapper {
-            position: relative;
-            z-index: 1;
-            padding: 1.5rem 2rem 2.5rem 2rem; /* Better bottom padding for breathing room */
-            min-height: 100vh;
-            box-sizing: border-box;
-            max-width: 100%;
-            margin: 0 auto;
-        }
+        /* Content wrapper styles moved to styles.blade.php */
 
         /* Creative Header Design */
         .content-header {
@@ -1704,14 +1642,10 @@
                 pointer-events: auto;
             }
             
-            .main-content {
+            .content-wrapper {
                 margin-left: 0;
                 padding: 0;
                 padding-top: 80px; /* Smaller padding for mobile */
-            }
-
-            .main-content.expanded {
-                margin-left: 0;
             }
             
             .top-bar {
@@ -1758,74 +1692,25 @@
         }
 
         /* Scrollbar Styling */
-        .main-content::-webkit-scrollbar {
+        .content-wrapper::-webkit-scrollbar {
             width: 8px;
         }
 
-        .main-content::-webkit-scrollbar-track {
+        .content-wrapper::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.05);
             border-radius: 4px;
         }
 
-        .main-content::-webkit-scrollbar-thumb {
+        .content-wrapper::-webkit-scrollbar-thumb {
             background: linear-gradient(135deg, var(--anef-green), var(--anef-orange));
             border-radius: 4px;
         }
 
-        .main-content::-webkit-scrollbar-thumb:hover {
+        .content-wrapper::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, var(--anef-dark-green), var(--anef-green));
         }
 
-        /* Top Bar Styles */
-        .top-bar {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 1rem 2rem;
-            position: fixed;
-            top: 0;
-            left: 280px; /* Perfect alignment with sidebar */
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sidebar.collapsed + .main-content .top-bar {
-            left: 70px; /* Perfect alignment with collapsed sidebar */
-        }
-
-        .top-bar-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .top-bar-left {
-            display: flex;
-            align-items: center;
-        }
-
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-
-        .breadcrumb-separator {
-            color: var(--text-muted);
-        }
-
-        .breadcrumb-item {
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
-        .top-bar-right {
+        /* Top Bar Styles moved to styles.blade.php */
             display: flex;
             align-items: center;
         }
@@ -2161,40 +2046,7 @@
             color: var(--danger-color);
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .top-bar {
-                padding: 1rem;
-            }
-
-            .top-bar-content {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: stretch;
-            }
-
-            .top-bar-left {
-                justify-content: center;
-            }
-
-            .top-bar-right {
-                justify-content: center;
-            }
-
-            .top-bar-actions {
-                justify-content: center;
-            }
-
-            .profile-btn .profile-name {
-                display: none;
-            }
-
-            .notification-panel,
-            .profile-panel {
-                width: 320px;
-                right: -80px;
-            }
-        }
+        /* Responsive Design - Top bar styles moved to styles.blade.php */
     </style>
 </head>
 <body>

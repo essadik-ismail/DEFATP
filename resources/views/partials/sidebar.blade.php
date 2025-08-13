@@ -76,31 +76,24 @@
                 </a>
             </li>
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}" data-title="Rapports">
                     <i class="fas fa-chart-line"></i>
                     <span>Rapports</span>
                 </a>
-            </li>
+            </li> -->
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('excel.*') ? 'active' : '' }}" href="{{ route('excel.index') }}" data-title="Import/Export Excel">
                     <i class="fas fa-file-excel"></i>
                     <span>Import/Export Excel</span>
                 </a>
-            </li>
+            </li> -->
 
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('auth.users.*') ? 'active' : '' }}" href="{{ route('auth.users.index') }}" data-title="Gestion des Utilisateurs">
                     <i class="fas fa-users-cog"></i>
                     <span>Gestion des Utilisateurs</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="{{ route('settings.index') }}" data-title="Paramètres">
-                    <i class="fas fa-cog"></i>
-                    <span>Paramètres</span>
                 </a>
             </li>
         </ul>
