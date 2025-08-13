@@ -535,7 +535,7 @@
     }
     
     /* Content Wrapper Visual Integration with Top Bar */
-    .content-wrapper::before {
+    /* .content-wrapper::before {
         content: '';
         position: absolute;
         top: 0;
@@ -549,10 +549,10 @@
             rgba(255, 255, 255, 0.5) 80%, 
             transparent 100%);
         z-index: 1;
-    }
+    } */
     
     /* Content Area Visual Enhancement */
-    .content-area::before {
+    /* .content-area::before {
         content: '';
         position: absolute;
         top: 0;
@@ -567,7 +567,7 @@
             var(--purple-color) 100%);
         opacity: 0.1;
         border-radius: 0 0 2px 2px;
-    }
+    } */
 
     /* Dark Mode Content Enhancements */
     .dark-mode .content-wrapper {

@@ -42,13 +42,13 @@
             <tr class="table-row">
                 <td class="table-cell">{{ $article->id }}</td>
                 <td class="table-cell">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span class="badge bg-primary">
                         {{ $article->annee }}
                     </span>
                 </td>
                 <td class="table-cell">
                     @if($article->numero)
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <span class="badge bg-secondary">
                             {{ $article->numero }}
                         </span>
                     @else
@@ -57,14 +57,14 @@
                 </td>
                 <td class="table-cell">
                     @if($article->date_adjudication)
-                        <span class="text-sm text-gray-700">{{ $article->date_adjudication->format('d/m/Y') }}</span>
+                        <span class="text-body">{{ $article->date_adjudication->format('d/m/Y') }}</span>
                     @else
                         <span class="text-gray-400">-</span>
                     @endif
                 </td>
                 <td class="table-cell">
                     @if($article->foret)
-                        <span class="text-sm text-gray-700">{{ $article->foret->foret }}</span>
+                        <span class="text-body">{{ $article->foret->foret }}</span>
                     @else
                         <span class="text-gray-400">-</span>
                     @endif
@@ -78,7 +78,7 @@
                 </td>
                 <td class="table-cell">
                     @if($article->localisation)
-                        <span class="text-sm text-gray-700" title="{{ $article->localisation->CODE }}">
+                        <span class="text-body" title="{{ $article->localisation->CODE }}">
                             {{ Str::limit($article->localisation->CODE, 20) }}
                         </span>
                     @else
@@ -87,7 +87,7 @@
                 </td>
                 <td class="table-cell">
                     @if($article->prix_de_retrait)
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <span class="badge bg-warning text-dark">
                             {{ number_format($article->prix_de_retrait, 2) }} DH
                         </span>
                     @else
@@ -96,7 +96,7 @@
                 </td>
                 <td class="table-cell">
                     @if($article->prix_vente)
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span class="badge bg-success">
                             {{ number_format($article->prix_vente, 2) }} DH
                         </span>
                     @else
@@ -105,8 +105,7 @@
                 </td>
                 <td class="table-cell">
                     @if($article->type)
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                            {{ $article->type == 'appel_doffre' ? 'bg-blue-100 text-blue-800' : 'bg-indigo-100 text-indigo-800' }}">
+                        <span class="badge {{ $article->type == 'appel_doffre' ? 'bg-info' : 'bg-primary' }}">
                             {{ $article->type == 'appel_doffre' ? 'Appel d\'Offre' : 'Adjudication' }}
                         </span>
                     @else
@@ -115,19 +114,19 @@
                 </td>
                 <td class="table-cell">
                     @if($article->is_validated)
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <i class="fas fa-check mr-1"></i>
+                        <span class="badge bg-success">
+                            <i class="fas fa-check me-1"></i>
                             Validé
                         </span>
                     @else
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            <i class="fas fa-clock mr-1"></i>
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-clock me-1"></i>
                             En attente
                         </span>
                     @endif
                 </td>
                 <td class="table-cell">
-                    <div class="flex items-center gap-2">
+                    <div class="d-flex align-items-center gap-2">
                         <a href="{{ route('articles.show', $article) }}" class="btn btn-sm btn-info">
                             <i class="fas fa-eye"></i>
                         </a>

@@ -52,10 +52,10 @@
                             @endforeach
                         @endif
                         
-                        <button type="submit" class="btn-primary">
-                            <i class="material-icons mr-2">file_download</i>
-                            {{ $exportLabel }}
-                        </button>
+                                                 <button type="submit" class="btn btn-primary w-100">
+                             <i class="material-icons me-2">file_download</i>
+                             {{ $exportLabel }}
+                         </button>
                     </form>
                 </div>
             @endif
@@ -92,10 +92,10 @@
                             <div id="{{ $id }}-file-name" class="file-name-display hidden"></div>
                         </div>
                         
-                        <button type="submit" class="btn-primary">
-                            <i class="material-icons mr-2">cloud_upload</i>
-                            {{ $importLabel }}
-                        </button>
+                                                 <button type="submit" class="btn btn-success w-100">
+                             <i class="material-icons me-2">cloud_upload</i>
+                             {{ $importLabel }}
+                         </button>
                     </form>
                 </div>
             @endif
@@ -106,7 +106,7 @@
 @push('styles')
 <style>
     .import-export-section-wrapper {
-        margin-bottom: 1.5rem;
+        margin-bottom: 3rem;
     }
 
     .import-export-header {
@@ -116,20 +116,19 @@
     .import-export-toggle {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
         background: none;
         border: none;
         padding: 0.5rem;
         cursor: pointer;
-        color: #6b7280;
+        color: #6c757d;
         font-weight: 500;
         transition: all 0.2s ease;
-        border-radius: 0.5rem;
+        border-radius: 0.375rem;
     }
 
     .import-export-toggle:hover {
-        background-color: #f3f4f6;
-        color: #374151;
+        background-color: #f8f9fa;
+        color: #495057;
     }
 
     .import-export-toggle.collapsed .import-export-icon {
@@ -139,6 +138,7 @@
     .import-export-icon {
         transition: transform 0.3s ease;
         font-size: 1.25rem;
+        margin-right: 0.5rem;
     }
 
     .import-export-title {
@@ -174,42 +174,42 @@
 
     .export-section, .import-section {
         background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
         padding: 1.5rem;
         transition: all 0.2s ease;
     }
 
     .export-section:hover, .import-section:hover {
-        border-color: #d1d5db;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-color: #adb5bd;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     }
 
     .section-header {
         display: flex;
         align-items: center;
-        gap: 1rem;
         margin-bottom: 1.5rem;
     }
 
     .section-icon {
         width: 3rem;
         height: 3rem;
-        border-radius: 0.75rem;
+        border-radius: 0.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        margin-right: 1rem;
     }
 
     .export-icon {
-        background-color: #dbeafe;
-        color: #2563eb;
+        background-color: #cce7ff;
+        color: #0d6efd;
     }
 
     .import-icon {
-        background-color: #dcfce7;
-        color: #16a34a;
+        background-color: #d1e7dd;
+        color: #198754;
     }
 
     .section-icon i {
@@ -223,13 +223,13 @@
     .section-title {
         font-size: 1.125rem;
         font-weight: 600;
-        color: #111827;
+        color: #212529;
         margin: 0 0 0.25rem 0;
     }
 
     .section-description {
         font-size: 0.875rem;
-        color: #6b7280;
+        color: #6c757d;
         margin: 0;
         line-height: 1.4;
     }
@@ -257,10 +257,10 @@
         align-items: center;
         justify-content: center;
         padding: 0.75rem 1rem;
-        background-color: #f9fafb;
-        border: 2px dashed #d1d5db;
-        border-radius: 0.5rem;
-        color: #6b7280;
+        background-color: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 0.375rem;
+        color: #6c757d;
         cursor: pointer;
         transition: all 0.2s ease;
         font-size: 0.875rem;
@@ -268,15 +268,15 @@
     }
 
     .file-label:hover {
-        background-color: #f3f4f6;
-        border-color: #9ca3af;
-        color: #374151;
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+        color: #495057;
     }
 
     .file-name-display {
         margin-top: 0.5rem;
         font-size: 0.75rem;
-        color: #6b7280;
+        color: #6c757d;
         word-break: break-all;
     }
 
@@ -297,12 +297,13 @@
         .section-header {
             flex-direction: column;
             text-align: center;
-            gap: 0.75rem;
         }
         
         .section-icon {
             width: 2.5rem;
             height: 2.5rem;
+            margin-right: 0;
+            margin-bottom: 0.75rem;
         }
         
         .section-icon i {

@@ -14,11 +14,19 @@
 <div class="data-table-wrapper">
     @if($total > 0)
         <div class="table-info mb-4">
-            <p class="text-sm text-gray-600">{{ $total }} élément(s) trouvé(s)</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="text-sm text-muted mb-0">{{ $total }} élément(s) trouvé(s)</p>
+                <div class="table-scroll-hint d-none d-md-block">
+                    <small class="text-muted">
+                        <i class="fas fa-arrows-alt-h me-1"></i>
+                        Faites défiler horizontalement pour voir toutes les colonnes
+                    </small>
+                </div>
+            </div>
         </div>
         
-        <div class="{{ $responsive ? 'overflow-x-auto' : '' }}">
-            <table class="data-table {{ $striped ? 'striped' : '' }} {{ $hover ? 'hover' : '' }}">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover data-table {{ $striped ? 'striped' : '' }} {{ $hover ? 'hover' : '' }}">
                 <thead class="table-header">
                     <tr>
                         @foreach($headers as $header)
@@ -68,12 +76,14 @@
 
     .data-table {
         width: 100%;
+        min-width: 800px; /* Ensure minimum width for readability */
         border-collapse: collapse;
         font-size: 0.875rem;
         background: white;
         border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        table-layout: fixed; /* Better column width distribution */
     }
 
     .table-header {
@@ -82,14 +92,34 @@
     }
 
     .table-header-cell {
-        padding: 0.75rem;
+        padding: 0.5rem 0.75rem;
         text-align: left;
         font-weight: 600;
         color: #374151;
         font-size: 0.875rem;
         white-space: nowrap;
         border-bottom: 1px solid #e5e7eb;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background-color: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
+
+    /* Column width management for wide tables */
+    .data-table th:nth-child(1), .data-table td:nth-child(1) { width: 60px; } /* ID */
+    .data-table th:nth-child(2), .data-table td:nth-child(2) { width: 80px; } /* Année */
+    .data-table th:nth-child(3), .data-table td:nth-child(3) { width: 100px; } /* Numéro */
+    .data-table th:nth-child(4), .data-table td:nth-child(4) { width: 120px; } /* Date */
+    .data-table th:nth-child(5), .data-table td:nth-child(5) { width: 120px; } /* Forêt */
+    .data-table th:nth-child(6), .data-table td:nth-child(6) { width: 120px; } /* Essence */
+    .data-table th:nth-child(7), .data-table td:nth-child(7) { width: 120px; } /* Localisation */
+    .data-table th:nth-child(8), .data-table td:nth-child(8) { width: 120px; } /* Prix Retrait */
+    .data-table th:nth-child(9), .data-table td:nth-child(9) { width: 120px; } /* Prix Vente */
+    .data-table th:nth-child(10), .data-table td:nth-child(10) { width: 120px; } /* Type */
+    .data-table th:nth-child(11), .data-table td:nth-child(11) { width: 100px; } /* Statut */
+    .data-table th:nth-child(12), .data-table td:nth-child(12) { width: 150px; } /* Actions */
 
     .table-body {
         background-color: white;
@@ -105,11 +135,20 @@
     }
 
     .table-cell {
-        padding: 0.75rem;
+        padding: 0.5rem 0.75rem;
         font-size: 0.875rem;
         color: #374151;
         vertical-align: top;
         border-bottom: 1px solid #f3f4f6;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Allow text wrapping for specific columns that need it */
+    .table-cell.text-wrap {
+        white-space: normal;
+        word-wrap: break-word;
     }
 
     .data-table.striped .table-row:nth-child(even) {
@@ -162,6 +201,14 @@
     }
 
     @media (max-width: 768px) {
+        .table-responsive {
+            border: 0;
+        }
+        
+        .data-table {
+            min-width: 600px; /* Smaller minimum width on mobile */
+        }
+        
         .table-header-cell, .table-cell {
             padding: 0.5rem;
             font-size: 0.75rem;
@@ -179,6 +226,44 @@
         .empty-icon i {
             font-size: 1.5rem;
         }
+    }
+
+    /* Ensure table responsiveness works properly */
+    .table-responsive {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        max-width: 100%;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    /* Table scroll hint styling */
+    .table-scroll-hint {
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+
+    .table-scroll-hint:hover {
+        opacity: 1;
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
     }
 </style>
 @endpush
