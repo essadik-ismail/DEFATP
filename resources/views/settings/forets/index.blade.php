@@ -127,53 +127,39 @@
         <x-alert type="danger" :message="session('error')" />
     @endif
 
+    @php
+        $rows = $forets->map(function($foret) {
+            return [
+                '#' . $foret->id,
+                '<span class="fw-medium">' . $foret->foret . '</span>',
+                '<span class="badge bg-secondary">' . $foret->province . '</span>',
+                $foret->lat && $foret->log 
+                    ? '<small class="text-muted">' . $foret->lat . ', ' . $foret->log . '</small>'
+                    : '<span class="text-muted">Non définies</span>',
+                $foret->is_deleted
+                    ? '<span class="badge bg-danger">Supprimée</span>'
+                    : '<span class="badge bg-success">Active</span>',
+                '<small class="text-muted">' . ($foret->created_at?->format('d/m/Y H:i') ?? 'N/A') . '</small>',
+                '<div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editForet(' . $foret->id . ')">
+                        <i class="material-icons">edit</i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteForet(' . $foret->id . ')">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </div>'
+            ];
+        })->toArray();
+    @endphp
+
     <!-- Data Table -->
     <x-data-table
         :headers="['ID', 'Forêt', 'Province', 'Coordonnées', 'Statut', 'Créé le', 'Actions']"
-        :total="$forets->total()"
+        :rows="$rows"
         :pagination="$forets->appends(request()->query())->links()"
-        emptyMessage="Aucune forêt trouvée"
-        emptySubmessage="Commencez par ajouter votre première forêt"
-    >
-        @foreach($forets as $foret)
-            <tr class="table-row">
-                <td class="table-cell">#{{ $foret->id }}</td>
-                <td class="table-cell">
-                    <span class="fw-medium">{{ $foret->foret }}</span>
-                </td>
-                <td class="table-cell">
-                    <span class="badge bg-secondary">{{ $foret->province }}</span>
-                </td>
-                <td class="table-cell">
-                    @if($foret->lat && $foret->log)
-                        <small class="text-muted">{{ $foret->lat }}, {{ $foret->log }}</small>
-                    @else
-                        <span class="text-muted">Non définies</span>
-                    @endif
-                </td>
-                <td class="table-cell">
-                    @if($foret->is_deleted)
-                        <span class="badge bg-danger">Supprimée</span>
-                    @else
-                        <span class="badge bg-success">Active</span>
-                    @endif
-                </td>
-                <td class="table-cell">
-                    <small class="text-muted">{{ $foret->created_at?->format('d/m/Y H:i') }}</small>
-                </td>
-                <td class="table-cell">
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editForet({{ $foret->id }})">
-                            <i class="material-icons">edit</i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteForet({{ $foret->id }})">
-                            <i class="material-icons">delete</i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        @endforeach
-    </x-data-table>
+        searchable="true"
+        exportable="true"
+    />
 
     <!-- Import/Export Section -->
     <x-import-export-section

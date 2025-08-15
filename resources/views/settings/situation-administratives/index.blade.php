@@ -105,49 +105,37 @@
         <x-alert type="danger" :message="session('error')" />
     @endif
 
+    @php
+        $rows = $situationAdministratives->map(function($situationAdministrative) {
+            return [
+                '#' . $situationAdministrative->id,
+                '<span class="fw-medium">' . $situationAdministrative->commune . '</span>',
+                '<span class="text-body">' . $situationAdministrative->cercle . '</span>',
+                '<span class="text-body">' . $situationAdministrative->province . '</span>',
+                $situationAdministrative->deleted_at
+                    ? '<span class="badge bg-danger">Supprimée</span>'
+                    : '<span class="badge bg-success">Active</span>',
+                '<small class="text-muted">' . ($situationAdministrative->created_at?->format('d/m/Y H:i') ?? 'N/A') . '</small>',
+                '<div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editSituationAdministrative(' . $situationAdministrative->id . ')">
+                        <i class="material-icons">edit</i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteSituationAdministrative(' . $situationAdministrative->id . ')">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </div>'
+            ];
+        })->toArray();
+    @endphp
+
     <!-- Data Table -->
     <x-data-table
         :headers="['ID', 'Commune', 'Cercle', 'Province', 'Statut', 'Créé le', 'Actions']"
-        :total="$situationAdministratives->total()"
+        :rows="$rows"
         :pagination="$situationAdministratives->appends(request()->query())->links()"
-        emptyMessage="Aucune situation administrative trouvée"
-        emptySubmessage="Commencez par ajouter votre première situation administrative"
-    >
-        @foreach($situationAdministratives as $situationAdministrative)
-            <tr class="table-row">
-                <td class="table-cell">#{{ $situationAdministrative->id }}</td>
-                <td class="table-cell">
-                    <span class="fw-medium">{{ $situationAdministrative->commune }}</span>
-                </td>
-                <td class="table-cell">
-                    <span class="text-body">{{ $situationAdministrative->cercle }}</span>
-                </td>
-                <td class="table-cell">
-                    <span class="text-body">{{ $situationAdministrative->province }}</span>
-                </td>
-                <td class="table-cell">
-                    @if($situationAdministrative->deleted_at)
-                        <span class="badge bg-danger">Supprimée</span>
-                    @else
-                        <span class="badge bg-success">Active</span>
-                    @endif
-                </td>
-                <td class="table-cell">
-                    <small class="text-muted">{{ $situationAdministrative->created_at?->format('d/m/Y H:i') }}</small>
-                </td>
-                <td class="table-cell">
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editSituationAdministrative({{ $situationAdministrative->id }})">
-                            <i class="material-icons">edit</i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteSituationAdministrative({{ $situationAdministrative->id }})">
-                            <i class="material-icons">delete</i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        @endforeach
-    </x-data-table>
+        searchable="true"
+        exportable="true"
+    />
 
     <!-- Import/Export Section -->
     <x-import-export-section

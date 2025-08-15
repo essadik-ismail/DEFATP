@@ -1398,4 +1398,77 @@
             border-color: #000;
         }
     }
+
+    /* Data Table Global Styles - Fixed Layout */
+    .data-table-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .table-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .table-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+
+    .data-table {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        table-layout: fixed !important;
+        margin: 0 !important;
+    }
+
+    .table-header-cell,
+    .table-cell {
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    /* Ensure page content doesn't shift based on table width */
+    .main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    .content-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Container consistency */
+    .container,
+    .container-fluid {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Card consistency */
+    .card {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .card-body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
 </style>

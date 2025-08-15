@@ -159,4 +159,19 @@ Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/invendus', [ReportController::class, 'invendus'])->name('invendus');
         Route::get('/vendus', [ReportController::class, 'vendus'])->name('vendus');
     });
+
+    // Simple Tour Test Route
+    Route::get('/simple-tour-test', function () {
+        return view('simple-tour-test');
+    })->name('simple.tour.test');
+
+    // Functionality Tour Demo Route
+    Route::get('/functionality-tour-demo', function () {
+        return view('functionality-tour-demo');
+    })->name('functionality.tour.demo');
+
+    // Select Search Demo Route
+    Route::get('/select-search-demo', function () {
+        return view('select-search-demo');
+    })->name('select.search.demo');
 });

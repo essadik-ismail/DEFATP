@@ -96,6 +96,30 @@
                     <span>Gestion des Utilisateurs</span>
                 </a>
             </li>
+
+            <!-- Simple Tour Test Link -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('simple.tour.test') ? 'active' : '' }}" href="{{ route('simple.tour.test') }}" data-title="Test Simple Tour">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Test Simple Tour</span>
+                </a>
+            </li>
+
+            <!-- Functionality Tour Demo Link -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('functionality.tour.demo') ? 'active' : '' }}" href="{{ route('functionality.tour.demo') }}" data-title="Démo Tour des Fonctionnalités">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Tour des Fonctionnalités</span>
+                </a>
+            </li>
+
+            <!-- Select Search Demo Link -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('select.search.demo') ? 'active' : '' }}" href="{{ route('select.search.demo') }}" data-title="Démo Select avec Recherche">
+                    <i class="fas fa-search"></i>
+                    <span>Select avec Recherche</span>
+                </a>
+            </li>
         </ul>
     </div>
 

@@ -1,261 +1,254 @@
 @props([
     'headers' => [],
     'rows' => [],
-    'total' => 0,
-    'emptyMessage' => 'Aucune donnée trouvée',
-    'emptySubmessage' => 'Essayez de modifier vos filtres ou ajoutez de nouvelles données',
-    'emptyIcon' => 'fas fa-inbox',
     'pagination' => null,
-    'responsive' => true,
-    'striped' => true,
-    'hover' => true
+    'searchable' => true,
+    'exportable' => true,
+    'responsive' => true
 ])
 
 <div class="data-table-wrapper">
-    @if($total > 0)
-        <div class="table-info mb-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <p class="text-sm text-muted mb-0">{{ $total }} élément(s) trouvé(s)</p>
-                <div class="table-scroll-hint d-none d-md-block">
-                    <small class="text-muted">
-                        <i class="fas fa-arrows-alt-h me-1"></i>
-                        Faites défiler horizontalement pour voir toutes les colonnes
-                    </small>
+    @if($searchable)
+    <div class="table-search-section mb-3">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="form-control search-input" placeholder="Rechercher..." id="tableSearch">
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="table-info">
+                    <span class="text-muted">Affichage de <span class="fw-bold">{{ count($rows) }}</span> résultats</span>
                 </div>
             </div>
         </div>
-        
+    </div>
+    @endif
+
+    <div class="table-container">
         <div class="table-responsive">
-            <table class="table table-striped table-hover data-table {{ $striped ? 'striped' : '' }} {{ $hover ? 'hover' : '' }}">
-                <thead class="table-header">
+            <table class="data-table">
+                <thead>
                     <tr>
                         @foreach($headers as $header)
-                            <th class="table-header-cell">
-                                @if(is_array($header))
-                                    {{ $header['label'] ?? $header['key'] }}
-                                @else
-                                    {{ $header }}
-                                @endif
-                            </th>
+                        <th class="table-header-cell">
+                            {{ $header }}
+                        </th>
                         @endforeach
                     </tr>
                 </thead>
-                <tbody class="table-body">
-                    {{ $slot }}
+                <tbody>
+                    @foreach($rows as $row)
+                    <tr class="table-row">
+                        @foreach($row as $cell)
+                        <td class="table-cell">
+                            {!! $cell !!}
+                        </td>
+                        @endforeach
+                    </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
-        
-        @if($pagination)
-            <div class="pagination-wrapper mt-4">
-                <div class="d-flex justify-content-center">
-                    {{ $pagination }}
-                </div>
+    </div>
+
+    @if($pagination)
+    <div class="pagination-wrapper mt-3">
+        {{ $pagination }}
+    </div>
+    @endif
+
+    @if($exportable)
+    <div class="export-section mt-3">
+        <div class="row">
+            <div class="col-md-6">
+                <button class="btn btn-outline-primary btn-sm" onclick="exportTable('csv')">
+                    <i class="fas fa-download me-1"></i>Export CSV
+                </button>
+                <button class="btn btn-outline-primary btn-sm ms-2" onclick="exportTable('excel')">
+                    <i class="fas fa-file-excel me-1"></i>Export Excel
+                </button>
             </div>
-        @endif
-    @else
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="{{ $emptyIcon }}"></i>
-            </div>
-            <p class="empty-title">{{ $emptyMessage }}</p>
-            <p class="empty-subtitle">{{ $emptySubmessage }}</p>
         </div>
+    </div>
     @endif
 </div>
 
-@push('styles')
 <style>
+    /* Data Table Wrapper - Fixed Layout */
     .data-table-wrapper {
         width: 100%;
+        max-width: 100%;
         overflow: hidden;
-    }
-
-    .table-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .data-table {
-        width: 100%;
-        min-width: 100%;
-        border-collapse: collapse;
-        font-size: 0.875rem;
         background: white;
         border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table Container - Fixed Dimensions */
+    .table-container {
+        width: 100%;
+        max-width: 100%;
         overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        table-layout: auto; /* Allow natural column sizing on mobile */
+        position: relative;
     }
 
-    .table-header {
-        background-color: #f9fafb;
-        border-bottom: 2px solid #e5e7eb;
+    /* Table Responsive - Fixed Layout */
+    .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-radius: 8px;
+        background: white;
     }
 
+    /* Data Table - Fixed Layout */
+    .data-table {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        margin: 0;
+        border-collapse: collapse;
+        background: white;
+        table-layout: fixed;
+    }
+
+    /* Table Header Cells - Fixed Width Distribution */
     .table-header-cell {
-        padding: 0.75rem 0.5rem;
+        background: #f8f9fa;
+        padding: 12px 16px;
         text-align: left;
         font-weight: 600;
-        color: #374151;
-        font-size: 0.875rem;
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
         white-space: nowrap;
-        border-bottom: 1px solid #e5e7eb;
         overflow: hidden;
         text-overflow: ellipsis;
-        background-color: #f8f9fa;
         position: sticky;
         top: 0;
         z-index: 10;
-        min-width: 80px; /* Minimum column width */
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
     }
 
-    .table-body {
-        background-color: white;
+    /* Table Cells - Fixed Width Distribution */
+    .table-cell {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
     }
 
+    /* Table Rows */
     .table-row {
-        border-bottom: 1px solid #f3f4f6;
-        transition: background-color 0.2s;
+        transition: background-color 0.2s ease;
     }
 
     .table-row:hover {
-        background-color: #f9fafb;
+        background-color: #f8f9fa;
     }
 
-    .table-cell {
-        padding: 0.75rem 0.5rem;
-        font-size: 0.875rem;
-        color: #374151;
-        vertical-align: top;
-        border-bottom: 1px solid #f3f4f6;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        min-width: 80px; /* Minimum column width */
+    /* Search Section */
+    .table-search-section {
+        padding: 16px;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+        border-radius: 8px 8px 0 0;
     }
 
-    /* Allow text wrapping for specific columns that need it */
-    .table-cell.text-wrap {
-        white-space: normal;
-        word-wrap: break-word;
+    .search-box {
+        position: relative;
+        max-width: 300px;
     }
 
-    .data-table.striped .table-row:nth-child(even) {
-        background-color: #fafafa;
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 2;
     }
 
-    .data-table.hover .table-row:hover {
-        background-color: #f3f4f6;
+    .search-input {
+        padding-left: 40px;
+        border-radius: 20px;
+        border: 1px solid #ced4da;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .empty-state {
-        text-align: center;
-        padding: 3rem 2rem;
-        color: #6b7280;
+    .search-input:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
 
-    .empty-icon {
-        width: 4rem;
-        height: 4rem;
-        background-color: #f3f4f6;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
+    .table-info {
+        font-size: 14px;
     }
 
-    .empty-icon i {
-        font-size: 2rem;
-        color: #9ca3af;
-    }
-
-    .empty-title {
-        font-size: 1.125rem;
-        font-weight: 500;
-        color: #374151;
-        margin: 0 0 0.5rem 0;
-    }
-
-    .empty-subtitle {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin: 0;
-    }
-
+    /* Pagination Wrapper */
     .pagination-wrapper {
+        padding: 16px;
+        border-top: 1px solid #e9ecef;
+        background: #f8f9fa;
+        border-radius: 0 0 8px 8px;
         display: flex;
         justify-content: center;
-        align-items: center;
-        margin-top: 1.5rem;
-        padding: 1rem 0;
-        border-top: 1px solid #e5e7eb;
-        flex-wrap: wrap;
-        gap: 1rem;
     }
 
-    .pagination-wrapper .pagination {
-        margin: 0;
-        flex-wrap: wrap;
-        justify-content: center;
+    /* Export Section */
+    .export-section {
+        padding: 16px;
+        border-top: 1px solid #e9ecef;
+        background: #f8f9fa;
+        border-radius: 0 0 8px 8px;
     }
 
-    .pagination-wrapper .page-link {
-        color: #374151;
-        background-color: #ffffff;
-        border: 1px solid #d1d5db;
-        padding: 0.5rem 0.75rem;
-        margin: 0 0.125rem;
-        border-radius: 0.375rem;
-        transition: all 0.2s ease;
-        min-width: 40px;
-        text-align: center;
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .table-search-section .row {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .table-search-section .col-md-6 {
+            width: 100%;
+            text-align: center;
+        }
+
+        .search-box {
+            max-width: 100%;
+        }
+
+        .export-section .row {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .export-section .col-md-6 {
+            width: 100%;
+            text-align: center;
+        }
+
+        .data-table {
+            font-size: 14px;
+        }
+
+        .table-header-cell,
+        .table-cell {
+            padding: 8px 12px;
+        }
     }
 
-    .pagination-wrapper .page-link:hover {
-        background-color: #f3f4f6;
-        border-color: #9ca3af;
-        color: #1f2937;
-    }
-
-    .pagination-wrapper .page-item.active .page-link {
-        background-color: #4a7c59;
-        border-color: #4a7c59;
-        color: #ffffff;
-    }
-
-    .pagination-wrapper .page-item.disabled .page-link {
-        color: #9ca3af;
-        background-color: #f9fafb;
-        border-color: #e5e7eb;
-        cursor: not-allowed;
-    }
-
-    /* Ensure table responsiveness works properly */
-    .table-responsive {
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
-        overflow-x: auto;
-        overflow-y: hidden;
-        max-width: 100%;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    }
-
-    /* Table scroll hint styling */
-    .table-scroll-hint {
-        opacity: 0.7;
-        transition: opacity 0.2s ease;
-    }
-
-    .table-scroll-hint:hover {
-        opacity: 1;
-    }
-
+    /* Scrollbar Styling */
     .table-responsive::-webkit-scrollbar {
         height: 8px;
     }
@@ -274,197 +267,114 @@
         background: #a8a8a8;
     }
 
-    /* Responsive Design - Mobile First Approach */
-    
-    /* Extra Small devices (phones, 576px and down) */
-    @media (max-width: 575.98px) {
-        .data-table {
-            min-width: 100%;
-            font-size: 0.75rem;
-        }
-        
-        .table-header-cell, .table-cell {
-            padding: 0.5rem 0.25rem;
-            font-size: 0.75rem;
-            min-width: 60px;
-        }
-        
-        .table-info {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-        
-        .table-scroll-hint {
-            display: none !important;
-        }
-        
-        .empty-state {
-            padding: 2rem 1rem;
-        }
-        
-        .empty-icon {
-            width: 3rem;
-            height: 3rem;
-        }
-        
-        .empty-icon i {
-            font-size: 1.5rem;
-        }
-        
-        .pagination-wrapper .page-link {
-            padding: 0.375rem 0.5rem;
-            font-size: 0.75rem;
-            min-width: 35px;
-        }
-        
-        .pagination-wrapper .pagination {
-            gap: 0.25rem;
-        }
+    /* Fixed Column Widths for Common Scenarios */
+    .data-table th:nth-child(1),
+    .data-table td:nth-child(1) {
+        width: 60px; /* ID columns */
     }
 
-    /* Small devices (landscape phones, 576px and up) */
-    @media (min-width: 576px) and (max-width: 767.98px) {
-        .data-table {
-            min-width: 100%;
-            font-size: 0.8rem;
-        }
-        
-        .table-header-cell, .table-cell {
-            padding: 0.625rem 0.375rem;
-            font-size: 0.8rem;
-            min-width: 70px;
-        }
-        
-        .table-info {
-            flex-direction: row;
-            align-items: center;
-        }
-        
-        .pagination-wrapper .page-link {
-            padding: 0.5rem 0.625rem;
-            min-width: 38px;
-        }
+    .data-table th:nth-child(2),
+    .data-table td:nth-child(2) {
+        width: 150px; /* Name/Title columns */
     }
 
-    /* Medium devices (tablets, 768px and up) */
-    @media (min-width: 768px) and (max-width: 991.98px) {
-        .data-table {
-            min-width: 100%;
-            font-size: 0.85rem;
-        }
-        
-        .table-header-cell, .table-cell {
-            padding: 0.75rem 0.5rem;
-            font-size: 0.85rem;
-            min-width: 80px;
-        }
-        
-        .pagination-wrapper .page-link {
-            padding: 0.5rem 0.75rem;
-            min-width: 40px;
-        }
+    .data-table th:nth-child(3),
+    .data-table td:nth-child(3) {
+        width: 120px; /* Date columns */
     }
 
-    /* Large devices (desktops, 992px and up) */
-    @media (min-width: 992px) and (max-width: 1199.98px) {
-        .data-table {
-            min-width: 100%;
-            font-size: 0.875rem;
-        }
-        
-        .table-header-cell, .table-cell {
-            padding: 0.75rem 0.5rem;
-            font-size: 0.875rem;
-            min-width: 80px;
-        }
+    .data-table th:nth-child(4),
+    .data-table td:nth-child(4) {
+        width: 100px; /* Status columns */
     }
 
-    /* Extra large devices (large desktops, 1200px and up) */
-    @media (min-width: 1200px) {
-        .data-table {
-            min-width: 100%;
-            font-size: 0.875rem;
-        }
-        
-        .table-header-cell, .table-cell {
-            padding: 0.75rem 0.5rem;
-            font-size: 0.875rem;
-            min-width: 80px;
-        }
+    .data-table th:nth-child(5),
+    .data-table td:nth-child(5) {
+        width: 100px; /* Action columns */
     }
 
-    /* Landscape orientation adjustments */
-    @media (orientation: landscape) and (max-height: 500px) {
-        .table-header-cell, .table-cell {
-            padding: 0.5rem 0.375rem;
-        }
-        
-        .pagination-wrapper {
-            margin-top: 1rem;
-            padding: 0.75rem 0;
-        }
+    /* Ensure minimum table width for readability */
+    .data-table {
+        min-width: 600px;
     }
 
-    /* High DPI displays */
-    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-        .table-responsive {
-            border-width: 0.5px;
-        }
-        
-        .table-header-cell, .table-cell {
-            border-bottom-width: 0.5px;
-        }
+    /* Table header sticky positioning */
+    .table-header-cell {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #f8f9fa;
     }
 
-    /* Print styles */
-    @media print {
-        .table-responsive {
-            overflow: visible;
-            border: none;
-            box-shadow: none;
-        }
-        
-        .data-table {
-            box-shadow: none;
-            border: 1px solid #000;
-        }
-        
-        .pagination-wrapper {
-            display: none;
-        }
-        
-        .table-scroll-hint {
-            display: none;
-        }
+    /* Ensure consistent spacing */
+    .data-table-wrapper > * {
+        margin: 0;
     }
 
-    /* Accessibility improvements */
-    .table-header-cell:focus,
-    .table-cell:focus {
-        outline: 2px solid #4a7c59;
-        outline-offset: -2px;
-    }
-
-    /* Reduced motion preferences */
-    @media (prefers-reduced-motion: reduce) {
-        .table-row,
-        .pagination-wrapper .page-link {
-            transition: none;
-        }
-    }
-
-    /* High contrast mode support */
-    @media (prefers-contrast: high) {
-        .table-header-cell,
-        .table-cell {
-            border-color: #000;
-        }
-        
-        .table-row:hover {
-            background-color: #000;
-            color: #fff;
-        }
+    .data-table-wrapper > *:not(:last-child) {
+        margin-bottom: 0;
     }
 </style>
-@endpush
+
+<script>
+    // Table search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('tableSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const table = this.closest('.data-table-wrapper').querySelector('.data-table');
+                const rows = table.querySelectorAll('tbody tr');
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+
+    // Export functionality
+    function exportTable(format) {
+        const table = document.querySelector('.data-table');
+        const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent);
+        const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => 
+            Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim())
+        );
+
+        if (format === 'csv') {
+            exportToCSV(headers, rows);
+        } else if (format === 'excel') {
+            exportToExcel(headers, rows);
+        }
+    }
+
+    function exportToCSV(headers, rows) {
+        const csvContent = [headers, ...rows]
+            .map(row => row.map(cell => `"${cell}"`).join(','))
+            .join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'export.csv';
+        link.click();
+    }
+
+    function exportToExcel(headers, rows) {
+        // Simple Excel export (CSV with .xlsx extension)
+        const csvContent = [headers, ...rows]
+            .map(row => row.map(cell => `"${cell}"`).join(','))
+            .join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'export.xlsx';
+        link.click();
+    }
+</script>

@@ -111,42 +111,34 @@
         $pagination = $essences->appends(request()->query())->links();
     @endphp
     
+    @php
+        $rows = $essences->map(function($essence) {
+            return [
+                '#' . $essence->id,
+                '<span class="fw-medium">' . $essence->essence . '</span>',
+                $essence->deleted_at 
+                    ? '<span class="badge bg-danger">Supprimée</span>' 
+                    : '<span class="badge bg-success">Active</span>',
+                '<small class="text-muted">' . ($essence->created_at?->format('d/m/Y H:i') ?? 'N/A') . '</small>',
+                '<div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editEssence(' . $essence->id . ')">
+                        <i class="material-icons">edit</i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteEssence(' . $essence->id . ')">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </div>'
+            ];
+        })->toArray();
+    @endphp
+
     <x-data-table
         :headers="['ID', 'Nom de l\'Essence', 'Statut', 'Créé le', 'Actions']"
-        :total="$essences->total()"
+        :rows="$rows"
         :pagination="$pagination"
-        emptyMessage="Aucune essence trouvée"
-        emptySubmessage="Commencez par ajouter votre première essence"
-    >
-        @foreach($essences as $essence)
-            <tr class="table-row">
-                <td class="table-cell">#{{ $essence->id }}</td>
-                <td class="table-cell">
-                    <span class="fw-medium">{{ $essence->essence }}</span>
-                </td>
-                <td class="table-cell">
-                    @if($essence->deleted_at)
-                        <span class="badge bg-danger">Supprimée</span>
-                    @else
-                        <span class="badge bg-success">Active</span>
-                    @endif
-                </td>
-                <td class="table-cell">
-                    <small class="text-muted">{{ $essence->created_at?->format('d/m/Y H:i') }}</small>
-                </td>
-                <td class="table-cell">
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editEssence({{ $essence->id }})">
-                            <i class="material-icons">edit</i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteEssence({{ $essence->id }})">
-                            <i class="material-icons">delete</i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        @endforeach
-    </x-data-table>
+        searchable="true"
+        exportable="true"
+    />
 
     <!-- Import/Export Section -->
     <x-import-export-section

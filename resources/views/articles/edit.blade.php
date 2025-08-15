@@ -73,50 +73,44 @@
                 </div>
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <label for="localisation_id" class="form-label">Localisation <span class="text-danger">*</span></label>
-                        <select class="form-select @error('localisation_id') is-invalid @enderror" id="localisation_id" name="localisation_id" required>
-                            <option value="">Sélectionner une localisation</option>
-                            @foreach($localisations as $localisation)
-                                <option value="{{ $localisation->id }}" {{ old('localisation_id', $article->localisation_id) == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->nom }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('localisation_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <x-form.select-search
+                            name="localisation_id"
+                            label="Localisation"
+                            :options="$localisations->mapWithKeys(function($localisation) { return [$localisation->id => $localisation->CODE . ' - ' . $localisation->DRANEF . ' - ' . $localisation->ENTITE]; })"
+                            :selected="old('localisation_id', $article->localisation_id)"
+                            placeholder="Sélectionner une localisation..."
+                            searchPlaceholder="Rechercher une localisation..."
+                            required="true"
+                            :error="$errors->first('localisation_id')"
+                        />
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <label for="foret_id" class="form-label">Forêt <span class="text-danger">*</span></label>
-                        <select class="form-select @error('foret_id') is-invalid @enderror" id="foret_id" name="foret_id" required>
-                            <option value="">Sélectionner une forêt</option>
-                            @foreach($forets as $foret)
-                                <option value="{{ $foret->id }}" {{ old('foret_id', $article->foret_id) == $foret->id ? 'selected' : '' }}>
-                                    {{ $foret->nom }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('foret_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <x-form.select-search
+                            name="foret_id"
+                            label="Forêt"
+                            :options="$forets->pluck('foret', 'id')"
+                            :selected="old('foret_id', $article->foret_id)"
+                            placeholder="Sélectionner une forêt..."
+                            searchPlaceholder="Rechercher une forêt..."
+                            required="true"
+                            :error="$errors->first('foret_id')"
+                        />
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <label for="essence_id" class="form-label">Essence <span class="text-danger">*</span></label>
-                        <select class="form-select @error('essence_id') is-invalid @enderror" id="essence_id" name="essence_id" required>
-                            <option value="">Sélectionner une essence</option>
-                            @foreach($essences as $essence)
-                                <option value="{{ $essence->id }}" {{ old('essence_id', $article->essence_id) == $essence->id ? 'selected' : '' }}>
-                                    {{ $essence->nom }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('essence_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <x-form.select-search
+                            name="essence_id"
+                            label="Essence"
+                            :options="$essences->pluck('essence', 'id')"
+                            :selected="old('essence_id', $article->essence_id)"
+                            placeholder="Sélectionner une essence..."
+                            searchPlaceholder="Rechercher une essence..."
+                            required="true"
+                            :error="$errors->first('essence_id')"
+                        />
                     </div>
                 </div>
             </div>
@@ -148,34 +142,30 @@
                 </div>
                 <div class="col-md-3">
                     <div class="mb-3">
-                        <label for="nature_de_coupe_id" class="form-label">Nature de Coupe <span class="text-danger">*</span></label>
-                        <select class="form-select @error('nature_de_coupe_id') is-invalid @enderror" id="nature_de_coupe_id" name="nature_de_coupe_id" required>
-                            <option value="">Sélectionner</option>
-                            @foreach($natureDeCoupes as $natureDeCoupe)
-                                <option value="{{ $natureDeCoupe->id }}" {{ old('nature_de_coupe_id', $article->nature_de_coupe_id) == $natureDeCoupe->id ? 'selected' : '' }}>
-                                    {{ $natureDeCoupe->nom }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('nature_de_coupe_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <x-form.select-search
+                            name="nature_de_coupe_id"
+                            label="Nature de Coupe"
+                            :options="$natureDeCoupes->pluck('nature_de_coupe', 'id')"
+                            :selected="old('nature_de_coupe_id', $article->nature_de_coupe_id)"
+                            placeholder="Sélectionner une nature de coupe..."
+                            searchPlaceholder="Rechercher une nature de coupe..."
+                            required="true"
+                            :error="$errors->first('nature_de_coupe_id')"
+                        />
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="mb-3">
-                        <label for="situation_administrative_id" class="form-label">Situation Administrative <span class="text-danger">*</span></label>
-                        <select class="form-select @error('situation_administrative_id') is-invalid @enderror" id="situation_administrative_id" name="situation_administrative_id" required>
-                            <option value="">Sélectionner</option>
-                            @foreach($situationAdministratives as $situationAdministrative)
-                                <option value="{{ $situationAdministrative->id }}" {{ old('situation_administrative_id', $article->situation_administrative_id) == $situationAdministrative->id ? 'selected' : '' }}>
-                                    {{ $situationAdministrative->nom }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('situation_administrative_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <x-form.select-search
+                            name="situation_administrative_id"
+                            label="Situation Administrative"
+                            :options="$situationAdministratives->mapWithKeys(function($situation) { return [$situation->id => $situation->commune . ' - ' . $situation->province]; })"
+                            :selected="old('situation_administrative_id', $article->situation_administrative_id)"
+                            placeholder="Sélectionner une situation administrative..."
+                            searchPlaceholder="Rechercher une situation administrative..."
+                            required="true"
+                            :error="$errors->first('situation_administrative_id')"
+                        />
                     </div>
                 </div>
             </div>
@@ -217,31 +207,28 @@
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="exploitant_id" class="form-label">Exploitant</label>
-                        <select class="form-select @error('exploitant_id') is-invalid @enderror" id="exploitant_id" name="exploitant_id">
-                            <option value="">Sélectionner un exploitant</option>
-                            @foreach($exploitants as $exploitant)
-                                <option value="{{ $exploitant->id }}" {{ old('exploitant_id', $article->exploitant_id) == $exploitant->id ? 'selected' : '' }}>
-                                    {{ $exploitant->nom_complet }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('exploitant_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <x-form.select-search
+                            name="exploitant_id"
+                            label="Exploitant"
+                            :options="$exploitants->mapWithKeys(function($exploitant) { return [$exploitant->id => $exploitant->nom_complet ?? $exploitant->raison_sociale]; })"
+                            :selected="old('exploitant_id', $article->exploitant_id)"
+                            placeholder="Sélectionner un exploitant..."
+                            searchPlaceholder="Rechercher un exploitant..."
+                            :error="$errors->first('exploitant_id')"
+                        />
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="statut" class="form-label">Statut</label>
-                        <select class="form-select @error('statut') is-invalid @enderror" id="statut" name="statut">
-                            <option value="disponible" {{ old('statut', $article->statut) == 'disponible' ? 'selected' : '' }}>Disponible</option>
-                            <option value="vendu" {{ old('statut', $article->statut) == 'vendu' ? 'selected' : '' }}>Vendu</option>
-                            <option value="en_cours" {{ old('statut', $article->statut) == 'en_cours' ? 'selected' : '' }}>En cours</option>
-                        </select>
-                        @error('statut')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <x-form.select-search
+                            name="statut"
+                            label="Statut"
+                            :options="['disponible' => 'Disponible', 'vendu' => 'Vendu', 'en_cours' => 'En cours']"
+                            :selected="old('statut', $article->statut)"
+                            placeholder="Sélectionner un statut..."
+                            searchPlaceholder="Rechercher un statut..."
+                            :error="$errors->first('statut')"
+                        />
                     </div>
                 </div>
             </div>

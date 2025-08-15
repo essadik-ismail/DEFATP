@@ -102,44 +102,34 @@
         <x-alert type="danger" :message="session('error')" />
     @endif
 
+    @php
+        $rows = $localisations->map(function($localisation) {
+            return [
+                '<span class="badge bg-primary">' . $localisation->CODE . '</span>',
+                '<span class="text-body">' . $localisation->DRANEF . '</span>',
+                '<span class="text-body">' . $localisation->DPANEF . '</span>',
+                '<span class="text-body">' . $localisation->ENTITE . '</span>',
+                '<small class="text-muted">' . ($localisation->created_at?->format('d/m/Y H:i') ?? 'N/A') . '</small>',
+                '<div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editLocalisation(' . $localisation->id . ')">
+                        <i class="material-icons">edit</i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteLocalisation(' . $localisation->id . ')">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </div>'
+            ];
+        })->toArray();
+    @endphp
+
     <!-- Data Table -->
     <x-data-table
         :headers="['Code', 'DRANEF', 'DPANEF', 'ENTITE', 'Créé le', 'Actions']"
-        :total="$localisations->total()"
+        :rows="$rows"
         :pagination="$localisations->appends(request()->query())->links()"
-        emptyMessage="Aucune localisation trouvée"
-        emptySubmessage="Commencez par ajouter votre première localisation"
-    >
-        @foreach($localisations as $localisation)
-            <tr class="table-row">
-                <td class="table-cell">
-                    <span class="badge bg-primary">{{ $localisation->CODE }}</span>
-                </td>
-                <td class="table-cell">
-                    <span class="text-body">{{ $localisation->DRANEF }}</span>
-                </td>
-                <td class="table-cell">
-                    <span class="text-body">{{ $localisation->DPANEF }}</span>
-                </td>
-                <td class="table-cell">
-                    <span class="text-body">{{ $localisation->ENTITE }}</span>
-                </td>
-                <td class="table-cell">
-                    <small class="text-muted">{{ $localisation->created_at?->format('d/m/Y H:i') }}</small>
-                </td>
-                <td class="table-cell">
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editLocalisation({{ $localisation->id }})">
-                            <i class="material-icons">edit</i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteLocalisation({{ $localisation->id }})">
-                            <i class="material-icons">delete</i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        @endforeach
-    </x-data-table>
+        searchable="true"
+        exportable="true"
+    />
 
     <!-- Import/Export Section -->
     <x-import-export-section

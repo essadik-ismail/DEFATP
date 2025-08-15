@@ -98,6 +98,272 @@
     }
     
     // Auto-expand submenu if current page is active
+
+    // Select Search Component Functions
+    // Global state for select components
+    window.selectSearchComponents = window.selectSearchComponents || {};
+
+    // Initialize select search component
+    function initSelectSearch(selectId) {
+        if (window.selectSearchComponents[selectId]) {
+            return; // Already initialized
+        }
+
+        const component = {
+            id: selectId,
+            isOpen: false,
+            selectedValues: [],
+            selectedLabels: [],
+            multiple: false,
+            maxItems: null
+        };
+
+        // Get component configuration
+        const wrapper = document.getElementById(`select-wrapper-${selectId}`);
+        const hiddenInput = document.getElementById(selectId);
+        const display = wrapper.querySelector('.select-search-display');
+        const dropdown = wrapper.querySelector('.select-search-dropdown');
+        const options = wrapper.querySelectorAll('.option-item');
+
+        // Check if multiple selection is enabled
+        component.multiple = wrapper.querySelector('.select-search-display')?.classList.contains('multiple') || false;
+        
+        // Get max items if specified
+        const maxItemsAttr = wrapper.querySelector('.select-search-container')?.getAttribute('data-max-items');
+        component.maxItems = maxItemsAttr ? parseInt(maxItemsAttr) : null;
+
+        // Initialize selected values
+        if (hiddenInput.value) {
+            if (component.multiple) {
+                component.selectedValues = hiddenInput.value.split(',').filter(v => v.trim());
+            } else {
+                component.selectedValues = [hiddenInput.value];
+            }
+        }
+
+        // Update selected labels
+        component.selectedLabels = [];
+        options.forEach(option => {
+            if (component.selectedValues.includes(option.dataset.value)) {
+                component.selectedLabels.push(option.dataset.label);
+            }
+        });
+
+        // Store component reference
+        window.selectSearchComponents[selectId] = component;
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!wrapper.contains(event.target)) {
+                closeSelectSearch(selectId);
+            }
+        });
+
+        // Close dropdown on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeSelectSearch(selectId);
+            }
+        });
+    }
+
+    // Toggle select dropdown
+    function toggleSelectSearch(selectId) {
+        const component = window.selectSearchComponents[selectId];
+        if (!component) {
+            initSelectSearch(selectId);
+        }
+
+        if (component.isOpen) {
+            closeSelectSearch(selectId);
+        } else {
+            openSelectSearch(selectId);
+        }
+    }
+
+    // Open select dropdown
+    function openSelectSearch(selectId) {
+        const wrapper = document.getElementById(`select-wrapper-${selectId}`);
+        const display = wrapper.querySelector('.select-search-display');
+        const dropdown = wrapper.querySelector('.select-search-dropdown');
+        const searchInput = dropdown.querySelector('.search-input');
+
+        // Close other open dropdowns
+        Object.keys(window.selectSearchComponents).forEach(id => {
+            if (id !== selectId) {
+                closeSelectSearch(id);
+            }
+        });
+
+        // Open this dropdown
+        display.classList.add('open');
+        dropdown.style.display = 'block';
+        window.selectSearchComponents[selectId].isOpen = true;
+
+        // Focus search input
+        setTimeout(() => {
+            searchInput.focus();
+        }, 100);
+    }
+
+    // Close select dropdown
+    function closeSelectSearch(selectId) {
+        const wrapper = document.getElementById(`select-wrapper-${selectId}`);
+        const display = wrapper.querySelector('.select-search-display');
+        const dropdown = wrapper.querySelector('.select-search-dropdown');
+
+        display.classList.remove('open');
+        dropdown.style.display = 'none';
+        window.selectSearchComponents[selectId].isOpen = false;
+    }
+
+    // Filter options based on search input
+    function filterSelectOptions(selectId, searchTerm) {
+        const wrapper = document.getElementById(`select-wrapper-${selectId}`);
+        const options = wrapper.querySelectorAll('.option-item');
+        const searchLower = searchTerm.toLowerCase();
+
+        options.forEach(option => {
+            const text = option.dataset.label.toLowerCase();
+            if (text.includes(searchLower)) {
+                option.classList.remove('hidden');
+            } else {
+                option.classList.add('hidden');
+            }
+        });
+    }
+
+    // Select an option
+    function selectOption(selectId, value, label, multiple = false) {
+        const component = window.selectSearchComponents[selectId];
+        const wrapper = document.getElementById(`select-wrapper-${selectId}`);
+        const hiddenInput = document.getElementById(selectId);
+        const selectedItems = wrapper.querySelector('.selected-items');
+        const placeholder = wrapper.querySelector('.placeholder-text');
+
+        if (multiple) {
+            // Multiple selection
+            if (component.selectedValues.includes(value)) {
+                // Remove if already selected
+                component.selectedValues = component.selectedValues.filter(v => v !== value);
+                component.selectedLabels = component.selectedLabels.filter(l => l !== label);
+            } else {
+                // Add if not selected
+                if (component.maxItems && component.selectedValues.length >= component.maxItems) {
+                    alert(`Vous ne pouvez sélectionner que ${component.maxItems} éléments maximum.`);
+                    return;
+                }
+                component.selectedValues.push(value);
+                component.selectedLabels.push(label);
+            }
+        } else {
+            // Single selection
+            component.selectedValues = [value];
+            component.selectedLabels = [label];
+            closeSelectSearch(selectId);
+        }
+
+        // Update hidden input
+        hiddenInput.value = component.selectedValues.join(',');
+
+        // Update display
+        updateSelectDisplay(selectId);
+
+        // Update option visual states
+        updateOptionStates(selectId);
+    }
+
+    // Remove selected item (for multiple selection)
+    function removeSelectedItem(selectId, label) {
+        const component = window.selectSearchComponents[selectId];
+        const value = component.selectedValues[component.selectedLabels.indexOf(label)];
+
+        component.selectedValues = component.selectedValues.filter(v => v !== value);
+        component.selectedLabels = component.selectedLabels.filter(l => l !== label);
+
+        const hiddenInput = document.getElementById(selectId);
+        hiddenInput.value = component.selectedValues.join(',');
+
+        updateSelectDisplay(selectId);
+        updateOptionStates(selectId);
+    }
+
+    // Clear selection
+    function clearSelection(selectId) {
+        const component = window.selectSearchComponents[selectId];
+        component.selectedValues = [];
+        component.selectedLabels = [];
+
+        const hiddenInput = document.getElementById(selectId);
+        hiddenInput.value = '';
+
+        updateSelectDisplay(selectId);
+        updateOptionStates(selectId);
+        closeSelectSearch(selectId);
+    }
+
+    // Update select display
+    function updateSelectDisplay(selectId) {
+        const wrapper = document.getElementById(`select-wrapper-${selectId}`);
+        const selectedItems = wrapper.querySelector('.selected-items');
+        const placeholder = wrapper.querySelector('.placeholder-text');
+
+        if (window.selectSearchComponents[selectId].selectedValues.length > 0) {
+            // Show selected items
+            if (window.selectSearchComponents[selectId].multiple) {
+                selectedItems.innerHTML = '';
+                window.selectSearchComponents[selectId].selectedLabels.forEach(label => {
+                    const itemSpan = document.createElement('span');
+                    itemSpan.className = 'selected-item';
+                    itemSpan.innerHTML = `
+                        ${label}
+                        <button type="button" class="remove-item" onclick="removeSelectedItem('${selectId}', '${label}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    selectedItems.appendChild(itemSpan);
+                });
+                placeholder.style.display = 'none';
+            } else {
+                selectedItems.innerHTML = `<span class="selected-text">${window.selectSearchComponents[selectId].selectedLabels[0]}</span>`;
+                placeholder.style.display = 'none';
+            }
+        } else {
+            // Show placeholder
+            selectedItems.innerHTML = '';
+            placeholder.style.display = 'inline';
+        }
+    }
+
+    // Update option visual states
+    function updateOptionStates(selectId) {
+        const wrapper = document.getElementById(`select-wrapper-${selectId}`);
+        const options = wrapper.querySelectorAll('.option-item');
+        const component = window.selectSearchComponents[selectId];
+
+        options.forEach(option => {
+            const value = option.dataset.value;
+            if (component.selectedValues.includes(value)) {
+                option.classList.add('selected');
+                option.querySelector('.selected-icon')?.remove();
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-check selected-icon';
+                option.appendChild(icon);
+            } else {
+                option.classList.remove('selected');
+                option.querySelector('.selected-icon')?.remove();
+            }
+        });
+    }
+
+    // Initialize all select search components on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectWrappers = document.querySelectorAll('.select-search-wrapper');
+        selectWrappers.forEach(wrapper => {
+            const selectId = wrapper.querySelector('[id]').id;
+            initSelectSearch(selectId);
+        });
+    });
     document.addEventListener('DOMContentLoaded', function() {
         const activeSubmenuItem = document.querySelector('.submenu-item.active');
         if (activeSubmenuItem) {
