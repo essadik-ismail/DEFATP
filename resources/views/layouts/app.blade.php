@@ -544,12 +544,12 @@
              display: flex;
              align-items: center;
             gap: 12px;
-            padding: 24px;
+            padding: 2.2rem;
             font-size: 24px;
             font-weight: 700;
             color: var(--text-primary);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 20px;
+            /* margin-bottom: 20px; */
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
             position: relative;
             overflow: hidden;

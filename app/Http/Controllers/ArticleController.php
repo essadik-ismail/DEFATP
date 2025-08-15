@@ -31,7 +31,6 @@ class ArticleController extends Controller
             'foret',
             'essence',
             'natureDeCoupe',
-
             'localisation'
         ]);
 
