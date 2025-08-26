@@ -484,6 +484,24 @@
                                 <input type="file" id="importLocalisationForm" style="display: none;" accept=".xlsx,.xls,.csv" onchange="importLocalisations(this)">
                             </div>
                         </div>
+                        
+                        <!-- Search Box -->
+                        <div class="mb-3">
+                            <form method="GET" action="{{ route('articles.index') }}" class="d-flex gap-2">
+                                <input type="text" name="localisation_search" class="form-control" 
+                                       placeholder="Rechercher par Code, DRANEF ou Entité..." 
+                                       value="{{ request('localisation_search') }}">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                @if(request('localisation_search'))
+                                    <a href="{{ route('articles.index') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                @endif
+                            </form>
+                        </div>
+                        
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">
                                 <thead>
@@ -496,7 +514,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach(\App\Models\Localisation::all() as $localisation)
+                                    @forelse($localisations as $localisation)
                                     <tr>
                                         <td>{{ $localisation->id }}</td>
                                         <td>{{ $localisation->CODE }}</td>
@@ -504,10 +522,24 @@
                                         <td>{{ $localisation->ENTITE }}</td>
                                         <td>{{ $localisation->created_at->format('d/m/Y') }}</td>
                                     </tr>
-                                    @endforeach
+                                    @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">
+                                            <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                                            <p>Aucune localisation trouvée</p>
+                                        </td>
+                                    </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <!-- Pagination -->
+                        @if($localisations->hasPages())
+                            <div class="d-flex justify-content-center mt-3">
+                                {{ $localisations->appends(request()->query())->links() }}
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Situations Administratives Tab -->
@@ -604,6 +636,24 @@
                                 <i class="fas fa-plus me-2"></i>Nouvelle Nature
                             </a>
                         </div>
+                        
+                        <!-- Search Box -->
+                        <div class="mb-3">
+                            <form method="GET" action="{{ route('articles.index') }}" class="d-flex gap-2">
+                                <input type="text" name="nature_search" class="form-control" 
+                                       placeholder="Rechercher une nature de coupe..." 
+                                       value="{{ request('nature_search') }}">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                @if(request('nature_search'))
+                                    <a href="{{ route('articles.index') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                @endif
+                            </form>
+                        </div>
+                        
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">
                                 <thead>
@@ -615,7 +665,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach(\App\Models\NatureDeCoupe::all() as $nature)
+                                    @forelse($natureDeCoupes as $nature)
                                     <tr>
                                         <td>{{ $nature->id }}</td>
                                         <td>{{ $nature->nature_de_coupe }}</td>
@@ -633,10 +683,24 @@
                                             </form>
                                         </td>
                                     </tr>
-                                    @endforeach
+                                    @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">
+                                            <i class="fas fa-cut fa-2x mb-2"></i>
+                                            <p>Aucune nature de coupe trouvée</p>
+                                        </td>
+                                    </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <!-- Pagination -->
+                        @if($natureDeCoupes->hasPages())
+                            <div class="d-flex justify-content-center mt-3">
+                                {{ $natureDeCoupes->appends(request()->query())->links() }}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
