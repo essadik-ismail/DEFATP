@@ -24,94 +24,73 @@ use Illuminate\View\View;
 
 class ArticleController extends Controller
 {
-    public function index(IndexArticleRequest $request): View
+    public function index(Request $request): View
     {
-        $query = Article::with([
-            'situationAdministrative',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'localisation'
-        ]);
+        // Get articles with pagination
+        $articles = Article::where('is_deleted', '')
+            ->with(['foret', 'essence', 'localisation', 'situationAdministrative', 'exploitant', 'natureDeCoupe'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        // Filtering
-        if ($request->filled('annee')) {
-            $query->where('annee', $request->annee);
-        }
+        // Get entities with search and pagination
+        $essences = Essence::where('is_deleted', '')
+            ->when($request->filled('essence_search'), function($query) use ($request) {
+                $query->where('essence', 'like', '%' . $request->essence_search . '%');
+            })
+            ->orderBy('essence')
+            ->paginate(10, ['*'], 'essences_page');
 
-        if ($request->filled('foret_id')) {
-            $query->where('foret_id', $request->foret_id);
-        }
+        $forets = Foret::where('is_deleted', '')
+            ->when($request->filled('foret_search'), function($query) use ($request) {
+                $query->where('foret', 'like', '%' . $request->foret_search . '%');
+            })
+            ->orderBy('foret')
+            ->paginate(10, ['*'], 'forets_page');
 
-        if ($request->filled('essence_id')) {
-            $query->where('essence_id', $request->essence_id);
-        }
+        $localisations = Localisation::where('is_deleted', '')
+            ->when($request->filled('localisation_search'), function($query) use ($request) {
+                $query->where(function($q) use ($request) {
+                    $q->where('CODE', 'like', '%' . $request->localisation_search . '%')
+                      ->orWhere('DRANEF', 'like', '%' . $request->localisation_search . '%')
+                      ->orWhere('ENTITE', 'like', '%' . $request->localisation_search . '%');
+                });
+            })
+            ->orderBy('CODE')
+            ->paginate(10, ['*'], 'localisations_page');
 
-        if ($request->filled('invendu')) {
-            $query->where('invendu', $request->invendu);
-        }
+        $situationAdministratives = SituationAdministrative::where('is_deleted', '')
+            ->when($request->filled('situation_search'), function($query) use ($request) {
+                $query->where(function($q) use ($request) {
+                    $q->where('commune', 'like', '%' . $request->situation_search . '%')
+                      ->orWhere('province', 'like', '%' . $request->localisation_search . '%');
+                });
+            })
+            ->orderBy('commune')
+            ->paginate(10, ['*'], 'situations_page');
 
-        if ($request->filled('numero')) {
-            $query->where('numero', 'like', '%' . $request->numero . '%');
-        }
+        $exploitants = Exploitant::where('is_deleted', '')
+            ->when($request->filled('exploitant_search'), function($query) use ($request) {
+                $query->where('nom_complet', 'like', '%' . $request->exploitant_search . '%');
+            })
+            ->orderBy('nom_complet')
+            ->paginate(10, ['*'], 'exploitants_page');
 
-        if ($request->filled('date_adjudication')) {
-            $query->where('date_adjudication', $request->date_adjudication);
-        }
+        $natureDeCoupes = NatureDeCoupe::where('is_deleted', '')
+            ->when($request->filled('nature_search'), function($query) use ($request) {
+                $query->where('nature_de_coupe', 'like', '%' . $request->nature_search . '%');
+            })
+            ->orderBy('nature_de_coupe')
+            ->paginate(10, ['*'], 'natures_page');
 
-        if ($request->filled('prix_de_retrait_min')) {
-            $query->where('prix_de_retrait', '>=', $request->prix_de_retrait_min);
-        }
-
-        if ($request->filled('prix_de_retrait_max')) {
-            $query->where('prix_de_retrait', '<=', $request->prix_de_retrait_max);
-        }
-
-        if ($request->filled('prix_vente_min')) {
-            $query->where('prix_vente', '>=', $request->prix_vente_min);
-        }
-
-        if ($request->filled('prix_vente_max')) {
-            $query->where('prix_vente', '<=', $request->prix_vente_max);
-        }
-
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
-        if ($request->filled('is_validated')) {
-            $query->where('is_validated', $request->is_validated);
-        }
-
-        if ($request->filled('exploitant_id')) {
-            $query->where('exploitant_id', $request->exploitant_id);
-        }
-
-        if ($request->filled('date_from')) {
-            $query->where('date_adjudication', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->where('date_adjudication', '<=', $request->date_to);
-        }
-
-        if ($request->filled('sort')) {
-            $direction = $request->get('direction', 'desc');
-            $query->orderBy($request->sort, $direction);
-        } else {
-            $query->orderBy('date_adjudication', 'desc');
-        }
-
-        $articles = $query->paginate($request->get('per_page', 20));
-
-        // Get filter options
-        $forets = Foret::orderBy('foret')->get();
-        $essences = Essence::orderBy('essence')->get();
-        $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
-        $localisations = Localisation::orderBy('CODE')->get();
-        $exploitants = Exploitant::orderBy('nom_complet')->get();
-
-        return view('articles.index', compact('articles', 'forets', 'essences', 'natureDeCoupes', 'localisations', 'exploitants'));
+        return view('articles.index', compact(
+            'articles',
+            'essences',
+            'forets', 
+            'localisations',
+            'situationAdministratives',
+            'exploitants',
+            'natureDeCoupes'
+        ));
     }
 
     public function create(): View

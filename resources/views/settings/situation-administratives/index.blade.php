@@ -8,214 +8,129 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h1 class="h3 mb-0">Gestion des Situations Administratives</h1>
-                <p class="text-muted mb-0">Administrez les situations administratives des parcelles forestières</p>
+                <p class="text-muted mb-0">Administrez les situations administratives</p>
             </div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSituationAdministrativeModal">
-                <i class="material-icons me-2">add</i>
+            <a href="{{ route('settings.situation-administratives.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
                 Nouvelle Situation Administrative
-            </button>
+            </a>
         </div>
     </div>
-
-    <!-- Statistics Grid -->
-    <!-- <x-stats-grid :stats="[
-        [
-            'title' => 'Total Situations',
-            'value' => $situationAdministratives->total(),
-            'icon' => 'material-icons',
-            'color' => 'purple'
-        ],
-        [
-            'title' => 'Situations Actives',
-            'value' => $situationAdministratives->count(),
-            'icon' => 'material-icons',
-            'color' => 'green'
-        ],
-        [
-            'title' => 'Ajoutées ce mois',
-            'value' => $situationAdministratives->where('created_at', '>=', now()->subDays(30))->count(),
-            'icon' => 'material-icons',
-            'color' => 'orange'
-        ],
-        [
-            'title' => 'Communes Uniques',
-            'value' => $situationAdministratives->count(),
-            'icon' => 'material-icons',
-            'color' => 'blue'
-        ]
-    ]" /> -->
-
-    <!-- Filter Section -->
-    <x-filter-section 
-        title="Filtres de recherche"
-        collapsible="true"
-        collapsed="false"
-    >
-        <form method="GET" action="{{ route('settings.situation-administratives') }}" class="row g-3">
-            <div class="col-md-4">
-                <x-form.input 
-                    name="search" 
-                    label="Rechercher" 
-                    placeholder="Commune, cercle, province..."
-                    value="{{ request('search') }}"
-                    icon="search"
-                />
-            </div>
-            <div class="col-md-3">
-                <x-form.select 
-                    name="status" 
-                    label="Statut"
-                    :options="[
-                        '' => 'Tous',
-                        'active' => 'Actives',
-                        'deleted' => 'Supprimées'
-                    ]"
-                    selected="{{ request('status') }}"
-                />
-            </div>
-            <div class="col-md-3">
-                <x-form.select 
-                    name="per_page" 
-                    label="Par page"
-                    :options="[
-                        '10' => '10',
-                        '15' => '15',
-                        '25' => '25',
-                        '50' => '50',
-                        '100' => '100'
-                    ]"
-                    selected="{{ request('per_page', 15) }}"
-                />
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="material-icons me-2">filter_alt</i>
-                    Filtrer
-                </button>
-            </div>
-        </form>
-    </x-filter-section>
 
     <!-- Success/Error Messages -->
     @if(session('success'))
-        <x-alert type="success" :message="session('success')" />
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     @if(session('error'))
-        <x-alert type="danger" :message="session('error')" />
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
-    @php
-        $rows = $situationAdministratives->map(function($situationAdministrative) {
-            return [
-                '#' . $situationAdministrative->id,
-                '<span class="fw-medium">' . $situationAdministrative->commune . '</span>',
-                '<span class="text-body">' . $situationAdministrative->cercle . '</span>',
-                '<span class="text-body">' . $situationAdministrative->province . '</span>',
-                $situationAdministrative->deleted_at
-                    ? '<span class="badge bg-danger">Supprimée</span>'
-                    : '<span class="badge bg-success">Active</span>',
-                '<small class="text-muted">' . ($situationAdministrative->created_at?->format('d/m/Y H:i') ?? 'N/A') . '</small>',
-                '<div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editSituationAdministrative(' . $situationAdministrative->id . ')">
-                        <i class="material-icons">edit</i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteSituationAdministrative(' . $situationAdministrative->id . ')">
-                        <i class="material-icons">delete</i>
-                    </button>
-                </div>'
-            ];
-        })->toArray();
-    @endphp
-
-    <!-- Data Table -->
-    <x-data-table
-        :headers="['ID', 'Commune', 'Cercle', 'Province', 'Statut', 'Créé le', 'Actions']"
-        :rows="$rows"
-        :pagination="$situationAdministratives->appends(request()->query())->links()"
-        searchable="true"
-        exportable="true"
-    />
-
     <!-- Import/Export Section -->
-    <x-import-export-section
-        title="Import/Export des Situations Administratives"
-        :exportRoute="route('settings.situation-administratives.export')"
-        :importRoute="route('excel.import.situation-administratives')"
-        exportLabel="Exporter les Situations Administratives"
-        importLabel="Importer des Situations Administratives"
-        exportDescription="Télécharger la liste des situations administratives au format Excel"
-        importDescription="Importer des situations administratives depuis un fichier Excel"
-    />
-
-    <!-- Create Situation Administrative Modal -->
-    <div class="modal fade" id="createSituationAdministrativeModal" tabindex="-1" aria-labelledby="createSituationAdministrativeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createSituationAdministrativeModalLabel">Nouvelle Situation Administrative</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-download me-2"></i>Import/Export des Situations Administratives
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="d-grid">
+                        <a href="{{ route('settings.situation-administratives.export') }}" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Exporter les Situations
+                        </a>
+                        <small class="text-muted mt-1">Télécharger la liste des situations au format Excel</small>
+                    </div>
                 </div>
-                <form action="{{ route('settings.situation-administratives.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <x-form.input 
-                                    name="commune" 
-                                    label="Commune" 
-                                    placeholder="Ex: Commune de Rabat"
-                                    required
-                                    icon="location_city"
-                                />
-                            </div>
-                            <div class="col-12">
-                                <x-form.input 
-                                    name="cercle" 
-                                    label="Cercle" 
-                                    placeholder="Ex: Cercle de Rabat"
-                                    required
-                                    icon="location_on"
-                                />
-                            </div>
-                            <div class="col-12">
-                                <x-form.input 
-                                    name="province" 
-                                    label="Province" 
-                                    placeholder="Ex: Province de Rabat"
-                                    required
-                                    icon="map"
-                                />
-                            </div>
-                        </div>
+                <div class="col-md-6">
+                    <div class="d-grid">
+                        <a href="{{ route('excel.import.situation-administratives') }}" class="btn btn-info">
+                            <i class="fas fa-upload me-2"></i>Importer des Situations
+                        </a>
+                        <small class="text-muted mt-1">Importer des situations depuis un fichier Excel</small>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="material-icons me-2">add</i>
-                            Créer la situation administrative
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-@endsection
 
-@push('scripts')
-<script>
-    function editSituationAdministrative(id) {
-        // Implement edit functionality
-        console.log('Edit situation administrative:', id);
-        // You can open a modal or redirect to edit page
-    }
-
-    function deleteSituationAdministrative(id) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette situation administrative ?')) {
-            // Implement delete functionality
-            console.log('Delete situation administrative:', id);
-            // You can make an AJAX call or redirect to delete route
-        }
-    }
-</script>
-@endpush 
+    <!-- Simple Data Display -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-list me-2"></i>Liste des Situations Administratives
+            </h5>
+        </div>
+        <div class="card-body">
+            @if($situationAdministratives->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Commune</th>
+                                <th>Province</th>
+                                <th>Statut</th>
+                                <th>Créé le</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($situationAdministratives as $situation)
+                                <tr>
+                                    <td>{{ $situation->id }}</td>
+                                    <td>{{ $situation->commune }}</td>
+                                    <td>{{ $situation->province }}</td>
+                                    <td>
+                                        @if($situation->deleted_at)
+                                            <span class="badge bg-danger">Supprimée</span>
+                                        @else
+                                            <span class="badge bg-success">Active</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $situation->created_at?->format('d/m/Y H:i') ?? 'N/A' }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ route('settings.situation-administratives.edit', $situation) }}" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('settings.situation-administratives.destroy', $situation) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette situation ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                
+                @if($situationAdministratives->hasPages())
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $situationAdministratives->appends(request()->query())->links() }}
+                    </div>
+                @endif
+            @else
+                <div class="text-center py-4">
+                    <i class="fas fa-building text-muted" style="font-size: 3rem;"></i>
+                    <p class="h5 mt-3 text-muted">Aucune situation administrative trouvée</p>
+                    <p class="text-muted">Commencez par créer votre première situation</p>
+                    <a href="{{ route('settings.situation-administratives.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Créer la Première Situation
+                    </a>
+                </div>
+            @endif
+        </div>
+    </div>
+@endsection 

@@ -8,217 +8,131 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h1 class="h3 mb-0">Gestion des Localisations</h1>
-                <p class="text-muted mb-0">Administrez les localisations et leurs codes géographiques</p>
+                <p class="text-muted mb-0">Administrez les zones géographiques forestières</p>
             </div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createLocalisationModal">
-                <i class="material-icons me-2">add</i>
+            <a href="{{ route('settings.localisations.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
                 Nouvelle Localisation
-            </button>
+            </a>
         </div>
     </div>
-
-    <!-- Statistics Grid -->
-    <!-- <x-stats-grid :stats="[
-        [
-            'title' => 'Total Localisations',
-            'value' => $localisations->total(),
-            'icon' => 'material-icons',
-            'color' => 'purple'
-        ],
-        [
-            'title' => 'Localisations Actives',
-            'value' => $localisations->count(),
-            'icon' => 'material-icons',
-            'color' => 'green'
-        ],
-        [
-            'title' => 'Ajoutées ce mois',
-            'value' => $localisations->where('created_at', '>=', now()->subDays(30))->count(),
-            'icon' => 'material-icons',
-            'color' => 'orange'
-        ],
-        [
-            'title' => 'Codes Uniques',
-            'value' => $localisations->count(),
-            'icon' => 'material-icons',
-            'color' => 'blue'
-        ]
-    ]" /> -->
-
-    <!-- Filter Section -->
-    <x-filter-section 
-        title="Filtres de recherche"
-        collapsible="true"
-        collapsed="false"
-    >
-        <form method="GET" action="{{ route('settings.localisations') }}" class="row g-3">
-            <div class="col-md-3">
-                <x-form.input 
-                    name="code" 
-                    label="Code" 
-                    placeholder="Ex: L001"
-                    value="{{ request('code') }}"
-                    icon="code"
-                />
-            </div>
-            <div class="col-md-3">
-                <x-form.input 
-                    name="search" 
-                    label="Rechercher" 
-                    placeholder="DRANEF, DPANEF, ENTITE..."
-                    value="{{ request('search') }}"
-                    icon="search"
-                />
-            </div>
-            <div class="col-md-2">
-                <x-form.select 
-                    name="per_page" 
-                    label="Par page"
-                    :options="[
-                        '10' => '10',
-                        '15' => '15',
-                        '25' => '25',
-                        '50' => '50',
-                        '100' => '100'
-                    ]"
-                    selected="{{ request('per_page', 15) }}"
-                />
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="material-icons me-2">filter_alt</i>
-                    Filtrer
-                </button>
-            </div>
-        </form>
-    </x-filter-section>
 
     <!-- Success/Error Messages -->
     @if(session('success'))
-        <x-alert type="success" :message="session('success')" />
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     @if(session('error'))
-        <x-alert type="danger" :message="session('error')" />
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
-    @php
-        $rows = $localisations->map(function($localisation) {
-            return [
-                '<span class="badge bg-primary">' . $localisation->CODE . '</span>',
-                '<span class="text-body">' . $localisation->DRANEF . '</span>',
-                '<span class="text-body">' . $localisation->DPANEF . '</span>',
-                '<span class="text-body">' . $localisation->ENTITE . '</span>',
-                '<small class="text-muted">' . ($localisation->created_at?->format('d/m/Y H:i') ?? 'N/A') . '</small>',
-                '<div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editLocalisation(' . $localisation->id . ')">
-                        <i class="material-icons">edit</i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteLocalisation(' . $localisation->id . ')">
-                        <i class="material-icons">delete</i>
-                    </button>
-                </div>'
-            ];
-        })->toArray();
-    @endphp
-
-    <!-- Data Table -->
-    <x-data-table
-        :headers="['Code', 'DRANEF', 'DPANEF', 'ENTITE', 'Créé le', 'Actions']"
-        :rows="$rows"
-        :pagination="$localisations->appends(request()->query())->links()"
-        searchable="true"
-        exportable="true"
-    />
-
     <!-- Import/Export Section -->
-    <x-import-export-section
-        title="Import/Export des Localisations"
-        :exportRoute="route('settings.localisations.export')"
-        :importRoute="route('excel.import.localisations')"
-        exportLabel="Exporter les Localisations"
-        importLabel="Importer des Localisations"
-        exportDescription="Télécharger la liste des localisations au format Excel"
-        importDescription="Importer des localisations depuis un fichier Excel"
-    />
-
-    <!-- Create Localisation Modal -->
-    <div class="modal fade" id="createLocalisationModal" tabindex="-1" aria-labelledby="createLocalisationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createLocalisationModalLabel">Nouvelle Localisation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-download me-2"></i>Import/Export des Localisations
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="d-grid">
+                        <a href="{{ route('settings.localisations.export') }}" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Exporter les Localisations
+                        </a>
+                        <small class="text-muted mt-1">Télécharger la liste des localisations au format Excel</small>
+                    </div>
                 </div>
-                <form action="{{ route('settings.localisations.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <x-form.input 
-                                    name="CODE" 
-                                    label="Code" 
-                                    placeholder="Ex: L001"
-                                    required
-                                    icon="code"
-                                />
-                            </div>
-                            <div class="col-12">
-                                <x-form.input 
-                                    name="DRANEF" 
-                                    label="DRANEF" 
-                                    placeholder="Direction Régionale des Eaux et Forêts"
-                                    required
-                                    icon="location_on"
-                                />
-                            </div>
-                            <div class="col-12">
-                                <x-form.input 
-                                    name="DPANEF" 
-                                    label="DPANEF" 
-                                    placeholder="Direction Provinciale des Eaux et Forêts"
-                                    required
-                                    icon="location_city"
-                                />
-                            </div>
-                            <div class="col-12">
-                                <x-form.input 
-                                    name="ENTITE" 
-                                    label="ENTITE" 
-                                    placeholder="Entité administrative"
-                                    required
-                                    icon="business"
-                                />
-                            </div>
-                        </div>
+                <div class="col-md-6">
+                    <div class="d-grid">
+                        <a href="{{ route('excel.import.localisations') }}" class="btn btn-info">
+                            <i class="fas fa-upload me-2"></i>Importer des Localisations
+                        </a>
+                        <small class="text-muted mt-1">Importer des localisations depuis un fichier Excel</small>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="material-icons me-2">add</i>
-                            Créer la localisation
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Simple Data Display -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-list me-2"></i>Liste des Localisations
+            </h5>
+        </div>
+        <div class="card-body">
+            @if($localisations->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Code</th>
+                                <th>DRANEF</th>
+                                <th>Entité</th>
+                                <th>Statut</th>
+                                <th>Créé le</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($localisations as $localisation)
+                                <tr>
+                                    <td>{{ $localisation->id }}</td>
+                                    <td>{{ $localisation->CODE }}</td>
+                                    <td>{{ $localisation->DRANEF }}</td>
+                                    <td>{{ $localisation->ENTITE }}</td>
+                                    <td>
+                                        @if($localisation->deleted_at)
+                                            <span class="badge bg-danger">Supprimée</span>
+                                        @else
+                                            <span class="badge bg-success">Active</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $localisation->created_at?->format('d/m/Y H:i') ?? 'N/A' }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ route('settings.localisations.edit', $localisation) }}" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('settings.localisations.destroy', $localisation) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette localisation ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                
+                @if($localisations->hasPages())
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $localisations->appends(request()->query())->links() }}
+                    </div>
+                @endif
+            @else
+                <div class="text-center py-4">
+                    <i class="fas fa-map-marker-alt text-muted" style="font-size: 3rem;"></i>
+                    <p class="h5 mt-3 text-muted">Aucune localisation trouvée</p>
+                    <p class="text-muted">Commencez par créer votre première localisation</p>
+                    <a href="{{ route('settings.localisations.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Créer la Première Localisation
+                    </a>
+                </div>
+            @endif
+        </div>
+    </div>
 @endsection
-
-@push('scripts')
-<script>
-    function editLocalisation(id) {
-        // Implement edit functionality
-        console.log('Edit localisation:', id);
-        // You can open a modal or redirect to edit page
-    }
-
-    function deleteLocalisation(id) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette localisation ?')) {
-            // Implement delete functionality
-            console.log('Delete localisation:', id);
-            // You can make an AJAX call or redirect to delete route
-        }
-    }
-</script>
-@endpush

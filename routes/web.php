@@ -40,6 +40,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     
     // Essences
     Route::get('/essences', [SettingsController::class, 'essences'])->name('essences');
+    Route::get('/essences/create', [SettingsController::class, 'createEssence'])->name('essences.create');
     Route::post('/essences', [SettingsController::class, 'storeEssence'])->name('essences.store');
     Route::get('/essences/{essence}/edit', [SettingsController::class, 'editEssence'])->name('essences.edit');
     Route::put('/essences/{essence}', [SettingsController::class, 'updateEssence'])->name('essences.update');
@@ -47,8 +48,9 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/essences/export', [SettingsController::class, 'exportEssences'])->name('essences.export');
     Route::post('/essences/import', [SettingsController::class, 'importEssences'])->name('essences.import');
     
-    // Forets
+    // Forêts
     Route::get('/forets', [SettingsController::class, 'forets'])->name('forets');
+    Route::get('/forets/create', [SettingsController::class, 'createForet'])->name('forets.create');
     Route::post('/forets', [SettingsController::class, 'storeForet'])->name('forets.store');
     Route::get('/forets/{foret}/edit', [SettingsController::class, 'editForet'])->name('forets.edit');
     Route::put('/forets/{foret}', [SettingsController::class, 'updateForet'])->name('forets.update');
@@ -58,6 +60,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     
     // Nature de Coupes
     Route::get('/nature-de-coupes', [SettingsController::class, 'natureDeCoupes'])->name('nature-de-coupes');
+    Route::get('/nature-de-coupes/create', [SettingsController::class, 'createNatureDeCoupe'])->name('nature-de-coupes.create');
     Route::post('/nature-de-coupes', [SettingsController::class, 'storeNatureDeCoupe'])->name('nature-de-coupes.store');
     Route::get('/nature-de-coupes/{natureDeCoupe}/edit', [SettingsController::class, 'editNatureDeCoupe'])->name('nature-de-coupes.edit');
     Route::put('/nature-de-coupes/{natureDeCoupe}', [SettingsController::class, 'updateNatureDeCoupe'])->name('nature-de-coupes.update');
@@ -65,8 +68,9 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/nature-de-coupes/export', [SettingsController::class, 'exportNatureDeCoupes'])->name('nature-de-coupes.export');
     Route::post('/nature-de-coupes/import', [SettingsController::class, 'importNatureDeCoupes'])->name('nature-de-coupes.import');
     
-    // Situation Administratives
+    // Situations Administratives
     Route::get('/situation-administratives', [SettingsController::class, 'situationAdministratives'])->name('situation-administratives');
+    Route::get('/situation-administratives/create', [SettingsController::class, 'createSituationAdministrative'])->name('situation-administratives.create');
     Route::post('/situation-administratives', [SettingsController::class, 'storeSituationAdministrative'])->name('situation-administratives.store');
     Route::get('/situation-administratives/{situationAdministrative}/edit', [SettingsController::class, 'editSituationAdministrative'])->name('situation-administratives.edit');
     Route::put('/situation-administratives/{situationAdministrative}', [SettingsController::class, 'updateSituationAdministrative'])->name('situation-administratives.update');
@@ -76,6 +80,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     
     // Exploitants
     Route::get('/exploitants', [SettingsController::class, 'exploitants'])->name('exploitants');
+    Route::get('/exploitants/create', [SettingsController::class, 'createExploitant'])->name('exploitants.create');
     Route::post('/exploitants', [SettingsController::class, 'storeExploitant'])->name('exploitants.store');
     Route::get('/exploitants/{exploitant}/edit', [SettingsController::class, 'editExploitant'])->name('exploitants.edit');
     Route::put('/exploitants/{exploitant}', [SettingsController::class, 'updateExploitant'])->name('exploitants.update');
@@ -87,6 +92,8 @@ Route::prefix('settings')->name('settings.')->group(function () {
     
     // Localisations
     Route::get('/localisations', [SettingsController::class, 'localisations'])->name('localisations');
+    Route::get('/localisations/create', [SettingsController::class, 'createLocalisation'])->name('localisations.create');
+    Route::post('/localisations', [SettingsController::class, 'storeLocalisation'])->name('localisations.store');
     Route::get('/localisations/export', [SettingsController::class, 'exportLocalisations'])->name('localisations.export');
     Route::post('/localisations/import', [SettingsController::class, 'importLocalisations'])->name('localisations.import');
     

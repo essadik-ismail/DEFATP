@@ -10,257 +10,125 @@
                 <h1 class="h3 mb-0">Gestion des Forêts</h1>
                 <p class="text-muted mb-0">Administrez les forêts et leurs informations géographiques</p>
             </div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createForetModal">
-                <i class="material-icons me-2">add</i>
+            <a href="{{ route('settings.forets.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
                 Nouvelle Forêt
-            </button>
+            </a>
         </div>
     </div>
-
-    <!-- Statistics Grid -->
-    <!-- <x-stats-grid :stats="[
-        [
-            'title' => 'Total Forêts',
-            'value' => $stats['total'] ?? 0,
-            'icon' => 'material-icons',
-            'color' => 'purple'
-        ],
-        [
-            'title' => 'Forêts Actives',
-            'value' => $stats['active'] ?? 0,
-            'icon' => 'material-icons',
-            'color' => 'green'
-        ],
-        [
-            'title' => 'Ajoutées ce mois',
-            'value' => $stats['recent'] ?? 0,
-            'icon' => 'material-icons',
-            'color' => 'orange'
-        ],
-        [
-            'title' => 'Types Uniques',
-            'value' => $stats['unique'] ?? 0,
-            'icon' => 'material-icons',
-            'color' => 'blue'
-        ]
-    ]" /> -->
-
-    <!-- Filter Section -->
-    <x-filter-section 
-        title="Filtres de recherche"
-        collapsible="true"
-        collapsed="false"
-    >
-        <form method="GET" action="{{ route('settings.forets') }}" class="row g-3">
-            <div class="col-md-3">
-                <x-form.input 
-                    name="search" 
-                    label="Rechercher" 
-                    placeholder="Nom de la forêt..."
-                    value="{{ request('search') }}"
-                    icon="search"
-                />
-            </div>
-            <div class="col-md-3">
-                <x-form.select 
-                    name="province" 
-                    label="Province"
-                    :options="[
-                        '' => 'Toutes les provinces',
-                        'Casablanca-Settat' => 'Casablanca-Settat',
-                        'Rabat-Salé-Kénitra' => 'Rabat-Salé-Kénitra',
-                        'Marrakech-Safi' => 'Marrakech-Safi',
-                        'Fès-Meknès' => 'Fès-Meknès',
-                        'Tanger-Tétouan-Al Hoceima' => 'Tanger-Tétouan-Al Hoceima',
-                        'Oriental' => 'Oriental',
-                        'Souss-Massa' => 'Souss-Massa',
-                        'Drâa-Tafilalet' => 'Drâa-Tafilalet',
-                        'Béni Mellal-Khénifra' => 'Béni Mellal-Khénifra',
-                        'Guelmim-Oued Noun' => 'Guelmim-Oued Noun',
-                        'Laâyoune-Sakia El Hamra' => 'Laâyoune-Sakia El Hamra',
-                        'Dakhla-Oued Ed-Dahab' => 'Dakhla-Oued Ed-Dahab'
-                    ]"
-                    selected="{{ request('province') }}"
-                />
-            </div>
-            <div class="col-md-2">
-                <x-form.select 
-                    name="status" 
-                    label="Statut"
-                    :options="[
-                        '' => 'Tous',
-                        'active' => 'Actives',
-                        'deleted' => 'Supprimées'
-                    ]"
-                    selected="{{ request('status') }}"
-                />
-            </div>
-            <div class="col-md-2">
-                <x-form.select 
-                    name="per_page" 
-                    label="Par page"
-                    :options="[
-                        '10' => '10',
-                        '15' => '15',
-                        '25' => '25',
-                        '50' => '50',
-                        '100' => '100'
-                    ]"
-                    selected="{{ request('per_page', 15) }}"
-                />
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="material-icons me-2">filter_alt</i>
-                    Filtrer
-                </button>
-            </div>
-        </form>
-    </x-filter-section>
 
     <!-- Success/Error Messages -->
     @if(session('success'))
-        <x-alert type="success" :message="session('success')" />
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     @if(session('error'))
-        <x-alert type="danger" :message="session('error')" />
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
-    @php
-        $rows = $forets->map(function($foret) {
-            return [
-                '#' . $foret->id,
-                '<span class="fw-medium">' . $foret->foret . '</span>',
-                '<span class="badge bg-secondary">' . $foret->province . '</span>',
-                $foret->lat && $foret->log 
-                    ? '<small class="text-muted">' . $foret->lat . ', ' . $foret->log . '</small>'
-                    : '<span class="text-muted">Non définies</span>',
-                $foret->is_deleted
-                    ? '<span class="badge bg-danger">Supprimée</span>'
-                    : '<span class="badge bg-success">Active</span>',
-                '<small class="text-muted">' . ($foret->created_at?->format('d/m/Y H:i') ?? 'N/A') . '</small>',
-                '<div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editForet(' . $foret->id . ')">
-                        <i class="material-icons">edit</i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteForet(' . $foret->id . ')">
-                        <i class="material-icons">delete</i>
-                    </button>
-                </div>'
-            ];
-        })->toArray();
-    @endphp
-
-    <!-- Data Table -->
-    <x-data-table
-        :headers="['ID', 'Forêt', 'Province', 'Coordonnées', 'Statut', 'Créé le', 'Actions']"
-        :rows="$rows"
-        :pagination="$forets->appends(request()->query())->links()"
-        searchable="true"
-        exportable="true"
-    />
-
     <!-- Import/Export Section -->
-    <x-import-export-section
-        title="Import/Export des Forêts"
-        :exportRoute="route('settings.forets.export')"
-        :importRoute="route('excel.import.forets')"
-        exportLabel="Exporter les Forêts"
-        importLabel="Importer des Forêts"
-        exportDescription="Télécharger la liste des forêts au format Excel"
-        importDescription="Importer des forêts depuis un fichier Excel"
-    />
-
-    <!-- Create Foret Modal -->
-    <div class="modal fade" id="createForetModal" tabindex="-1" aria-labelledby="createForetModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createForetModalLabel">Nouvelle Forêt</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-download me-2"></i>Import/Export des Forêts
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="d-grid">
+                        <a href="{{ route('settings.forets.export') }}" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Exporter les Forêts
+                        </a>
+                        <small class="text-muted mt-1">Télécharger la liste des forêts au format Excel</small>
+                    </div>
                 </div>
-                <form action="{{ route('settings.forets.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <x-form.input 
-                                    name="foret" 
-                                    label="Nom de la forêt" 
-                                    placeholder="Ex: Forêt de la Mamora"
-                                    required
-                                />
-                            </div>
-                            <div class="col-12">
-                                <x-form.select 
-                                    name="province" 
-                                    label="Province"
-                                    :options="[
-                                        '' => 'Sélectionner une province',
-                                        'Casablanca-Settat' => 'Casablanca-Settat',
-                                        'Rabat-Salé-Kénitra' => 'Rabat-Salé-Kénitra',
-                                        'Marrakech-Safi' => 'Marrakech-Safi',
-                                        'Fès-Meknès' => 'Fès-Meknès',
-                                        'Tanger-Tétouan-Al Hoceima' => 'Tanger-Tétouan-Al Hoceima',
-                                        'Oriental' => 'Oriental',
-                                        'Souss-Massa' => 'Souss-Massa',
-                                        'Drâa-Tafilalet' => 'Drâa-Tafilalet',
-                                        'Béni Mellal-Khénifra' => 'Béni Mellal-Khénifra',
-                                        'Guelmim-Oued Noun' => 'Guelmim-Oued Noun',
-                                        'Laâyoune-Sakia El Hamra' => 'Laâyoune-Sakia El Hamra',
-                                        'Dakhla-Oued Ed-Dahab' => 'Dakhla-Oued Ed-Dahab'
-                                    ]"
-                                    required
-                                />
-                            </div>
-                            <div class="col-6">
-                                <x-form.input 
-                                    name="lat" 
-                                    label="Latitude" 
-                                    type="number"
-                                    step="any"
-                                    placeholder="Ex: 34.0209"
-                                />
-                            </div>
-                            <div class="col-6">
-                                <x-form.input 
-                                    name="log" 
-                                    label="Longitude" 
-                                    type="number"
-                                    step="any"
-                                    placeholder="Ex: -6.8416"
-                                />
-                            </div>
-                        </div>
+                <div class="col-md-6">
+                    <div class="d-grid">
+                        <a href="{{ route('excel.import.forets') }}" class="btn btn-info">
+                            <i class="fas fa-upload me-2"></i>Importer des Forêts
+                        </a>
+                        <small class="text-muted mt-1">Importer des forêts depuis un fichier Excel</small>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="material-icons me-2">add</i>
-                            Créer la forêt
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Simple Data Display -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-list me-2"></i>Liste des Forêts
+            </h5>
+        </div>
+        <div class="card-body">
+            @if($forets->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom de la Forêt</th>
+                                <th>Statut</th>
+                                <th>Créé le</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($forets as $foret)
+                                <tr>
+                                    <td>{{ $foret->id }}</td>
+                                    <td>{{ $foret->foret }}</td>
+                                    <td>
+                                        @if($foret->deleted_at)
+                                            <span class="badge bg-danger">Supprimée</span>
+                                        @else
+                                            <span class="badge bg-success">Active</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $foret->created_at?->format('d/m/Y H:i') ?? 'N/A' }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ route('settings.forets.edit', $foret) }}" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('settings.forets.destroy', $foret) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette forêt ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                
+                @if($forets->hasPages())
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $forets->appends(request()->query())->links() }}
+                    </div>
+                @endif
+            @else
+                <div class="text-center py-4">
+                    <i class="fas fa-tree text-muted" style="font-size: 3rem;"></i>
+                    <p class="h5 mt-3 text-muted">Aucune forêt trouvée</p>
+                    <p class="text-muted">Commencez par créer votre première forêt</p>
+                    <a href="{{ route('settings.forets.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Créer la Première Forêt
+                    </a>
+                </div>
+            @endif
+        </div>
+    </div>
 @endsection
-
-@push('scripts')
-<script>
-    function editForet(id) {
-        // Implement edit functionality
-        console.log('Edit foret:', id);
-        // You can open a modal or redirect to edit page
-    }
-
-    function deleteForet(id) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette forêt ?')) {
-            // Implement delete functionality
-            console.log('Delete foret:', id);
-            // You can make an AJAX call or redirect to delete route
-        }
-    }
-</script>
-@endpush

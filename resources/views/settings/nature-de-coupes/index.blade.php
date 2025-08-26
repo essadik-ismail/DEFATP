@@ -1,201 +1,134 @@
 @extends('layouts.app')
 
-@section('title', 'Gestion des Natures de Coupes')
+@section('title', 'Gestion des Natures de Coupe')
 
 @section('content')
     <!-- Page Header -->
     <div class="content-header mb-4">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h1 class="h3 mb-0">Gestion des Natures de Coupes</h1>
-                <p class="text-muted mb-0">Administrez les différents types de coupes forestières</p>
+                <h1 class="h3 mb-0">Gestion des Natures de Coupe</h1>
+                <p class="text-muted mb-0">Administrez les types de coupe forestière</p>
             </div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createNatureDeCoupeModal">
-                <i class="material-icons me-2">add</i>
+            <a href="{{ route('settings.nature-de-coupes.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
                 Nouvelle Nature de Coupe
-            </button>
+            </a>
         </div>
     </div>
-
-    <!-- Statistics Grid -->
-    <!-- <x-stats-grid :stats="[
-        [
-            'title' => 'Total Natures',
-            'value' => $natureDeCoupes->total(),
-            'icon' => 'material-icons',
-            'color' => 'purple'
-        ],
-        [
-            'title' => 'Natures Actives',
-            'value' => $natureDeCoupes->where('deleted_at', null)->count(),
-            'icon' => 'material-icons',
-            'color' => 'green'
-        ],
-        [
-            'title' => 'Ajoutées ce mois',
-            'value' => $natureDeCoupes->where('created_at', '>=', now()->subDays(30))->count(),
-            'icon' => 'material-icons',
-            'color' => 'orange'
-        ],
-        [
-            'title' => 'Types Uniques',
-            'value' => $natureDeCoupes->unique('nature_de_coupe')->count(),
-            'icon' => 'material-icons',
-            'color' => 'blue'
-        ]
-    ]" /> -->
-
-    <!-- Filter Section -->
-    <x-filter-section 
-        title="Filtres de recherche"
-        collapsible="true"
-        collapsed="false"
-    >
-        <form method="GET" action="{{ route('settings.nature-de-coupes') }}" class="row g-3">
-            <div class="col-md-4">
-                <x-form.input 
-                    name="search" 
-                    label="Rechercher" 
-                    placeholder="Nature de coupe..."
-                    value="{{ request('search') }}"
-                    icon="search"
-                />
-            </div>
-            <div class="col-md-3">
-                <x-form.select 
-                    name="status" 
-                    label="Statut"
-                    :options="[
-                        '' => 'Tous',
-                        'active' => 'Actives',
-                        'deleted' => 'Supprimées'
-                    ]"
-                    selected="{{ request('status') }}"
-                />
-            </div>
-            <div class="col-md-3">
-                <x-form.select 
-                    name="per_page" 
-                    label="Par page"
-                    :options="[
-                        '10' => '10',
-                        '15' => '15',
-                        '25' => '25',
-                        '50' => '50',
-                        '100' => '100'
-                    ]"
-                    selected="{{ request('per_page', 15) }}"
-                />
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="material-icons me-2">filter_alt</i>
-                    Filtrer
-                </button>
-            </div>
-        </form>
-    </x-filter-section>
 
     <!-- Success/Error Messages -->
     @if(session('success'))
-        <x-alert type="success" :message="session('success')" />
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     @if(session('error'))
-        <x-alert type="danger" :message="session('error')" />
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
-    @php
-        $rows = $natureDeCoupes->map(function($natureDeCoupe) {
-            return [
-                '#' . $natureDeCoupe->id,
-                '<span class="fw-medium">' . $natureDeCoupe->nature_de_coupe . '</span>',
-                $natureDeCoupe->deleted_at
-                    ? '<span class="badge bg-danger">Supprimée</span>'
-                    : '<span class="badge bg-success">Active</span>',
-                '<small class="text-muted">' . ($natureDeCoupe->created_at?->format('d/m/Y H:i') ?? 'N/A') . '</small>',
-                '<div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editNatureDeCoupe(' . $natureDeCoupe->id . ')">
-                        <i class="material-icons">edit</i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteNatureDeCoupe(' . $natureDeCoupe->id . ')">
-                        <i class="material-icons">delete</i>
-                    </button>
-                </div>'
-            ];
-        })->toArray();
-    @endphp
-
-    <!-- Data Table -->
-    <x-data-table
-        :headers="['ID', 'Nature de Coupe', 'Statut', 'Créé le', 'Actions']"
-        :rows="$rows"
-        :pagination="$natureDeCoupes->appends(request()->query())->links()"
-        searchable="true"
-        exportable="true"
-    />
-
     <!-- Import/Export Section -->
-    <x-import-export-section
-        title="Import/Export des Natures de Coupes"
-        :exportRoute="route('settings.nature-de-coupes.export')"
-        :importRoute="route('excel.import.nature-de-coupes')"
-        exportLabel="Exporter les Natures de Coupes"
-        importLabel="Importer des Natures de Coupes"
-        exportDescription="Télécharger la liste des natures de coupes au format Excel"
-        importDescription="Importer des natures de coupes depuis un fichier Excel"
-    />
-
-    <!-- Create Nature De Coupe Modal -->
-    <div class="modal fade" id="createNatureDeCoupeModal" tabindex="-1" aria-labelledby="createNatureDeCoupeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createNatureDeCoupeModalLabel">Nouvelle Nature de Coupe</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-download me-2"></i>Import/Export des Natures de Coupe
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="d-grid">
+                        <a href="{{ route('settings.nature-de-coupes.export') }}" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Exporter les Natures de Coupe
+                        </a>
+                        <small class="text-muted mt-1">Télécharger la liste des natures de coupe au format Excel</small>
+                    </div>
                 </div>
-                <form action="{{ route('settings.nature-de-coupes.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <x-form.input 
-                                    name="nature_de_coupe" 
-                                    label="Nature de Coupe" 
-                                    placeholder="Ex: Coupe rase, Coupe sélective..."
-                                    required
-                                    icon="content_cut"
-                                />
-                            </div>
-                        </div>
+                <div class="col-md-6">
+                    <div class="d-grid">
+                        <a href="{{ route('excel.import.nature-de-coupes') }}" class="btn btn-info">
+                            <i class="fas fa-upload me-2"></i>Importer des Natures de Coupe
+                        </a>
+                        <small class="text-muted mt-1">Importer des natures de coupe depuis un fichier Excel</small>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="material-icons me-2">add</i>
-                            Créer la nature de coupe
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-@endsection
 
-@push('scripts')
-<script>
-    function editNatureDeCoupe(id) {
-        // Implement edit functionality
-        console.log('Edit nature de coupe:', id);
-        // You can open a modal or redirect to edit page
-    }
-
-    function deleteNatureDeCoupe(id) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette nature de coupe ?')) {
-            // Implement delete functionality
-            console.log('Delete nature de coupe:', id);
-            // You can make an AJAX call or redirect to delete route
-        }
-    }
-</script>
-@endpush 
+    <!-- Simple Data Display -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-list me-2"></i>Liste des Natures de Coupe
+            </h5>
+        </div>
+        <div class="card-body">
+            @if($natureDeCoupes->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nature de Coupe</th>
+                                <th>Statut</th>
+                                <th>Créé le</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($natureDeCoupes as $nature)
+                                <tr>
+                                    <td>{{ $nature->id }}</td>
+                                    <td>{{ $nature->nature_de_coupe }}</td>
+                                    <td>
+                                        @if($nature->deleted_at)
+                                            <span class="badge bg-danger">Supprimée</span>
+                                        @else
+                                            <span class="badge bg-success">Active</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $nature->created_at?->format('d/m/Y H:i') ?? 'N/A' }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ route('settings.nature-de-coupes.edit', $nature) }}" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('settings.nature-de-coupes.destroy', $nature) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette nature de coupe ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                
+                @if($natureDeCoupes->hasPages())
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $natureDeCoupes->appends(request()->query())->links() }}
+                    </div>
+                @endif
+            @else
+                <div class="text-center py-4">
+                    <i class="fas fa-cut text-muted" style="font-size: 3rem;"></i>
+                    <p class="h5 mt-3 text-muted">Aucune nature de coupe trouvée</p>
+                    <p class="text-muted">Commencez par créer votre première nature de coupe</p>
+                    <a href="{{ route('settings.nature-de-coupes.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Créer la Première Nature de Coupe
+                    </a>
+                </div>
+            @endif
+        </div>
+    </div>
+@endsection 

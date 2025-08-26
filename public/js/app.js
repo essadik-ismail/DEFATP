@@ -1,5 +1,3 @@
-import './bootstrap';
-
 // Enhanced Notification System
 class NotificationManager {
     constructor() {

@@ -8,6 +8,7 @@ use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\SituationForestiere;
 use App\Models\Exploitant;
+use App\Models\Localisation;
 
 use App\Models\ZDTF;
 use App\Models\DPANEF;
@@ -123,6 +124,11 @@ class SettingsController extends Controller
         return view('settings.essences.index', compact('essences', 'stats'));
     }
 
+    public function createEssence(): View
+    {
+        return view('settings.essences.create');
+    }
+
     public function storeEssence(StoreEssenceRequest $request): RedirectResponse
     {
         Essence::create($request->only('essence'));
@@ -147,74 +153,18 @@ class SettingsController extends Controller
     }
 
     // Forets Management
-    public function forets(Request $request): View
+    public function forets(): View
     {
-        $query = Foret::query();
-
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->get('search');
-            $query->where('foret', 'like', "%{$search}%");
-        }
-
-        // Province filter
-        if ($request->filled('province')) {
-            $query->where('province', $request->get('province'));
-        }
-
-        // Status filter
-        if ($request->filled('status')) {
-            switch ($request->get('status')) {
-                case 'active':
-                    $query->where('is_deleted', false);
-                    break;
-                case 'deleted':
-                    $query->where('is_deleted', true);
-                    break;
-                case 'recent':
-                    $query->where('created_at', '>=', now()->subDays(30));
-                    break;
-            }
-        }
-
-        // Date range filter
-        if ($request->filled('date_from')) {
-            $query->where('created_at', '>=', $request->get('date_from'));
-        }
-        if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->get('date_to') . ' 23:59:59');
-        }
-
-        // Sorting
-        $sortField = $request->get('sort', 'foret');
-        $sortDirection = $request->get('direction', 'asc');
-        
-        $allowedSortFields = ['id', 'foret', 'province', 'created_at', 'updated_at'];
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        }
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $allowedPerPage = [10, 15, 25, 50, 100];
-        if (!in_array($perPage, $allowedPerPage)) {
-            $perPage = 15;
-        }
-
-        $forets = $query->paginate($perPage);
-
-        // Get statistics for the current filtered results
-        $stats = [
-            'total' => $query->count(),
-            'active' => $query->where('is_deleted', false)->count(),
-            'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
-            'unique' => $query->distinct('foret')->count(),
-        ];
-
-        return view('settings.forets.index', compact('forets', 'stats'));
+        $forets = Foret::where('is_deleted', '')->orderBy('foret')->paginate(15);
+        return view('settings.forets.index', compact('forets'));
     }
 
-    public function storeForet(StoreForetRequest $request): RedirectResponse
+    public function createForet(): View
+    {
+        return view('settings.forets.create');
+    }
+
+    public function storeForet(Request $request): RedirectResponse
     {
         Foret::create($request->only(['foret', 'lat', 'log', 'province']));
         return redirect()->route('settings.forets')->with('success', 'Forêt ajoutée avec succès.');
@@ -298,6 +248,11 @@ class SettingsController extends Controller
         ];
 
         return view('settings.nature-de-coupes.index', compact('natureDeCoupes', 'stats'));
+    }
+
+    public function createNatureDeCoupe(): View
+    {
+        return view('settings.nature-de-coupes.create');
     }
 
     public function storeNatureDeCoupe(StoreNatureDeCoupeRequest $request): RedirectResponse
@@ -391,6 +346,11 @@ class SettingsController extends Controller
         return view('settings.situation-administratives.index', compact('situationAdministratives', 'stats'));
     }
 
+    public function createSituationAdministrative(): View
+    {
+        return view('settings.situation-administratives.create');
+    }
+
     public function storeSituationAdministrative(StoreSituationAdministrativeRequest $request): RedirectResponse
     {
         SituationAdministrative::create($request->only(['commune', 'province']));
@@ -479,6 +439,11 @@ class SettingsController extends Controller
         ];
 
         return view('settings.exploitants.index', compact('exploitants', 'stats'));
+    }
+
+    public function createExploitant(): View
+    {
+        return view('settings.exploitants.create');
     }
 
     public function storeExploitant(StoreExploitantRequest $request): RedirectResponse
@@ -579,6 +544,28 @@ class SettingsController extends Controller
         ];
 
         return view('settings.localisations.index', compact('localisations', 'stats'));
+    }
+
+    public function createLocalisation(): View
+    {
+        return view('settings.localisations.create');
+    }
+
+    public function storeLocalisation(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'CODE' => 'required|string|max:255',
+            'DRANEF' => 'required|string|max:255',
+            'ENTITE' => 'required|string|max:255',
+        ]);
+
+        Localisation::create([
+            'CODE' => $request->CODE,
+            'DRANEF' => $request->DRANEF,
+            'ENTITE' => $request->ENTITE,
+        ]);
+
+        return redirect()->route('settings.localisations')->with('success', 'Localisation ajoutée avec succès.');
     }
 
     // ZDTFs Management

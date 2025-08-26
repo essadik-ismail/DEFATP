@@ -11,7 +11,6 @@ class Article extends Model
     protected $fillable = [
         'annee',
         'numero',
-        'date',
         'date_adjudication',
         'invendu',
         'prix_de_retrait',
@@ -44,10 +43,13 @@ class Article extends Model
         'type',
         'exploitant_id',
         'is_validated',
+        'adjudicatire',
+        'numero_adjudication',
+        'date_de_resiliation',
+        'date_de_decheance',
     ];
 
     protected $casts = [
-        'date' => 'date',
         'date_adjudication' => 'date',
         'date_dr' => 'date',
         'date_de_resiliation' => 'date',
@@ -101,7 +103,7 @@ class Article extends Model
     }
 
     /**
-     * Get the essence for this article.
+     * Get the tree species for this article.
      */
     public function essence(): BelongsTo
     {
@@ -109,20 +111,97 @@ class Article extends Model
     }
 
     /**
-     * Get the nature de coupe for this article.
+     * Get the cutting nature for this article.
      */
     public function natureDeCoupe(): BelongsTo
     {
         return $this->belongsTo(NatureDeCoupe::class, 'nature_de_coupe_id');
     }
 
-
-
     /**
-     * Get the localisation for this article.
+     * Get the location for this article.
      */
     public function localisation(): BelongsTo
     {
         return $this->belongsTo(Localisation::class, 'localisation_id');
+    }
+
+    /**
+     * Get the operator for this article.
+     */
+    public function exploitant(): BelongsTo
+    {
+        return $this->belongsTo(Exploitant::class, 'exploitant_id');
+    }
+
+    /**
+     * Get the total volume of the article.
+     */
+    public function getTotalVolumeAttribute(): float
+    {
+        return ($this->bo_m3 ?? 0) + ($this->bi_m3 ?? 0);
+    }
+
+    /**
+     * Get the formatted total volume.
+     */
+    public function getFormattedTotalVolumeAttribute(): string
+    {
+        return number_format($this->total_volume, 2) . ' m³';
+    }
+
+    /**
+     * Get the status badge for the article.
+     */
+    public function getStatusBadgeAttribute(): string
+    {
+        if ($this->is_validated) {
+            return '<span class="badge bg-success"><i class="fas fa-check me-1"></i>Validé</span>';
+        }
+        return '<span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>En attente</span>';
+    }
+
+    /**
+     * Get the type badge for the article.
+     */
+    public function getTypeBadgeAttribute(): string
+    {
+        $type = $this->type ?? '';
+        if ($type === 'appel_doffre') {
+            return '<span class="badge bg-info">Appel d\'Offre</span>';
+        }
+        return '<span class="badge bg-primary">Adjudication</span>';
+    }
+
+    /**
+     * Scope for validated articles.
+     */
+    public function scopeValidated(Builder $query): void
+    {
+        $query->where('is_validated', true);
+    }
+
+    /**
+     * Scope for pending articles.
+     */
+    public function scopePending(Builder $query): void
+    {
+        $query->where('is_validated', false);
+    }
+
+    /**
+     * Scope for sold articles.
+     */
+    public function scopeSold(Builder $query): void
+    {
+        $query->where('prix_vente', '>', 0);
+    }
+
+    /**
+     * Scope for unsold articles.
+     */
+    public function scopeUnsold(Builder $query): void
+    {
+        $query->where('prix_vente', '<=', 0)->orWhereNull('prix_vente');
     }
 }
