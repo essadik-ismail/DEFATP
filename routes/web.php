@@ -82,6 +82,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/exploitants', [SettingsController::class, 'exploitants'])->name('exploitants');
     Route::get('/exploitants/create', [SettingsController::class, 'createExploitant'])->name('exploitants.create');
     Route::post('/exploitants', [SettingsController::class, 'storeExploitant'])->name('exploitants.store');
+    Route::get('/exploitants/{exploitant}', [SettingsController::class, 'showExploitant'])->name('exploitants.show');
     Route::get('/exploitants/{exploitant}/edit', [SettingsController::class, 'editExploitant'])->name('exploitants.edit');
     Route::put('/exploitants/{exploitant}', [SettingsController::class, 'updateExploitant'])->name('exploitants.update');
     Route::delete('/exploitants/{exploitant}', [SettingsController::class, 'destroyExploitant'])->name('exploitants.destroy');

@@ -441,6 +441,11 @@ class SettingsController extends Controller
         return view('settings.exploitants.index', compact('exploitants', 'stats'));
     }
 
+    public function showExploitant(Exploitant $exploitant): View
+    {
+        return view('settings.exploitants.show', compact('exploitant'));
+    }
+
     public function createExploitant(): View
     {
         return view('settings.exploitants.create');
