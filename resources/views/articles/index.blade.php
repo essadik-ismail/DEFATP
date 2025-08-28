@@ -77,7 +77,58 @@
             </a>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
+            <!-- Search and Filter Section -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Rechercher dans les articles..." onkeyup="filterTable()">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-2">
+                        <select class="form-select" id="statusFilter" onchange="filterTable()">
+                            <option value="">Tous les statuts</option>
+                            <option value="validated">Validés</option>
+                            <option value="pending">En attente</option>
+                        </select>
+                        <select class="form-select" id="typeFilter" onchange="filterTable()">
+                            <option value="">Tous les types</option>
+                            <option value="adjudication">Adjudication</option>
+                            <option value="appel_doffre">Appel d'Offre</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="perPageSelect" class="form-label mb-0">Articles par page:</label>
+                        <select class="form-select form-select-sm" id="perPageSelect" style="width: auto;" onchange="changePerPage()">
+                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                            <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
+                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary" onclick="refreshTable()">
+                            <i class="fas fa-sync-alt"></i> Actualiser
+                        </button>
+                        <button type="button" class="btn btn-outline-success" onclick="exportAllArticles()">
+                            <i class="fas fa-download"></i> Exporter Tout
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-responsive position-relative" style="overflow-x: auto;">
+                <div class="table-scroll-indicator"></div>
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -178,21 +229,67 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="d-flex gap-2">
-                                        <a href="{{ route('articles.show', $article) }}" class="btn btn-sm btn-info">
+                                    <div class="btn-group" role="group">
+                                        <!-- Quick Actions -->
+                                        <a href="{{ route('articles.show', $article) }}" class="btn btn-sm btn-info" title="Voir">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('articles.edit', $article) }}" class="btn btn-sm btn-warning">
+                                        <a href="{{ route('articles.edit', $article) }}" class="btn btn-sm btn-warning" title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('articles.destroy', $article) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="fas fa-trash"></i>
+                                        
+                                        <!-- Dropdown for Additional Actions -->
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="visually-hidden">Toggle Dropdown</span>
                                             </button>
-                                        </form>
-                                    </td>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="duplicateArticle({{ $article->id }})">
+                                                        <i class="fas fa-copy text-primary me-2"></i>Dupliquer
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="exportArticle({{ $article->id }})">
+                                                        <i class="fas fa-download text-success me-2"></i>Exporter
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="printArticle({{ $article->id }})">
+                                                        <i class="fas fa-print text-secondary me-2"></i>Imprimer
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="shareArticle({{ $article->id }})">
+                                                        <i class="fas fa-share-alt text-info me-2"></i>Partager
+                                                    </a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="toggleValidation({{ $article->id }}, {{ $article->is_validated ? 'false' : 'true' }})">
+                                                        <i class="fas {{ $article->is_validated ? 'fa-times-circle text-warning' : 'fa-check-circle text-success' }} me-2"></i>
+                                                        {{ $article->is_validated ? 'Dévalider' : 'Valider' }}
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="archiveArticle({{ $article->id }})">
+                                                        <i class="fas fa-archive text-muted me-2"></i>Archiver
+                                                    </a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <form action="{{ route('articles.destroy', $article) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')">
+                                                            <i class="fas fa-trash me-2"></i>Supprimer
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
                                 </tr>
                             @empty
                                 <tr>
@@ -213,8 +310,21 @@
                 </div>
                 
                 @if($articles->hasPages())
-                    <div class="d-flex justify-content-center mt-4">
-                        {{ $articles->appends(request()->query())->links() }}
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div class="pagination-info">
+                            <small class="text-muted">
+                                Affichage de {{ $articles->firstItem() ?? 0 }} à {{ $articles->lastItem() ?? 0 }} 
+                                sur {{ $articles->total() }} articles
+                            </small>
+                        </div>
+                        <div class="pagination-controls">
+                            {{ $articles->appends(request()->query())->links() }}
+                        </div>
+                        <div class="pagination-per-page">
+                            <small class="text-muted">
+                                {{ $articles->perPage() }} par page
+                            </small>
+                        </div>
                     </div>
                 @endif
             </div>
@@ -1366,10 +1476,233 @@
 
 @endsection
 
+@push('styles')
+<style>
+/* Enhanced table styling */
+.table-responsive {
+    border-radius: 8px;
+    overflow: auto;
+    max-height: 70vh;
+}
+
+.table-container {
+    min-width: 100%;
+    overflow: auto;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    padding: 12px 8px;
+}
+
+.table td {
+    padding: 12px 8px;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Dropdown actions styling */
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #dee2e6;
+}
+
+.dropdown-item {
+    padding: 8px 16px;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: #f8d7da;
+}
+
+/* Search and filter styling */
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.form-select {
+    border-radius: 6px;
+}
+
+/* Pagination styling */
+.pagination-info, .pagination-per-page {
+    color: #6c757d;
+}
+
+.pagination-controls .pagination {
+    margin: 0;
+}
+
+.pagination-controls .page-link {
+    border-radius: 6px;
+    margin: 0 2px;
+    border: 1px solid #dee2e6;
+}
+
+.pagination-controls .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.pagination-controls .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 0.75em;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pagination-info, .pagination-per-page {
+        display: none;
+    }
+    
+    .dropdown-menu {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90vw;
+        max-width: 300px;
+    }
+}
+
+/* Table overflow and scrolling enhancements */
+.table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.table-responsive::-webkit-scrollbar-corner {
+    background: #f1f1f1;
+}
+
+/* Ensure table headers stay visible during scroll */
+.table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Horizontal scroll indicator */
+.table-scroll-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #007bff, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.table-responsive:hover .table-scroll-indicator {
+    opacity: 1;
+}
+
+/* Enhanced table overflow handling */
+.table-responsive {
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+}
+
+.table {
+    min-width: 800px; /* Ensure minimum width for readability */
+}
+
+/* Responsive table behavior */
+@media (max-width: 1200px) {
+    .table-responsive {
+        max-height: 60vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        max-height: 50vh;
+    }
+    
+    .table {
+        min-width: 600px;
+    }
+}
+
+/* Smooth scrolling behavior */
+.table-responsive {
+    scroll-behavior: smooth;
+}
+
+/* Table row hover effects with overflow */
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Ensure actions column is always visible */
+.table td:last-child {
+    position: sticky;
+    right: 0;
+    background: white;
+    z-index: 5;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+}
+
+.table th:last-child {
+    position: sticky;
+    right: 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    z-index: 15;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+}
+</style>
+@endpush
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, page initialized');
+    initializeTableFilters();
 });
 
 // Function to handle localisation import
@@ -1402,6 +1735,377 @@ function importLocalisations(input) {
         
         // Reset input
         input.value = '';
+    }
+}
+
+// Articles table functionality
+function initializeTableFilters() {
+    // Add row highlighting on hover
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+    
+    // Initialize table scrolling functionality
+    initializeTableScrolling();
+}
+
+function initializeTableScrolling() {
+    const tableContainer = document.querySelector('.table-responsive');
+    const scrollIndicator = document.querySelector('.table-scroll-indicator');
+    
+    if (tableContainer && scrollIndicator) {
+        // Show scroll indicators based on scroll position
+        tableContainer.addEventListener('scroll', function() {
+            const { scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = this;
+            
+            // Vertical scroll indicator
+            if (scrollTop > 0) {
+                scrollIndicator.style.opacity = '1';
+            } else {
+                scrollIndicator.style.opacity = '0';
+            }
+            
+            // Horizontal scroll indicator
+            if (scrollLeft > 0) {
+                scrollIndicator.style.opacity = '1';
+            }
+            
+            // Show scroll to top button if scrolled down
+            if (scrollTop > 100) {
+                showScrollToTopButton();
+            } else {
+                hideScrollToTopButton();
+            }
+        });
+        
+        // Add smooth scrolling to top functionality
+        addScrollToTopButton();
+    }
+}
+
+function addScrollToTopButton() {
+    // Remove existing button if any
+    const existingButton = document.querySelector('.scroll-to-top-btn');
+    if (existingButton) {
+        existingButton.remove();
+    }
+    
+    // Create scroll to top button
+    const scrollButton = document.createElement('button');
+    scrollButton.className = 'scroll-to-top-btn btn btn-primary btn-sm position-fixed';
+    scrollButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    scrollButton.style.cssText = `
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    `;
+    
+    scrollButton.addEventListener('click', function() {
+        const tableContainer = document.querySelector('.table-responsive');
+        if (tableContainer) {
+            tableContainer.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    });
+    
+    document.body.appendChild(scrollButton);
+}
+
+function showScrollToTopButton() {
+    const scrollButton = document.querySelector('.scroll-to-top-btn');
+    if (scrollButton) {
+        scrollButton.style.display = 'block';
+    }
+}
+
+function hideScrollToTopButton() {
+    const scrollButton = document.querySelector('.scroll-to-top-btn');
+    if (scrollButton) {
+        scrollButton.style.display = 'none';
+    }
+}
+
+function filterTable() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const typeFilter = document.getElementById('typeFilter').value;
+    
+    const tableRows = document.querySelectorAll('tbody tr');
+    
+    tableRows.forEach(row => {
+        if (row.cells.length < 12) return; // Skip if not a valid article row
+        
+        const text = row.textContent.toLowerCase();
+        const statusCell = row.cells[10]; // Status column
+        const typeCell = row.cells[9]; // Type column
+        
+        let showRow = true;
+        
+        // Search filter
+        if (searchTerm && !text.includes(searchTerm)) {
+            showRow = false;
+        }
+        
+        // Status filter
+        if (statusFilter) {
+            const statusText = statusCell.textContent.toLowerCase();
+            if (statusFilter === 'validated' && !statusText.includes('validé')) {
+                showRow = false;
+            } else if (statusFilter === 'pending' && !statusText.includes('attente')) {
+                showRow = false;
+            }
+        }
+        
+        // Type filter
+        if (typeFilter) {
+            const typeText = typeCell.textContent.toLowerCase();
+            if (typeFilter === 'adjudication' && !typeText.includes('adjudication')) {
+                showRow = false;
+            } else if (typeFilter === 'appel_doffre' && !typeText.includes('appel d\'offre')) {
+                showRow = false;
+            }
+        }
+        
+        row.style.display = showRow ? '' : 'none';
+    });
+    
+    updateRowCount();
+}
+
+function updateRowCount() {
+    const visibleRows = document.querySelectorAll('tbody tr:not([style*="display: none"])');
+    const totalRows = document.querySelectorAll('tbody tr').length;
+    
+    // Update pagination info if it exists
+    const paginationInfo = document.querySelector('.pagination-info small');
+    if (paginationInfo) {
+        paginationInfo.textContent = `${visibleRows.length} articles affichés sur ${totalRows} au total`;
+    }
+}
+
+function duplicateArticle(articleId) {
+    if (confirm('Voulez-vous dupliquer cet article ?')) {
+        // Redirect to create page with article data
+        window.location.href = `/articles/create?duplicate=${articleId}`;
+    }
+}
+
+function exportArticle(articleId) {
+    // Show loading state
+    const button = event.target.closest('.dropdown-item');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Export en cours...';
+    
+    // Make export request
+    fetch(`/articles/export?article_id=${articleId}`, {
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Export failed');
+    })
+    .then(blob => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `article_${articleId}_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        // Reset button
+        button.innerHTML = originalText;
+    })
+    .catch(error => {
+        console.error('Export error:', error);
+        alert('Erreur lors de l\'export');
+        button.innerHTML = originalText;
+    });
+}
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + F to focus search
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+    }
+    
+    // Escape to clear search
+    if (e.key === 'Escape') {
+        document.getElementById('searchInput').value = '';
+        filterTable();
+    }
+});
+
+function changePerPage() {
+    const perPage = document.getElementById('perPageSelect').value;
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('per_page', perPage);
+    currentUrl.searchParams.delete('page'); // Reset to first page
+    window.location.href = currentUrl.toString();
+}
+
+function refreshTable() {
+    window.location.reload();
+}
+
+function exportAllArticles() {
+    // Show loading state
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Export en cours...';
+    button.disabled = true;
+    
+    // Get current filters
+    const searchTerm = document.getElementById('searchInput').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const typeFilter = document.getElementById('typeFilter').value;
+    
+    // Build export URL with filters
+    let exportUrl = '/articles/export';
+    const params = new URLSearchParams();
+    
+    if (searchTerm) params.append('search', searchTerm);
+    if (statusFilter) params.append('status', statusFilter);
+    if (typeFilter) params.append('type', typeFilter);
+    
+    if (params.toString()) {
+        exportUrl += '?' + params.toString();
+    }
+    
+    // Make export request
+    fetch(exportUrl, {
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Export failed');
+    })
+    .then(blob => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `articles_export_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        // Reset button
+        button.innerHTML = originalText;
+        button.disabled = false;
+    })
+    .catch(error => {
+        console.error('Export error:', error);
+        alert('Erreur lors de l\'export');
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+// Additional action functions
+function printArticle(articleId) {
+    const printWindow = window.open(`/articles/${articleId}?print=1`, '_blank');
+    printWindow.onload = function() {
+        printWindow.print();
+    };
+}
+
+function shareArticle(articleId) {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Article Forestier',
+            text: 'Consultez cet article forestier',
+            url: `${window.location.origin}/articles/${articleId}`
+        });
+    } else {
+        // Fallback: copy to clipboard
+        const url = `${window.location.origin}/articles/${articleId}`;
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Lien copié dans le presse-papiers !');
+        });
+    }
+}
+
+function toggleValidation(articleId, newStatus) {
+    const action = newStatus ? 'valider' : 'dévalider';
+    if (confirm(`Voulez-vous ${action} cet article ?`)) {
+        fetch(`/articles/${articleId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                is_validated: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur lors de la modification du statut');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erreur lors de la modification du statut');
+        });
+    }
+}
+
+function archiveArticle(articleId) {
+    if (confirm('Voulez-vous archiver cet article ?')) {
+        fetch(`/articles/${articleId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                is_deleted: true
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur lors de l\'archivage');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erreur lors de l\'archivage');
+        });
     }
 }
 </script>

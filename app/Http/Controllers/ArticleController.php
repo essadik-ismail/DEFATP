@@ -26,11 +26,33 @@ class ArticleController extends Controller
 {
     public function index(Request $request): View
     {
-        // Get articles with pagination
+        // Get articles with enhanced pagination and filtering
         $articles = Article::where('is_deleted', '')
             ->with(['foret', 'essence', 'localisation', 'situationAdministrative', 'exploitant', 'natureDeCoupe'])
+            ->when($request->filled('search'), function($query) use ($request) {
+                $query->where(function($q) use ($request) {
+                    $q->where('numero', 'like', '%' . $request->search . '%')
+                      ->orWhere('annee', 'like', '%' . $request->search . '%')
+                      ->orWhereHas('foret', function($foretQuery) use ($request) {
+                          $foretQuery->where('foret', 'like', '%' . $request->search . '%');
+                      })
+                      ->orWhereHas('essence', function($essenceQuery) use ($request) {
+                          $essenceQuery->where('essence', 'like', '%' . $request->search . '%');
+                      });
+                });
+            })
+            ->when($request->filled('status'), function($query) use ($request) {
+                if ($request->status === 'validated') {
+                    $query->where('is_validated', true);
+                } elseif ($request->status === 'pending') {
+                    $query->where('is_validated', false);
+                }
+            })
+            ->when($request->filled('type'), function($query) use ($request) {
+                $query->where('type', $request->type);
+            })
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate($request->get('per_page', 15));
 
         // Get entities with search and pagination
         $essences = Essence::where('is_deleted', '')
