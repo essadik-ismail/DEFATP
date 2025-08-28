@@ -163,6 +163,9 @@ Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/articles-by-foret', [ReportController::class, 'articlesByForet'])->name('articles-by-foret');
         Route::get('/articles-by-essence', [ReportController::class, 'articlesByEssence'])->name('articles-by-essence');
         Route::get('/articles-by-exploitant', [ReportController::class, 'articlesByExploitant'])->name('articles-by-exploitant');
+        Route::get('/articles-by-nature-de-coupe', [ReportController::class, 'articlesByNatureDeCoupe'])->name('articles-by-nature-de-coupe');
+        Route::get('/articles-by-localisation', [ReportController::class, 'articlesByLocalisation'])->name('articles-by-localisation');
+        Route::get('/articles-by-validation-status', [ReportController::class, 'articlesByValidationStatus'])->name('articles-by-validation-status');
         Route::get('/invendus', [ReportController::class, 'invendus'])->name('invendus');
         Route::get('/vendus', [ReportController::class, 'vendus'])->name('vendus');
     });

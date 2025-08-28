@@ -104,7 +104,7 @@
 <script>
 function confirmDelete(userId, userName) {
     document.getElementById('userName').textContent = userName;
-    document.getElementById('deleteForm').action = '{{ route('auth.users.destroy', '') }}/' + userId;
+    document.getElementById('deleteForm').action = '{{ route('auth.users.destroy', ':id') }}'.replace(':id', userId);
     
     const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
     modal.show();

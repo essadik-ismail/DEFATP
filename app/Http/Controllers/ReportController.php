@@ -322,4 +322,101 @@ class ReportController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    public function articlesByNatureDeCoupe(Request $request): View
+    {
+        $natureId = $request->get('nature_id');
+        
+        $query = Article::with([
+            'situationAdministrative',
+            'situationForestiere',
+            'foret',
+            'essence',
+            'natureDeCoupe',
+            'exploitant',
+            'localisation'
+        ]);
+
+        if ($natureId) {
+            $query->where('nature_de_coupe_id', $natureId);
+        }
+
+        $articles = $query->orderBy('date', 'desc')->get();
+        $natures = NatureDeCoupe::orderBy('nature_de_coupe')->get();
+
+        $stats = [
+            'total' => $articles->count(),
+            'vendus' => $articles->where('invendu', false)->count(),
+            'invendus' => $articles->where('invendu', true)->count(),
+            'total_prix_vente' => $articles->sum('prix_vente'),
+            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+        ];
+
+        return view('reports.articles-by-nature-de-coupe', compact('articles', 'natures', 'natureId', 'stats'));
+    }
+
+    public function articlesByLocalisation(Request $request): View
+    {
+        $localisationId = $request->get('localisation_id');
+        
+        $query = Article::with([
+            'situationAdministrative',
+            'situationForestiere',
+            'foret',
+            'essence',
+            'natureDeCoupe',
+            'exploitant',
+            'localisation'
+        ]);
+
+        if ($localisationId) {
+            $query->where('localisation_id', $localisationId);
+        }
+
+        $articles = $query->orderBy('date', 'desc')->get();
+        $localisations = \App\Models\Localisation::orderBy('CODE')->get();
+
+        $stats = [
+            'total' => $articles->count(),
+            'vendus' => $articles->where('invendu', false)->count(),
+            'invendus' => $articles->where('invendu', true)->count(),
+            'total_prix_vente' => $articles->sum('prix_vente'),
+            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+        ];
+
+        return view('reports.articles-by-localisation', compact('articles', 'localisations', 'localisationId', 'stats'));
+    }
+
+    public function articlesByValidationStatus(Request $request): View
+    {
+        $status = $request->get('status', 'all');
+        
+        $query = Article::with([
+            'situationAdministrative',
+            'situationForestiere',
+            'foret',
+            'essence',
+            'natureDeCoupe',
+            'exploitant',
+            'localisation'
+        ]);
+
+        if ($status === 'validated') {
+            $query->where('valide', true);
+        } elseif ($status === 'pending') {
+            $query->where('valide', false);
+        }
+
+        $articles = $query->orderBy('date', 'desc')->get();
+
+        $stats = [
+            'total' => $articles->count(),
+            'vendus' => $articles->where('invendu', false)->count(),
+            'invendus' => $articles->where('invendu', true)->count(),
+            'total_prix_vente' => $articles->sum('prix_vente'),
+            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+        ];
+
+        return view('reports.articles-by-validation-status', compact('articles', 'status', 'stats'));
+    }
 } 

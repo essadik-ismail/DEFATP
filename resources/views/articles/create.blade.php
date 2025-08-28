@@ -23,12 +23,14 @@
                     <form action="{{ route('articles.store') }}" method="POST">
                         @csrf
                         
-                        <!-- Informations de Base -->
-                        <h6 class="text-primary mb-3">
-                            <i class="fas fa-info-circle me-2"></i>Informations de Base
-                        </h6>
+                        <!-- Section 1: Informations de Base -->
+                        <div class="section-header mb-4">
+                            <h6 class="text-primary mb-3 border-bottom pb-2">
+                                <i class="fas fa-info-circle me-2"></i>Section 1: Informations de Base
+                            </h6>
+                        </div>
                         <div class="row mb-4">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="annee" class="form-label">Année *</label>
                                     <input type="number" class="form-control @error('annee') is-invalid @enderror" 
@@ -39,7 +41,29 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="date_adjudication" class="form-label">Date d'Adjudication *</label>
+                                    <input type="date" class="form-control @error('date_adjudication') is-invalid @enderror" 
+                                           id="date_adjudication" name="date_adjudication" 
+                                           value="{{ old('date_adjudication') }}" required>
+                                    @error('date_adjudication')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="lot" class="form-label">Lot</label>
+                                    <input type="number" class="form-control @error('lot') is-invalid @enderror" 
+                                           id="lot" name="lot" value="{{ old('lot') }}" 
+                                           min="0" placeholder="Numéro de lot">
+                                    @error('lot')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="numero" class="form-label">Numéro d'Article *</label>
                                     <input type="text" class="form-control @error('numero') is-invalid @enderror" 
@@ -52,72 +76,12 @@
                             </div>
                         </div>
 
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="date_adjudication" class="form-label">Date d'Adjudication *</label>
-                                    <input type="date" class="form-control @error('date_adjudication') is-invalid @enderror" 
-                                           id="date_adjudication" name="date_adjudication" 
-                                           value="{{ old('date_adjudication') }}" required>
-                                    @error('date_adjudication')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="type" class="form-label">Type *</label>
-                                    <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" required>
-                                        <option value="">Sélectionner le type</option>
-                                        <option value="adjudication" {{ old('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
-                                        <option value="appel_doffre" {{ old('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'Offre</option>
-                                    </select>
-                                    @error('type')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
+                        <!-- Section 2: Localisation et Détails -->
+                        <div class="section-header mb-4">
+                            <h6 class="text-primary mb-3 border-bottom pb-2">
+                                <i class="fas fa-map-marker-alt me-2"></i>Section 2: Localisation et Détails
+                            </h6>
                         </div>
-
-                        <!-- Localisation et Forêt -->
-                        <h6 class="text-primary mb-3">
-                            <i class="fas fa-map-marker-alt me-2"></i>Localisation et Forêt
-                        </h6>
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="foret_id" class="form-label">Forêt *</label>
-                                    <select class="form-select @error('foret_id') is-invalid @enderror" id="foret_id" name="foret_id" required>
-                                        <option value="">Sélectionner une forêt</option>
-                                        @foreach($forets as $foret)
-                                            <option value="{{ $foret->id }}" {{ old('foret_id') == $foret->id ? 'selected' : '' }}>
-                                                {{ $foret->foret }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('foret_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="essence_id" class="form-label">Essence *</label>
-                                    <select class="form-select @error('essence_id') is-invalid @enderror" id="essence_id" name="essence_id" required>
-                                        <option value="">Sélectionner une essence</option>
-                                        @foreach($essences as $essence)
-                                            <option value="{{ $essence->id }}" {{ old('essence_id') == $essence->id ? 'selected' : '' }}>
-                                                {{ $essence->essence }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('essence_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -153,27 +117,96 @@
                             </div>
                         </div>
 
-                        <!-- Exploitant et Nature de Coupe -->
-                        <h6 class="text-primary mb-3">
-                            <i class="fas fa-user-tie me-2"></i>Exploitant et Nature de Coupe
-                        </h6>
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="exploitant_id" class="form-label">Exploitant *</label>
-                                    <select class="form-select @error('exploitant_id') is-invalid @enderror" id="exploitant_id" name="exploitant_id" required>
-                                        <option value="">Sélectionner un exploitant</option>
-                                        @foreach($exploitants as $exploitant)
-                                            <option value="{{ $exploitant->id }}" {{ old('exploitant_id') == $exploitant->id ? 'selected' : '' }}>
-                                                {{ $exploitant->nom_complet }}
+                                    <label for="foret_id" class="form-label">Forêt *</label>
+                                    <select class="form-select @error('foret_id') is-invalid @enderror" id="foret_id" name="foret_id" required>
+                                        <option value="">Sélectionner une forêt</option>
+                                        @foreach($forets as $foret)
+                                            <option value="{{ $foret->id }}" {{ old('foret_id') == $foret->id ? 'selected' : '' }}>
+                                                {{ $foret->foret }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('exploitant_id')
+                                    @error('foret_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="nature_juridique" class="form-label">Nature Juridique</label>
+                                    <input type="text" class="form-control @error('nature_juridique') is-invalid @enderror" 
+                                           id="nature_juridique" name="nature_juridique" value="{{ old('nature_juridique') }}" 
+                                           placeholder="Nature juridique">
+                                    @error('nature_juridique')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="parcelle" class="form-label">Parcelle</label>
+                                    <input type="number" class="form-control @error('parcelle') is-invalid @enderror" 
+                                           id="parcelle" name="parcelle" value="{{ old('parcelle') }}" 
+                                           min="0" placeholder="Numéro de parcelle">
+                                    @error('parcelle')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="lat" class="form-label">Latitude</label>
+                                    <input type="text" class="form-control @error('lat') is-invalid @enderror" 
+                                           id="lat" name="lat" value="{{ old('lat') }}" 
+                                           placeholder="Latitude">
+                                    @error('lat')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="log" class="form-label">Longitude</label>
+                                    <input type="text" class="form-control @error('log') is-invalid @enderror" 
+                                           id="log" name="log" value="{{ old('log') }}" 
+                                           placeholder="Longitude">
+                                    @error('log')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Volumes et Produits -->
+                        <div class="section-header mb-4">
+                            <h6 class="text-primary mb-3 border-bottom pb-2">
+                                <i class="fas fa-calculator me-2"></i>Section 3: Volumes et Produits
+                            </h6>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="essence_id" class="form-label">Essence *</label>
+                                    <select class="form-select @error('essence_id') is-invalid @enderror" id="essence_id" name="essence_id" required>
+                                        <option value="">Sélectionner une essence</option>
+                                        @foreach($essences as $essence)
+                                            <option value="{{ $essence->id }}" {{ old('essence_id') == $essence->id ? 'selected' : '' }}>
+                                                {{ $essence->essence }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('essence_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="nature_de_coupe_id" class="form-label">Nature de Coupe *</label>
@@ -190,91 +223,165 @@
                                     @enderror
                                 </div>
                             </div>
+                            
                         </div>
 
-                        <!-- Volumes et Prix -->
-                        <h6 class="text-primary mb-3">
-                            <i class="fas fa-calculator me-2"></i>Volumes et Prix
-                        </h6>
                         <div class="row mb-4">
+
+                         
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="superficie" class="form-label">Superficie</label>
+                                    <input type="text" class="form-control @error('superficie') is-invalid @enderror" 
+                                           id="superficie" name="superficie" value="{{ old('superficie') }}" 
+                                           placeholder="Superficie">
+                                    @error('superficie')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+        
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="bo_m3" class="form-label">BO (m³)</label>
                                     <input type="number" class="form-control @error('bo_m3') is-invalid @enderror" 
                                            id="bo_m3" name="bo_m3" value="{{ old('bo_m3') }}" 
-                                           step="0.01" min="0">
+                                           step="0.01" min="0" placeholder="Bois d'œuvre">
                                     @error('bo_m3')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+   
+                        </div>
+
+                        <div class="row mb-4">
+                        <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="bi_m3" class="form-label">BI (m³)</label>
                                     <input type="number" class="form-control @error('bi_m3') is-invalid @enderror" 
                                            id="bi_m3" name="bi_m3" value="{{ old('bi_m3') }}" 
-                                           step="0.01" min="0">
+                                           step="0.01" min="0" placeholder="Bois d'industrie">
                                     @error('bi_m3')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="prix_de_retrait" class="form-label">Prix de Retrait (DH) *</label>
-                                    <input type="number" class="form-control @error('prix_de_retrait') is-invalid @enderror" 
-                                           id="prix_de_retrait" name="prix_de_retrait" value="{{ old('prix_de_retrait') }}" 
-                                           step="0.01" min="0" required>
-                                    @error('prix_de_retrait')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="prix_vente" class="form-label">Prix de Vente (DH) *</label>
-                                    <input type="number" class="form-control @error('prix_vente') is-invalid @enderror" 
-                                           id="prix_vente" name="prix_vente" value="{{ old('prix_vente') }}" 
-                                           step="0.01" min="0" required>
-                                    @error('prix_vente')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="bf_st" class="form-label">BF/ST</label>
                                     <input type="number" class="form-control @error('bf_st') is-invalid @enderror" 
                                            id="bf_st" name="bf_st" value="{{ old('bf_st') }}" 
-                                           min="0">
+                                           min="0" placeholder="Bois de feu/Stère">
                                     @error('bf_st')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="parcelle" class="form-label">Parcelle</label>
-                                    <input type="number" class="form-control @error('parcelle') is-invalid @enderror" 
-                                           id="parcelle" name="parcelle" value="{{ old('parcelle') }}" 
-                                           min="0">
-                                    @error('parcelle')
+                                    <label for="tanin_t" class="form-label">Tanin (tonnes)</label>
+                                    <input type="number" class="form-control @error('tanin_t') is-invalid @enderror" 
+                                           id="tanin_t" name="tanin_t" value="{{ old('tanin_t') }}" 
+                                           min="0" placeholder="Tanin en tonnes">
+                                    @error('tanin_t')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                         </div>
 
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="fleur_acacia_t" class="form-label">Fleur d'Acacia (tonnes)</label>
+                                    <input type="number" class="form-control @error('fleur_acacia_t') is-invalid @enderror" 
+                                           id="fleur_acacia_t" name="fleur_acacia_t" value="{{ old('fleur_acacia_t') }}" 
+                                           min="0" placeholder="Fleur d'acacia en tonnes">
+                                    @error('fleur_acacia_t')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="caroube_t" class="form-label">Caroube (tonnes)</label>
+                                    <input type="number" class="form-control @error('caroube_t') is-invalid @enderror" 
+                                           id="caroube_t" name="caroube_t" value="{{ old('caroube_t') }}" 
+                                           min="0" placeholder="Caroube en tonnes">
+                                    @error('caroube_t')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="romarin_t" class="form-label">Romarin (tonnes)</label>
+                                    <input type="number" class="form-control @error('romarin_t') is-invalid @enderror" 
+                                           id="romarin_t" name="romarin_t" value="{{ old('romarin_t') }}" 
+                                           min="0" placeholder="Romarin en tonnes">
+                                    @error('romarin_t')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="ps_t" class="form-label">PS (tonnes)</label>
+                                    <input type="number" class="form-control @error('ps_t') is-invalid @enderror" 
+                                           id="ps_t" name="ps_t" value="{{ old('ps_t') }}" 
+                                           min="0" placeholder="PS en tonnes">
+                                    @error('ps_t')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="liége_st" class="form-label">Liège (stères)</label>
+                                    <input type="number" class="form-control @error('liége_st') is-invalid @enderror" 
+                                           id="liége_st" name="liége_st" value="{{ old('liége_st') }}" 
+                                           min="0" placeholder="Liège en stères">
+                                    @error('liége_st')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="charbon_bois_ox" class="form-label">Charbon de Bois (ox)</label>
+                                    <input type="number" class="form-control @error('charbon_bois_ox') is-invalid @enderror" 
+                                           id="charbon_bois_ox" name="charbon_bois_ox" value="{{ old('charbon_bois_ox') }}" 
+                                           min="0" placeholder="Charbon de bois en ox">
+                                    @error('charbon_bois_ox')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="mb-3">
+                                <label for="charges_du_lot" class="form-label">charges du lot</label>
+                                <textarea class="form-control @error('charges_du_lot') is-invalid @enderror" 
+                                          id="charges_du_lot" name="charges_du_lot" rows="3" 
+                                          placeholder="charges_du_lot supplémentaires...">{{ old('charges_du_lot') }}</textarea>
+                                @error('charges_du_lot')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
                         <!-- Observations et Validation -->
-                        <h6 class="text-primary mb-3">
-                            <i class="fas fa-clipboard me-2"></i>Observations et Validation
-                        </h6>
+                        <div class="section-header mb-4">
+                            <h6 class="text-primary mb-3 border-bottom pb-2">
+                                <i class="fas fa-clipboard me-2"></i>Observations et Validation
+                            </h6>
+                        </div>
                         <div class="mb-4">
                             <div class="mb-3">
                                 <label for="observations" class="form-label">Observations</label>
@@ -315,4 +422,18 @@
         </div>
     </div>
 </div>
+
+<style>
+.section-header h6 {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-header h6 i {
+    color: #007bff;
+}
+</style>
 @endsection 
