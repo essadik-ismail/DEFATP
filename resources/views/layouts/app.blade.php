@@ -53,6 +53,12 @@
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
         }
 
         .sidebar-header {
@@ -99,6 +105,47 @@
             text-align: center;
         }
 
+        /* Responsive sidebar behavior */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .content-wrapper {
+                margin-left: 1rem;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+        }
+
+        /* Sidebar backdrop overlay for mobile */
+        .sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
         /* Main Content */
         .main-wrapper {
             display: flex;
@@ -111,6 +158,7 @@
             backdrop-filter: blur(20px);
             border-radius: 1rem;
             margin: 1rem;
+            margin-left: calc(16rem + 1rem); /* 16rem (w-64) + 1rem margin */
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
@@ -1306,6 +1354,9 @@
     </style>
 </head>
 <body>
+    <!-- Sidebar Backdrop Overlay -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+    
     <div class="main-wrapper">
         <!-- Left Sidebar -->
         <aside class="sidebar w-64 min-h-screen" id="sidebar">
@@ -1328,28 +1379,15 @@
                 <div class="nav-item">
                     <a href="{{ route('articles.index') }}" class="nav-link {{ request()->routeIs('articles.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
-                        Articles
+                        Exploitation régulière
                     </a>
                 </div>
 
-                <div class="nav-item">
-                    <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-                        <i class="fas fa-cog"></i>
-                        Paramètres
-                    </a>
-                </div>
 
                 <div class="nav-item">
-                    <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                        <i class="fas fa-chart-bar"></i>
-                        Rapports
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="{{ route('excel.index') }}" class="nav-link {{ request()->routeIs('excel.*') ? 'active' : '' }}">
-                        <i class="fas fa-file-excel"></i>
-                        Import/Export
+                    <a href="{{ route('settings.exploitants') }}" class="nav-link {{ request()->routeIs('settings.exploitants.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-alt"></i>
+                        Exploitant Forêtier
                     </a>
                 </div>
 
@@ -1484,7 +1522,19 @@
         // Mobile sidebar toggle
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            
             sidebar.classList.toggle('open');
+            backdrop.classList.toggle('active');
+        }
+
+        // Close sidebar
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            
+            sidebar.classList.remove('open');
+            backdrop.classList.remove('active');
         }
 
         // Close sidebar when clicking outside on mobile
@@ -1495,7 +1545,14 @@
             if (window.innerWidth < 1024 && 
                 !sidebar.contains(event.target) && 
                 !sidebarToggle.contains(event.target)) {
-                sidebar.classList.remove('open');
+                closeSidebar();
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
             }
         });
 
