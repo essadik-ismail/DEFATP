@@ -52,6 +52,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
+use App\Models\ActivityLogger;
+
 class SettingsController extends Controller
 {
     public function index(): View
@@ -257,30 +259,72 @@ class SettingsController extends Controller
 
     public function storeNatureDeCoupe(StoreNatureDeCoupeRequest $request): RedirectResponse
     {
-        NatureDeCoupe::create($request->only('nature_de_coupe'));
+        $natureDeCoupe = NatureDeCoupe::create($request->only('nature_de_coupe'));
+        
+        // Log nature de coupe creation
+        ActivityLogger::logCreate(
+            NatureDeCoupe::class,
+            $natureDeCoupe->id,
+            "Nature de coupe {$natureDeCoupe->nature_de_coupe}",
+            $request
+        );
+        
         return redirect()->route('settings.nature-de-coupes')->with('success', 'Nature de coupe ajoutée avec succès.');
     }
 
     public function editNatureDeCoupe(NatureDeCoupe $natureDeCoupe): View
     {
+        // Log nature de coupe edit view
+        ActivityLogger::logView(
+            NatureDeCoupe::class,
+            $natureDeCoupe->id,
+            "Nature de coupe {$natureDeCoupe->nature_de_coupe}",
+            request()
+        );
+        
         return view('settings.nature-de-coupes.edit', compact('natureDeCoupe'));
     }
 
     public function updateNatureDeCoupe(UpdateNatureDeCoupeRequest $request, NatureDeCoupe $natureDeCoupe): RedirectResponse
     {
+        $oldData = $natureDeCoupe->only(['nature_de_coupe']);
         $natureDeCoupe->update($request->only('nature_de_coupe'));
+        
+        // Log nature de coupe update
+        $changes = array_diff_assoc($natureDeCoupe->fresh()->only(['nature_de_coupe']), $oldData);
+        ActivityLogger::logUpdate(
+            NatureDeCoupe::class,
+            $natureDeCoupe->id,
+            "Nature de coupe {$natureDeCoupe->nature_de_coupe}",
+            $changes,
+            $request
+        );
+        
         return redirect()->route('settings.nature-de-coupes')->with('success', 'Nature de coupe mise à jour avec succès.');
     }
 
     public function destroyNatureDeCoupe(NatureDeCoupe $natureDeCoupe): RedirectResponse
     {
+        $natureName = $natureDeCoupe->nature_de_coupe;
         $natureDeCoupe->update(['is_deleted' => true]);
+        
+        // Log nature de coupe deletion
+        ActivityLogger::logDelete(
+            NatureDeCoupe::class,
+            $natureDeCoupe->id,
+            "Nature de coupe {$natureName}",
+            request()
+        );
+        
         return redirect()->route('settings.nature-de-coupes')->with('success', 'Nature de coupe supprimée avec succès.');
     }
 
     // Situation Administratives Management
     public function situationAdministratives(Request $request): View
     {
+        // Log situation administratives view
+        ActivityLogger::log('view', 'Consultation de la liste des situations administratives', SituationAdministrative::class);
+        
         $query = SituationAdministrative::query();
 
         // Search functionality
@@ -353,24 +397,63 @@ class SettingsController extends Controller
 
     public function storeSituationAdministrative(StoreSituationAdministrativeRequest $request): RedirectResponse
     {
-        SituationAdministrative::create($request->only(['commune', 'province']));
+        $situationAdministrative = SituationAdministrative::create($request->only(['commune', 'province']));
+        
+        // Log situation administrative creation
+        ActivityLogger::logCreate(
+            SituationAdministrative::class,
+            $situationAdministrative->id,
+            "Situation administrative {$situationAdministrative->commune}",
+            $request
+        );
+        
         return redirect()->route('settings.situation-administratives')->with('success', 'Situation administrative ajoutée avec succès.');
     }
 
     public function editSituationAdministrative(SituationAdministrative $situationAdministrative): View
     {
+        // Log situation administrative edit view
+        ActivityLogger::logView(
+            SituationAdministrative::class,
+            $situationAdministrative->id,
+            "Situation administrative {$situationAdministrative->commune}",
+            request()
+        );
+        
         return view('settings.situation-administratives.edit', compact('situationAdministrative'));
     }
 
     public function updateSituationAdministrative(UpdateSituationAdministrativeRequest $request, SituationAdministrative $situationAdministrative): RedirectResponse
     {
+        $oldData = $situationAdministrative->only(['commune', 'province']);
         $situationAdministrative->update($request->only(['commune', 'province']));
+        
+        // Log situation administrative update
+        $changes = array_diff_assoc($situationAdministrative->fresh()->only(['commune', 'province']), $oldData);
+        ActivityLogger::logUpdate(
+            SituationAdministrative::class,
+            $situationAdministrative->id,
+            "Situation administrative {$situationAdministrative->commune}",
+            $changes,
+            $request
+        );
+        
         return redirect()->route('settings.situation-administratives')->with('success', 'Situation administrative mise à jour avec succès.');
     }
 
     public function destroySituationAdministrative(SituationAdministrative $situationAdministrative): RedirectResponse
     {
+        $communeName = $situationAdministrative->commune;
         $situationAdministrative->update(['is_deleted' => true]);
+        
+        // Log situation administrative deletion
+        ActivityLogger::logDelete(
+            SituationAdministrative::class,
+            $situationAdministrative->id,
+            "Situation administrative {$communeName}",
+            request()
+        );
+        
         return redirect()->route('settings.situation-administratives')->with('success', 'Situation administrative supprimée avec succès.');
     }
 
@@ -458,7 +541,16 @@ class SettingsController extends Controller
 
     public function storeExploitant(StoreExploitantRequest $request): RedirectResponse
     {
-        Exploitant::create($request->all());
+        $exploitant = Exploitant::create($request->all());
+        
+        // Log exploitant creation
+        ActivityLogger::logCreate(
+            Exploitant::class,
+            $exploitant->id,
+            "Exploitant {$exploitant->nom_complet}",
+            $request
+        );
+        
         return redirect()->route('settings.exploitants')->with('success', 'Exploitant ajouté avec succès.');
     }
 
@@ -469,13 +561,35 @@ class SettingsController extends Controller
 
     public function updateExploitant(UpdateExploitantRequest $request, Exploitant $exploitant): RedirectResponse
     {
+        $oldData = $exploitant->only(['nom_complet', 'telephone', 'email']);
         $exploitant->update($request->all());
+        
+        // Log exploitant update
+        $changes = array_diff_assoc($exploitant->fresh()->only(['nom_complet', 'telephone', 'email']), $oldData);
+        ActivityLogger::logUpdate(
+            Exploitant::class,
+            $exploitant->id,
+            "Exploitant {$exploitant->nom_complet}",
+            $changes,
+            $request
+        );
+        
         return redirect()->route('settings.exploitants')->with('success', 'Exploitant mis à jour avec succès.');
     }
 
     public function destroyExploitant(Exploitant $exploitant): RedirectResponse
     {
+        $exploitantName = $exploitant->nom_complet;
         $exploitant->update(['is_deleted' => true]);
+        
+        // Log exploitant deletion
+        ActivityLogger::logDelete(
+            Exploitant::class,
+            $exploitant->id,
+            "Exploitant {$exploitantName}",
+            request()
+        );
+        
         return redirect()->route('settings.exploitants')->with('success', 'Exploitant supprimé avec succès.');
     }
 
@@ -569,11 +683,19 @@ class SettingsController extends Controller
             'ENTITE' => 'required|string|max:255',
         ]);
 
-        Localisation::create([
+        $localisation = Localisation::create([
             'CODE' => $request->CODE,
             'DRANEF' => $request->DRANEF,
             'ENTITE' => $request->ENTITE,
         ]);
+        
+        // Log localisation creation
+        ActivityLogger::logCreate(
+            Localisation::class,
+            $localisation->id,
+            "Localisation {$localisation->CODE}",
+            $request
+        );
 
         return redirect()->route('settings.localisations')->with('success', 'Localisation ajoutée avec succès.');
     }
@@ -667,19 +789,50 @@ class SettingsController extends Controller
 
     public function storeSituationForestiere(StoreSituationForestiereRequest $request): RedirectResponse
     {
-        SituationForestiere::create($request->all());
+        $situationForestiere = SituationForestiere::create($request->all());
+        
+        // Log situation forestiere creation
+        ActivityLogger::logCreate(
+            SituationForestiere::class,
+            $situationForestiere->id,
+            "Situation forestière {$situationForestiere->annee->annee}",
+            $request
+        );
+        
         return redirect()->route('settings.situation-forestieres')->with('success', 'Situation forestière ajoutée avec succès.');
     }
 
     public function updateSituationForestiere(UpdateSituationForestiereRequest $request, SituationForestiere $situationForestiere): RedirectResponse
     {
+        $oldData = $situationForestiere->only(['annee_id', 'zdtf_id', 'dpanef_id', 'dranef_id']);
         $situationForestiere->update($request->all());
+        
+        // Log situation forestiere update
+        $changes = array_diff_assoc($situationForestiere->fresh()->only(['annee_id', 'zdtf_id', 'dpanef_id', 'dranef_id']), $oldData);
+        ActivityLogger::logUpdate(
+            SituationForestiere::class,
+            $situationForestiere->id,
+            "Situation forestière {$situationForestiere->annee->annee}",
+            $changes,
+            $request
+        );
+        
         return redirect()->route('settings.situation-forestieres')->with('success', 'Situation forestière mise à jour avec succès.');
     }
 
     public function destroySituationForestiere(SituationForestiere $situationForestiere): RedirectResponse
     {
+        $situationName = $situationForestiere->annee->annee;
         $situationForestiere->delete();
+        
+        // Log situation forestiere deletion
+        ActivityLogger::logDelete(
+            SituationForestiere::class,
+            $situationForestiere->id,
+            "Situation forestière {$situationName}",
+            request()
+        );
+        
         return redirect()->route('settings.situation-forestieres')->with('success', 'Situation forestière supprimée avec succès.');
     }
 
@@ -730,7 +883,19 @@ class SettingsController extends Controller
         ]);
 
         try {
-            Excel::import(new EssencesImport, $request->file('file'));
+            $filename = $request->file('file')->getClientOriginalName();
+            $import = new EssencesImport;
+            
+            Excel::import($import, $request->file('file'));
+            
+            // Log import action
+            ActivityLogger::logImport(
+                'Essences',
+                $filename,
+                $import->getRowCount(),
+                $request
+            );
+            
             return redirect()->route('settings.essences')->with('success', 'Essences importées avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
@@ -744,7 +909,19 @@ class SettingsController extends Controller
         ]);
 
         try {
-            Excel::import(new ForetsImport, $request->file('file'));
+            $filename = $request->file('file')->getClientOriginalName();
+            $import = new ForetsImport;
+            
+            Excel::import($import, $request->file('file'));
+            
+            // Log import action
+            ActivityLogger::logImport(
+                'Forêts',
+                $filename,
+                $import->getRowCount(),
+                $request
+            );
+            
             return redirect()->route('settings.forets')->with('success', 'Forêts importées avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
@@ -758,7 +935,19 @@ class SettingsController extends Controller
         ]);
 
         try {
-            Excel::import(new NatureDeCoupesImport, $request->file('file'));
+            $filename = $request->file('file')->getClientOriginalName();
+            $import = new NatureDeCoupesImport;
+            
+            Excel::import($import, $request->file('file'));
+            
+            // Log import action
+            ActivityLogger::logImport(
+                'Natures de Coupes',
+                $filename,
+                $import->getRowCount(),
+                $request
+            );
+            
             return redirect()->route('settings.nature-de-coupes')->with('success', 'Natures de coupe importées avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
@@ -772,7 +961,19 @@ class SettingsController extends Controller
         ]);
 
         try {
-            Excel::import(new SituationAdministrativesImport, $request->file('file'));
+            $filename = $request->file('file')->getClientOriginalName();
+            $import = new SituationAdministrativesImport;
+            
+            Excel::import($import, $request->file('file'));
+            
+            // Log import action
+            ActivityLogger::logImport(
+                'Situations Administratives',
+                $filename,
+                $import->getRowCount(),
+                $request
+            );
+            
             return redirect()->route('settings.situation-administratives')->with('success', 'Situations administratives importées avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
@@ -786,7 +987,19 @@ class SettingsController extends Controller
         ]);
 
         try {
-            Excel::import(new ExploitantsImport, $request->file('file'));
+            $filename = $request->file('file')->getClientOriginalName();
+            $import = new ExploitantsImport;
+            
+            Excel::import($import, $request->file('file'));
+            
+            // Log import action
+            ActivityLogger::logImport(
+                'Exploitants',
+                $filename,
+                $import->getRowCount(),
+                $request
+            );
+            
             return redirect()->route('settings.exploitants')->with('success', 'Exploitants importés avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
@@ -800,7 +1013,19 @@ class SettingsController extends Controller
         ]);
 
         try {
-            Excel::import(new LocalisationsImport, $request->file('file'));
+            $filename = $request->file('file')->getClientOriginalName();
+            $import = new LocalisationsImport;
+            
+            Excel::import($import, $request->file('file'));
+            
+            // Log import action
+            ActivityLogger::logImport(
+                'Localisations',
+                $filename,
+                $import->getRowCount(),
+                $request
+            );
+            
             return redirect()->route('settings.localisations')->with('success', 'Localisations importées avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());

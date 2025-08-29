@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Foret;
 use App\Models\Exploitant;
+use App\Services\ActivityLogger;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     public function index(): View
     {
+        // Log dashboard access
+        ActivityLogger::log('view', 'Accès au tableau de bord principal', null);
+        
         // Get statistics
         $totalArticles = Article::count();
         $vendus = Article::where('invendu', false)->count();

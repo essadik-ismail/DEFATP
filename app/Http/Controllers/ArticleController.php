@@ -8,15 +8,14 @@ use App\Models\Foret;
 use App\Models\Localisation;
 use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
-
 use App\Models\Exploitant;
-
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Requests\IndexArticleRequest;
 use App\Http\Requests\ExportArticleRequest;
 use App\Exports\ArticlesExport;
 use App\Imports\ArticlesImport;
+use App\Services\ActivityLogger;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -26,6 +25,9 @@ class ArticleController extends Controller
 {
     public function index(Request $request): View
     {
+        // Log view action
+        ActivityLogger::log('view', 'Consultation de la liste des articles', Article::class);
+        
         // Get articles with enhanced pagination and filtering
         $articles = Article::where('is_deleted', '')
             ->with(['foret', 'essence', 'localisation', 'situationAdministrative', 'exploitant', 'natureDeCoupe'])
@@ -83,7 +85,7 @@ class ArticleController extends Controller
         $situationAdministratives = SituationAdministrative::where('is_deleted', '')
             ->when($request->filled('situation_search'), function($query) use ($request) {
                 $query->where(function($q) use ($request) {
-                    $q->where('commune', 'like', '%' . $request->situation_search . '%')
+                    $q->where('commune', 'like', '%' . $request->localisation_search . '%')
                       ->orWhere('province', 'like', '%' . $request->localisation_search . '%');
                 });
             })
@@ -131,7 +133,6 @@ class ArticleController extends Controller
             'essences',
             'natureDeCoupes',
             'exploitants',
-
             'localisations'
         ));
     }
@@ -141,7 +142,7 @@ class ArticleController extends Controller
         // Prepare article data with new field order
         $articleData = $request->only([
             'date_adjudication', 'annee', 'numero', 'localisation_id', 'situation_administrative_id',
-            'parcelle', 'foret_id', 'essence_id', 'nature_de_coupe_id', 'lot',
+            'parcelle', 'foret_id', 'situation_administrative_id', 'essence_id', 'nature_de_coupe_id', 'lot',
             'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
             'romarin_t', 'ps_t', 'charbon_bois_ox', 'invendu', 'prix_de_retrait',
             'date_dr', 'exploitant_id', 'type', 'prix_vente', 'dc', 'rc', 'date_de_resiliation',
@@ -175,20 +176,35 @@ class ArticleController extends Controller
         }
 
         // Create the article
-        Article::create($articleData);
+        $article = Article::create($articleData);
+
+        // Log article creation
+        ActivityLogger::logCreate(
+            Article::class,
+            $article->id,
+            "Article {$article->numero} ({$article->annee})",
+            $request
+        );
 
         return redirect()->route('articles.index')->with('success', 'Article ajouté avec succès.');
     }
 
     public function show(Article $article): View
     {
+        // Log article view
+        ActivityLogger::logView(
+            Article::class,
+            $article->id,
+            "Article {$article->numero} ({$article->annee})",
+            request()
+        );
+
         $article->load([
             'situationAdministrative',
             'foret',
             'essence',
             'natureDeCoupe',
             'exploitant',
-
             'localisation'
         ]);
 
@@ -212,26 +228,63 @@ class ArticleController extends Controller
             'essences',
             'natureDeCoupes',
             'exploitants',
-
             'localisations'
         ));
     }
 
     public function update(UpdateArticleRequest $request, Article $article): RedirectResponse
     {
+        $oldData = $article->only([
+            'date_adjudication', 'annee', 'numero', 'localisation_id', 'situation_administrative_id',
+            'parcelle', 'foret_id', 'essence_id', 'nature_de_coupe_id', 'lot',
+            'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
+            'romarin_t', 'ps_t', 'charbon_bois_ox', 'invendu', 'prix_de_retrait',
+            'date_dr', 'exploitant_id', 'type', 'prix_vente', 'dc', 'rc', 'date_de_resiliation',
+            'date_de_decheance', 'is_validated', 'observations'
+        ]);
+
         $article->update($request->all());
+
+        // Log article update
+        $changes = array_diff_assoc($article->fresh()->only(array_keys($oldData)), $oldData);
+        ActivityLogger::logUpdate(
+            Article::class,
+            $article->id,
+            "Article {$article->numero} ({$article->annee})",
+            $changes,
+            $request
+        );
+
         return redirect()->route('articles.index')->with('success', 'Article mis à jour avec succès.');
     }
 
     public function destroy(Article $article): RedirectResponse
     {
+        $articleInfo = "Article {$article->numero} ({$article->annee})";
+        
         $article->update(['is_deleted' => true]);
+        
+        // Log article deletion
+        ActivityLogger::logDelete(
+            Article::class,
+            $article->id,
+            $articleInfo,
+            request()
+        );
+
         return redirect()->route('articles.index')->with('success', 'Article supprimé avec succès.');
     }
 
     public function export(ExportArticleRequest $request)
     {
         $filters = $request->only(['annee', 'foret_id', 'essence_id', 'invendu']);
+        
+        // Log export action
+        ActivityLogger::logExport(
+            'Articles',
+            'Excel',
+            $request
+        );
         
         return Excel::download(new ArticlesExport($filters), 'articles_' . date('Y-m-d_H-i-s') . '.xlsx');
     }
@@ -243,7 +296,19 @@ class ArticleController extends Controller
         ]);
 
         try {
-            Excel::import(new ArticlesImport, $request->file('file'));
+            $filename = $request->file('file')->getClientOriginalName();
+            $import = new ArticlesImport;
+            
+            Excel::import($import, $request->file('file'));
+            
+            // Log import action
+            ActivityLogger::logImport(
+                'Articles',
+                $filename,
+                $import->getRowCount(),
+                $request
+            );
+            
             return redirect()->route('articles.index')->with('success', 'Articles importés avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());

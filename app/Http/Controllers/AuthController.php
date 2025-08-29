@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdateProfileRequest;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -27,6 +28,10 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            
+            // Log successful login
+            ActivityLogger::logLogin(Auth::user(), $request);
+            
             return redirect()->intended(route('dashboard'));
         }
 
@@ -37,6 +42,13 @@ class AuthController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+        
+        // Log logout before actually logging out
+        if ($user) {
+            ActivityLogger::logLogout($user, $request);
+        }
+        
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -46,6 +58,9 @@ class AuthController extends Controller
 
     public function showUsers(): View
     {
+        // Log view action
+        ActivityLogger::log('view', 'Consultation de la liste des utilisateurs', User::class);
+        
         $users = User::orderBy('name')->paginate(10);
         return view('auth.users.index', compact('users'));
     }
@@ -57,22 +72,30 @@ class AuthController extends Controller
 
     public function storeUser(StoreUserRequest $request): RedirectResponse
     {
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'ppr' => $request->ppr,
             'password' => Hash::make($request->password),
         ]);
+
+        // Log user creation
+        ActivityLogger::logCreate(User::class, $user->id, "Utilisateur {$user->name}", $request);
 
         return redirect()->route('auth.users.index')->with('success', 'Utilisateur créé avec succès.');
     }
 
     public function showEditUser(User $user): View
     {
+        // Log view action
+        ActivityLogger::logView(User::class, $user->id, "Utilisateur {$user->name}", request());
+        
         return view('auth.users.edit', compact('user'));
     }
 
     public function updateUser(UpdateUserRequest $request, User $user): RedirectResponse
     {
+        $oldData = $user->only(['name', 'ppr']);
+        
         $user->update([
             'name' => $request->name,
             'ppr' => $request->ppr,
@@ -84,6 +107,14 @@ class AuthController extends Controller
             ]);
         }
 
+        // Log user update
+        $changes = array_diff_assoc($user->fresh()->only(['name', 'ppr']), $oldData);
+        if ($request->filled('password')) {
+            $changes['password'] = 'changed';
+        }
+        
+        ActivityLogger::logUpdate(User::class, $user->id, "Utilisateur {$user->name}", $changes, $request);
+
         return redirect()->route('auth.users.index')->with('success', 'Utilisateur mis à jour avec succès.');
     }
 
@@ -93,7 +124,12 @@ class AuthController extends Controller
             return redirect()->route('auth.users.index')->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
 
+        $userName = $user->name;
         $user->update(['is_deleted' => true]);
+        
+        // Log user deletion
+        ActivityLogger::logDelete(User::class, $user->id, "Utilisateur {$userName}", request());
+        
         return redirect()->route('auth.users.index')->with('success', 'Utilisateur supprimé avec succès.');
     }
 
@@ -106,6 +142,7 @@ class AuthController extends Controller
     public function updateProfile(UpdateProfileRequest $request): RedirectResponse
     {
         $user = Auth::user();
+        $oldData = $user->only(['name', 'ppr']);
 
         // Check current password if changing password
         if ($request->filled('new_password')) {
@@ -126,6 +163,14 @@ class AuthController extends Controller
                 'password' => Hash::make($request->new_password),
             ]);
         }
+
+        // Log profile update
+        $changes = array_diff_assoc($user->fresh()->only(['name', 'ppr']), $oldData);
+        if ($request->filled('new_password')) {
+            $changes['password'] = 'changed';
+        }
+        
+        ActivityLogger::logUpdate(User::class, $user->id, "Profil de {$user->name}", $changes, $request);
 
         return redirect()->route('auth.profile')->with('success', 'Profil mis à jour avec succès.');
     }

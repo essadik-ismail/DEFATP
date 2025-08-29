@@ -10,7 +10,7 @@ use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\SituationForestiere;
 use App\Models\Exploitant;
-
+use App\Services\ActivityLogger;
 use App\Http\Requests\ArticlesByYearRequest;
 use App\Http\Requests\ArticlesByForetRequest;
 use App\Http\Requests\ArticlesByEssenceRequest;
@@ -23,12 +23,18 @@ class ReportController extends Controller
 {
     public function index(): View
     {
+        // Log report dashboard view
+        ActivityLogger::log('view', 'Consultation du tableau de bord des rapports', null);
+        
         return view('reports.index');
     }
 
     public function articlesByYear(ArticlesByYearRequest $request): View
     {
         $year = $request->get('year', date('Y'));
+        
+        // Log report generation
+        ActivityLogger::log('view', "Génération du rapport des articles par année: {$year}", Article::class);
         
         $articles = Article::with([
             'situationAdministrative',
@@ -59,6 +65,10 @@ class ReportController extends Controller
     public function articlesByForet(ArticlesByForetRequest $request): View
     {
         $foretId = $request->get('foret_id');
+        
+        // Log report generation
+        $foretName = $foretId ? Foret::find($foretId)->foret ?? 'Toutes' : 'Toutes';
+        ActivityLogger::log('view', "Génération du rapport des articles par forêt: {$foretName}", Article::class);
         
         $query = Article::with([
             'situationAdministrative',
@@ -92,6 +102,10 @@ class ReportController extends Controller
     {
         $essenceId = $request->get('essence_id');
         
+        // Log report generation
+        $essenceName = $essenceId ? Essence::find($essenceId)->essence ?? 'Toutes' : 'Toutes';
+        ActivityLogger::log('view', "Génération du rapport des articles par essence: {$essenceName}", Article::class);
+        
         $query = Article::with([
             'situationAdministrative',
             'situationForestiere',
@@ -122,7 +136,11 @@ class ReportController extends Controller
 
     public function articlesByExploitant(ArticlesByExploitantRequest $request): View
     {
-        $exploitantNcp = $request->get('exploitant_n_cp');
+        $exploitantId = $request->get('exploitant_id');
+        
+        // Log report generation
+        $exploitantName = $exploitantId ? Exploitant::find($exploitantId)->nom_complet ?? 'Tous' : 'Tous';
+        ActivityLogger::log('view', "Génération du rapport des articles par exploitant: {$exploitantName}", Article::class);
         
         $query = Article::with([
             'situationAdministrative',
@@ -134,12 +152,12 @@ class ReportController extends Controller
             'localisation'
         ]);
 
-        if ($exploitantNcp) {
-            $query->where('exploitant_n_cp', $exploitantNcp);
+        if ($exploitantId) {
+            $query->where('exploitant_id', $exploitantId);
         }
 
         $articles = $query->orderBy('date', 'desc')->get();
-        $exploitants = Exploitant::orderBy('nom')->get();
+        $exploitants = Exploitant::orderBy('nom_complet')->get();
 
         $stats = [
             'total' => $articles->count(),
@@ -149,11 +167,14 @@ class ReportController extends Controller
             'total_prix_retrait' => $articles->sum('prix_de_retrait'),
         ];
 
-        return view('reports.articles-by-exploitant', compact('articles', 'exploitants', 'exploitantNcp', 'stats'));
+        return view('reports.articles-by-exploitant', compact('articles', 'exploitants', 'exploitantId', 'stats'));
     }
 
     public function invendus(): View
     {
+        // Log report generation
+        ActivityLogger::log('view', 'Génération du rapport des articles invendus', Article::class);
+        
         $articles = Article::with([
             'situationAdministrative',
             'situationForestiere',
@@ -177,6 +198,9 @@ class ReportController extends Controller
 
     public function vendus(): View
     {
+        // Log report generation
+        ActivityLogger::log('view', 'Génération du rapport des articles vendus', Article::class);
+        
         $articles = Article::with([
             'situationAdministrative',
             'situationForestiere',
@@ -193,7 +217,7 @@ class ReportController extends Controller
         $stats = [
             'total' => $articles->count(),
             'total_prix_vente' => $articles->sum('prix_vente'),
-            'total_fourniture' => $articles->sum('fourniture_mise_charge'),
+            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
         ];
 
         return view('reports.vendus', compact('articles', 'stats'));
@@ -201,131 +225,70 @@ class ReportController extends Controller
 
     public function summary(): View
     {
-        // Summary statistics
+        // Log report generation
+        ActivityLogger::log('view', 'Génération du rapport de synthèse général', Article::class);
+        
+        // Get summary statistics
         $totalArticles = Article::count();
-        $vendus = Article::where('invendu', false)->count();
-        $invendus = Article::where('invendu', true)->count();
+        $totalVendus = Article::where('invendu', false)->count();
+        $totalInvendus = Article::where('invendu', true)->count();
         $totalPrixVente = Article::sum('prix_vente');
         $totalPrixRetrait = Article::sum('prix_de_retrait');
-        $totalFourniture = Article::sum('fourniture_mise_charge');
 
-        // Articles by year
-        $articlesByYear = Article::select('annee', DB::raw('count(*) as total'))
+        // Get statistics by year
+        $statsByYear = Article::selectRaw('annee, COUNT(*) as total, SUM(CASE WHEN invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(prix_vente) as total_prix_vente, SUM(prix_de_retrait) as total_prix_retrait')
             ->groupBy('annee')
             ->orderBy('annee', 'desc')
             ->get();
 
-        // Articles by forest
-        $articlesByForet = Article::join('forets', 'articles.foret_id', '=', 'forets.id')
-            ->select('forets.foret', DB::raw('count(*) as total'))
+        // Get statistics by forest
+        $statsByForet = Article::join('forets', 'articles.foret_id', '=', 'forets.id')
+            ->selectRaw('forets.foret, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
             ->groupBy('forets.id', 'forets.foret')
-            ->orderBy('total', 'desc')
+            ->orderBy('forets.foret')
             ->get();
 
-        // Articles by essence
-        $articlesByEssence = Article::join('essences', 'articles.essence_id', '=', 'essences.id')
-            ->select('essences.essence', DB::raw('count(*) as total'))
+        // Get statistics by essence
+        $statsByEssence = Article::join('essences', 'articles.essence_id', '=', 'essences.id')
+            ->selectRaw('essences.essence, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
             ->groupBy('essences.id', 'essences.essence')
-            ->orderBy('total', 'desc')
+            ->orderBy('essences.essence')
             ->get();
 
-        // Top exploitants
-        $topExploitants = Article::join('exploitants', 'articles.exploitant_n_cp', '=', 'exploitants.n_cp')
-            ->select('exploitants.nom', 'exploitants.prenom', DB::raw('count(*) as total'))
-            ->groupBy('exploitants.n_cp', 'exploitants.nom', 'exploitants.prenom')
-            ->orderBy('total', 'desc')
-            ->limit(10)
-            ->get();
+        $summary = [
+            'total_articles' => $totalArticles,
+            'total_vendus' => $totalVendus,
+            'total_invendus' => $totalInvendus,
+            'total_prix_vente' => $totalPrixVente,
+            'total_prix_retrait' => $totalPrixRetrait,
+            'stats_by_year' => $statsByYear,
+            'stats_by_foret' => $statsByForet,
+            'stats_by_essence' => $statsByEssence,
+        ];
 
-        return view('reports.summary', compact(
-            'totalArticles',
-            'vendus',
-            'invendus',
-            'totalPrixVente',
-            'totalPrixRetrait',
-            'totalFourniture',
-            'articlesByYear',
-            'articlesByForet',
-            'articlesByEssence',
-            'topExploitants'
-        ));
+        return view('reports.summary', compact('summary'));
     }
 
     public function exportSummary()
     {
-        $articles = Article::with([
-            'situationAdministrative',
-            'situationForestiere.annee',
-            'situationForestiere.zdtf',
-            'situationForestiere.dpanef',
-            'situationForestiere.dranef',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'exploitant',
-
-            'localisation'
-        ])->orderBy('date', 'desc')->get();
-
-        $filename = 'rapport_complet_' . date('Y-m-d_H-i-s') . '.csv';
+        // Log export action
+        ActivityLogger::logExport('Rapport de Synthèse', 'Excel', request());
         
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-
-        $callback = function() use ($articles) {
-            $file = fopen('php://output', 'w');
-            
-            // CSV headers
-            fputcsv($file, [
-                'ID', 'Année', 'Numéro', 'Date', 'Statut', 'Prix de retrait', 'Prix de vente',
-                'Commune', 'Province', 'DFP', 'ZDTF', 'DPANEF', 'DRANEF', 'Année Situation',
-                'Forêt', 'Essence', 'Nature de coupe', 'Exploitant',
-                'Localisation', 'Lot', 'Parcelle', 'Superficie', 'Fourniture mise en charge',
-                'Date DR', 'Observations'
-            ]);
-
-            foreach ($articles as $article) {
-                fputcsv($file, [
-                    $article->id,
-                    $article->annee,
-                    $article->numero,
-                    $article->date,
-                    $article->invendu ? 'Invendu' : 'Vendu',
-                    $article->prix_de_retrait,
-                    $article->prix_vente,
-                    $article->situationAdministrative?->commune,
-                    $article->situationAdministrative?->province,
-                    $article->situationForestiere?->dfp,
-                    $article->situationForestiere?->zdtf?->zdtf,
-                    $article->situationForestiere?->dpanef?->dpanef,
-                    $article->situationForestiere?->dranef?->dranef,
-                    $article->situationForestiere?->annee?->annee,
-                    $article->foret?->foret,
-                    $article->essence?->essence,
-                    $article->natureDeCoupe?->nature_de_coupe,
-                    $article->exploitant ? ($article->exploitant->nom . ' ' . $article->exploitant->prenom) : '',
-
-                    $article->localisation?->display_name,
-                    $article->lot,
-                    $article->parcelle,
-                    $article->superficie,
-                    $article->fourniture_mise_charge,
-                    $article->date_dr,
-                    $article->observations
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        // Get summary data for export
+        $data = $this->getSummaryDataForExport();
+        
+        $filename = 'rapport_synthese_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(new SummaryExport($data), $filename);
     }
 
     public function articlesByNatureDeCoupe(Request $request): View
     {
-        $natureId = $request->get('nature_id');
+        $natureDeCoupeId = $request->get('nature_de_coupe_id');
+        
+        // Log report generation
+        $natureName = $natureDeCoupeId ? NatureDeCoupe::find($natureDeCoupeId)->nature_de_coupe ?? 'Toutes' : 'Toutes';
+        ActivityLogger::log('view', "Génération du rapport des articles par nature de coupe: {$natureName}", Article::class);
         
         $query = Article::with([
             'situationAdministrative',
@@ -337,12 +300,12 @@ class ReportController extends Controller
             'localisation'
         ]);
 
-        if ($natureId) {
-            $query->where('nature_de_coupe_id', $natureId);
+        if ($natureDeCoupeId) {
+            $query->where('nature_de_coupe_id', $natureDeCoupeId);
         }
 
         $articles = $query->orderBy('date', 'desc')->get();
-        $natures = NatureDeCoupe::orderBy('nature_de_coupe')->get();
+        $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
 
         $stats = [
             'total' => $articles->count(),
@@ -352,12 +315,16 @@ class ReportController extends Controller
             'total_prix_retrait' => $articles->sum('prix_de_retrait'),
         ];
 
-        return view('reports.articles-by-nature-de-coupe', compact('articles', 'natures', 'natureId', 'stats'));
+        return view('reports.articles-by-nature-de-coupe', compact('articles', 'natureDeCoupes', 'natureDeCoupeId', 'stats'));
     }
 
     public function articlesByLocalisation(Request $request): View
     {
         $localisationId = $request->get('localisation_id');
+        
+        // Log report generation
+        $localisationName = $localisationId ? Localisation::find($localisationId)->ENTITE ?? 'Toutes' : 'Toutes';
+        ActivityLogger::log('view', "Génération du rapport des articles par localisation: {$localisationName}", Article::class);
         
         $query = Article::with([
             'situationAdministrative',
@@ -374,7 +341,7 @@ class ReportController extends Controller
         }
 
         $articles = $query->orderBy('date', 'desc')->get();
-        $localisations = \App\Models\Localisation::orderBy('CODE')->get();
+        $localisations = Localisation::orderBy('ENTITE')->get();
 
         $stats = [
             'total' => $articles->count(),
@@ -389,7 +356,11 @@ class ReportController extends Controller
 
     public function articlesByValidationStatus(Request $request): View
     {
-        $status = $request->get('status', 'all');
+        $status = $request->get('status');
+        
+        // Log report generation
+        $statusName = $status === 'validated' ? 'Validés' : ($status === 'pending' ? 'En attente' : 'Tous');
+        ActivityLogger::log('view', "Génération du rapport des articles par statut de validation: {$statusName}", Article::class);
         
         $query = Article::with([
             'situationAdministrative',
@@ -401,16 +372,20 @@ class ReportController extends Controller
             'localisation'
         ]);
 
-        if ($status === 'validated') {
-            $query->where('valide', true);
-        } elseif ($status === 'pending') {
-            $query->where('valide', false);
+        if ($status) {
+            if ($status === 'validated') {
+                $query->where('is_validated', true);
+            } elseif ($status === 'pending') {
+                $query->where('is_validated', false);
+            }
         }
 
         $articles = $query->orderBy('date', 'desc')->get();
 
         $stats = [
             'total' => $articles->count(),
+            'validated' => $articles->where('is_validated', true)->count(),
+            'pending' => $articles->where('is_validated', false)->count(),
             'vendus' => $articles->where('invendu', false)->count(),
             'invendus' => $articles->where('invendu', true)->count(),
             'total_prix_vente' => $articles->sum('prix_vente'),
