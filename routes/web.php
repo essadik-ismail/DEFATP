@@ -7,6 +7,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExcelController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ActivityLogController;
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -19,7 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('auth.profile');
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('auth.profile.update');
     
-    // User Management Routes
+    // User Management Routes (Legacy - AuthController)
     Route::prefix('users')->name('auth.users.')->group(function () {
         Route::get('/', [AuthController::class, 'showUsers'])->name('index');
         Route::get('/create', [AuthController::class, 'showCreateUser'])->name('create');
@@ -27,6 +29,29 @@ Route::middleware('auth')->group(function () {
         Route::get('/{user}/edit', [AuthController::class, 'showEditUser'])->name('edit');
         Route::put('/{user}', [AuthController::class, 'updateUser'])->name('update');
         Route::delete('/{user}', [AuthController::class, 'destroyUser'])->name('destroy');
+    });
+
+    // New User Management Routes (UserController with Spatie)
+    Route::prefix('admin/users')->name('users.')->middleware('permission:view users')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/create', [UserController::class, 'create'])->middleware('permission:create users')->name('create');
+        Route::post('/', [UserController::class, 'store'])->middleware('permission:create users')->name('store');
+        Route::get('/{user}', [UserController::class, 'show'])->name('show');
+        Route::get('/{user}/edit', [UserController::class, 'edit'])->middleware('permission:edit users')->name('edit');
+        Route::put('/{user}', [UserController::class, 'update'])->middleware('permission:edit users')->name('update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->middleware('permission:delete users')->name('destroy');
+        Route::patch('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->middleware('permission:edit users')->name('toggle-status');
+        Route::get('/export', [UserController::class, 'export'])->middleware('permission:view users')->name('export');
+    });
+
+    // Activity Logs Routes
+    Route::prefix('admin/activity-logs')->name('activity-logs.')->middleware('permission:view activity logs')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index'])->name('index');
+        Route::get('/{activityLog}', [ActivityLogController::class, 'show'])->name('show');
+        Route::get('/user/{user}', [ActivityLogController::class, 'userActivity'])->name('user-activity');
+        Route::get('/ajax/logs', [ActivityLogController::class, 'getActivityLogs'])->name('ajax-logs');
+        Route::get('/export', [ActivityLogController::class, 'export'])->name('export');
+        Route::get('/statistics', [ActivityLogController::class, 'getStatistics'])->name('statistics');
     });
 
     // Dashboard
@@ -83,6 +108,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/exploitants/create', [SettingsController::class, 'createExploitant'])->name('exploitants.create');
     Route::post('/exploitants', [SettingsController::class, 'storeExploitant'])->name('exploitants.store');
     Route::get('/exploitants/{exploitant}', [SettingsController::class, 'showExploitant'])->name('exploitants.show');
+    Route::get('/exploitants/{exploitant}/carte-professionnelle', [SettingsController::class, 'carteProfessionnelle'])->name('exploitants.carte-professionnelle');
     Route::get('/exploitants/{exploitant}/edit', [SettingsController::class, 'editExploitant'])->name('exploitants.edit');
     Route::put('/exploitants/{exploitant}', [SettingsController::class, 'updateExploitant'])->name('exploitants.update');
     Route::delete('/exploitants/{exploitant}', [SettingsController::class, 'destroyExploitant'])->name('exploitants.destroy');

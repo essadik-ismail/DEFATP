@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +22,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'email',
         'ppr',
         'image',
         'email_verified_at',
@@ -62,5 +65,29 @@ class User extends Authenticatable
         static::addGlobalScope('not_deleted', function (Builder $builder) {
             $builder->where('is_deleted', false);
         });
+    }
+
+    /**
+     * Get the activity logs for the user.
+     */
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    /**
+     * Get the recent activity logs for the user.
+     */
+    public function recentActivityLogs(int $limit = 10)
+    {
+        return $this->activityLogs()->latest()->limit($limit);
+    }
+
+    /**
+     * Get the activity logs for a specific action.
+     */
+    public function activityLogsByAction(string $action, int $limit = 10)
+    {
+        return $this->activityLogs()->where('action', $action)->latest()->limit($limit);
     }
 }

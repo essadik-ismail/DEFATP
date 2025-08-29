@@ -446,6 +446,11 @@ class SettingsController extends Controller
         return view('settings.exploitants.show', compact('exploitant'));
     }
 
+    public function carteProfessionnelle(Exploitant $exploitant): View
+    {
+        return view('settings.exploitants.carte-professionnelle', compact('exploitant'));
+    }
+
     public function createExploitant(): View
     {
         return view('settings.exploitants.create');

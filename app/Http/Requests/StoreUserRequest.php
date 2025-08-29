@@ -24,9 +24,12 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'ppr' => ['required', 'string', 'max:255', Rule::unique('users', 'ppr')],
             'image' => ['nullable', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['string', 'exists:roles,name'],
         ];
     }
 
@@ -40,10 +43,15 @@ class StoreUserRequest extends FormRequest
         return [
             'name.required' => 'Le nom est requis.',
             'name.max' => 'Le nom ne peut pas dépasser 255 caractères.',
+            'email.required' => 'L\'email est requis.',
+            'email.email' => 'L\'email doit être valide.',
+            'email.unique' => 'Cet email est déjà utilisé.',
             'ppr.required' => 'Le PPR est requis.',
             'ppr.unique' => 'Ce PPR est déjà utilisé.',
             'password.required' => 'Le mot de passe est requis.',
             'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+            'roles.array' => 'Les rôles doivent être un tableau.',
+            'roles.*.exists' => 'Un ou plusieurs rôles n\'existent pas.',
         ];
     }
 }

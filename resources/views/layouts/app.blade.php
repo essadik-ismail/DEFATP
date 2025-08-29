@@ -1392,9 +1392,16 @@
                 </div>
 
                 <div class="nav-item">
-                    <a href="{{ route('auth.users.index') }}" class="nav-link {{ request()->routeIs('auth.users.*') ? 'active' : '' }}">
+                    <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         Utilisateurs
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('activity-logs.index') }}" class="nav-link {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
+                        <i class="fas fa-history"></i>
+                        Journal d'Activités
                     </a>
                 </div>
 
