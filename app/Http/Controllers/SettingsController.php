@@ -52,7 +52,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-use App\Models\ActivityLogger;
+use App\Services\ActivityLogger;
 
 class SettingsController extends Controller
 {
@@ -460,6 +460,9 @@ class SettingsController extends Controller
     // Exploitants Management
     public function exploitants(Request $request): View
     {
+        // Log exploitants view
+        ActivityLogger::log('view', 'Consultation de la liste des exploitants', Exploitant::class);
+        
         $query = Exploitant::query();
 
         // Search functionality
@@ -596,26 +599,29 @@ class SettingsController extends Controller
     // Localisations Management
     public function localisations(Request $request): View
     {
+        // Log localisations view
+        ActivityLogger::log('view', 'Consultation de la liste des localisations', Localisation::class);
+        
         $query = Localisation::query();
 
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->get('search');
             $query->where(function($q) use ($search) {
-                $q->where('commune', 'like', "%{$search}%")
-                  ->orWhere('province', 'like', "%{$search}%")
-                  ->orWhere('region', 'like', "%{$search}%");
+                $q->where('CODE', 'like', "%{$search}%")
+                  ->orWhere('DRANEF', 'like', "%{$search}%")
+                  ->orWhere('ENTITE', 'like', "%{$search}%");
             });
         }
 
         // Province filter
         if ($request->filled('province')) {
-            $query->where('province', $request->get('province'));
+            $query->where('DRANEF', $request->get('province'));
         }
 
         // Region filter
         if ($request->filled('region')) {
-            $query->where('region', $request->get('region'));
+            $query->where('DRANEF', 'like', $request->get('region') . '%');
         }
 
         // Status filter
@@ -642,10 +648,10 @@ class SettingsController extends Controller
         }
 
         // Sorting
-        $sortField = $request->get('sort', 'commune');
+        $sortField = $request->get('sort', 'CODE');
         $sortDirection = $request->get('direction', 'asc');
         
-        $allowedSortFields = ['id', 'commune', 'province', 'region', 'created_at', 'updated_at'];
+        $allowedSortFields = ['id', 'CODE', 'DRANEF', 'ENTITE', 'created_at', 'updated_at'];
         if (in_array($sortField, $allowedSortFields)) {
             $query->orderBy($sortField, $sortDirection);
         }
@@ -664,7 +670,7 @@ class SettingsController extends Controller
             'total' => $query->count(),
             'active' => $query->where('is_deleted', false)->count(),
             'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
-            'unique' => $query->distinct('commune')->count(),
+            'unique' => $query->distinct('CODE')->count(),
         ];
 
         return view('settings.localisations.index', compact('localisations', 'stats'));
@@ -700,11 +706,121 @@ class SettingsController extends Controller
         return redirect()->route('settings.localisations')->with('success', 'Localisation ajoutée avec succès.');
     }
 
-    // ZDTFs Management
-    public function zdtfs(): View
+    public function editLocalisation(Localisation $localisation): View
     {
-        $zdtfs = ZDTF::orderBy('nom')->paginate(20);
-        return view('settings.zdtfs.index', compact('zdtfs'));
+        // Log localisation edit view
+        ActivityLogger::logView(
+            Localisation::class,
+            $localisation->id,
+            "Localisation {$localisation->CODE}",
+            request()
+        );
+        
+        return view('settings.localisations.edit', compact('localisation'));
+    }
+
+    public function updateLocalisation(Request $request, Localisation $localisation): RedirectResponse
+    {
+        $oldData = $localisation->only(['CODE', 'DRANEF', 'ENTITE']);
+        $localisation->update([
+            'CODE' => $request->CODE,
+            'DRANEF' => $request->DRANEF,
+            'ENTITE' => $request->ENTITE,
+        ]);
+        
+        // Log localisation update
+        $changes = array_diff_assoc($localisation->fresh()->only(['CODE', 'DRANEF', 'ENTITE']), $oldData);
+        ActivityLogger::logUpdate(
+            Localisation::class,
+            $localisation->id,
+            "Localisation {$localisation->CODE}",
+            $changes,
+            $request
+        );
+        
+        return redirect()->route('settings.localisations')->with('success', 'Localisation mise à jour avec succès.');
+    }
+
+    public function destroyLocalisation(Localisation $localisation): RedirectResponse
+    {
+        $localisationCode = $localisation->CODE;
+        $localisation->update(['is_deleted' => true]);
+        
+        // Log localisation deletion
+        ActivityLogger::logDelete(
+            Localisation::class,
+            $localisation->id,
+            "Localisation {$localisationCode}",
+            request()
+        );
+        
+        return redirect()->route('settings.localisations')->with('success', 'Localisation supprimée avec succès.');
+    }
+
+    // ZDTF Management
+    public function zdtfs(Request $request): View
+    {
+        // Log ZDTF view
+        ActivityLogger::log('view', 'Consultation de la liste des ZDTF', null);
+        
+        $query = ZDTF::query();
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where('zdtf', 'like', "%{$search}%");
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            switch ($request->get('status')) {
+                case 'active':
+                    $query->where('is_deleted', false);
+                    break;
+                case 'deleted':
+                    $query->where('is_deleted', true);
+                    break;
+                case 'recent':
+                    $query->where('created_at', '>=', now()->subDays(30));
+                    break;
+            }
+        }
+
+        // Date range filter
+        if ($request->filled('date_from')) {
+            $query->where('created_at', '>=', $request->get('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $query->where('created_at', '<=', $request->get('date_to') . ' 23:59:59');
+        }
+
+        // Sorting
+        $sortField = $request->get('sort', 'zdtf');
+        $sortDirection = $request->get('direction', 'asc');
+        
+        $allowedSortFields = ['id', 'zdtf', 'created_at', 'updated_at'];
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        }
+
+        // Pagination
+        $perPage = $request->get('per_page', 15);
+        $allowedPerPage = [10, 15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 15;
+        }
+
+        $zdtfs = $query->paginate($perPage);
+
+        // Get statistics for the current filtered results
+        $stats = [
+            'total' => $query->count(),
+            'active' => $query->where('is_deleted', false)->count(),
+            'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
+            'unique' => $query->distinct('zdtf')->count(),
+        ];
+
+        return view('settings.zdtfs.index', compact('zdtfs', 'stats'));
     }
 
     public function storeZdtf(StoreZdtfRequest $request): RedirectResponse
