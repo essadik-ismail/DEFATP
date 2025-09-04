@@ -30,7 +30,7 @@
                     </h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" id="userCreateForm" novalidate data-ajax="true">
                         @csrf
                         
                         <div class="row">
@@ -41,30 +41,55 @@
                                 </h6>
                                 
                                 <div class="mb-3">
-                                    <label for="name" class="form-label">Nom complet <span class="text-danger">*</span></label>
+                                    <label for="name" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Nom complet <span class="text-danger">*</span>
+                                    </label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                           id="name" name="name" value="{{ old('name') }}" required>
+                                           id="name" name="name" value="{{ old('name') }}" 
+                                           placeholder="Ex: Jean Dupont" required autocomplete="name">
                                     @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                        </div>
                                     @enderror
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>Nom complet de l'utilisateur
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <label for="email" class="form-label">
+                                        <i class="fas fa-envelope me-1"></i>Email <span class="text-danger">*</span>
+                                    </label>
                                     <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                           id="email" name="email" value="{{ old('email') }}" required>
+                                           id="email" name="email" value="{{ old('email') }}" 
+                                           placeholder="Ex: jean.dupont@example.com" required autocomplete="email">
                                     @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                        </div>
                                     @enderror
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>Adresse email valide requise
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="ppr" class="form-label">PPR <span class="text-danger">*</span></label>
+                                    <label for="ppr" class="form-label">
+                                        <i class="fas fa-id-card me-1"></i>PPR <span class="text-danger">*</span>
+                                    </label>
                                     <input type="text" class="form-control @error('ppr') is-invalid @enderror" 
-                                           id="ppr" name="ppr" value="{{ old('ppr') }}" required>
+                                           id="ppr" name="ppr" value="{{ old('ppr') }}" 
+                                           placeholder="Ex: 12345678" required pattern="[0-9]{8}" 
+                                           title="Le PPR doit contenir exactement 8 chiffres">
                                     @error('ppr')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                        </div>
                                     @enderror
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>Numéro de personnel (8 chiffres)
+                                    </div>
                                 </div>
                             </div>
 
@@ -75,24 +100,43 @@
                                 </h6>
                                 
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">Mot de passe <span class="text-danger">*</span></label>
+                                    <label for="password" class="form-label">
+                                        <i class="fas fa-lock me-1"></i>Mot de passe <span class="text-danger">*</span>
+                                    </label>
                                     <div class="input-group">
                                         <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                               id="password" name="password" required>
-                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                                               id="password" name="password" required minlength="8"
+                                               placeholder="Minimum 8 caractères">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')" aria-label="Afficher le mot de passe">
                                             <i class="fas fa-eye" id="passwordIcon"></i>
                                         </button>
                                     </div>
                                     @error('password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                        </div>
                                     @enderror
-                                    <small class="form-text text-muted">Minimum 8 caractères</small>
+                                    <div class="form-text">
+                                        <i class="fas fa-shield-alt me-1"></i>Minimum 8 caractères avec lettres et chiffres
+                                    </div>
+                                    <div class="password-strength mt-2" id="passwordStrength" style="display: none;">
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <small class="text-muted" id="strengthText">Force du mot de passe</small>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="password_confirmation" class="form-label">Confirmer le mot de passe <span class="text-danger">*</span></label>
+                                    <label for="password_confirmation" class="form-label">
+                                        <i class="fas fa-lock me-1"></i>Confirmer le mot de passe <span class="text-danger">*</span>
+                                    </label>
                                     <input type="password" class="form-control" 
-                                           id="password_confirmation" name="password_confirmation" required>
+                                           id="password_confirmation" name="password_confirmation" required
+                                           placeholder="Répétez le mot de passe">
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>Doit correspondre au mot de passe
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
@@ -144,13 +188,20 @@
                         <div class="row mt-4">
                             <div class="col-12">
                                 <hr>
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                                        <i class="fas fa-times me-2"></i>Annuler
-                                    </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i>Créer l'Utilisateur
-                                    </button>
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a href="{{ route('users.index') }}" class="btn btn-secondary">
+                                            <i class="fas fa-times me-2"></i>Annuler
+                                        </a>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                                            <i class="fas fa-save me-2"></i><span class="btn-text">Créer l'Utilisateur</span>
+                                        </button>
+                                        <button type="submit" class="btn btn-success" id="submitAndNextBtn" name="action" value="create_and_next">
+                                            <i class="fas fa-plus me-2"></i><span class="btn-text">Créer et Ajouter un Autre</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -336,5 +387,381 @@ document.querySelector('form').addEventListener('submit', function(e) {
     background: linear-gradient(135deg, #545b62 0%, #3d4449 100%);
     transform: translateY(-1px);
 }
+
+/* Password strength indicator */
+.password-strength .progress-bar {
+    transition: all 0.3s ease;
+}
+
+.password-strength .progress-bar.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.password-strength .progress-bar.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.password-strength .progress-bar.bg-success {
+    background-color: #28a745 !important;
+}
 </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('userCreateForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    
+    // Check if AJAX should be disabled
+    const useAjax = form.getAttribute('data-ajax') === 'true' && typeof fetch !== 'undefined';
+    console.log('AJAX enabled:', useAjax);
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('password_confirmation');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const strengthText = document.getElementById('strengthText');
+    const progressBar = passwordStrength.querySelector('.progress-bar');
+    
+    // Password strength checker
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        let feedback = '';
+        
+        if (password.length >= 8) strength += 1;
+        if (password.match(/[a-z]/)) strength += 1;
+        if (password.match(/[A-Z]/)) strength += 1;
+        if (password.match(/[0-9]/)) strength += 1;
+        if (password.match(/[^a-zA-Z0-9]/)) strength += 1;
+        
+        const percentage = (strength / 5) * 100;
+        
+        if (strength < 2) {
+            feedback = 'Très faible';
+            progressBar.className = 'progress-bar bg-danger';
+        } else if (strength < 3) {
+            feedback = 'Faible';
+            progressBar.className = 'progress-bar bg-warning';
+        } else if (strength < 4) {
+            feedback = 'Moyen';
+            progressBar.className = 'progress-bar bg-warning';
+        } else {
+            feedback = 'Fort';
+            progressBar.className = 'progress-bar bg-success';
+        }
+        
+        progressBar.style.width = percentage + '%';
+        strengthText.textContent = `Force du mot de passe: ${feedback}`;
+        
+        return strength >= 3;
+    }
+    
+    // Password visibility toggle
+    window.togglePassword = function(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(inputId + 'Icon');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    };
+    
+    // Real-time password strength checking
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        
+        if (password.length > 0) {
+            passwordStrength.style.display = 'block';
+            checkPasswordStrength(password);
+        } else {
+            passwordStrength.style.display = 'none';
+        }
+    });
+    
+    // Password confirmation validation
+    confirmPasswordInput.addEventListener('input', function() {
+        const password = passwordInput.value;
+        const confirmation = this.value;
+        
+        if (confirmation.length > 0) {
+            if (password === confirmation) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        } else {
+            this.classList.remove('is-valid', 'is-invalid');
+        }
+    });
+    
+    // Enhanced form validation
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldName = field.name;
+        const fieldType = field.type;
+        
+        // Remove existing validation classes
+        field.classList.remove('is-valid', 'is-invalid');
+        
+        if (field.hasAttribute('required') && value === '') {
+            field.classList.add('is-invalid');
+            return false;
+        }
+        
+        // Specific validations
+        if (fieldName === 'email' && value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                field.classList.add('is-invalid');
+                return false;
+            }
+        }
+        
+        if (fieldName === 'ppr' && value) {
+            const pprRegex = /^[0-9]{8}$/;
+            if (!pprRegex.test(value)) {
+                field.classList.add('is-invalid');
+                return false;
+            }
+        }
+        
+        if (fieldName === 'password' && value) {
+            if (value.length < 8) {
+                field.classList.add('is-invalid');
+                return false;
+            }
+            if (!checkPasswordStrength(value)) {
+                field.classList.add('is-invalid');
+                return false;
+            }
+        }
+        
+        if (fieldName === 'password_confirmation' && value) {
+            if (value !== passwordInput.value) {
+                field.classList.add('is-invalid');
+                return false;
+            }
+        }
+        
+        if (value !== '') {
+            field.classList.add('is-valid');
+        }
+        
+        return true;
+    }
+    
+    // Real-time validation
+    form.querySelectorAll('input, select').forEach(field => {
+        field.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        field.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    // Enhanced form submission
+    form.addEventListener('submit', function(e) {
+        if (!useAjax) {
+            // Use normal form submission
+            return;
+        }
+        
+        e.preventDefault();
+        
+        // Validate all fields
+        const fields = form.querySelectorAll('input[required], select[required]');
+        let isValid = true;
+        
+        fields.forEach(field => {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+        
+        // Check password confirmation
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            confirmPasswordInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            if (typeof UXUtils !== 'undefined') {
+                UXUtils.showToast('Veuillez corriger les erreurs dans le formulaire', 'error');
+            } else {
+                alert('Veuillez corriger les erreurs dans le formulaire');
+            }
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+        
+        // Show loading state
+        if (typeof UXUtils !== 'undefined') {
+            UXUtils.setLoading(submitBtn, true);
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+        }
+        btnText.textContent = 'Création en cours...';
+        
+        // Check if this is a "create and next" action
+        const isCreateAndNext = e.submitter && e.submitter.name === 'action' && e.submitter.value === 'create_and_next';
+        
+        // Prepare form data
+        const formData = new FormData(form);
+        if (isCreateAndNext) {
+            formData.append('action', 'create_and_next');
+        }
+        
+        // Submit form via AJAX
+        const formAction = form.getAttribute('action') || '{{ route("users.store") }}';
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        
+        console.log('Form action:', formAction);
+        console.log('CSRF token available:', !!csrfToken);
+        
+        // Try AJAX first, fallback to normal submission
+        try {
+            fetch(formAction, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    if (data.create_and_next) {
+                        if (typeof UXUtils !== 'undefined') {
+                            UXUtils.showSuccess('Utilisateur créé avec succès ! Création d\'un nouvel utilisateur...', {
+                                duration: 3000,
+                                action: () => {
+                                    form.reset();
+                                    document.getElementById('name').focus();
+                                    UXUtils.showInfo('Formulaire réinitialisé. Vous pouvez créer un nouvel utilisateur.');
+                                }
+                            });
+                        } else {
+                            alert('Utilisateur créé avec succès !');
+                            form.reset();
+                        }
+                    } else {
+                        if (typeof UXUtils !== 'undefined') {
+                            UXUtils.showSuccess('Utilisateur créé avec succès !', () => {
+                                window.location.href = '{{ route("users.index") }}';
+                            });
+                        } else {
+                            window.location.href = '{{ route("users.index") }}';
+                        }
+                    }
+                } else {
+                    // Handle validation errors
+                    if (data.errors) {
+                        let errorMessage = 'Erreurs de validation:\n';
+                        for (const field in data.errors) {
+                            errorMessage += `• ${data.errors[field].join(', ')}\n`;
+                        }
+                        if (typeof UXUtils !== 'undefined') {
+                            UXUtils.showError(errorMessage);
+                        } else {
+                            alert(errorMessage);
+                        }
+                        
+                        // Highlight invalid fields
+                        for (const field in data.errors) {
+                            const fieldElement = form.querySelector(`[name="${field}"]`);
+                            if (fieldElement) {
+                                fieldElement.classList.add('is-invalid');
+                            }
+                        }
+                    } else {
+                        if (typeof UXUtils !== 'undefined') {
+                            UXUtils.showError(data.message || 'Erreur lors de la création de l\'utilisateur.');
+                        } else {
+                            alert(data.message || 'Erreur lors de la création de l\'utilisateur.');
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('AJAX Error:', error);
+                // Fallback to normal form submission
+                console.log('Falling back to normal form submission');
+                form.removeEventListener('submit', arguments.callee);
+                form.submit();
+            })
+            .finally(() => {
+                // Reset loading state
+                if (typeof UXUtils !== 'undefined') {
+                    UXUtils.setLoading(submitBtn, false);
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                }
+                btnText.textContent = 'Créer l\'Utilisateur';
+            });
+        } catch (error) {
+            console.error('Fetch setup error:', error);
+            // Fallback to normal form submission
+            form.removeEventListener('submit', arguments.callee);
+            form.submit();
+        }
+    });
+    
+    // Auto-save draft functionality
+    let autoSaveTimeout;
+    form.addEventListener('input', function() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(() => {
+            // Auto-save logic could go here
+            console.log('Auto-saving user draft...');
+        }, 5000);
+    });
+    
+    // Enhanced PPR input formatting
+    const pprInput = document.getElementById('ppr');
+    pprInput.addEventListener('input', function() {
+        // Only allow numbers
+        this.value = this.value.replace(/[^0-9]/g, '');
+        
+        // Limit to 8 digits
+        if (this.value.length > 8) {
+            this.value = this.value.substring(0, 8);
+        }
+    });
+    
+    // Enhanced email validation with domain suggestions
+    const emailInput = document.getElementById('email');
+    emailInput.addEventListener('blur', function() {
+        const email = this.value;
+        if (email && !email.includes('@')) {
+            // Could add domain suggestions here
+        }
+    });
+});
+</script>
 @endpush

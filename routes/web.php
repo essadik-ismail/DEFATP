@@ -121,32 +121,12 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/localisations', [SettingsController::class, 'localisations'])->name('localisations');
     Route::get('/localisations/create', [SettingsController::class, 'createLocalisation'])->name('localisations.create');
     Route::post('/localisations', [SettingsController::class, 'storeLocalisation'])->name('localisations.store');
+    Route::get('/localisations/{localisation}/edit', [SettingsController::class, 'editLocalisation'])->name('localisations.edit');
+    Route::put('/localisations/{localisation}', [SettingsController::class, 'updateLocalisation'])->name('localisations.update');
+    Route::delete('/localisations/{localisation}', [SettingsController::class, 'destroyLocalisation'])->name('localisations.destroy');
     Route::get('/localisations/export', [SettingsController::class, 'exportLocalisations'])->name('localisations.export');
     Route::post('/localisations/import', [SettingsController::class, 'importLocalisations'])->name('localisations.import');
     
-    // ZDTFs
-    Route::get('/zdtfs', [SettingsController::class, 'zdtfs'])->name('zdtfs');
-    Route::post('/zdtfs', [SettingsController::class, 'storeZdtf'])->name('zdtfs.store');
-    Route::put('/zdtfs/{zdtf}', [SettingsController::class, 'updateZdtf'])->name('zdtfs.update');
-    Route::delete('/zdtfs/{zdtf}', [SettingsController::class, 'destroyZdtf'])->name('zdtfs.destroy');
-    
-    // DPANEFs
-    Route::get('/dpanefs', [SettingsController::class, 'dpanefs'])->name('dpanefs');
-    Route::post('/dpanefs', [SettingsController::class, 'storeDpanef'])->name('dpanefs.store');
-    Route::put('/dpanefs/{dpanef}', [SettingsController::class, 'updateDpanef'])->name('dpanefs.update');
-    Route::delete('/dpanefs/{dpanef}', [SettingsController::class, 'destroyDpanef'])->name('dpanefs.destroy');
-    
-    // DRANEFs
-    Route::get('/dranefs', [SettingsController::class, 'dranefs'])->name('dranefs');
-    Route::post('/dranefs', [SettingsController::class, 'storeDranef'])->name('dranefs.store');
-    Route::put('/dranefs/{dranef}', [SettingsController::class, 'updateDranef'])->name('dranefs.update');
-    Route::delete('/dranefs/{dranef}', [SettingsController::class, 'destroyDranef'])->name('dranefs.destroy');
-    
-    // Situation Forestieres
-    Route::get('/situation-forestieres', [SettingsController::class, 'situationForestieres'])->name('situation-forestieres');
-    Route::post('/situation-forestieres', [SettingsController::class, 'storeSituationForestiere'])->name('situation-forestieres.store');
-    Route::put('/situation-forestieres/{situationForestiere}', [SettingsController::class, 'updateSituationForestiere'])->name('situation-forestieres.update');
-    Route::delete('/situation-forestieres/{situationForestiere}', [SettingsController::class, 'destroySituationForestiere'])->name('situation-forestieres.destroy');
 });
 
     // Excel Import/Export Routes
@@ -211,4 +191,13 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/select-search-demo', function () {
         return view('select-search-demo');
     })->name('select.search.demo');
+    
+    // Test AJAX Route
+    Route::post('/test-ajax', function () {
+        return response()->json([
+            'success' => true,
+            'message' => 'AJAX test successful',
+            'timestamp' => now()
+        ]);
+    })->name('test.ajax');
 });

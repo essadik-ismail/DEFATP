@@ -58,31 +58,80 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(StoreUserRequest $request)
     {
-        $validated = $request->validated();
-        
-        // Hash password
-        $validated['password'] = Hash::make($validated['password']);
-        
-        // Create user
-        $user = User::create($validated);
-        
-        // Assign roles if specified
-        if (!empty($validated['roles'])) {
-            $user->syncRoles($validated['roles']);
+        try {
+            $validated = $request->validated();
+            
+            // Hash password
+            $validated['password'] = Hash::make($validated['password']);
+            
+            // Create user
+            $user = User::create($validated);
+            
+            // Assign roles if specified
+            if (!empty($validated['roles'])) {
+                $user->syncRoles($validated['roles']);
+            }
+            
+            // Log the activity
+            ActivityLogger::logCreate(
+                User::class,
+                $user->id,
+                "Utilisateur {$user->name}",
+                $request
+            );
+            
+            // Check if this is an AJAX request
+            if ($request->ajax()) {
+                $isCreateAndNext = $request->input('action') === 'create_and_next';
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Utilisateur créé avec succès.',
+                    'create_and_next' => $isCreateAndNext,
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'ppr' => $user->ppr
+                    ]
+                ]);
+            }
+            
+            // Handle create_and_next action for regular requests
+            if ($request->input('action') === 'create_and_next') {
+                return redirect()->route('users.create')
+                    ->with('success', 'Utilisateur créé avec succès. Vous pouvez créer un autre utilisateur.');
+            }
+            
+            return redirect()->route('users.index')
+                ->with('success', 'Utilisateur créé avec succès.');
+                
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreurs de validation',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la création de l\'utilisateur: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de l\'utilisateur: ' . $e->getMessage());
         }
-        
-        // Log the activity
-        ActivityLogger::logCreate(
-            User::class,
-            $user->id,
-            "Utilisateur {$user->name}",
-            $request
-        );
-        
-        return redirect()->route('users.index')
-            ->with('success', 'Utilisateur créé avec succès.');
     }
 
     /**

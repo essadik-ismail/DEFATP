@@ -16,7 +16,13 @@
     'options' => [],
     'selected' => null,
     'multiple' => false,
-    'accept' => null
+    'accept' => null,
+    'autocomplete' => null,
+    'pattern' => null,
+    'maxlength' => null,
+    'showPasswordToggle' => false,
+    'validation' => null,
+    'loading' => false
 ])
 
 <div class="form-group">
@@ -29,10 +35,16 @@
         </label>
     @endif
 
-    <div class="input-wrapper {{ $icon ? 'has-icon' : '' }}">
+    <div class="input-wrapper {{ $icon ? 'has-icon' : '' }} {{ $showPasswordToggle ? 'has-password-toggle' : '' }}">
         @if($icon)
             <div class="input-icon">
                 <i class="{{ $icon }}"></i>
+            </div>
+        @endif
+        
+        @if($loading)
+            <div class="input-loading">
+                <i class="fas fa-spinner fa-spin"></i>
             </div>
         @endif
 
@@ -98,8 +110,17 @@
                 @if($max) max="{{ $max }}" @endif
                 @if($step) step="{{ $step }}" @endif
                 @if($accept) accept="{{ $accept }}" @endif
-                {{ $attributes->merge(['class' => 'form-control ' . ($icon ? 'pl-10' : '')]) }}
+                @if($autocomplete) autocomplete="{{ $autocomplete }}" @endif
+                @if($pattern) pattern="{{ $pattern }}" @endif
+                @if($maxlength) maxlength="{{ $maxlength }}" @endif
+                {{ $attributes->merge(['class' => 'form-control ' . ($icon ? 'pl-10' : '') . ($showPasswordToggle ? ' pr-10' : '')]) }}
             >
+        @endif
+        
+        @if($showPasswordToggle && $type === 'password')
+            <button type="button" class="password-toggle" onclick="togglePassword('{{ $name }}')" aria-label="Afficher le mot de passe">
+                <i class="fas fa-eye" id="toggle-icon-{{ $name }}"></i>
+            </button>
         @endif
     </div>
 
@@ -225,6 +246,91 @@
         box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
     }
 
+    /* Enhanced UX Styles */
+    .input-wrapper.has-password-toggle {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        color: #059669;
+        background: rgba(5, 150, 105, 0.1);
+    }
+
+    .password-toggle:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+    }
+
+    .input-loading {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #059669;
+        z-index: 10;
+    }
+
+    .form-control.pr-10 {
+        padding-right: 2.5rem;
+    }
+
+    /* Validation states */
+    .form-control.is-valid {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .form-control.is-invalid {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .valid-feedback {
+        font-size: 0.75rem;
+        color: #10b981;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .invalid-feedback {
+        font-size: 0.75rem;
+        color: #ef4444;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* Enhanced focus states */
+    .form-control:focus, .form-select:focus, .form-textarea:focus {
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        transform: translateY(-1px);
+    }
+
+    /* Loading state */
+    .form-group.loading .form-control {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
     @media (max-width: 768px) {
         .form-control, .form-select, .form-textarea {
             padding: 0.625rem 0.875rem;
@@ -240,4 +346,159 @@
         }
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+// Enhanced form input functionality
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById('toggle-icon-' + inputId);
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+        icon.parentElement.setAttribute('aria-label', 'Masquer le mot de passe');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+        icon.parentElement.setAttribute('aria-label', 'Afficher le mot de passe');
+    }
+}
+
+// Enhanced form validation
+function validateFormField(field) {
+    const value = field.value.trim();
+    const fieldName = field.name;
+    const fieldType = field.type;
+    
+    // Remove existing validation classes
+    field.classList.remove('is-valid', 'is-invalid');
+    
+    // Required field validation
+    if (field.hasAttribute('required') && value === '') {
+        field.classList.add('is-invalid');
+        return false;
+    }
+    
+    // Type-specific validations
+    if (fieldType === 'email' && value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            field.classList.add('is-invalid');
+            return false;
+        }
+    }
+    
+    if (fieldType === 'number' && value) {
+        const num = parseFloat(value);
+        if (isNaN(num)) {
+            field.classList.add('is-invalid');
+            return false;
+        }
+        
+        if (field.hasAttribute('min') && num < parseFloat(field.getAttribute('min'))) {
+            field.classList.add('is-invalid');
+            return false;
+        }
+        
+        if (field.hasAttribute('max') && num > parseFloat(field.getAttribute('max'))) {
+            field.classList.add('is-invalid');
+            return false;
+        }
+    }
+    
+    if (fieldType === 'date' && value) {
+        const date = new Date(value);
+        if (isNaN(date.getTime())) {
+            field.classList.add('is-invalid');
+            return false;
+        }
+    }
+    
+    // Pattern validation
+    if (field.hasAttribute('pattern') && value) {
+        const pattern = new RegExp(field.getAttribute('pattern'));
+        if (!pattern.test(value)) {
+            field.classList.add('is-invalid');
+            return false;
+        }
+    }
+    
+    // If we get here and there's a value, it's valid
+    if (value !== '') {
+        field.classList.add('is-valid');
+    }
+    
+    return true;
+}
+
+// Auto-format number inputs
+function formatNumberInput(input) {
+    if (input.type === 'number' && input.value) {
+        const value = parseFloat(input.value);
+        if (!isNaN(value)) {
+            // Store original value for form submission
+            input.setAttribute('data-original-value', input.value);
+        }
+    }
+}
+
+// Initialize enhanced form inputs
+document.addEventListener('DOMContentLoaded', function() {
+    // Add real-time validation to all form inputs
+    document.querySelectorAll('.form-control, .form-select, .form-textarea').forEach(field => {
+        // Validation on blur
+        field.addEventListener('blur', function() {
+            validateFormField(this);
+        });
+        
+        // Clear validation errors on input
+        field.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateFormField(this);
+            }
+            formatNumberInput(this);
+        });
+        
+        // Enhanced focus effects
+        field.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        field.addEventListener('blur', function() {
+            this.parentElement.classList.remove('focused');
+        });
+    });
+    
+    // Enhanced form submission
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const fields = this.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+            
+            fields.forEach(field => {
+                if (!validateFormField(field)) {
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                const firstInvalid = this.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                if (typeof UXUtils !== 'undefined') {
+                    UXUtils.showToast('Veuillez corriger les erreurs dans le formulaire', 'error');
+                }
+            }
+        });
+    });
+});
+</script>
 @endpush

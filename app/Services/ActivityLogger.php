@@ -19,7 +19,7 @@ class ActivityLogger
         ?int $modelId = null,
         ?array $properties = null,
         ?Request $request = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         $request = $request ?? request();
         $user = Auth::user();
 
@@ -44,7 +44,7 @@ class ActivityLogger
     /**
      * Log user login.
      */
-    public static function logLogin(User $user, Request $request = null): ActivityLog
+    public static function logLogin(User $user, Request $request = null): ?ActivityLog
     {
         return self::log(
             'login',
@@ -59,7 +59,7 @@ class ActivityLogger
     /**
      * Log user logout.
      */
-    public static function logLogout(User $user, Request $request = null): ActivityLog
+    public static function logLogout(User $user, Request $request = null): ?ActivityLog
     {
         return self::log(
             'logout',
@@ -79,7 +79,7 @@ class ActivityLogger
         int $modelId,
         string $modelName,
         Request $request = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         return self::log(
             'create',
             "Création de {$modelName}",
@@ -99,7 +99,7 @@ class ActivityLogger
         string $modelName,
         array $changes = [],
         Request $request = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         return self::log(
             'update',
             "Modification de {$modelName}",
@@ -121,7 +121,7 @@ class ActivityLogger
         int $modelId,
         string $modelName,
         Request $request = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         return self::log(
             'delete',
             "Suppression de {$modelName}",
@@ -140,7 +140,7 @@ class ActivityLogger
         int $modelId,
         string $modelName,
         Request $request = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         return self::log(
             'view',
             "Consultation de {$modelName}",
@@ -158,7 +158,7 @@ class ActivityLogger
         string $modelType,
         string $format,
         Request $request = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         return self::log(
             'export',
             "Export des {$modelType} au format {$format}",
@@ -177,7 +177,7 @@ class ActivityLogger
         string $filename,
         int $count,
         Request $request = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         return self::log(
             'import',
             "Import de {$count} {$modelType} depuis {$filename}",
@@ -201,7 +201,7 @@ class ActivityLogger
         string $oldStatus,
         string $newStatus,
         Request $request = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         return self::log(
             'status_change',
             "Changement de statut de {$modelName} de {$oldStatus} à {$newStatus}",
@@ -224,7 +224,7 @@ class ActivityLogger
         User $targetUser,
         string $description,
         Request $request = null
-    ): ActivityLog {
+    ): ?ActivityLog {
         return self::log(
             $action,
             $description,

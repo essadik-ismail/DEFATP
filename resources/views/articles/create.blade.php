@@ -20,7 +20,7 @@
                     <h5 class="card-title mb-0">Créer un nouvel article forestier</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('articles.store') }}" method="POST">
+                    <form action="{{ route('articles.store') }}" method="POST" id="articleForm" novalidate data-ajax="true">
                         @csrf
                         
                         <!-- Section 1: Informations de Base -->
@@ -408,13 +408,20 @@
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Créer l'Article
-                            </button>
-                            <a href="{{ route('articles.index') }}" class="btn btn-secondary">
-                                Annuler
-                            </a>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a href="{{ route('articles.index') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </a>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary" id="submitBtn">
+                                    <i class="fas fa-save me-2"></i><span class="btn-text">Créer l'Article</span>
+                                </button>
+                                <button type="submit" class="btn btn-success" id="submitAndNextBtn" name="action" value="create_and_next">
+                                    <i class="fas fa-plus me-2"></i><span class="btn-text">Créer et Ajouter un Autre</span>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -422,6 +429,257 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('articleForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    
+    // Check if AJAX should be disabled
+    const useAjax = form.getAttribute('data-ajax') === 'true' && typeof fetch !== 'undefined';
+    console.log('AJAX enabled:', useAjax);
+    console.log('Form element:', form);
+    console.log('Submit button:', submitBtn);
+    
+    // Enhanced form validation
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldName = field.name;
+        
+        // Remove existing validation classes
+        field.classList.remove('is-valid', 'is-invalid');
+        
+        if (field.hasAttribute('required') && value === '') {
+            field.classList.add('is-invalid');
+            return false;
+        }
+        
+        // Specific validations
+        if (fieldName === 'annee') {
+            const year = parseInt(value);
+            if (year < 2000 || year > 2100) {
+                field.classList.add('is-invalid');
+                return false;
+            }
+        }
+        
+        if (fieldName === 'date_adjudication') {
+            const date = new Date(value);
+            if (date > new Date()) {
+                field.classList.add('is-invalid');
+                return false;
+            }
+        }
+        
+        if (value !== '') {
+            field.classList.add('is-valid');
+        }
+        
+        return true;
+    }
+    
+    // Real-time validation
+    form.querySelectorAll('input, select, textarea').forEach(field => {
+        field.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        field.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    // Enhanced form submission
+    form.addEventListener('submit', function(e) {
+        if (!useAjax) {
+            // Use normal form submission
+            return;
+        }
+        
+        e.preventDefault();
+        
+        // Validate all fields
+        const fields = form.querySelectorAll('input[required], select[required], textarea[required]');
+        let isValid = true;
+        
+        fields.forEach(field => {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            if (typeof UXUtils !== 'undefined') {
+                UXUtils.showToast('Veuillez corriger les erreurs dans le formulaire', 'error');
+            } else {
+                alert('Veuillez corriger les erreurs dans le formulaire');
+            }
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+        
+        // Show loading state
+        if (typeof UXUtils !== 'undefined') {
+            UXUtils.setLoading(submitBtn, true);
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+        }
+        btnText.textContent = 'Création en cours...';
+        
+        // Check if this is a "create and next" action
+        const isCreateAndNext = e.submitter && e.submitter.name === 'action' && e.submitter.value === 'create_and_next';
+        
+        // Prepare form data
+        const formData = new FormData(form);
+        if (isCreateAndNext) {
+            formData.append('action', 'create_and_next');
+        }
+        
+        // Submit form via AJAX
+        const formAction = form.getAttribute('action') || '{{ route("articles.store") }}';
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        
+        console.log('Form action:', formAction);
+        console.log('CSRF token available:', !!csrfToken);
+        
+        // Try AJAX first, fallback to normal submission
+        try {
+            fetch(formAction, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    if (data.create_and_next) {
+                        if (typeof UXUtils !== 'undefined') {
+                            UXUtils.showSuccess('Article créé avec succès ! Création d\'un nouvel article...', {
+                                duration: 3000,
+                                action: () => {
+                                    form.reset();
+                                    document.getElementById('numero').focus();
+                                    UXUtils.showInfo('Formulaire réinitialisé. Vous pouvez créer un nouvel article.');
+                                }
+                            });
+                        } else {
+                            alert('Article créé avec succès !');
+                            form.reset();
+                        }
+                    } else {
+                        if (typeof UXUtils !== 'undefined') {
+                            UXUtils.showSuccess('Article créé avec succès !', () => {
+                                window.location.href = '{{ route("articles.index") }}';
+                            });
+                        } else {
+                            window.location.href = '{{ route("articles.index") }}';
+                        }
+                    }
+                } else {
+                    // Handle validation errors
+                    if (data.errors) {
+                        let errorMessage = 'Erreurs de validation:\n';
+                        for (const field in data.errors) {
+                            errorMessage += `• ${data.errors[field].join(', ')}\n`;
+                        }
+                        if (typeof UXUtils !== 'undefined') {
+                            UXUtils.showError(errorMessage);
+                        } else {
+                            alert(errorMessage);
+                        }
+                        
+                        // Highlight invalid fields
+                        for (const field in data.errors) {
+                            const fieldElement = form.querySelector(`[name="${field}"]`);
+                            if (fieldElement) {
+                                fieldElement.classList.add('is-invalid');
+                            }
+                        }
+                    } else {
+                        if (typeof UXUtils !== 'undefined') {
+                            UXUtils.showError(data.message || 'Erreur lors de la création de l\'article.');
+                        } else {
+                            alert(data.message || 'Erreur lors de la création de l\'article.');
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('AJAX Error:', error);
+                // Fallback to normal form submission
+                console.log('Falling back to normal form submission');
+                form.removeEventListener('submit', arguments.callee);
+                form.submit();
+            })
+            .finally(() => {
+                // Reset loading state
+                if (typeof UXUtils !== 'undefined') {
+                    UXUtils.setLoading(submitBtn, false);
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                }
+                btnText.textContent = 'Créer l\'Article';
+            });
+        } catch (error) {
+            console.error('Fetch setup error:', error);
+            // Fallback to normal form submission
+            form.removeEventListener('submit', arguments.callee);
+            form.submit();
+        }
+    });
+    
+    // Auto-save draft functionality (optional)
+    let autoSaveTimeout;
+    form.addEventListener('input', function() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(() => {
+            // Auto-save logic could go here
+            console.log('Auto-saving draft...');
+        }, 5000);
+    });
+    
+    // Enhanced date picker
+    const dateInputs = form.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            validateField(this);
+        });
+    });
+    
+    // Enhanced number inputs
+    const numberInputs = form.querySelectorAll('input[type="number"]');
+    numberInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            // Format number with thousand separators
+            if (this.value && !isNaN(this.value)) {
+                const formatted = parseFloat(this.value).toLocaleString('fr-FR');
+                if (formatted !== this.value) {
+                    this.setAttribute('data-original-value', this.value);
+                }
+            }
+        });
+    });
+});
+</script>
 
 <style>
 .section-header h6 {

@@ -84,17 +84,17 @@
                         <span class="input-group-text">
                             <i class="fas fa-search"></i>
                         </span>
-                        <input type="text" class="form-control" id="searchInput" placeholder="Rechercher dans les articles..." onkeyup="filterTable()">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Rechercher dans les articles..." autocomplete="off" aria-label="Rechercher dans les articles">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="d-flex gap-2">
-                        <select class="form-select" id="statusFilter" onchange="filterTable()">
+                        <select class="form-select" id="statusFilter" aria-label="Filtrer par statut">
                             <option value="">Tous les statuts</option>
                             <option value="validated">Validés</option>
                             <option value="pending">En attente</option>
                         </select>
-                        <select class="form-select" id="typeFilter" onchange="filterTable()">
+                        <select class="form-select" id="typeFilter" aria-label="Filtrer par type">
                             <option value="">Tous les types</option>
                             <option value="adjudication">Adjudication</option>
                             <option value="appel_doffre">Appel d'Offre</option>
@@ -1897,10 +1897,19 @@ function updateRowCount() {
 }
 
 function duplicateArticle(articleId) {
-    if (confirm('Voulez-vous dupliquer cet article ?')) {
-        // Redirect to create page with article data
-        window.location.href = `/articles/create?duplicate=${articleId}`;
-    }
+    UXUtils.confirm('Voulez-vous dupliquer cet article ?', {
+        title: 'Dupliquer l\'article',
+        confirmText: 'Dupliquer',
+        cancelText: 'Annuler',
+        type: 'info',
+        icon: 'fas fa-copy'
+    }).then(confirmed => {
+        if (confirmed) {
+            UXUtils.showInfo('Redirection vers la page de création...');
+            // Redirect to create page with article data
+            window.location.href = `/articles/create?duplicate=${articleId}`;
+        }
+    });
 }
 
 function exportArticle(articleId) {
@@ -1933,12 +1942,13 @@ function exportArticle(articleId) {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
         
-        // Reset button
+        // Reset button and show success
         button.innerHTML = originalText;
+        UXUtils.showSuccess('Article exporté avec succès !');
     })
     .catch(error => {
         console.error('Export error:', error);
-        alert('Erreur lors de l\'export');
+        UXUtils.showError('Erreur lors de l\'export de l\'article');
         button.innerHTML = originalText;
     });
 }
@@ -2108,5 +2118,102 @@ function archiveArticle(articleId) {
         });
     }
 }
+
+// Enhanced UX features
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const table = document.querySelector('.table');
+    
+    // Debounced search function
+    const debouncedSearch = UXUtils.debounce(function() {
+        filterTable();
+    }, 300);
+    
+    // Enhanced search with debouncing
+    searchInput.addEventListener('input', debouncedSearch);
+    
+    // Enhanced filter handling
+    statusFilter.addEventListener('change', function() {
+        filterTable();
+        UXUtils.showToast(`Filtre par statut: ${this.value || 'Tous'}`, 'info', 2000);
+    });
+    
+    typeFilter.addEventListener('change', function() {
+        filterTable();
+        UXUtils.showToast(`Filtre par type: ${this.value || 'Tous'}`, 'info', 2000);
+    });
+    
+    // Enhanced table interactions
+    if (table) {
+        // Add loading states to action buttons
+        table.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (this.classList.contains('btn-danger') || this.classList.contains('btn-warning')) {
+                    UXUtils.setLoading(this, true);
+                }
+            });
+        });
+        
+        // Enhanced row hover effects
+        table.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = 'rgba(5, 150, 105, 0.05)';
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = '';
+            });
+        });
+    }
+    
+    // Enhanced category cards
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function() {
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K to focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+        
+        // Ctrl/Cmd + N to create new article
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+            e.preventDefault();
+            window.location.href = '{{ route("articles.create") }}';
+        }
+    });
+    
+    // Add search input hint
+    searchInput.addEventListener('focus', function() {
+        UXUtils.showToast('Utilisez Ctrl+K pour rechercher rapidement', 'info', 3000);
+    });
+    
+    // Enhanced pagination
+    document.querySelectorAll('.pagination .page-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const btn = this;
+            UXUtils.setLoading(btn, true);
+        });
+    });
+    
+    // Auto-refresh data every 5 minutes
+    setInterval(function() {
+        // Check if user is active
+        if (document.visibilityState === 'visible') {
+            // Auto-refresh logic could go here
+            console.log('Auto-refreshing data...');
+        }
+    }, 300000); // 5 minutes
+});
 </script>
 @endpush

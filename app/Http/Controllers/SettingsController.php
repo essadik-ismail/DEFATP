@@ -2,18 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Essence;
-use App\Models\Foret;
-use App\Models\NatureDeCoupe;
-use App\Models\SituationAdministrative;
-use App\Models\SituationForestiere;
-use App\Models\Exploitant;
-use App\Models\Localisation;
-
-use App\Models\ZDTF;
-use App\Models\DPANEF;
-use App\Models\DRANEF;
-use App\Models\Annee;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEssenceRequest;
 use App\Http\Requests\UpdateEssenceRequest;
 use App\Http\Requests\StoreForetRequest;
@@ -24,21 +13,24 @@ use App\Http\Requests\StoreSituationAdministrativeRequest;
 use App\Http\Requests\UpdateSituationAdministrativeRequest;
 use App\Http\Requests\StoreExploitantRequest;
 use App\Http\Requests\UpdateExploitantRequest;
-
-use App\Http\Requests\StoreZdtfRequest;
-use App\Http\Requests\UpdateZdtfRequest;
-use App\Http\Requests\StoreDpanefRequest;
-use App\Http\Requests\UpdateDpanefRequest;
-use App\Http\Requests\StoreDranefRequest;
-use App\Http\Requests\UpdateDranefRequest;
-use App\Http\Requests\StoreSituationForestiereRequest;
-use App\Http\Requests\UpdateSituationForestiereRequest;
+use App\Http\Requests\StoreLocalisationRequest;
+use App\Http\Requests\UpdateLocalisationRequest;
+use App\Models\Essence;
+use App\Models\Foret;
+use App\Models\NatureDeCoupe;
+use App\Models\SituationAdministrative;
+use App\Models\Exploitant;
+use App\Models\Localisation;
+use App\Services\ActivityLogger;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\EssencesExport;
 use App\Exports\ForetsExport;
 use App\Exports\NatureDeCoupesExport;
 use App\Exports\SituationAdministrativesExport;
 use App\Exports\ExploitantsExport;
-
 use App\Exports\LocalisationsExport;
 use App\Imports\EssencesImport;
 use App\Imports\ForetsImport;
@@ -46,13 +38,6 @@ use App\Imports\NatureDeCoupesImport;
 use App\Imports\SituationAdministrativesImport;
 use App\Imports\ExploitantsImport;
 use App\Imports\LocalisationsImport;
-
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-
-use App\Services\ActivityLogger;
 
 class SettingsController extends Controller
 {
@@ -470,9 +455,31 @@ class SettingsController extends Controller
             $search = $request->get('search');
             $query->where(function($q) use ($search) {
                 $q->where('nom_complet', 'like', "%{$search}%")
+                  ->orWhere('raison_sociale', 'like', "%{$search}%")
+                  ->orWhere('n_cin', 'like', "%{$search}%")
                   ->orWhere('telephone', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('numero', 'like', "%{$search}%");
             });
+        }
+
+        // Category filter
+        if ($request->filled('categorie')) {
+            $query->where('categorie', $request->get('categorie'));
+        }
+
+        // Activity filter
+        if ($request->filled('activite')) {
+            $query->where('activite', $request->get('activite'));
+        }
+
+        // Exclusion filter
+        if ($request->filled('exclusion')) {
+            if ($request->get('exclusion') === 'active') {
+                $query->where('exclusion', false);
+            } elseif ($request->get('exclusion') === 'excluded') {
+                $query->where('exclusion', true);
+            }
         }
 
         // Status filter
@@ -542,19 +549,69 @@ class SettingsController extends Controller
         return view('settings.exploitants.create');
     }
 
-    public function storeExploitant(StoreExploitantRequest $request): RedirectResponse
+    public function storeExploitant(StoreExploitantRequest $request)
     {
-        $exploitant = Exploitant::create($request->all());
-        
-        // Log exploitant creation
-        ActivityLogger::logCreate(
-            Exploitant::class,
-            $exploitant->id,
-            "Exploitant {$exploitant->nom_complet}",
-            $request
-        );
-        
-        return redirect()->route('settings.exploitants')->with('success', 'Exploitant ajouté avec succès.');
+        try {
+            $validated = $request->validated();
+            $exploitant = Exploitant::create($validated);
+            
+            // Log exploitant creation
+            ActivityLogger::logCreate(
+                Exploitant::class,
+                $exploitant->id,
+                "Exploitant {$exploitant->nom_complet}",
+                $request
+            );
+            
+            // Check if this is an AJAX request
+            if ($request->ajax()) {
+                $isCreateAndNext = $request->input('action') === 'create_and_next';
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Exploitant ajouté avec succès.',
+                    'create_and_next' => $isCreateAndNext,
+                    'exploitant' => [
+                        'id' => $exploitant->id,
+                        'numero' => $exploitant->numero,
+                        'nom_complet' => $exploitant->nom_complet,
+                        'cin' => $exploitant->cin
+                    ]
+                ]);
+            }
+            
+            // Handle create_and_next action for regular requests
+            if ($request->input('action') === 'create_and_next') {
+                return redirect()->route('settings.exploitants.create')
+                    ->with('success', 'Exploitant ajouté avec succès. Vous pouvez créer un autre exploitant.');
+            }
+            
+            return redirect()->route('settings.exploitants')->with('success', 'Exploitant ajouté avec succès.');
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreurs de validation',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la création de l\'exploitant: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de l\'exploitant: ' . $e->getMessage());
+        }
     }
 
     public function editExploitant(Exploitant $exploitant): View

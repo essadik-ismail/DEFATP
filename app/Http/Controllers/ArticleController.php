@@ -139,54 +139,104 @@ class ArticleController extends Controller
 
     public function store(StoreArticleRequest $request): RedirectResponse
     {
-        // Prepare article data with new field order
-        $articleData = $request->only([
-            'date_adjudication', 'annee', 'numero', 'localisation_id', 'situation_administrative_id',
-            'parcelle', 'foret_id', 'situation_administrative_id', 'essence_id', 'nature_de_coupe_id', 'lot',
-            'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-            'romarin_t', 'ps_t', 'charbon_bois_ox', 'invendu', 'prix_de_retrait',
-            'date_dr', 'exploitant_id', 'type', 'prix_vente', 'dc', 'rc', 'date_de_resiliation',
-            'date_de_decheance', 'is_validated', 'observations'
-        ]);
+        try {
+            // Prepare article data with new field order
+            $articleData = $request->only([
+                'date_adjudication', 'annee', 'numero', 'localisation_id', 'situation_administrative_id',
+                'parcelle', 'foret_id', 'situation_administrative_id', 'essence_id', 'nature_de_coupe_id', 'lot',
+                'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
+                'romarin_t', 'ps_t', 'charbon_bois_ox', 'invendu', 'prix_de_retrait',
+                'date_dr', 'exploitant_id', 'type', 'prix_vente', 'dc', 'rc', 'date_de_resiliation',
+                'date_de_decheance', 'is_validated', 'observations'
+            ]);
 
-        // Handle checkbox fields - only include values if checkbox is checked
-        $checkboxFields = [
-            'has_superficie' => 'superficie',
-            'has_bo_m3' => 'bo_m3',
-            'has_bi_m3' => 'bi_m3',
-            'has_bf_st' => 'bf_st',
-            'has_tanin_t' => 'tanin_t',
-            'has_fleur_acacia_t' => 'fleur_acacia_t',
-            'has_caroube_t' => 'caroube_t',
-            'has_romarin_t' => 'romarin_t',
-            'has_ps_t' => 'ps_t',
-            'has_charbon_bois_ox' => 'charbon_bois_ox'
-        ];
+            // Handle checkbox fields - only include values if checkbox is checked
+            $checkboxFields = [
+                'has_superficie' => 'superficie',
+                'has_bo_m3' => 'bo_m3',
+                'has_bi_m3' => 'bi_m3',
+                'has_bf_st' => 'bf_st',
+                'has_tanin_t' => 'tanin_t',
+                'has_fleur_acacia_t' => 'fleur_acacia_t',
+                'has_caroube_t' => 'caroube_t',
+                'has_romarin_t' => 'romarin_t',
+                'has_ps_t' => 'ps_t',
+                'has_charbon_bois_ox' => 'charbon_bois_ox'
+            ];
 
-        foreach ($checkboxFields as $checkbox => $field) {
-            if (!$request->has($checkbox)) {
-                $articleData[$field] = null;
+            foreach ($checkboxFields as $checkbox => $field) {
+                if (!$request->has($checkbox)) {
+                    $articleData[$field] = null;
+                }
             }
+
+            // Handle boolean fields
+            $booleanFields = ['dc', 'rc', 'is_validated'];
+            foreach ($booleanFields as $field) {
+                $articleData[$field] = $request->has($field) ? true : false;
+            }
+
+            // Create the article
+            $article = Article::create($articleData);
+
+            // Log article creation
+            ActivityLogger::logCreate(
+                Article::class,
+                $article->id,
+                "Article {$article->numero} ({$article->annee})",
+                $request
+            );
+
+            // Check if this is an AJAX request
+            if ($request->ajax()) {
+                $isCreateAndNext = $request->input('action') === 'create_and_next';
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Article ajouté avec succès.',
+                    'create_and_next' => $isCreateAndNext,
+                    'article' => [
+                        'id' => $article->id,
+                        'numero' => $article->numero,
+                        'annee' => $article->annee,
+                        'foret' => $article->foret->foret ?? null,
+                        'essence' => $article->essence->essence ?? null
+                    ]
+                ]);
+            }
+            
+            // Handle create_and_next action for regular requests
+            if ($request->input('action') === 'create_and_next') {
+                return redirect()->route('articles.create')
+                    ->with('success', 'Article ajouté avec succès. Vous pouvez créer un autre article.');
+            }
+
+            return redirect()->route('articles.index')->with('success', 'Article ajouté avec succès.');
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreurs de validation',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la création de l\'article: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de l\'article: ' . $e->getMessage());
         }
-
-        // Handle boolean fields
-        $booleanFields = ['dc', 'rc', 'is_validated'];
-        foreach ($booleanFields as $field) {
-            $articleData[$field] = $request->has($field) ? true : false;
-        }
-
-        // Create the article
-        $article = Article::create($articleData);
-
-        // Log article creation
-        ActivityLogger::logCreate(
-            Article::class,
-            $article->id,
-            "Article {$article->numero} ({$article->annee})",
-            $request
-        );
-
-        return redirect()->route('articles.index')->with('success', 'Article ajouté avec succès.');
     }
 
     public function show(Article $article): View
