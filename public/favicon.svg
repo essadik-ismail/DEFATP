@@ -1,0 +1,26 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Forest background -->
+  <rect width="32" height="32" fill="#16a34a" rx="4"/>
+  
+  <!-- Tree trunks -->
+  <rect x="6" y="20" width="2" height="8" fill="#8b4513"/>
+  <rect x="12" y="18" width="2" height="10" fill="#8b4513"/>
+  <rect x="18" y="19" width="2" height="9" fill="#8b4513"/>
+  <rect x="24" y="17" width="2" height="11" fill="#8b4513"/>
+  
+  <!-- Tree canopies -->
+  <circle cx="7" cy="18" r="4" fill="#22c55e"/>
+  <circle cx="13" cy="16" r="5" fill="#16a34a"/>
+  <circle cx="19" cy="17" r="4" fill="#22c55e"/>
+  <circle cx="25" cy="15" r="5" fill="#16a34a"/>
+  
+  <!-- Small trees in background -->
+  <rect x="3" y="24" width="1" height="4" fill="#8b4513"/>
+  <circle cx="3.5" cy="22" r="2" fill="#22c55e"/>
+  
+  <rect x="28" y="25" width="1" height="3" fill="#8b4513"/>
+  <circle cx="28.5" cy="23" r="2" fill="#16a34a"/>
+  
+  <!-- Forest floor -->
+  <rect x="0" y="28" width="32" height="4" fill="#059669"/>
+</svg>

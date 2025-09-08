@@ -30,7 +30,7 @@
                     </h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" id="userCreateForm" novalidate data-ajax="true">
+                    <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" id="userCreateForm" novalidate>
                         @csrf
                         
                         <div class="row">
@@ -412,11 +412,12 @@ document.querySelector('form').addEventListener('submit', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('userCreateForm');
     const submitBtn = document.getElementById('submitBtn');
-    const btnText = submitBtn.querySelector('.btn-text');
+    const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
     
-    // Check if AJAX should be disabled
-    const useAjax = form.getAttribute('data-ajax') === 'true' && typeof fetch !== 'undefined';
-    console.log('AJAX enabled:', useAjax);
+    // Traditional form submission (no AJAX)
+    console.log('Form element:', form);
+    console.log('Submit button:', submitBtn);
+    console.log('Button text element:', btnText);
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('password_confirmation');
     const passwordStrength = document.getElementById('passwordStrength');
@@ -571,175 +572,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Enhanced form submission
+    // Simple form validation only
     form.addEventListener('submit', function(e) {
-        if (!useAjax) {
-            // Use normal form submission
-            return;
-        }
-        
-        e.preventDefault();
-        
-        // Validate all fields
+        // Basic validation
         const fields = form.querySelectorAll('input[required], select[required]');
         let isValid = true;
         
         fields.forEach(field => {
-            if (!validateField(field)) {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
                 isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
             }
         });
         
         // Check password confirmation
-        if (passwordInput.value !== confirmPasswordInput.value) {
+        if (passwordInput && confirmPasswordInput && passwordInput.value !== confirmPasswordInput.value) {
             confirmPasswordInput.classList.add('is-invalid');
             isValid = false;
         }
         
         if (!isValid) {
-            if (typeof UXUtils !== 'undefined') {
-                UXUtils.showToast('Veuillez corriger les erreurs dans le formulaire', 'error');
-            } else {
-                alert('Veuillez corriger les erreurs dans le formulaire');
-            }
-            const firstInvalid = form.querySelector('.is-invalid');
-            if (firstInvalid) {
-                firstInvalid.focus();
-                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            return;
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires et vérifier que les mots de passe correspondent.');
+            return false;
         }
         
-        // Show loading state
-        if (typeof UXUtils !== 'undefined') {
-            UXUtils.setLoading(submitBtn, true);
-        } else {
-            submitBtn.disabled = true;
-            submitBtn.classList.add('loading');
-        }
-        btnText.textContent = 'Création en cours...';
-        
-        // Check if this is a "create and next" action
-        const isCreateAndNext = e.submitter && e.submitter.name === 'action' && e.submitter.value === 'create_and_next';
-        
-        // Prepare form data
-        const formData = new FormData(form);
-        if (isCreateAndNext) {
-            formData.append('action', 'create_and_next');
-        }
-        
-        // Submit form via AJAX
-        const formAction = form.getAttribute('action') || '{{ route("users.store") }}';
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        
-        console.log('Form action:', formAction);
-        console.log('CSRF token available:', !!csrfToken);
-        
-        // Try AJAX first, fallback to normal submission
-        try {
-            fetch(formAction, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''
-                }
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Response data:', data);
-                if (data.success) {
-                    if (data.create_and_next) {
-                        if (typeof UXUtils !== 'undefined') {
-                            UXUtils.showSuccess('Utilisateur créé avec succès ! Création d\'un nouvel utilisateur...', {
-                                duration: 3000,
-                                action: () => {
-                                    form.reset();
-                                    document.getElementById('name').focus();
-                                    UXUtils.showInfo('Formulaire réinitialisé. Vous pouvez créer un nouvel utilisateur.');
-                                }
-                            });
-                        } else {
-                            alert('Utilisateur créé avec succès !');
-                            form.reset();
-                        }
-                    } else {
-                        if (typeof UXUtils !== 'undefined') {
-                            UXUtils.showSuccess('Utilisateur créé avec succès !', () => {
-                                window.location.href = '{{ route("users.index") }}';
-                            });
-                        } else {
-                            window.location.href = '{{ route("users.index") }}';
-                        }
-                    }
-                } else {
-                    // Handle validation errors
-                    if (data.errors) {
-                        let errorMessage = 'Erreurs de validation:\n';
-                        for (const field in data.errors) {
-                            errorMessage += `• ${data.errors[field].join(', ')}\n`;
-                        }
-                        if (typeof UXUtils !== 'undefined') {
-                            UXUtils.showError(errorMessage);
-                        } else {
-                            alert(errorMessage);
-                        }
-                        
-                        // Highlight invalid fields
-                        for (const field in data.errors) {
-                            const fieldElement = form.querySelector(`[name="${field}"]`);
-                            if (fieldElement) {
-                                fieldElement.classList.add('is-invalid');
-                            }
-                        }
-                    } else {
-                        if (typeof UXUtils !== 'undefined') {
-                            UXUtils.showError(data.message || 'Erreur lors de la création de l\'utilisateur.');
-                        } else {
-                            alert(data.message || 'Erreur lors de la création de l\'utilisateur.');
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('AJAX Error:', error);
-                // Fallback to normal form submission
-                console.log('Falling back to normal form submission');
-                form.removeEventListener('submit', arguments.callee);
-                form.submit();
-            })
-            .finally(() => {
-                // Reset loading state
-                if (typeof UXUtils !== 'undefined') {
-                    UXUtils.setLoading(submitBtn, false);
-                } else {
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('loading');
-                }
-                btnText.textContent = 'Créer l\'Utilisateur';
-            });
-        } catch (error) {
-            console.error('Fetch setup error:', error);
-            // Fallback to normal form submission
-            form.removeEventListener('submit', arguments.callee);
-            form.submit();
-        }
+        // Allow normal form submission
+        return true;
     });
     
-    // Auto-save draft functionality
-    let autoSaveTimeout;
+    // Simple input handling
     form.addEventListener('input', function() {
-        clearTimeout(autoSaveTimeout);
-        autoSaveTimeout = setTimeout(() => {
-            // Auto-save logic could go here
-            console.log('Auto-saving user draft...');
-        }, 5000);
+        // Basic input handling without auto-save
     });
     
     // Enhanced PPR input formatting

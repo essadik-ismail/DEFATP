@@ -176,32 +176,108 @@ class Article extends Model
     /**
      * Scope for validated articles.
      */
-    public function scopeValidated(Builder $query): void
+    public function scopeValidated(Builder $query): Builder
     {
-        $query->where('is_validated', true);
+        return $query->where('is_validated', true);
     }
 
     /**
      * Scope for pending articles.
      */
-    public function scopePending(Builder $query): void
+    public function scopePending(Builder $query): Builder
     {
-        $query->where('is_validated', false);
+        return $query->where('is_validated', false);
     }
 
     /**
      * Scope for sold articles.
      */
-    public function scopeSold(Builder $query): void
+    public function scopeSold(Builder $query): Builder
     {
-        $query->where('prix_vente', '>', 0);
+        return $query->where('invendu', false);
     }
 
     /**
      * Scope for unsold articles.
      */
-    public function scopeUnsold(Builder $query): void
+    public function scopeUnsold(Builder $query): Builder
     {
-        $query->where('prix_vente', '<=', 0)->orWhereNull('prix_vente');
+        return $query->where('invendu', true);
+    }
+
+    /**
+     * Scope for articles by year.
+     */
+    public function scopeByYear(Builder $query, int $year): Builder
+    {
+        return $query->where('annee', $year);
+    }
+
+    /**
+     * Scope for articles by forest.
+     */
+    public function scopeByForest(Builder $query, int $forestId): Builder
+    {
+        return $query->where('foret_id', $forestId);
+    }
+
+    /**
+     * Scope for articles by essence.
+     */
+    public function scopeByEssence(Builder $query, int $essenceId): Builder
+    {
+        return $query->where('essence_id', $essenceId);
+    }
+
+    /**
+     * Scope for articles by type.
+     */
+    public function scopeByType(Builder $query, string $type): Builder
+    {
+        return $query->where('type', $type);
+    }
+
+    /**
+     * Scope for articles with price range.
+     */
+    public function scopePriceRange(Builder $query, float $minPrice = null, float $maxPrice = null): Builder
+    {
+        if ($minPrice !== null) {
+            $query->where('prix_vente', '>=', $minPrice);
+        }
+        if ($maxPrice !== null) {
+            $query->where('prix_vente', '<=', $maxPrice);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for articles by date range.
+     */
+    public function scopeDateRange(Builder $query, string $startDate = null, string $endDate = null): Builder
+    {
+        if ($startDate) {
+            $query->where('date_adjudication', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('date_adjudication', '<=', $endDate);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for recent articles.
+     */
+    public function scopeRecent(Builder $query, int $days = 30): Builder
+    {
+        return $query->where('created_at', '>=', now()->subDays($days));
+    }
+
+    /**
+     * Scope for articles with high value.
+     */
+    public function scopeHighValue(Builder $query, float $threshold = 10000): Builder
+    {
+        return $query->where('prix_vente', '>=', $threshold);
     }
 }

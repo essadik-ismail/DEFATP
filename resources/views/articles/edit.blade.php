@@ -75,7 +75,7 @@
             <!-- Section 2: Localisation et Détails -->
             <div class="section-header mb-4">
                 <h6 class="text-primary mb-3 border-bottom pb-2">
-                    <i class="fas fa-map-marker-alt me-2"></i>Section 2: Localisation et Détails
+                    <i class="fas fa-map-marker-alt me-2"></i>Section 2: Localisation
                 </h6>
             </div>
             <div class="row mb-4">
@@ -182,7 +182,7 @@
             <!-- Section 3: Volumes et Produits -->
             <div class="section-header mb-4">
                 <h6 class="text-primary mb-3 border-bottom pb-2">
-                    <i class="fas fa-calculator me-2"></i>Section 3: Volumes et Produits
+                    <i class="fas fa-calculator me-2"></i>Section 3: Détails
                 </h6>
             </div>
             <div class="row mb-4">
@@ -321,9 +321,37 @@
             <!-- Section 4: Informations Supplémentaires -->
             <div class="section-header mb-4">
                 <h6 class="text-primary mb-3 border-bottom pb-2">
-                    <i class="fas fa-plus-circle me-2"></i>Section 4: Informations Supplémentaires
+                    <i class="fas fa-plus-circle me-2"></i>Section 4: Suivi d'article
                 </h6>
             </div>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="type" class="form-label">Type *</label>
+                        <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" required>
+                            <option value="">Sélectionner le type</option>
+                            <option value="adjudication" {{ old('type', $article->type) == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
+                            <option value="appel_doffre" {{ old('type', $article->type) == 'appel_doffre' ? 'selected' : '' }}>Appel d'Offre</option>
+                        </select>
+                        @error('type')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="numero_adjudication" class="form-label">Numéro d'Adjudication</label>
+                        <input type="text" class="form-control @error('numero_adjudication') is-invalid @enderror" 
+                               id="numero_adjudication" name="numero_adjudication" value="{{ old('numero_adjudication', $article->numero_adjudication) }}" 
+                               placeholder="Numéro d'adjudication">
+                        @error('numero_adjudication')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -343,33 +371,13 @@
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="type" class="form-label">Type *</label>
-                        <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" required>
-                            <option value="">Sélectionner le type</option>
-                            <option value="adjudication" {{ old('type', $article->type) == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
-                            <option value="appel_doffre" {{ old('type', $article->type) == 'appel_doffre' ? 'selected' : '' }}>Appel d'Offre</option>
-                        </select>
-                        @error('type')
+                        <label for="fourniture_mise_charge" class="form-label">Fourniture Mise en Charge (DH)</label>
+                        <input type="number" class="form-control @error('fourniture_mise_charge') is-invalid @enderror" 
+                               id="fourniture_mise_charge" name="fourniture_mise_charge" value="{{ old('fourniture_mise_charge', $article->fourniture_mise_charge) }}" 
+                               step="0.01" min="0" placeholder="Fourniture mise en charge">
+                        @error('fourniture_mise_charge')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input @error('invendu') is-invalid @enderror" 
-                                   type="checkbox" name="invendu" id="invendu" value="1" 
-                                   {{ old('invendu', $article->invendu) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="invendu">
-                                Invendu
-                            </label>
-                            @error('invendu')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -383,9 +391,6 @@
                         @enderror
                     </div>
                 </div>
-            </div>
-
-            <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="prix_vente" class="form-label">Prix de Vente (DH) *</label>
@@ -397,35 +402,15 @@
                         @enderror
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="fourniture_mise_charge" class="form-label">Fourniture Mise en Charge (DH)</label>
-                        <input type="number" class="form-control @error('fourniture_mise_charge') is-invalid @enderror" 
-                               id="fourniture_mise_charge" name="fourniture_mise_charge" value="{{ old('fourniture_mise_charge', $article->fourniture_mise_charge) }}" 
-                               step="0.01" min="0" placeholder="Fourniture mise en charge">
-                        @error('fourniture_mise_charge')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
             </div>
 
+
             <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="numero_adjudication" class="form-label">Numéro d'Adjudication</label>
-                        <input type="text" class="form-control @error('numero_adjudication') is-invalid @enderror" 
-                               id="numero_adjudication" name="numero_adjudication" value="{{ old('numero_adjudication', $article->numero_adjudication) }}" 
-                               placeholder="Numéro d'adjudication">
-                        @error('numero_adjudication')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
+
                 <div class="col-md-6">
                     <div class="mb-3">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
                                     <input class="form-check-input @error('dc') is-invalid @enderror" 
                                            type="checkbox" name="dc" id="dc" value="1" 
@@ -438,7 +423,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-check">
                                     <input class="form-check-input @error('rc') is-invalid @enderror" 
                                            type="checkbox" name="rc" id="rc" value="1" 
@@ -449,6 +434,21 @@
                                     @error('rc')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input @error('invendu') is-invalid @enderror" 
+                                            type="checkbox" name="invendu" id="invendu" value="1" 
+                                            {{ old('invendu', $article->invendu) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="invendu">
+                                            Invendu
+                                        </label>
+                                        @error('invendu')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
                         </div>
