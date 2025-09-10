@@ -29,7 +29,7 @@ class ArticleController extends Controller
         ActivityLogger::log('view', 'Consultation de la liste des articles', Article::class);
         
         // Get articles with enhanced pagination and filtering
-        $articles = Article::where('is_deleted', '')
+        $articles = Article::where('is_deleted', false)
             ->with(['foret', 'essence', 'localisation', 'situationAdministrative', 'exploitant', 'natureDeCoupe'])
             ->when($request->filled('search'), function($query) use ($request) {
                 $query->where(function($q) use ($request) {

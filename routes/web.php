@@ -9,6 +9,11 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\HealthController;
+
+// Health Check Routes
+Route::get('/health', [HealthController::class, 'index'])->name('health');
+Route::get('/health/detailed', [HealthController::class, 'detailed'])->name('health.detailed');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {

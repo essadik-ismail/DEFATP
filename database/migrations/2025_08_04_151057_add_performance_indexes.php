@@ -13,8 +13,23 @@ return new class extends Migration
     private function indexExists(string $table, string $index): bool
     {
         try {
-            $indexes = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$index]);
-            return count($indexes) > 0;
+            $connection = DB::connection();
+            $driver = $connection->getDriverName();
+            
+            if ($driver === 'sqlite') {
+                // SQLite syntax
+                $indexes = DB::select("PRAGMA index_list({$table})");
+                foreach ($indexes as $idx) {
+                    if ($idx->name === $index) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                // MySQL syntax
+                $indexes = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$index]);
+                return count($indexes) > 0;
+            }
         } catch (\Exception $e) {
             return false;
         }
@@ -26,39 +41,41 @@ return new class extends Migration
     public function up(): void
     {
         // Articles table indexes
-        Schema::table('articles', function (Blueprint $table) {
-            // Composite indexes for common queries
-            if (!$this->indexExists('articles', 'articles_deleted_created_idx')) {
-                $table->index(['is_deleted', 'created_at'], 'articles_deleted_created_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_deleted_validated_idx')) {
-                $table->index(['is_deleted', 'is_validated'], 'articles_deleted_validated_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_annee_deleted_idx')) {
-                $table->index(['annee', 'is_deleted'], 'articles_annee_deleted_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_foret_deleted_idx')) {
-                $table->index(['foret_id', 'is_deleted'], 'articles_foret_deleted_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_essence_deleted_idx')) {
-                $table->index(['essence_id', 'is_deleted'], 'articles_essence_deleted_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_exploitant_deleted_idx')) {
-                $table->index(['exploitant_id', 'is_deleted'], 'articles_exploitant_deleted_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_invendu_deleted_idx')) {
-                $table->index(['invendu', 'is_deleted'], 'articles_invendu_deleted_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_numero_annee_idx')) {
-                $table->index(['numero', 'annee'], 'articles_numero_annee_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_date_adjudication_idx')) {
-                $table->index(['date_adjudication'], 'articles_date_adjudication_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_prix_vente_idx')) {
-                $table->index(['prix_vente'], 'articles_prix_vente_idx');
-            }
-        });
+        if (Schema::hasTable('articles')) {
+            Schema::table('articles', function (Blueprint $table) {
+                // Composite indexes for common queries
+                if (!$this->indexExists('articles', 'articles_deleted_created_idx')) {
+                    $table->index(['is_deleted', 'created_at'], 'articles_deleted_created_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_deleted_validated_idx')) {
+                    $table->index(['is_deleted', 'is_validated'], 'articles_deleted_validated_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_annee_deleted_idx')) {
+                    $table->index(['annee', 'is_deleted'], 'articles_annee_deleted_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_foret_deleted_idx')) {
+                    $table->index(['foret_id', 'is_deleted'], 'articles_foret_deleted_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_essence_deleted_idx')) {
+                    $table->index(['essence_id', 'is_deleted'], 'articles_essence_deleted_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_exploitant_deleted_idx')) {
+                    $table->index(['exploitant_id', 'is_deleted'], 'articles_exploitant_deleted_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_invendu_deleted_idx')) {
+                    $table->index(['invendu', 'is_deleted'], 'articles_invendu_deleted_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_numero_annee_idx')) {
+                    $table->index(['numero', 'annee'], 'articles_numero_annee_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_date_adjudication_idx')) {
+                    $table->index(['date_adjudication'], 'articles_date_adjudication_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_prix_vente_idx')) {
+                    $table->index(['prix_vente'], 'articles_prix_vente_idx');
+                }
+            });
+        }
 
         // Exploitants table indexes
         Schema::table('exploitants', function (Blueprint $table) {
@@ -134,18 +151,40 @@ return new class extends Migration
     public function down(): void
     {
         // Articles table indexes
-        Schema::table('articles', function (Blueprint $table) {
-            $table->dropIndex('articles_deleted_created_idx');
-            $table->dropIndex('articles_deleted_validated_idx');
-            $table->dropIndex('articles_annee_deleted_idx');
-            $table->dropIndex('articles_foret_deleted_idx');
-            $table->dropIndex('articles_essence_deleted_idx');
-            $table->dropIndex('articles_exploitant_deleted_idx');
-            $table->dropIndex('articles_invendu_deleted_idx');
-            $table->dropIndex('articles_numero_annee_idx');
-            $table->dropIndex('articles_date_adjudication_idx');
-            $table->dropIndex('articles_prix_vente_idx');
-        });
+        if (Schema::hasTable('articles')) {
+            Schema::table('articles', function (Blueprint $table) {
+                try {
+                    $table->dropIndex('articles_deleted_created_idx');
+                } catch (\Exception $e) {}
+                try {
+                    $table->dropIndex('articles_deleted_validated_idx');
+                } catch (\Exception $e) {}
+                try {
+                    $table->dropIndex('articles_annee_deleted_idx');
+                } catch (\Exception $e) {}
+                try {
+                    $table->dropIndex('articles_foret_deleted_idx');
+                } catch (\Exception $e) {}
+                try {
+                    $table->dropIndex('articles_essence_deleted_idx');
+                } catch (\Exception $e) {}
+                try {
+                    $table->dropIndex('articles_exploitant_deleted_idx');
+                } catch (\Exception $e) {}
+                try {
+                    $table->dropIndex('articles_invendu_deleted_idx');
+                } catch (\Exception $e) {}
+                try {
+                    $table->dropIndex('articles_numero_annee_idx');
+                } catch (\Exception $e) {}
+                try {
+                    $table->dropIndex('articles_date_adjudication_idx');
+                } catch (\Exception $e) {}
+                try {
+                    $table->dropIndex('articles_prix_vente_idx');
+                } catch (\Exception $e) {}
+            });
+        }
 
         // Exploitants table indexes
         Schema::table('exploitants', function (Blueprint $table) {

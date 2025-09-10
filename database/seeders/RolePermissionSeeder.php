@@ -62,11 +62,25 @@ class RolePermissionSeeder extends Seeder
             'edit localisations',
             'delete localisations',
             
+            // Situation Administrative management
+            'view situation_administratives',
+            'create situation_administratives',
+            'edit situation_administratives',
+            'delete situation_administratives',
+            
+            // Nature de Coupes management
+            'view nature_de_coupes',
+            'create nature_de_coupes',
+            'edit nature_de_coupes',
+            'delete nature_de_coupes',
+            
             // Reports
             'view reports',
             'export reports',
             
             // Settings
+            'view settings',
+            'edit settings',
             'manage settings',
         ];
 

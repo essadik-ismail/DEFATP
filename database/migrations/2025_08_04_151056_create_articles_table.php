@@ -59,8 +59,7 @@ return new class extends Migration
             $table->string('adjudicatire')->nullable(); 
 
             $table->boolean('dc')->default(false);
-            $table->boolean('rc')->default(false);
-            $table->string('nature_juridique')->nullable(); 
+            $table->boolean('rc')->default(false); 
             $table->date('date_de_resiliation')->nullable();
             $table->date('date_de_decheance')->nullable();
 

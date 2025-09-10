@@ -142,7 +142,7 @@ class SettingsController extends Controller
     // Forets Management
     public function forets(): View
     {
-        $forets = Foret::where('is_deleted', '')->orderBy('foret')->paginate(15);
+        $forets = Foret::where('is_deleted', false)->orderBy('foret')->paginate(15);
         return view('settings.forets.index', compact('forets'));
     }
 

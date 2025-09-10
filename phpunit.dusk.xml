@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         processIsolation="false"
+         stopOnFailure="false">
+    <testsuites>
+        <testsuite name="Dusk">
+            <directory suffix="Test.php">./tests/Browser</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_KEY" value="base64:BTjEU6c7uSa79sr7MrKoX0POX5lEAfa4Q15C39n9XT0="/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
+        <env name="CACHE_DRIVER" value="array"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="DUSK_DRIVER_URL" value="http://localhost:9515"/>
+        <env name="DUSK_HEADLESS_DISABLED" value="true"/>
+        <env name="DUSK_START_MAXIMIZED" value="true"/>
+        <env name="DUSK_BROWSER_VISIBLE" value="true"/>
+        <env name="DUSK_SLOW_DOWN" value="1000"/>
+        <env name="DB_HOST" value=""/>
+        <env name="DB_PORT" value=""/>
+        <env name="DB_USERNAME" value=""/>
+        <env name="DB_PASSWORD" value=""/>
+    </php>
+</phpunit>

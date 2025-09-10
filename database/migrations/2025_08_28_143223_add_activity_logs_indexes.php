@@ -13,8 +13,23 @@ return new class extends Migration
     private function indexExists(string $table, string $index): bool
     {
         try {
-            $indexes = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$index]);
-            return count($indexes) > 0;
+            $connection = DB::connection();
+            $driver = $connection->getDriverName();
+            
+            if ($driver === 'sqlite') {
+                // SQLite syntax
+                $indexes = DB::select("PRAGMA index_list({$table})");
+                foreach ($indexes as $idx) {
+                    if ($idx->name === $index) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                // MySQL syntax
+                $indexes = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$index]);
+                return count($indexes) > 0;
+            }
         } catch (\Exception $e) {
             return false;
         }
