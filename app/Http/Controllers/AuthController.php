@@ -19,21 +19,66 @@ class AuthController extends Controller
 {
     public function showLogin(): View
     {
-        return view('auth.login');
+        // Generate captcha question
+        $num1 = rand(1, 10);
+        $num2 = rand(1, 10);
+        $captcha_question = "{$num1} + {$num2}";
+        $captcha_answer = $num1 + $num2;
+        
+        // Store captcha answer in session for validation
+        session(['captcha_answer' => $captcha_answer]);
+        
+        return view('auth.login', compact('captcha_question', 'captcha_answer'));
+    }
+
+    public function refreshCaptcha()
+    {
+        // Generate new captcha question
+        $num1 = rand(1, 10);
+        $num2 = rand(1, 10);
+        $captcha_question = "{$num1} + {$num2}";
+        $captcha_answer = $num1 + $num2;
+        
+        // Store captcha answer in session for validation
+        session(['captcha_answer' => $captcha_answer]);
+        
+        return response()->json([
+            'question' => $captcha_question,
+            'answer' => $captcha_answer
+        ]);
     }
 
     public function login(LoginRequest $request): RedirectResponse
     {
+        // Validate captcha first
+        $sessionCaptchaAnswer = session('captcha_answer');
+        $userCaptchaAnswer = (int) $request->input('captcha');
+        
+        if (!$sessionCaptchaAnswer || $userCaptchaAnswer !== $sessionCaptchaAnswer) {
+            // Clear captcha from session on failure
+            session()->forget('captcha_answer');
+            
+            throw ValidationException::withMessages([
+                'captcha' => 'La réponse à la question de sécurité est incorrecte. Veuillez réessayer.',
+            ]);
+        }
+        
         $credentials = $request->only('ppr', 'password');
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            
+            // Clear captcha from session on successful login
+            session()->forget('captcha_answer');
             
             // Log successful login
             ActivityLogger::logLogin(Auth::user(), $request);
             
             return redirect()->intended(route('dashboard'));
         }
+
+        // Clear captcha from session on login failure
+        session()->forget('captcha_answer');
 
         throw ValidationException::withMessages([
             'ppr' => __('Les informations de connexion fournies ne correspondent pas à nos enregistrements.'),

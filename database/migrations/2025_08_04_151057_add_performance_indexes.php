@@ -103,9 +103,7 @@ return new class extends Migration
             if (!$this->indexExists('exploitants', 'exploitants_raison_sociale_idx')) {
                 $table->index(['raison_sociale'], 'exploitants_raison_sociale_idx');
             }
-            if (!$this->indexExists('exploitants', 'exploitants_adjudicataire_idx')) {
-                $table->index(['adjudicataire'], 'exploitants_adjudicataire_idx');
-            }
+            // Removed adjudicataire index as column doesn't exist
         });
 
         // Users table indexes
@@ -196,7 +194,7 @@ return new class extends Migration
             $table->dropIndex('exploitants_numero_idx');
             $table->dropIndex('exploitants_nom_complet_idx');
             $table->dropIndex('exploitants_raison_sociale_idx');
-            $table->dropIndex('exploitants_adjudicataire_idx');
+            // Removed adjudicataire index as column doesn't exist
         });
 
         // Users table indexes

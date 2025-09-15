@@ -15,6 +15,7 @@ use App\Http\Requests\IndexArticleRequest;
 use App\Http\Requests\ExportArticleRequest;
 use App\Exports\ArticlesExport;
 use App\Imports\ArticlesImport;
+use App\Imports\LocationsImport;
 use App\Services\ActivityLogger;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class ArticleController extends Controller
         
         // Get articles with enhanced pagination and filtering
         $articles = Article::where('is_deleted', false)
-            ->with(['foret', 'essence', 'localisation', 'situationAdministrative', 'exploitant', 'natureDeCoupe'])
+            ->with(['foret', 'essence', 'localisation', 'situationAdministrative', 'exploitant', 'natureDeCoupe', 'products', 'locations'])
             ->when($request->filled('search'), function($query) use ($request) {
                 $query->where(function($q) use ($request) {
                     $q->where('numero', 'like', '%' . $request->search . '%')
@@ -140,44 +141,53 @@ class ArticleController extends Controller
     public function store(StoreArticleRequest $request): RedirectResponse
     {
         try {
-            // Prepare article data with new field order
+            // Prepare article data with new field structure
             $articleData = $request->only([
-                'date_adjudication', 'annee', 'numero', 'localisation_id', 'situation_administrative_id',
-                'parcelle', 'foret_id', 'situation_administrative_id', 'essence_id', 'nature_de_coupe_id', 'lot',
+                'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type', 'statut',
+                'situation_administrative_id', 'foret_id', 'essence_id', 'nature_de_coupe_id',
+                'localisation_id', 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
                 'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-                'romarin_t', 'ps_t', 'charbon_bois_ox', 'invendu', 'prix_de_retrait',
-                'date_dr', 'exploitant_id', 'type', 'prix_vente', 'dc', 'rc', 'date_de_resiliation',
-                'date_de_decheance', 'is_validated', 'observations'
+                'romarin_t', 'liege_st', 'charbon_bois_ox', 'prix_retrait', 'prix_vente'
             ]);
-
-            // Handle checkbox fields - only include values if checkbox is checked
-            $checkboxFields = [
-                'has_superficie' => 'superficie',
-                'has_bo_m3' => 'bo_m3',
-                'has_bi_m3' => 'bi_m3',
-                'has_bf_st' => 'bf_st',
-                'has_tanin_t' => 'tanin_t',
-                'has_fleur_acacia_t' => 'fleur_acacia_t',
-                'has_caroube_t' => 'caroube_t',
-                'has_romarin_t' => 'romarin_t',
-                'has_ps_t' => 'ps_t',
-                'has_charbon_bois_ox' => 'charbon_bois_ox'
-            ];
-
-            foreach ($checkboxFields as $checkbox => $field) {
-                if (!$request->has($checkbox)) {
-                    $articleData[$field] = null;
-                }
-            }
-
-            // Handle boolean fields
-            $booleanFields = ['dc', 'rc', 'is_validated'];
-            foreach ($booleanFields as $field) {
-                $articleData[$field] = $request->has($field) ? true : false;
-            }
 
             // Create the article
             $article = Article::create($articleData);
+
+            // Handle products if provided
+            if ($request->has('products') && is_array($request->products)) {
+                foreach ($request->products as $product) {
+                    if (!empty($product['name'])) {
+                        $article->products()->create([
+                            'name' => $product['name'],
+                            'quantity' => $product['quantity'] ?? 1,
+                            'is_deleted' => false
+                        ]);
+                    }
+                }
+            }
+
+            // Handle locations if provided
+            if ($request->has('locations') && is_array($request->locations)) {
+                foreach ($request->locations as $location) {
+                    if (!empty($location['mat']) || !empty($location['x']) || !empty($location['y'])) {
+                        $article->locations()->create([
+                            'mat' => $location['mat'] ?? null,
+                            'x' => $location['x'] ?? null,
+                            'y' => $location['y'] ?? null
+                        ]);
+                    }
+                }
+            }
+
+            // Handle locations file upload if provided
+            if ($request->hasFile('locations_file')) {
+                try {
+                    Excel::import(new LocationsImport($article->id), $request->file('locations_file'));
+                } catch (\Exception $e) {
+                    // Log error but don't fail the article creation
+                    \Log::error('Error importing locations file: ' . $e->getMessage());
+                }
+            }
 
             // Log article creation
             ActivityLogger::logCreate(
@@ -255,7 +265,9 @@ class ArticleController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'localisation'
+            'localisation',
+            'products',
+            'locations'
         ]);
 
         return view('articles.show', compact('article'));
@@ -271,6 +283,9 @@ class ArticleController extends Controller
 
         $localisations = Localisation::orderBy('CODE')->get();
 
+        // Load products and locations for the article
+        $article->load(['products', 'locations']);
+
         return view('articles.edit', compact(
             'article',
             'situationAdministratives',
@@ -285,15 +300,57 @@ class ArticleController extends Controller
     public function update(UpdateArticleRequest $request, Article $article): RedirectResponse
     {
         $oldData = $article->only([
-            'date_adjudication', 'annee', 'numero', 'localisation_id', 'situation_administrative_id',
-            'parcelle', 'foret_id', 'essence_id', 'nature_de_coupe_id', 'lot',
+            'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type', 'statut',
+            'situation_administrative_id', 'foret_id', 'essence_id', 'nature_de_coupe_id',
+            'localisation_id', 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
             'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-            'romarin_t', 'ps_t', 'charbon_bois_ox', 'invendu', 'prix_de_retrait',
-            'date_dr', 'exploitant_id', 'type', 'prix_vente', 'dc', 'rc', 'date_de_resiliation',
-            'date_de_decheance', 'is_validated', 'observations'
+            'romarin_t', 'liege_st', 'charbon_bois_ox', 'prix_retrait', 'prix_vente'
         ]);
 
-        $article->update($request->all());
+        // Update article data
+        $articleData = $request->only([
+            'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type', 'statut',
+            'situation_administrative_id', 'foret_id', 'essence_id', 'nature_de_coupe_id',
+            'localisation_id', 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
+            'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
+            'romarin_t', 'liege_st', 'charbon_bois_ox', 'prix_retrait', 'prix_vente'
+        ]);
+
+        $article->update($articleData);
+
+        // Handle products update
+        if ($request->has('products') && is_array($request->products)) {
+            // Delete existing products
+            $article->products()->delete();
+            
+            // Create new products
+            foreach ($request->products as $product) {
+                if (!empty($product['name'])) {
+                    $article->products()->create([
+                        'name' => $product['name'],
+                        'quantity' => $product['quantity'] ?? 1,
+                        'is_deleted' => false
+                    ]);
+                }
+            }
+        }
+
+        // Handle locations update
+        if ($request->has('locations') && is_array($request->locations)) {
+            // Delete existing locations
+            $article->locations()->delete();
+            
+            // Create new locations
+            foreach ($request->locations as $location) {
+                if (!empty($location['mat']) || !empty($location['x']) || !empty($location['y'])) {
+                    $article->locations()->create([
+                        'mat' => $location['mat'] ?? null,
+                        'x' => $location['x'] ?? null,
+                        'y' => $location['y'] ?? null
+                    ]);
+                }
+            }
+        }
 
         // Log article update
         $changes = array_diff_assoc($article->fresh()->only(array_keys($oldData)), $oldData);
@@ -362,6 +419,31 @@ class ArticleController extends Controller
             return redirect()->route('articles.index')->with('success', 'Articles importés avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Import locations from Excel file for a specific article
+     */
+    public function importLocations(Request $request, Article $article)
+    {
+        $request->validate([
+            'locations_file' => 'required|file|mimes:xlsx,xls,csv|max:10240'
+        ]);
+
+        try {
+            // Delete existing locations for this article
+            $article->locations()->delete();
+
+            // Import new locations
+            Excel::import(new LocationsImport($article->id), $request->file('locations_file'));
+
+            // Log the import action
+            ActivityLogger::log('import', "Importation du plan de situation pour l'article {$article->numero}", Article::class);
+
+            return redirect()->back()->with('success', 'Plan de situation importé avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erreur lors de l\'importation: ' . $e->getMessage());
         }
     }
 } 

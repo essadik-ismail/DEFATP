@@ -19,6 +19,7 @@ Route::get('/health/detailed', [HealthController::class, 'detailed'])->name('hea
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/captcha/refresh', [AuthController::class, 'refreshCaptcha'])->name('captcha.refresh');
 });
 
 Route::middleware('auth')->group(function () {
@@ -165,6 +166,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::resource('articles', ArticleController::class);
     Route::get('/articles/export', [ArticleController::class, 'export'])->name('articles.export');
     Route::post('/articles/import', [ArticleController::class, 'import'])->name('articles.import');
+Route::post('/articles/{article}/import-locations', [ArticleController::class, 'importLocations'])->name('articles.import-locations');
 
     // Reports Routes
     Route::prefix('reports')->name('reports.')->group(function () {

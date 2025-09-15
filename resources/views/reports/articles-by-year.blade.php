@@ -214,7 +214,7 @@
                                 <td>{{ $article->foret->foret ?? 'N/A' }}</td>
                                 <td>{{ $article->essence->essence ?? 'N/A' }}</td>
                                 <td>{{ $article->exploitant ? $article->exploitant->nom . ' ' . $article->exploitant->prenom : 'N/A' }}</td>
-                                <td>{{ number_format($article->prix_de_retrait, 0, ',', ' ') }} FCFA</td>
+                                <td>{{ number_format($article->prix_retrait, 0, ',', ' ') }} FCFA</td>
                                 <td>{{ $article->prix_vente ? number_format($article->prix_vente, 0, ',', ' ') . ' FCFA' : 'N/A' }}</td>
                                 <td class="table-actions">
                                     <div class="action-buttons">

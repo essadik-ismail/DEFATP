@@ -142,7 +142,6 @@
                             <th>Prix de Retrait</th>
                             <th>Prix de Vente</th>
                             <th>Type</th>
-                            <th>Statut</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -191,9 +190,9 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($article->prix_de_retrait)
+                                    @if($article->prix_retrait)
                                         <span class="badge bg-warning text-dark">
-                                            {{ number_format($article->prix_de_retrait, 2) }} DH
+                                            {{ number_format($article->prix_retrait, 2) }} DH
                                         </span>
                                     @else
                                         <span class="text-muted">-</span>
@@ -215,17 +214,6 @@
                                         </span>
                                     @else
                                         <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($article->is_validated)
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-check me-1"></i>Validé
-                                        </span>
-                                    @else
-                                        <span class="badge bg-warning text-dark">
-                                            <i class="fas fa-clock me-1"></i>En attente
-                                        </span>
                                     @endif
                                 </td>
                                 <td>
@@ -266,10 +254,6 @@
                                                 </li>
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li>
-                                                    <a class="dropdown-item" href="#" onclick="toggleValidation({{ $article->id }}, {{ $article->is_validated ? 'false' : 'true' }})">
-                                                        <i class="fas {{ $article->is_validated ? 'fa-times-circle text-warning' : 'fa-check-circle text-success' }} me-2"></i>
-                                                        {{ $article->is_validated ? 'Dévalider' : 'Valider' }}
-                                                    </a>
                                                 </li>
                                                 <li>
                                                     <a class="dropdown-item" href="#" onclick="archiveArticle({{ $article->id }})">
@@ -955,8 +939,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="prix_de_retrait" class="form-label">Prix de Retrait (DH) *</label>
-                                <input type="number" class="form-control" id="prix_de_retrait" name="prix_de_retrait" step="0.01" min="0" required>
+                                <label for="prix_retrait" class="form-label">Prix de Retrait (DH) *</label>
+                                <input type="number" class="form-control" id="prix_retrait" name="prix_retrait" step="0.01" min="0" required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -996,10 +980,6 @@
                     </div>
 
                     <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" name="is_validated" id="is_validated" value="1">
-                        <label class="form-check-label" for="is_validated">
-                            Article validé
-                        </label>
                     </div>
                 </form>
             </div>
@@ -2064,33 +2044,6 @@ function shareArticle(articleId) {
     }
 }
 
-function toggleValidation(articleId, newStatus) {
-    const action = newStatus ? 'valider' : 'dévalider';
-    if (confirm(`Voulez-vous ${action} cet article ?`)) {
-        fetch(`/articles/${articleId}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                is_validated: newStatus
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Erreur lors de la modification du statut');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Erreur lors de la modification du statut');
-        });
-    }
-}
 
 function archiveArticle(articleId) {
     if (confirm('Voulez-vous archiver cet article ?')) {

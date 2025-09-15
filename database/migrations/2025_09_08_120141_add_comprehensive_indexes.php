@@ -85,9 +85,7 @@ return new class extends Migration
             if (!$this->indexExists('exploitants', 'exploitants_exclusion_created_idx')) {
                 $table->index(['exclusion', 'created_at'], 'exploitants_exclusion_created_idx');
             }
-            if (!$this->indexExists('exploitants', 'exploitants_adjudicataire_status_idx')) {
-                $table->index(['adjudicataire', 'is_deleted'], 'exploitants_adjudicataire_status_idx');
-            }
+            // Removed adjudicataire index as column doesn't exist
             if (!$this->indexExists('exploitants', 'exploitants_qualification_idx')) {
                 $table->index(['qualification_rc'], 'exploitants_qualification_idx');
             }
@@ -205,7 +203,7 @@ return new class extends Migration
         Schema::table('exploitants', function (Blueprint $table) {
             $table->dropIndex('exploitants_categorie_activite_idx');
             $table->dropIndex('exploitants_exclusion_created_idx');
-            $table->dropIndex('exploitants_adjudicataire_status_idx');
+            // Removed adjudicataire index as column doesn't exist
             $table->dropIndex('exploitants_qualification_idx');
             $table->dropIndex('exploitants_date_obtention_idx');
             $table->dropIndex('exploitants_duree_validite_idx');

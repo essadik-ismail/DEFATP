@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 
 class Article extends Model
@@ -12,15 +13,19 @@ class Article extends Model
         'annee',
         'numero',
         'date_adjudication',
-        'invendu',
-        'prix_de_retrait',
+        'numero_adjudication',
+        'lot',
+        'type',
         'situation_administrative_id',
         'foret_id',
         'essence_id',
         'nature_de_coupe_id',
         'localisation_id',
-        'lot',
+        'exploitant_id',
+        'nature_juridique',
         'parcelle',
+        'lat',
+        'log',
         'superficie',
         'bo_m3',
         'bi_m3',
@@ -30,47 +35,28 @@ class Article extends Model
         'caroube_t',
         'romarin_t',
         'ps_t',
+        'liége_st',
         'charbon_bois_ox',
+        'prix_de_retrait',
         'prix_vente',
-        'fourniture_mise_charge',
-        'lat',
-        'log',
-        'date_dr',
-        'observations',
         'is_deleted',
-        'dc',
-        'rc',
-        'type',
-        'exploitant_id',
-        'is_validated',
-        'adjudicatire',
-        'numero_adjudication',
-        'date_de_resiliation',
-        'date_de_decheance',
     ];
 
     protected $casts = [
         'date_adjudication' => 'date',
-        'date_dr' => 'date',
-        'date_de_resiliation' => 'date',
-        'date_de_decheance' => 'date',
-        'invendu' => 'boolean',
-        'bo_m3' => 'integer',
-        'bi_m3' => 'integer',
-        'bf_st' => 'integer',
-        'tanin_t' => 'integer',
-        'fleur_acacia_t' => 'integer',
-        'caroube_t' => 'integer',
-        'romarin_t' => 'integer',
-        'ps_t' => 'integer',
-        'charbon_bois_ox' => 'integer',
-        'prix_de_retrait' => 'decimal:2',
+        'bo_m3' => 'decimal:2',
+        'bi_m3' => 'decimal:2',
+        'bf_st' => 'decimal:2',
+        'tanin_t' => 'decimal:2',
+        'fleur_acacia_t' => 'decimal:2',
+        'caroube_t' => 'decimal:2',
+        'romarin_t' => 'decimal:2',
+        'liege_st' => 'decimal:2',
+        'charbon_bois_ox' => 'decimal:2',
+        'prix_retrait' => 'decimal:2',
         'prix_vente' => 'decimal:2',
-        'fourniture_mise_charge' => 'decimal:2',
-        'dc' => 'boolean',
-        'rc' => 'boolean',
+        'superficie' => 'decimal:2',
         'is_deleted' => 'boolean',
-        'is_validated' => 'boolean',
     ];
 
     /**
@@ -135,6 +121,22 @@ class Article extends Model
     }
 
     /**
+     * Get the products for this article.
+     */
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    /**
+     * Get the locations for this article.
+     */
+    public function locations(): HasMany
+    {
+        return $this->hasMany(Location::class);
+    }
+
+    /**
      * Get the total volume of the article.
      */
     public function getTotalVolumeAttribute(): float
@@ -150,16 +152,6 @@ class Article extends Model
         return number_format($this->total_volume, 2) . ' m³';
     }
 
-    /**
-     * Get the status badge for the article.
-     */
-    public function getStatusBadgeAttribute(): string
-    {
-        if ($this->is_validated) {
-            return '<span class="badge bg-success"><i class="fas fa-check me-1"></i>Validé</span>';
-        }
-        return '<span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>En attente</span>';
-    }
 
     /**
      * Get the type badge for the article.
@@ -173,21 +165,6 @@ class Article extends Model
         return '<span class="badge bg-primary">Adjudication</span>';
     }
 
-    /**
-     * Scope for validated articles.
-     */
-    public function scopeValidated(Builder $query): Builder
-    {
-        return $query->where('is_validated', true);
-    }
-
-    /**
-     * Scope for pending articles.
-     */
-    public function scopePending(Builder $query): Builder
-    {
-        return $query->where('is_validated', false);
-    }
 
     /**
      * Scope for sold articles.

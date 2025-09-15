@@ -304,17 +304,124 @@
             font-weight: 500;
         }
 
+        /* Captcha styles */
+        .captcha-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .captcha-question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            min-height: 3.5rem;
+            box-sizing: border-box;
+            width: 100%;
+            position: relative;
+        }
+
+        .captcha-question span {
+            flex: 1;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.1em;
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        .captcha-refresh {
+            background: var(--primary-color);
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+            flex-shrink: 0;
+            min-width: 2.5rem;
+            min-height: 2.5rem;
+        }
+
+        .captcha-refresh:hover {
+            background: #047857;
+            transform: rotate(180deg);
+        }
+
+        .captcha-refresh:active {
+            transform: rotate(180deg) scale(0.95);
+        }
+
+        .captcha-refresh:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+        }
+
+        .captcha-refresh i {
+            font-size: 1rem;
+        }
+
+        /* Captcha validation states */
+        .captcha-question.valid {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .captcha-question.invalid {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
 
 
-        /* Mobile and touch optimizations */
+
+        /* Tablet optimizations */
+        @media (max-width: 768px) {
+            .login-container {
+                max-width: 500px;
+            }
+            
+            .login-card {
+                padding: 2.5rem 2rem;
+            }
+            
+            .captcha-question {
+                font-size: 1.1rem;
+                padding: 0.875rem 1rem;
+            }
+            
+            .captcha-refresh {
+                width: 2.25rem;
+                height: 2.25rem;
+            }
+        }
+
+        /* Mobile optimizations */
         @media (max-width: 480px) {
             body {
-                padding: 1rem;
+                padding: 0.75rem;
+            }
+            
+            .login-container {
+                max-width: 100%;
             }
             
             .login-card {
                 padding: 2rem 1.5rem;
                 border-radius: 1rem;
+                margin: 0;
             }
             
             .login-header h1 {
@@ -329,22 +436,98 @@
             .form-control {
                 height: 3.75rem;
                 font-size: 1.1rem;
+                padding: 1rem 1.25rem;
             }
 
             .password-toggle {
                 padding: 0.75rem;
                 right: 0.75rem;
+                width: 3rem;
+                height: 3rem;
             }
 
             .btn-login {
                 height: 3.5rem;
                 font-size: 1.1rem;
-                min-width: 10rem;
+                min-width: 100%;
+                width: 100%;
             }
 
             .form-check-input {
                 width: 1.5rem;
                 height: 1.5rem;
+            }
+            
+            /* Captcha mobile optimizations */
+            .captcha-container {
+                gap: 1rem;
+            }
+            
+            .captcha-question {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1.25rem 1rem;
+                min-height: auto;
+                text-align: center;
+            }
+            
+            .captcha-question span {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .captcha-refresh {
+                width: 3rem;
+                height: 3rem;
+                margin-left: 0;
+                align-self: center;
+            }
+            
+            .captcha-refresh i {
+                font-size: 1.25rem;
+            }
+            
+            /* Form group spacing */
+            .form-group {
+                margin-bottom: 1.75rem;
+            }
+            
+            /* Button container mobile */
+            .button-container {
+                margin-top: 2.5rem;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 360px) {
+            .login-card {
+                padding: 1.5rem 1rem;
+            }
+            
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .logo-icon {
+                font-size: 2rem;
+            }
+            
+            .captcha-question {
+                padding: 1rem 0.75rem;
+            }
+            
+            .captcha-question span {
+                font-size: 1.25rem;
+            }
+            
+            .form-control {
+                height: 3.5rem;
+                font-size: 1rem;
+            }
+            
+            .btn-login {
+                height: 3.25rem;
+                font-size: 1rem;
             }
         }
 
@@ -352,14 +535,32 @@
         @media (hover: none) and (pointer: coarse) {
             .password-toggle {
                 padding: 0.75rem;
+                width: 3rem;
+                height: 3rem;
+            }
+
+            .captcha-refresh {
+                width: 3rem;
+                height: 3rem;
             }
 
             .btn-login:hover {
                 transform: none;
+                box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
             }
 
             .form-control:focus {
                 transform: none;
+            }
+            
+            .captcha-refresh:hover {
+                transform: none;
+                background: #047857;
+            }
+            
+            .captcha-refresh:active {
+                transform: scale(0.95);
+                background: #065f46;
             }
         }
 
@@ -374,12 +575,65 @@
             }
         }
 
+        /* Landscape orientation support */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: 0.5rem;
+            }
+            
+            .login-card {
+                padding: 1.5rem 2rem;
+            }
+            
+            .login-header {
+                margin-bottom: 1.5rem;
+            }
+            
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .logo-icon {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            
+            .form-control {
+                height: 3rem;
+            }
+            
+            .captcha-question {
+                padding: 0.75rem 1rem;
+                min-height: 3rem;
+            }
+            
+            .captcha-question span {
+                font-size: 1.1rem;
+            }
+            
+            .button-container {
+                margin-top: 1.5rem;
+            }
+        }
+
         /* Reduced motion support */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
+            }
+            
+            .captcha-refresh:hover {
+                transform: none;
+            }
+            
+            .btn-login:hover {
+                transform: none;
             }
         }
 
@@ -406,6 +660,59 @@
         @keyframes spin {
             0% { transform: translate(-50%, -50%) rotate(0deg); }
             100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Focus management for better accessibility */
+        .form-control:focus,
+        .captcha-refresh:focus,
+        .btn-login:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Better text selection */
+        .captcha-question span {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        /* Improved button states */
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .captcha-refresh:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Better error state visibility */
+        .form-control.is-invalid {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .captcha-question.invalid {
+            border-color: #dc2626;
+            background: #fef2f2;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        /* Improved success state visibility */
+        .form-control.is-valid {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .captcha-question.valid {
+            border-color: #10b981;
+            background: #f0fdf4;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
     </style>
 </head>
@@ -491,6 +798,39 @@
                         </div>
                     </div>
                     
+                    <div class="form-group">
+                        <label for="captcha" class="form-label">
+                            Vérification de sécurité
+                            <span class="form-text">(Résolvez cette addition simple)</span>
+                        </label>
+                        <div class="captcha-container">
+                            <div class="captcha-question">
+                                <span id="captchaQuestion">{{ $captcha_question ?? '5 + 3' }}</span>
+                                <button type="button" class="captcha-refresh" id="refreshCaptcha" title="Nouvelle question">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            <input type="number" 
+                                   class="form-control @error('captcha') is-invalid @enderror" 
+                                   id="captcha" 
+                                   name="captcha" 
+                                   placeholder="Votre réponse" 
+                                   required
+                                   autocomplete="off"
+                                   aria-describedby="captcha-help">
+                        </div>
+                        @error('captcha')
+                            <div class="invalid-feedback">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                        <div id="captcha-help" class="form-text">
+                            <i class="fas fa-shield-alt"></i>
+                            Protection contre les attaques automatisées
+                        </div>
+                    </div>
+                    
                     <div class="form-check">
                         <input class="form-check-input" 
                                type="checkbox" 
@@ -537,6 +877,92 @@
             }
         });
 
+        // Captcha functionality
+        let currentCaptchaAnswer = {{ $captcha_answer ?? 8 }};
+        
+        function generateCaptcha() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            const question = `${num1} + ${num2}`;
+            const answer = num1 + num2;
+            
+            document.getElementById('captchaQuestion').textContent = question;
+            document.getElementById('captcha').value = '';
+            currentCaptchaAnswer = answer;
+            
+            // Reset validation states
+            const captchaQuestion = document.querySelector('.captcha-question');
+            const captchaInput = document.getElementById('captcha');
+            captchaQuestion.classList.remove('valid', 'invalid');
+            captchaInput.classList.remove('is-valid', 'is-invalid');
+        }
+        
+        function validateCaptcha() {
+            const captchaInput = document.getElementById('captcha');
+            const captchaQuestion = document.querySelector('.captcha-question');
+            const userAnswer = parseInt(captchaInput.value);
+            
+            captchaQuestion.classList.remove('valid', 'invalid');
+            captchaInput.classList.remove('is-valid', 'is-invalid');
+            
+            if (captchaInput.value === '') {
+                return false;
+            }
+            
+            if (userAnswer === currentCaptchaAnswer) {
+                captchaQuestion.classList.add('valid');
+                captchaInput.classList.add('is-valid');
+                return true;
+            } else {
+                captchaQuestion.classList.add('invalid');
+                captchaInput.classList.add('is-invalid');
+                return false;
+            }
+        }
+        
+        // Captcha refresh button
+        document.getElementById('refreshCaptcha').addEventListener('click', function() {
+            // Show loading state
+            const refreshBtn = this;
+            const originalContent = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            refreshBtn.disabled = true;
+            
+            // Fetch new captcha from server
+            fetch('/captcha/refresh')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('captchaQuestion').textContent = data.question;
+                    document.getElementById('captcha').value = '';
+                    currentCaptchaAnswer = data.answer;
+                    
+                    // Reset validation states
+                    const captchaQuestion = document.querySelector('.captcha-question');
+                    const captchaInput = document.getElementById('captcha');
+                    captchaQuestion.classList.remove('valid', 'invalid');
+                    captchaInput.classList.remove('is-valid', 'is-invalid');
+                })
+                .catch(error => {
+                    console.error('Error refreshing captcha:', error);
+                    // Fallback to client-side generation
+                    generateCaptcha();
+                })
+                .finally(() => {
+                    // Restore button state
+                    refreshBtn.innerHTML = originalContent;
+                    refreshBtn.disabled = false;
+                });
+        });
+        
+        // Captcha input validation
+        document.getElementById('captcha').addEventListener('input', function() {
+            validateCaptcha();
+        });
+        
+        document.getElementById('captcha').addEventListener('blur', function() {
+            validateCaptcha();
+        });
+
         // Real-time form validation
         function validateField(field) {
             const value = field.value.trim();
@@ -579,14 +1005,16 @@
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const pprField = document.getElementById('ppr');
             const passwordField = document.getElementById('password');
+            const captchaField = document.getElementById('captcha');
             const btn = document.getElementById('loginBtn');
             const btnText = btn.querySelector('.btn-text');
             
             // Validate fields before submission
             const pprValid = validateField(pprField);
             const passwordValid = validateField(passwordField);
+            const captchaValid = validateCaptcha();
             
-            if (!pprValid || !passwordValid) {
+            if (!pprValid || !passwordValid || !captchaValid) {
                 e.preventDefault();
                 
                 if (!pprValid) {
@@ -595,6 +1023,9 @@
                 } else if (!passwordValid) {
                     passwordField.classList.add('is-invalid');
                     passwordField.focus();
+                } else if (!captchaValid) {
+                    captchaField.classList.add('is-invalid');
+                    captchaField.focus();
                 }
                 return;
             }

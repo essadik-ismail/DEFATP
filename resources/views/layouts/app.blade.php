@@ -448,67 +448,241 @@
 
         /* Sidebar Styles */
         .sidebar {
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
             backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
             z-index: 1000;
             overflow-y: auto;
+            width: 280px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            background: linear-gradient(135deg, #059669, #047857);
             color: white;
-            padding: 1.5rem;
+            padding: 2rem 1.5rem;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-header p {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar-nav {
-            padding: 1rem 0;
+            padding: 1.5rem 0;
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .nav-item {
-            margin: 0.25rem 1rem;
+            margin: 0.5rem 1rem;
+            position: relative;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
-            color: var(--dark-color);
+            padding: 1rem 1.25rem;
+            color: #64748b;
             text-decoration: none;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(5, 150, 105, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 12px;
         }
 
         .nav-link:hover {
-            background: rgba(5, 150, 105, 0.1);
-            color: var(--primary-color);
-            transform: translateX(4px);
+            color: #059669;
+            background: rgba(5, 150, 105, 0.08);
+            transform: translateX(6px);
+            border-color: rgba(5, 150, 105, 0.2);
+            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.15);
+        }
+
+        .nav-link:hover::before {
+            opacity: 1;
         }
 
         .nav-link.active {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, #059669, #047857);
             color: white;
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+            transform: translateX(6px);
+            border-color: #047857;
+        }
+
+        .nav-link.active::before {
+            opacity: 0;
         }
 
         .nav-link i {
-            margin-right: 0.75rem;
-            width: 1.25rem;
+            margin-right: 1rem;
+            width: 1.5rem;
             text-align: center;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.1);
+        }
+
+        .nav-link.active i {
+            transform: scale(1.1);
+        }
+
+        /* Submenu styling */
+        .submenu {
+            margin-left: 1rem;
+            margin-top: 0.5rem;
+            border-left: 2px solid rgba(5, 150, 105, 0.2);
+            padding-left: 1rem;
+        }
+
+        .submenu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #64748b;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            margin: 0.25rem 0;
+            position: relative;
+        }
+
+        .submenu-item:hover {
+            background: rgba(5, 150, 105, 0.08);
+            color: #059669;
+            transform: translateX(4px);
+        }
+
+        .submenu-item.active {
+            background: rgba(5, 150, 105, 0.15);
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .submenu-item i {
+            margin-right: 0.75rem;
+            width: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Sidebar scrollbar styling */
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(5, 150, 105, 0.3);
+            border-radius: 2px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(5, 150, 105, 0.5);
+        }
+
+        /* Logo styling */
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            color: #10b981;
+        }
+
+        /* Sidebar toggle button */
+        .sidebar-toggle {
+            position: absolute;
+            top: 1rem;
+            right: -2.5rem;
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            border: none;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
         }
 
         /* Responsive sidebar behavior */
         @media (max-width: 1024px) {
             .sidebar {
                 transform: translateX(-100%);
-                transition: transform 0.3s ease;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             
             .sidebar.open {
@@ -517,6 +691,15 @@
             
             .content-wrapper {
                 margin-left: 1rem;
+            }
+
+            .nav-item {
+                margin: 0.25rem 0.75rem;
+            }
+
+            .nav-link {
+                padding: 0.875rem 1rem;
+                font-size: 0.9rem;
             }
         }
 

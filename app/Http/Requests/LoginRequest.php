@@ -24,6 +24,7 @@ class LoginRequest extends FormRequest
         return [
             'ppr' => ['required', 'string'],
             'password' => ['required', 'string'],
+            'captcha' => ['required', 'integer', 'min:1', 'max:20'],
             'remember' => ['boolean'],
         ];
     }
@@ -38,6 +39,10 @@ class LoginRequest extends FormRequest
         return [
             'ppr.required' => 'Le PPR est requis.',
             'password.required' => 'Le mot de passe est requis.',
+            'captcha.required' => 'La réponse à la question de sécurité est requise.',
+            'captcha.integer' => 'La réponse doit être un nombre entier.',
+            'captcha.min' => 'La réponse doit être un nombre positif.',
+            'captcha.max' => 'La réponse semble incorrecte.',
         ];
     }
 }

@@ -52,11 +52,9 @@ return new class extends Migration
             $table->text('observations')->nullable();
             $table->text('charges_du_lot')->nullable();
 
-            $table->enum('type', ['appel_doffre', 'adjudication']);
+            $table->enum('type', ['appel_doffre', 'adjudication', 'marche_negocié']);
             $table->string('numero_adjudication')->nullable(); 
             $table->string('nature_juridique')->nullable(); 
-
-            $table->string('adjudicatire')->nullable(); 
 
             $table->boolean('dc')->default(false);
             $table->boolean('rc')->default(false); 

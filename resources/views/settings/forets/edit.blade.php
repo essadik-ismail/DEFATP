@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nouvelle Forêt')
+@section('title', 'Modifier la Forêt')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -12,9 +12,9 @@
             </div>
             <div>
                 <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                    Nouvelle Forêt
+                    Modifier la Forêt
                 </h1>
-                <p class="text-gray-600 text-lg mt-2">Créez une nouvelle forêt pour votre système</p>
+                <p class="text-gray-600 text-lg mt-2">Modifiez les informations de la forêt "{{ $foret->foret }}"</p>
             </div>
         </div>
     </div>
@@ -44,20 +44,21 @@
         </div>
     @endif
 
-    <!-- Create Form -->
+    <!-- Edit Form -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-plus text-white text-xl"></i>
+                <i class="fas fa-edit text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">Formulaire de création</h2>
-                <p class="text-gray-600">Remplissez les informations pour créer une nouvelle forêt</p>
+                <h2 class="text-2xl font-bold text-gray-900">Formulaire de modification</h2>
+                <p class="text-gray-600">Modifiez les informations de la forêt</p>
             </div>
         </div>
 
-        <form action="{{ route('settings.forets.store') }}" method="POST" class="space-y-6" data-server-validation>
+        <form action="{{ route('settings.forets.update', $foret) }}" method="POST" class="space-y-6" data-server-validation>
             @csrf
+            @method('PUT')
 
             <!-- Forest Name -->
             <div class="form-group">
@@ -68,7 +69,7 @@
                     type="text" 
                     name="foret" 
                     id="foret" 
-                    value="{{ old('foret') }}"
+                    value="{{ old('foret', $foret->foret) }}"
                     class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400"
                     placeholder="Entrez le nom de la forêt"
                     required
@@ -88,20 +89,11 @@
                     class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
                     <i class="fas fa-save"></i>
-                    <span class="font-semibold">Créer la Forêt</span>
-                </button>
-                
-                <button 
-                    type="button" 
-                    onclick="document.getElementById('importModal').classList.remove('hidden')"
-                    class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                    <i class="fas fa-file-excel"></i>
-                    <span class="font-semibold">Importer Excel</span>
+                    <span class="font-semibold">Mettre à jour</span>
                 </button>
                 
                 <a 
-                    href="{{ route('articles.index') }}" 
+                    href="{{ route('settings.forets') }}" 
                     class="inline-flex items-center gap-3 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
                 >
                     <i class="fas fa-arrow-left"></i>
@@ -111,27 +103,39 @@
         </form>
     </div>
 
-    <!-- Information Section -->
+    <!-- Forest Information -->
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 mt-8 border border-blue-200 shadow-xl">
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
                 <i class="fas fa-info-circle text-white text-xl"></i>
             </div>
             <div>
-                <h3 class="text-2xl font-bold text-blue-900">À propos des Forêts</h3>
-                <p class="text-blue-700">Informations importantes sur la création de forêts</p>
+                <h3 class="text-2xl font-bold text-blue-900">Informations de la Forêt</h3>
+                <p class="text-blue-700">Détails et statistiques</p>
             </div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-2xl p-6 border border-blue-200">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-calendar text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">Créée le</h4>
+                        <p class="text-gray-600 text-sm">{{ $foret->created_at->format('d/m/Y H:i') }}</p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="bg-white rounded-2xl p-6 border border-blue-200">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-tree text-white"></i>
+                        <i class="fas fa-clock text-white"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">Nom unique</h4>
-                        <p class="text-gray-600 text-sm">Chaque forêt doit avoir un nom unique dans le système</p>
+                        <h4 class="font-semibold text-gray-900">Modifiée le</h4>
+                        <p class="text-gray-600 text-sm">{{ $foret->updated_at->format('d/m/Y H:i') }}</p>
                     </div>
                 </div>
             </div>
@@ -142,70 +146,11 @@
                         <i class="fas fa-database text-white"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">Utilisation</h4>
-                        <p class="text-gray-600 text-sm">Les forêts sont utilisées dans les articles et rapports</p>
+                        <h4 class="font-semibold text-gray-900">ID</h4>
+                        <p class="text-gray-600 text-sm">#{{ $foret->id }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Import Modal -->
-<div id="importModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Importer des Forêts</h3>
-                <button onclick="document.getElementById('importModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <form action="{{ route('settings.forets.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                @csrf
-                
-                <div>
-                    <label for="import_file" class="block text-sm font-medium text-gray-700 mb-2">
-                        Fichier Excel (.xlsx, .xls)
-                    </label>
-                    <input 
-                        type="file" 
-                        name="file" 
-                        id="import_file" 
-                        accept=".xlsx,.xls"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                    >
-                </div>
-                
-                <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
-                    <h4 class="text-sm font-semibold text-blue-800 mb-2">Format attendu :</h4>
-                    <ul class="text-xs text-blue-700 space-y-1">
-                        <li>• Colonne A : Nom de la forêt (obligatoire)</li>
-                        <li>• Colonne B : Latitude (optionnel)</li>
-                        <li>• Colonne C : Longitude (optionnel)</li>
-                        <li>• Première ligne : En-têtes</li>
-                        <li>• Format : .xlsx ou .xls</li>
-                    </ul>
-                </div>
-                
-                <div class="flex items-center justify-end space-x-3 pt-4">
-                    <button 
-                        type="button" 
-                        onclick="document.getElementById('importModal').classList.add('hidden')"
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-                    >
-                        Annuler
-                    </button>
-                    <button 
-                        type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                        <i class="fas fa-upload mr-2"></i>Importer
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
@@ -235,7 +180,7 @@
     
     .dark-mode .form-input:focus {
         border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(74, 124, 89, 0.2);
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
     }
 </style>
 @endpush

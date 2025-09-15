@@ -131,6 +131,11 @@ class FormValidator {
     }
 
     init() {
+        // Only run client-side validation if the form doesn't have server-side validation
+        if (this.form.hasAttribute('data-server-validation')) {
+            return; // Skip client-side validation for forms with server-side validation
+        }
+
         this.form.addEventListener('submit', (e) => {
             if (!this.validate()) {
                 e.preventDefault();

@@ -26,8 +26,9 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             'foret',
             'essence',
             'natureDeCoupe',
-
-            'localisation'
+            'localisation',
+            'products',
+            'locations'
         ]);
 
         // Apply filters
@@ -56,23 +57,24 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             'ID',
             'Année',
             'Numéro',
-            'Date',
-            'Invendu',
-            'Prix de retrait',
+            'Date d\'Adjudication',
+            'Numéro d\'Adjudication',
+            'Lot',
+            'Type',
+            'Statut',
             'Commune',
             'Province',
             'Forêt',
             'Essence',
             'Nature de coupe',
-
             'Localisation',
-            'Lot',
+            'Nature Juridique',
             'Parcelle',
+            'Latitude',
+            'Longitude',
             'Superficie',
+            'Prix de retrait',
             'Prix de vente',
-            'Fourniture mise en charge',
-            'Date DR',
-            'Observations',
             'BO (m³)',
             'BI (m³)',
             'BF (st)',
@@ -80,9 +82,10 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             'Fleur Acacia (t)',
             'Caroube (t)',
             'Romarin (t)',
-            'PS (t)',
             'Liège (st)',
-            'Charbon Bois (ox)'
+            'Charbon Bois (ox)',
+            'Produits',
+            'Emplacements'
         ];
     }
 
@@ -92,33 +95,42 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             $article->id,
             $article->annee,
             $article->numero,
-            $article->date,
-            $article->invendu ? 'Oui' : 'Non',
-            $article->prix_de_retrait,
-            $article->situationAdministrative?->commune,
-            $article->situationAdministrative?->province,
-            $article->foret?->foret,
-            $article->essence?->essence,
-            $article->natureDeCoupe?->nature_de_coupe,
-
-            $article->localisation?->CODE,
-            $article->lot,
-            $article->parcelle,
-            $article->superficie,
-            $article->prix_vente,
-            $article->fourniture_mise_charge,
-            $article->date_dr,
-            $article->observations,
-            $article->bo_m3,
-            $article->bi_m3,
-            $article->bf_st,
-            $article->tanin_t,
-            $article->fleur_acacia_t,
-            $article->caroube_t,
-            $article->romarin_t,
-            $article->ps_t,
-            $article->liege_st,
-            $article->charbon_bois_ox
+            $article->date_adjudication ? $article->date_adjudication->format('d/m/Y') : 'N/A',
+            $article->numero_adjudication ?? 'N/A',
+            $article->lot ?? 'N/A',
+            $article->type == 'appel_doffre' ? 'Appel d\'Offre' : 'Adjudication',
+            $article->statut ?? 'N/A',
+            $article->situationAdministrative?->commune ?? 'N/A',
+            $article->situationAdministrative?->province ?? 'N/A',
+            $article->foret?->foret ?? 'N/A',
+            $article->essence?->essence ?? 'N/A',
+            $article->natureDeCoupe?->nature_de_coupe ?? 'N/A',
+            $article->localisation?->CODE ?? 'N/A',
+            $article->nature_juridique ?? 'N/A',
+            $article->parcelle ?? 'N/A',
+            $article->lat ?? 'N/A',
+            $article->log ?? 'N/A',
+            $article->superficie ?? 'N/A',
+            $article->prix_retrait ?? 'N/A',
+            $article->prix_vente ?? 'N/A',
+            $article->bo_m3 ?? 'N/A',
+            $article->bi_m3 ?? 'N/A',
+            $article->bf_st ?? 'N/A',
+            $article->tanin_t ?? 'N/A',
+            $article->fleur_acacia_t ?? 'N/A',
+            $article->caroube_t ?? 'N/A',
+            $article->romarin_t ?? 'N/A',
+            $article->liege_st ?? 'N/A',
+            $article->charbon_bois_ox ?? 'N/A',
+            $article->products->map(function($product) {
+                return $product->name . ' (x' . $product->quantity . ')';
+            })->join(', '),
+            $article->locations->map(function($location) {
+                $parts = [];
+                if ($location->mat) $parts[] = 'Mat: ' . $location->mat;
+                if ($location->x && $location->y) $parts[] = 'Pos: (' . $location->x . ',' . $location->y . ')';
+                return implode(' | ', $parts);
+            })->join('; ')
         ];
     }
 

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nouvelle Situation Administrative')
+@section('title', 'Modifier la Situation Administrative')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -12,9 +12,9 @@
             </div>
             <div>
                 <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Nouvelle Situation Administrative
+                    Modifier la Situation Administrative
                 </h1>
-                <p class="text-gray-600 text-lg mt-2">Créez une nouvelle situation administrative pour votre système</p>
+                <p class="text-gray-600 text-lg mt-2">Modifiez les informations de la situation administrative "{{ $situationAdministrative->commune }}"</p>
             </div>
         </div>
     </div>
@@ -44,20 +44,21 @@
         </div>
     @endif
 
-    <!-- Create Form -->
+    <!-- Edit Form -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-plus text-white text-xl"></i>
+                <i class="fas fa-edit text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">Formulaire de création</h2>
-                <p class="text-gray-600">Remplissez les informations pour créer une nouvelle situation administrative</p>
+                <h2 class="text-2xl font-bold text-gray-900">Formulaire de modification</h2>
+                <p class="text-gray-600">Modifiez les informations de la situation administrative</p>
             </div>
         </div>
 
-        <form action="{{ route('settings.situation-administratives.store') }}" method="POST" class="space-y-6" data-server-validation>
+        <form action="{{ route('settings.situation-administratives.update', $situationAdministrative) }}" method="POST" class="space-y-6" data-server-validation>
             @csrf
+            @method('PUT')
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Commune -->
@@ -69,7 +70,7 @@
                         type="text" 
                         name="commune" 
                         id="commune" 
-                        value="{{ old('commune') }}"
+                        value="{{ old('commune', $situationAdministrative->commune) }}"
                         class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400"
                         placeholder="Entrez le nom de la commune"
                         required
@@ -91,7 +92,7 @@
                         type="text" 
                         name="province" 
                         id="province" 
-                        value="{{ old('province') }}"
+                        value="{{ old('province', $situationAdministrative->province) }}"
                         class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400"
                         placeholder="Entrez le nom de la province"
                         required
@@ -112,20 +113,11 @@
                     class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
                     <i class="fas fa-save"></i>
-                    <span class="font-semibold">Créer la Situation Administrative</span>
-                </button>
-                
-                <button 
-                    type="button" 
-                    onclick="document.getElementById('importModal').classList.remove('hidden')"
-                    class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                    <i class="fas fa-file-excel"></i>
-                    <span class="font-semibold">Importer Excel</span>
+                    <span class="font-semibold">Mettre à jour</span>
                 </button>
                 
                 <a 
-                    href="{{ route('articles.index') }}" 
+                    href="{{ route('settings.situation-administratives') }}" 
                     class="inline-flex items-center gap-3 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
                 >
                     <i class="fas fa-arrow-left"></i>
@@ -135,27 +127,39 @@
         </form>
     </div>
 
-    <!-- Information Section -->
+    <!-- Situation Administrative Information -->
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 mt-8 border border-blue-200 shadow-xl">
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
                 <i class="fas fa-info-circle text-white text-xl"></i>
             </div>
             <div>
-                <h3 class="text-2xl font-bold text-blue-900">À propos des Situations Administratives</h3>
-                <p class="text-blue-700">Informations importantes sur la création de situations administratives</p>
+                <h3 class="text-2xl font-bold text-blue-900">Informations de la Situation Administrative</h3>
+                <p class="text-blue-700">Détails et statistiques</p>
             </div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white rounded-2xl p-6 border border-blue-200">
                 <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-building text-white"></i>
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-calendar text-white"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">Commune et Province</h4>
-                        <p class="text-gray-600 text-sm">Chaque situation administrative doit avoir une commune et une province</p>
+                        <h4 class="font-semibold text-gray-900">Créée le</h4>
+                        <p class="text-gray-600 text-sm">{{ $situationAdministrative->created_at->format('d/m/Y H:i') }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 border border-blue-200">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clock text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">Modifiée le</h4>
+                        <p class="text-gray-600 text-sm">{{ $situationAdministrative->updated_at->format('d/m/Y H:i') }}</p>
                     </div>
                 </div>
             </div>
@@ -166,69 +170,11 @@
                         <i class="fas fa-database text-white"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900">Utilisation</h4>
-                        <p class="text-gray-600 text-sm">Les situations administratives sont utilisées dans les articles et rapports</p>
+                        <h4 class="font-semibold text-gray-900">ID</h4>
+                        <p class="text-gray-600 text-sm">#{{ $situationAdministrative->id }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Import Modal -->
-<div id="importModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Importer des Situations Administratives</h3>
-                <button onclick="document.getElementById('importModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <form action="{{ route('settings.situation-administratives.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                @csrf
-                
-                <div>
-                    <label for="import_file" class="block text-sm font-medium text-gray-700 mb-2">
-                        Fichier Excel (.xlsx, .xls)
-                    </label>
-                    <input 
-                        type="file" 
-                        name="file" 
-                        id="import_file" 
-                        accept=".xlsx,.xls"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                    >
-                </div>
-                
-                <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
-                    <h4 class="text-sm font-semibold text-blue-800 mb-2">Format attendu :</h4>
-                    <ul class="text-xs text-blue-700 space-y-1">
-                        <li>• Colonne A : Commune (obligatoire)</li>
-                        <li>• Colonne B : Province (obligatoire)</li>
-                        <li>• Première ligne : En-têtes</li>
-                        <li>• Format : .xlsx ou .xls</li>
-                    </ul>
-                </div>
-                
-                <div class="flex items-center justify-end space-x-3 pt-4">
-                    <button 
-                        type="button" 
-                        onclick="document.getElementById('importModal').classList.add('hidden')"
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-                    >
-                        Annuler
-                    </button>
-                    <button 
-                        type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                        <i class="fas fa-upload mr-2"></i>Importer
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
