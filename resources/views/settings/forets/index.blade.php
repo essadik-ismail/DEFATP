@@ -10,10 +10,16 @@
                 <h1 class="h3 mb-0">Gestion des Forêts</h1>
                 <p class="text-muted mb-0">Administrez les forêts et leurs informations géographiques</p>
             </div>
-            <a href="{{ route('settings.forets.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>
-                Nouvelle Forêt
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('settings.forets.map') }}" class="btn btn-info">
+                    <i class="fas fa-map-marked-alt me-2"></i>
+                    Carte des Forêts
+                </a>
+                <a href="{{ route('settings.forets.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Nouvelle Forêt
+                </a>
+            </div>
         </div>
     </div>
 

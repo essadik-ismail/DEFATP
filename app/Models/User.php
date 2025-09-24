@@ -28,6 +28,9 @@ class User extends Authenticatable
         'email_verified_at',
         'password',
         'is_deleted',
+        'email_notifications',
+        'push_notifications',
+        'notification_types',
     ];
 
     /**
@@ -51,6 +54,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_deleted' => 'boolean',
+            'email_notifications' => 'boolean',
+            'push_notifications' => 'boolean',
+            'notification_types' => 'array',
         ];
     }
 
@@ -89,5 +95,29 @@ class User extends Authenticatable
     public function activityLogsByAction(string $action, int $limit = 10)
     {
         return $this->activityLogs()->where('action', $action)->latest()->limit($limit);
+    }
+
+    /**
+     * Get the notifications for the user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(AppNotification::class);
+    }
+
+    /**
+     * Get the unread notifications for the user.
+     */
+    public function unreadNotifications()
+    {
+        return $this->notifications()->whereNull('read_at');
+    }
+
+    /**
+     * Get the read notifications for the user.
+     */
+    public function readNotifications()
+    {
+        return $this->notifications()->whereNotNull('read_at');
     }
 }

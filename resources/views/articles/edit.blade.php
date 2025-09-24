@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <form action="{{ route('articles.update', $article) }}" method="POST" id="articleForm" class="space-y-8" data-server-validation>
+        <form action="{{ route('articles.update', $article) }}" method="POST" id="articleForm" class="space-y-8" data-server-validation enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -68,7 +68,40 @@
                     </div>
                     <h3 class="text-xl font-bold text-blue-900">Section 1: Informations de Base</h3>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="form-group">
+                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Type <span class="text-red-500">*</span>
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                id="type" name="type" required onchange="toggleNumeroAdjudication()">
+                            <option value="">Sélectionner un type</option>
+                            <option value="appel_doffre" {{ old('type', $article->type) == 'appel_doffre' ? 'selected' : '' }}>Appel d'Offre</option>
+                            <option value="adjudication" {{ old('type', $article->type) == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
+                        </select>
+                        @error('type')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="form-group" id="numero_adjudication_group" style="display: none;">
+                        <label for="numero_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Numéro d'Adjudication
+                        </label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="numero_adjudication" name="numero_adjudication" 
+                               value="{{ old('numero_adjudication', $article->numero_adjudication) }}" 
+                               placeholder="Numéro d'adjudication">
+                        @error('numero_adjudication')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
                     <div class="form-group">
                         <label for="annee" class="block text-sm font-semibold text-gray-700 mb-2">
                             Année <span class="text-red-500">*</span>
@@ -84,6 +117,8 @@
                             </div>
                         @enderror
                     </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                     <div class="form-group">
                         <label for="date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">
                             Date d'Adjudication <span class="text-red-500">*</span>
@@ -204,6 +239,48 @@
                         @enderror
                     </div>
                     <div class="form-group">
+                        <label for="essence_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Essence <span class="text-red-500">*</span>
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                id="essence_id" name="essence_id" required>
+                            <option value="">Sélectionner une essence</option>
+                            @foreach($essences as $essence)
+                                <option value="{{ $essence->id }}" {{ old('essence_id', $article->essence_id) == $essence->id ? 'selected' : '' }}>
+                                    {{ $essence->essence }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('essence_id')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="form-group">
+                        <label for="nature_de_coupe_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Nature de Coupe <span class="text-red-500">*</span>
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                id="nature_de_coupe_id" name="nature_de_coupe_id" required>
+                            <option value="">Sélectionner une nature de coupe</option>
+                            @foreach($natureDeCoupes as $natureDeCoupe)
+                                <option value="{{ $natureDeCoupe->id }}" {{ old('nature_de_coupe_id', $article->nature_de_coupe_id) == $natureDeCoupe->id ? 'selected' : '' }}>
+                                    {{ $natureDeCoupe->nature_de_coupe }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('nature_de_coupe_id')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
                         <label for="nature_juridique" class="block text-sm font-semibold text-gray-700 mb-2">
                             Nature Juridique
                         </label>
@@ -212,6 +289,28 @@
                                id="nature_juridique" name="nature_juridique" value="{{ old('nature_juridique', $article->nature_juridique) }}" 
                                placeholder="Nature juridique">
                         @error('nature_juridique')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="form-group">
+                        <label for="exploitant_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Exploitant
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                id="exploitant_id" name="exploitant_id">
+                            <option value="">Sélectionner un exploitant</option>
+                            @foreach($exploitants as $exploitant)
+                                <option value="{{ $exploitant->id }}" {{ old('exploitant_id', $article->exploitant_id) == $exploitant->id ? 'selected' : '' }}>
+                                    {{ $exploitant->nom_complet }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('exploitant_id')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -276,21 +375,18 @@
                     </div>
                     <h3 class="text-xl font-bold text-purple-900">Section 3: Détails Techniques</h3>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Technical Measurements -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="form-group">
-                        <label for="essence_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Essence <span class="text-red-500">*</span>
+                        <label for="superficie" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Superficie
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                                id="essence_id" name="essence_id" required>
-                            <option value="">Sélectionner une essence</option>
-                            @foreach($essences as $essence)
-                                <option value="{{ $essence->id }}" {{ old('essence_id', $article->essence_id) == $essence->id ? 'selected' : '' }}>
-                                    {{ $essence->essence }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('essence_id')
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="superficie" name="superficie" value="{{ old('superficie', $article->superficie) }}" 
+                               min="0" step="0.01" placeholder="Superficie en ha">
+                        @error('superficie')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -298,19 +394,14 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="nature_de_coupe_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Nature de Coupe
+                        <label for="bo_m3" class="block text-sm font-semibold text-gray-700 mb-2">
+                            BO (m³)
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                                id="nature_de_coupe_id" name="nature_de_coupe_id">
-                            <option value="">Sélectionner une nature de coupe</option>
-                            @foreach($natureDeCoupes as $nature)
-                                <option value="{{ $nature->id }}" {{ old('nature_de_coupe_id', $article->nature_de_coupe_id) == $nature->id ? 'selected' : '' }}>
-                                    {{ $nature->nature_de_coupe }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('nature_de_coupe_id')
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="bo_m3" name="bo_m3" value="{{ old('bo_m3', $article->bo_m3) }}" 
+                               min="0" step="0.01" placeholder="BO en m³">
+                        @error('bo_m3')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -318,19 +409,14 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="exploitant_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Exploitant
+                        <label for="bi_m3" class="block text-sm font-semibold text-gray-700 mb-2">
+                            BI (m³)
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                                id="exploitant_id" name="exploitant_id">
-                            <option value="">Sélectionner un exploitant</option>
-                            @foreach($exploitants as $exploitant)
-                                <option value="{{ $exploitant->id }}" {{ old('exploitant_id', $article->exploitant_id) == $exploitant->id ? 'selected' : '' }}>
-                                    {{ $exploitant->nom }} {{ $exploitant->prenom }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('exploitant_id')
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="bi_m3" name="bi_m3" value="{{ old('bi_m3', $article->bi_m3) }}" 
+                               min="0" step="0.01" placeholder="BI en m³">
+                        @error('bi_m3')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -338,17 +424,14 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Type
+                        <label for="bf_st" class="block text-sm font-semibold text-gray-700 mb-2">
+                            BF/ST
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                                id="type" name="type">
-                            <option value="">Sélectionner un type</option>
-                            <option value="Appel d'Offre" {{ old('type', $article->type) == 'Appel d\'Offre' ? 'selected' : '' }}>Appel d'Offre</option>
-                            <option value="Vente Directe" {{ old('type', $article->type) == 'Vente Directe' ? 'selected' : '' }}>Vente Directe</option>
-                            <option value="Contrat" {{ old('type', $article->type) == 'Contrat' ? 'selected' : '' }}>Contrat</option>
-                        </select>
-                        @error('type')
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="bf_st" name="bf_st" value="{{ old('bf_st', $article->bf_st) }}" 
+                               min="0" step="0.01" placeholder="BF/ST">
+                        @error('bf_st')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -356,92 +439,93 @@
                         @enderror
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-                    <div class="form-group">
-                        <label for="volume" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Volume
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="volume" name="volume" value="{{ old('volume', $article->volume) }}" 
-                               min="0" step="0.01" placeholder="Volume en m³">
-                        @error('volume')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="poids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Poids
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="poids" name="poids" value="{{ old('poids', $article->poids) }}" 
-                               min="0" step="0.01" placeholder="Poids en kg">
-                        @error('poids')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="prix_retrait" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Prix de Retrait
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="prix_retrait" name="prix_retrait" value="{{ old('prix_retrait', $article->prix_retrait) }}" 
-                               min="0" step="0.01" placeholder="Prix de retrait">
-                        @error('prix_retrait')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="prix_vente" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Prix de Vente
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="prix_vente" name="prix_vente" value="{{ old('prix_vente', $article->prix_vente) }}" 
-                               min="0" step="0.01" placeholder="Prix de vente">
-                        @error('prix_vente')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                </div>
-            </div>
 
-            <!-- Section 4: Informations Supplémentaires -->
-            <div class="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-200">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-info-circle text-white"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-orange-900">Section 4: Informations Supplémentaires</h3>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Product Quantities -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     <div class="form-group">
-                        <label for="statut" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Statut
+                        <label for="tanin_t" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Tanin (T)
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400" 
-                                id="statut" name="statut">
-                            <option value="">Sélectionner un statut</option>
-                            <option value="En attente" {{ old('statut', $article->statut) == 'En attente' ? 'selected' : '' }}>En attente</option>
-                            <option value="En cours" {{ old('statut', $article->statut) == 'En cours' ? 'selected' : '' }}>En cours</option>
-                            <option value="Terminé" {{ old('statut', $article->statut) == 'Terminé' ? 'selected' : '' }}>Terminé</option>
-                            <option value="Annulé" {{ old('statut', $article->statut) == 'Annulé' ? 'selected' : '' }}>Annulé</option>
-                        </select>
-                        @error('statut')
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="tanin_t" name="tanin_t" value="{{ old('tanin_t', $article->tanin_t) }}" 
+                               min="0" step="0.01" placeholder="Tanin en tonnes">
+                        @error('tanin_t')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="fleur_acacia_t" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Fleur Acacia (T)
+                        </label>
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="fleur_acacia_t" name="fleur_acacia_t" value="{{ old('fleur_acacia_t', $article->fleur_acacia_t) }}" 
+                               min="0" step="0.01" placeholder="Fleur Acacia en tonnes">
+                        @error('fleur_acacia_t')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="caroube_t" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Caroube (T)
+                        </label>
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="caroube_t" name="caroube_t" value="{{ old('caroube_t', $article->caroube_t) }}" 
+                               min="0" step="0.01" placeholder="Caroube en tonnes">
+                        @error('caroube_t')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="romarin_t" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Romarin (T)
+                        </label>
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="romarin_t" name="romarin_t" value="{{ old('romarin_t', $article->romarin_t) }}" 
+                               min="0" step="0.01" placeholder="Romarin en tonnes">
+                        @error('romarin_t')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="liége_st" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Liège (ST)
+                        </label>
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="liége_st" name="liége_st" value="{{ old('liége_st', $article->liége_st) }}" 
+                               min="0" step="0.01" placeholder="Liège en ST">
+                        @error('liége_st')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="charbon_bois_ox" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Charbon Bois (OX)
+                        </label>
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="charbon_bois_ox" name="charbon_bois_ox" value="{{ old('charbon_bois_ox', $article->charbon_bois_ox) }}" 
+                               min="0" step="0.01" placeholder="Charbon Bois en OX">
+                        @error('charbon_bois_ox')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -449,63 +533,77 @@
                         @enderror
                     </div>
                 </div>
-            </div>
 
-            <!-- Section 4: Produits -->
-            <div class="bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-box text-white"></i>
+                <!-- Products Section -->
+                <div class="bg-white rounded-2xl p-6 border border-purple-200">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-box text-white text-sm"></i>
+                            </div>
+                            <h4 class="text-lg font-bold text-purple-900">Produits</h4>
                         </div>
-                        <h4 class="text-lg font-bold text-purple-900">Produits</h4>
+                        <button type="button" 
+                                onclick="addProduct()" 
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-lg hover:from-purple-700 hover:to-violet-700 transition-all duration-300 text-sm">
+                            <i class="fas fa-plus"></i>
+                            Ajouter Produit
+                        </button>
                     </div>
-                    <button type="button" 
-                            onclick="addProduct()" 
-                            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-lg hover:from-purple-700 hover:to-violet-700 transition-all duration-300 text-sm">
-                        <i class="fas fa-plus"></i>
-                        Ajouter Produit
-                    </button>
-                </div>
-
-                <div id="products-container" class="space-y-4">
-                    @if(old('products') || $article->products->count() > 0)
-                        @php
-                            $products = old('products', $article->products->map(function($product) {
-                                return ['name' => $product->name, 'quantity' => $product->quantity];
-                            })->toArray());
-                        @endphp
-                        @foreach($products as $index => $product)
-                            <div class="product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                                <div class="flex-1">
-                                    <input type="text" 
-                                           name="products[{{ $index }}][name]" 
-                                           value="{{ $product['name'] ?? '' }}"
-                                           placeholder="Nom du produit" 
-                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
-                                           required>
-                                </div>
-                                <div class="w-32">
-                                    <input type="number" 
-                                           name="products[{{ $index }}][quantity]" 
-                                           value="{{ $product['quantity'] ?? 1 }}"
-                                           placeholder="Quantité" 
-                                           min="1" 
-                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
-                                           required>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <button type="button" 
-                                            onclick="removeProduct(this)" 
-                                            class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        @endforeach
-                    @endif
+                    
+                    <div id="products-container">
+                        <!-- Products will be added dynamically here -->
+                    </div>
                 </div>
             </div>
+
+            <!-- Section 4: Plan du Situation -->
+            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-map-marked-alt text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Plan du Situation</h3>
+                        <p class="text-gray-600">Importez un fichier Excel avec les coordonnées des emplacements</p>
+                    </div>
+                </div>
+
+                <div class="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-white/40">
+                    <div class="mb-4">
+                        <label for="locations_file" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Fichier Excel des Emplacements
+                        </label>
+                        <input type="file" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="locations_file" name="locations_file" 
+                               accept=".xlsx,.xls,.csv">
+                        <p class="text-sm text-gray-500 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Format requis: Colonnes "mat", "x", "y" (matériel, coordonnée X, coordonnée Y)
+                        </p>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-blue-800 mb-2">
+                            <i class="fas fa-file-excel mr-2"></i>Format du fichier Excel
+                        </h4>
+                        <div class="text-sm text-blue-700">
+                            <p class="mb-2">Votre fichier Excel doit contenir les colonnes suivantes :</p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li><strong>mat</strong> : Code matériel ou référence (optionnel)</li>
+                                <li><strong>x</strong> : Coordonnée X (optionnel)</li>
+                                <li><strong>y</strong> : Coordonnée Y (optionnel)</li>
+                            </ul>
+                            <p class="mt-2 text-xs">
+                                <i class="fas fa-lightbulb mr-1"></i>
+                                Toutes les colonnes sont optionnelles, mais au moins une doit être remplie.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- Form Actions -->
             <div class="flex items-center gap-4 pt-6 border-t border-gray-200">
@@ -613,9 +711,69 @@
 
 @push('scripts')
 <script>
+let productCount = 0;
+
+// Toggle numero_adjudication field based on type selection
+function toggleNumeroAdjudication() {
+    const typeSelect = document.getElementById('type');
+    const numeroAdjudicationGroup = document.getElementById('numero_adjudication_group');
+    
+    if (typeSelect.value === 'appel_doffre') {
+        numeroAdjudicationGroup.style.display = 'block';
+    } else {
+        numeroAdjudicationGroup.style.display = 'none';
+        document.getElementById('numero_adjudication').value = '';
+    }
+}
+
+// Add new product row
+function addProduct() {
+    productCount++;
+    const container = document.getElementById('products-container');
+    
+    const productRow = document.createElement('div');
+    productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    productRow.innerHTML = `
+        <div class="flex-1">
+            <input type="text" 
+                   name="products[${productCount}][name]" 
+                   placeholder="Nom du produit" 
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="w-32">
+            <input type="number" 
+                   name="products[${productCount}][quantity]" 
+                   placeholder="Quantité" 
+                   min="1" 
+                   value="1"
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" 
+                    onclick="removeProduct(this)" 
+                    class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(productRow);
+}
+
+// Remove product row
+function removeProduct(button) {
+    const productRow = button.closest('.product-row');
+    productRow.remove();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('articleForm');
     const submitBtn = document.getElementById('submitBtn');
+    
+    // Initialize numero_adjudication toggle
+    toggleNumeroAdjudication();
     
     // Simple field validation
     function validateField(field) {
@@ -670,50 +828,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-// Product management
-let productCount = {{ old('products') ? count(old('products')) : ($article->products->count() ?? 0) }};
-
-// Add new product row
-function addProduct() {
-    productCount++;
-    const container = document.getElementById('products-container');
-    
-    const productRow = document.createElement('div');
-    productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
-    productRow.innerHTML = `
-        <div class="flex-1">
-            <input type="text" 
-                   name="products[${productCount}][name]" 
-                   placeholder="Nom du produit" 
-                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
-                   required>
-        </div>
-        <div class="w-32">
-            <input type="number" 
-                   name="products[${productCount}][quantity]" 
-                   placeholder="Quantité" 
-                   min="1" 
-                   value="1"
-                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
-                   required>
-        </div>
-        <div class="flex items-center gap-2">
-            <button type="button" 
-                    onclick="removeProduct(this)" 
-                    class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
-                <i class="fas fa-minus"></i>
-            </button>
-        </div>
-    `;
-    
-    container.appendChild(productRow);
-}
-
-// Remove product row
-function removeProduct(button) {
-    const productRow = button.closest('.product-row');
-    productRow.remove();
-}
 </script>
 @endpush

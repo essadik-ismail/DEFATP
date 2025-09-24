@@ -22,6 +22,23 @@ Route::middleware('guest')->group(function () {
     Route::get('/captcha/refresh', [AuthController::class, 'refreshCaptcha'])->name('captcha.refresh');
 });
 
+// Guest verification route (no authentication required)
+Route::get('/verify-exploitant/{exploitant}', [SettingsController::class, 'verifyExploitant'])->name('verify-exploitant');
+
+// Notification routes
+Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::get('/get', [App\Http\Controllers\NotificationController::class, 'getNotifications'])->name('get');
+    Route::patch('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
+    Route::patch('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
+    Route::delete('/delete-read', [App\Http\Controllers\NotificationController::class, 'deleteRead'])->name('delete-read');
+    Route::get('/settings', [App\Http\Controllers\NotificationController::class, 'settings'])->name('settings');
+    Route::put('/settings', [App\Http\Controllers\NotificationController::class, 'updateSettings'])->name('update-settings');
+    Route::get('/statistics', [App\Http\Controllers\NotificationController::class, 'statistics'])->name('statistics');
+    Route::post('/send-test', [App\Http\Controllers\NotificationController::class, 'sendTest'])->name('send-test');
+});
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('auth.profile');
@@ -81,6 +98,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     
     // Forêts
     Route::get('/forets', [SettingsController::class, 'forets'])->name('forets');
+    Route::get('/forets/map', [SettingsController::class, 'foretsMap'])->name('forets.map');
     Route::get('/forets/create', [SettingsController::class, 'createForet'])->name('forets.create');
     Route::post('/forets', [SettingsController::class, 'storeForet'])->name('forets.store');
     Route::get('/forets/{foret}/edit', [SettingsController::class, 'editForet'])->name('forets.edit');
@@ -120,8 +138,6 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::delete('/exploitants/{exploitant}', [SettingsController::class, 'destroyExploitant'])->name('exploitants.destroy');
     Route::get('/exploitants/export', [SettingsController::class, 'exportExploitants'])->name('exploitants.export');
     Route::post('/exploitants/import', [SettingsController::class, 'importExploitants'])->name('exploitants.import');
-    
-
     
     // Localisations
     Route::get('/localisations', [SettingsController::class, 'localisations'])->name('localisations');

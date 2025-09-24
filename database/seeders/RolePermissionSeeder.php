@@ -15,6 +15,9 @@ class RolePermissionSeeder extends Seeder
     {
         // Create permissions
         $permissions = [
+            // Dashboard
+            'dashboard.view',
+            
             // Articles
             'articles.view',
             'articles.create',
@@ -22,6 +25,7 @@ class RolePermissionSeeder extends Seeder
             'articles.delete',
             'articles.export',
             'articles.import',
+            'articles.print',
             
             // Settings - Essences
             'essences.view',
@@ -70,12 +74,37 @@ class RolePermissionSeeder extends Seeder
             'exploitants.delete',
             'exploitants.export',
             'exploitants.import',
+            'exploitants.print-card',
             
             // Users
             'users.view',
             'users.create',
             'users.edit',
             'users.delete',
+            'users.assign-roles',
+            
+            // Roles & Permissions
+            'roles.view',
+            'roles.create',
+            'roles.edit',
+            'roles.delete',
+            'permissions.view',
+            'permissions.assign',
+            
+            // Notifications
+            'notifications.view',
+            'notifications.create',
+            'notifications.send',
+            'notifications.manage',
+            
+            // Activity Logs
+            'activity-logs.view',
+            'activity-logs.export',
+            
+            // System
+            'system.backup',
+            'system.maintenance',
+            'system.settings',
             
             // Profile
             'profile.view',
@@ -88,16 +117,83 @@ class RolePermissionSeeder extends Seeder
 
         // Create roles
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $managerRole = Role::firstOrCreate(['name' => 'manager']);
+        $operatorRole = Role::firstOrCreate(['name' => 'operator']);
         $userRole = Role::firstOrCreate(['name' => 'user']);
+        $viewerRole = Role::firstOrCreate(['name' => 'viewer']);
 
         // Assign all permissions to admin
         $adminRole->givePermissionTo(Permission::all());
 
-        // Assign basic permissions to user
-        $userRole->givePermissionTo([
+        // Assign permissions to manager
+        $managerRole->givePermissionTo([
+            'dashboard.view',
             'articles.view',
             'articles.create',
             'articles.edit',
+            'articles.export',
+            'articles.import',
+            'articles.print',
+            'exploitants.view',
+            'exploitants.create',
+            'exploitants.edit',
+            'exploitants.export',
+            'exploitants.print-card',
+            'forets.view',
+            'forets.create',
+            'forets.edit',
+            'forets.export',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'notifications.view',
+            'notifications.send',
+            'activity-logs.view',
+            'profile.view',
+            'profile.edit',
+        ]);
+
+        // Assign permissions to operator
+        $operatorRole->givePermissionTo([
+            'dashboard.view',
+            'articles.view',
+            'articles.create',
+            'articles.edit',
+            'articles.export',
+            'articles.print',
+            'exploitants.view',
+            'exploitants.create',
+            'exploitants.edit',
+            'exploitants.print-card',
+            'forets.view',
+            'forets.create',
+            'forets.edit',
+            'notifications.view',
+            'profile.view',
+            'profile.edit',
+        ]);
+
+        // Assign basic permissions to user
+        $userRole->givePermissionTo([
+            'dashboard.view',
+            'articles.view',
+            'articles.create',
+            'articles.edit',
+            'articles.print',
+            'exploitants.view',
+            'exploitants.print-card',
+            'notifications.view',
+            'profile.view',
+            'profile.edit',
+        ]);
+
+        // Assign read-only permissions to viewer
+        $viewerRole->givePermissionTo([
+            'dashboard.view',
+            'articles.view',
+            'exploitants.view',
+            'forets.view',
+            'notifications.view',
             'profile.view',
             'profile.edit',
         ]);

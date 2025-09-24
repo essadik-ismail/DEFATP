@@ -146,6 +146,35 @@ class SettingsController extends Controller
         return view('settings.forets.index', compact('forets'));
     }
 
+    public function foretsMap(): View
+    {
+        // Log forest map view
+        ActivityLogger::log('view', 'Consultation de la carte des forêts', Foret::class);
+        
+        // Get all forests with coordinates
+        $forests = Foret::where('is_deleted', false)
+            ->where('lat', '!=', '0')
+            ->where('log', '!=', '0')
+            ->whereNotNull('lat')
+            ->whereNotNull('log')
+            ->orderBy('foret')
+            ->get();
+            
+        // Get statistics
+        $totalForests = Foret::where('is_deleted', false)->count();
+        $geolocatedForests = $forests->count();
+        $nonGeolocatedForests = $totalForests - $geolocatedForests;
+        
+        $stats = [
+            'total' => $totalForests,
+            'geolocated' => $geolocatedForests,
+            'non_geolocated' => $nonGeolocatedForests,
+            'percentage' => $totalForests > 0 ? round(($geolocatedForests / $totalForests) * 100, 1) : 0
+        ];
+        
+        return view('settings.forets.map', compact('forests', 'stats'));
+    }
+
     public function createForet(): View
     {
         return view('settings.forets.create');
@@ -544,6 +573,12 @@ class SettingsController extends Controller
         return view('settings.exploitants.carte-professionnelle', compact('exploitant'));
     }
 
+    public function verifyExploitant(Exploitant $exploitant): View
+    {
+        return view('settings.exploitants.verify', compact('exploitant'));
+    }
+
+
     public function createExploitant(): View
     {
         $localisations = Localisation::where('is_deleted', false)->orderBy('CODE')->get();
@@ -617,7 +652,8 @@ class SettingsController extends Controller
 
     public function editExploitant(Exploitant $exploitant): View
     {
-        return view('settings.exploitants.edit', compact('exploitant'));
+        $localisations = Localisation::where('is_deleted', false)->orderBy('CODE')->get();
+        return view('settings.exploitants.edit', compact('exploitant', 'localisations'));
     }
 
     public function updateExploitant(UpdateExploitantRequest $request, Exploitant $exploitant): RedirectResponse

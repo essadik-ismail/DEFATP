@@ -9,6 +9,11 @@
             <span>SylvaNet</span>
         </div>
         
+        <!-- Notification Dropdown -->
+        <div class="sidebar-notifications">
+            <x-notification-dropdown />
+        </div>
+        
         <ul class="nav-menu">
             <!-- Dashboard -->
             <li class="nav-item">
@@ -37,6 +42,9 @@
                     <a class="submenu-item {{ request()->routeIs('settings.forets') ? 'active' : '' }}" href="{{ route('settings.forets') }}">
                         <i class="fas fa-mountain"></i> <span>Forêts</span>
                     </a>
+                    <a class="submenu-item {{ request()->routeIs('settings.forets.map') ? 'active' : '' }}" href="{{ route('settings.forets.map') }}">
+                        <i class="fas fa-map-marked-alt"></i> <span>Carte des Forêts</span>
+                    </a>
                     <a class="submenu-item {{ request()->routeIs('settings.nature-de-coupes') ? 'active' : '' }}" href="{{ route('settings.nature-de-coupes') }}">
                         <i class="fas fa-axe"></i> <span>Nature de Coupes</span>
                     </a>
@@ -56,18 +64,6 @@
                 </a>
             </li>
 
-            <li class="nav-item has-submenu">
-                <a class="nav-link has-submenu" onclick="toggleSubmenu(this)" data-title="Carte Professionnelle">
-                    <i class="fas fa-id-card"></i>
-                    <span>Exploitant Forêtier</span>
-                </a>
-                <div class="submenu">
-                    <a class="submenu-item {{ request()->routeIs('settings.exploitants') ? 'active' : '' }}" href="{{ route('settings.exploitants') }}">
-                        <i class="fas fa-user-tie"></i> <span>Carte Professionnelle</span>
-                    </a>
-                 
-                </div>
-            </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="#" data-title="Bois Particulier">
@@ -118,6 +114,20 @@
                 <a class="nav-link {{ request()->routeIs('select.search.demo') ? 'active' : '' }}" href="{{ route('select.search.demo') }}" data-title="Démo Select avec Recherche">
                     <i class="fas fa-search"></i>
                     <span>Select avec Recherche</span>
+                </a>
+            </li>
+
+            <!-- Notifications -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}" href="{{ route('notifications.index') }}" data-title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                    @php
+                        $unreadCount = auth()->user()->notifications()->whereNull('read_at')->count();
+                    @endphp
+                    @if($unreadCount > 0)
+                        <span class="notification-count">{{ $unreadCount }}</span>
+                    @endif
                 </a>
             </li>
         </ul>
