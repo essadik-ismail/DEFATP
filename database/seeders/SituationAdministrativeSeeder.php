@@ -13,109 +13,55 @@ class SituationAdministrativeSeeder extends Seeder
      */
     public function run(): void
     {
-        $administrativeData = [
-            // Région de Rabat-Salé-Kénitra
-            ['commune' => 'Rabat-Salé-Kénitra', 'province' => 'Rabat'],
-            ['commune' => 'Rabat-Salé-Kénitra', 'province' => 'Salé'],
-            ['commune' => 'Rabat-Salé-Kénitra', 'province' => 'Skhirate-Témara'],
-            ['commune' => 'Rabat-Salé-Kénitra', 'province' => 'Kénitra'],
-            ['commune' => 'Rabat-Salé-Kénitra', 'province' => 'Khémisset'],
-            ['commune' => 'Rabat-Salé-Kénitra', 'province' => 'Sidi Kacem'],
-            ['commune' => 'Rabat-Salé-Kénitra', 'province' => 'Sidi Slimane'],
-
-            // Région de Casablanca-Settat
-            ['commune' => 'Casablanca-Settat', 'province' => 'Casablanca'],
-            ['commune' => 'Casablanca-Settat', 'province' => 'Mohammadia'],
-            ['commune' => 'Casablanca-Settat', 'province' => 'El Jadida'],
-            ['commune' => 'Casablanca-Settat', 'province' => 'Nouaceur'],
-            ['commune' => 'Casablanca-Settat', 'province' => 'Médiouna'],
-            ['commune' => 'Casablanca-Settat', 'province' => 'Benslimane'],
-            ['commune' => 'Casablanca-Settat', 'province' => 'Berrechid'],
-            ['commune' => 'Casablanca-Settat', 'province' => 'Settat'],
-            ['commune' => 'Casablanca-Settat', 'province' => 'Sidi Bennour'],
-
-            // Région de Tanger-Tétouan-Al Hoceima
-            ['commune' => 'Tanger-Tétouan-Al Hoceima', 'province' => 'Tanger-Assilah'],
-            ['commune' => 'Tanger-Tétouan-Al Hoceima', 'province' => 'M\'diq-Fnideq'],
-            ['commune' => 'Tanger-Tétouan-Al Hoceima', 'province' => 'Tétouan'],
-            ['commune' => 'Tanger-Tétouan-Al Hoceima', 'province' => 'Fahs-Anjra'],
-            ['commune' => 'Tanger-Tétouan-Al Hoceima', 'province' => 'Larache'],
-            ['commune' => 'Tanger-Tétouan-Al Hoceima', 'province' => 'Al Hoceima'],
-            ['commune' => 'Tanger-Tétouan-Al Hoceima', 'province' => 'Chefchaouen'],
-            ['commune' => 'Tanger-Tétouan-Al Hoceima', 'province' => 'Ouazzane'],
-
-            // Région de l'Oriental
-            ['commune' => 'lOriental', 'province' => 'Oujda-Angad'],
-            ['commune' => 'lOriental', 'province' => 'Nador'],
-            ['commune' => 'lOriental', 'province' => 'Driouch'],
-            ['commune' => 'lOriental', 'province' => 'Jerada'],
-            ['commune' => 'lOriental', 'province' => 'Berkan'],
-            ['commune' => 'lOriental', 'province' => 'Taourirt'],
-            ['commune' => 'lOriental', 'province' => 'Guercif'],
-            ['commune' => 'lOriental', 'province' => 'Figuig'],
-
-            // Région de Fès-Meknès
-            ['commune' => 'Fès - Meknès', 'province' => 'Fès'],
-            ['commune' => 'Fès - Meknès', 'province' => 'Meknès'],
-            ['commune' => 'Fès - Meknès', 'province' => 'El Hajeb'],
-            ['commune' => 'Fès - Meknès', 'province' => 'Ifrane'],
-            ['commune' => 'Fès - Meknès', 'province' => 'Moulay Yacoub'],
-            ['commune' => 'Fès - Meknès', 'province' => 'Sefrou'],
-            ['commune' => 'Fès - Meknès', 'province' => 'Boulemane'],
-            ['commune' => 'Fès - Meknès', 'province' => 'Taounate'],
-            ['commune' => 'Fès - Meknès', 'province' => 'Taza'],
-
-            // Région de Béni Mellal-Khénifra
-            ['commune' => 'Béni Mellal-Khénifra', 'province' => 'Béni Mellal'],
-            ['commune' => 'Béni Mellal-Khénifra', 'province' => 'Azilal'],
-            ['commune' => 'Béni Mellal-Khénifra', 'province' => 'Fquih Ben Salah'],
-            ['commune' => 'Béni Mellal-Khénifra', 'province' => 'Khénifra'],
-            ['commune' => 'Béni Mellal-Khénifra', 'province' => 'Khouribga'],
-
-            // Région de Marrakech-Safi
-            ['commune' => 'Marrakech-Safi', 'province' => 'Marrakech'],
-            ['commune' => 'Marrakech-Safi', 'province' => 'Chichaoua'],
-            ['commune' => 'Marrakech-Safi', 'province' => 'Al Haouz'],
-            ['commune' => 'Marrakech-Safi', 'province' => 'Kelâa des Sraghna'],
-            ['commune' => 'Marrakech-Safi', 'province' => 'Essaouira'],
-            ['commune' => 'Marrakech-Safi', 'province' => 'Rehamna'],
-            ['commune' => 'Marrakech-Safi', 'province' => 'Safi'],
-            ['commune' => 'Marrakech-Safi', 'province' => 'Youssoufia'],
-
-            // Région de Drâa-Tafilalet
-            ['commune' => 'Drâa-Tafilalet', 'province' => 'Errachidia'],
-            ['commune' => 'Drâa-Tafilalet', 'province' => 'Ouarzazate'],
-            ['commune' => 'Drâa-Tafilalet', 'province' => 'Midelt'],
-            ['commune' => 'Drâa-Tafilalet', 'province' => 'Tinghir'],
-            ['commune' => 'Drâa-Tafilalet', 'province' => 'Zagora'],
-
-            // Région de Souss-Massa
-            ['commune' => 'Souss-Massa', 'province' => 'Agadir Ida-Ou-Tanane'],
-            ['commune' => 'Souss-Massa', 'province' => 'Inezgane-Aït Melloul'],
-            ['commune' => 'Souss-Massa', 'province' => 'Chtouka-Aït Baha'],
-            ['commune' => 'Souss-Massa', 'province' => 'Taroudannt'],
-            ['commune' => 'Souss-Massa', 'province' => 'Tiznit'],
-            ['commune' => 'Souss-Massa', 'province' => 'Tata'],
-
-            // Région de Guelmim-Oued Noun
-            ['commune' => 'Guelmim-Oued Noun', 'province' => 'Guelmim'],
-            ['commune' => 'Guelmim-Oued Noun', 'province' => 'Assa-Zag'],
-            ['commune' => 'Guelmim-Oued Noun', 'province' => 'Tan-Tan'],
-            ['commune' => 'Guelmim-Oued Noun', 'province' => 'Sidi Ifni'],
-
-            // Région de Laâyoune-Sakia El Hamra
-            ['commune' => 'Laâyoune-Sakia El Hamra', 'province' => 'Laâyoune'],
-            ['commune' => 'Laâyoune-Sakia El Hamra', 'province' => 'Boujdour'],
-            ['commune' => 'Laâyoune-Sakia El Hamra', 'province' => 'Tarfaya'],
-            ['commune' => 'Laâyoune-Sakia El Hamra', 'province' => 'Es-Semara'],
-
-            // Région de Dakhla-Oued Ed-Dahab
-            ['commune' => 'Dakhla-Oued Ed-Dahab', 'province' => 'Oued Ed-Dahab'],
-            ['commune' => 'Dakhla-Oued Ed-Dahab', 'province' => 'Aousserd'],
+        $situations = [
+            ['commune' => 'Mohammedia', 'province' => 'Casablanca-Settat', 'region' => 'Casablanca-Settat'],
+            ['commune' => 'Casablanca', 'province' => 'Casablanca-Settat', 'region' => 'Casablanca-Settat'],
+            ['commune' => 'Rabat', 'province' => 'Rabat-Salé-Kénitra', 'region' => 'Rabat-Salé-Kénitra'],
+            ['commune' => 'Fès', 'province' => 'Fès-Meknès', 'region' => 'Fès-Meknès'],
+            ['commune' => 'Meknès', 'province' => 'Fès-Meknès', 'region' => 'Fès-Meknès'],
+            ['commune' => 'Marrakech', 'province' => 'Marrakech-Safi', 'region' => 'Marrakech-Safi'],
+            ['commune' => 'Agadir', 'province' => 'Souss-Massa', 'region' => 'Souss-Massa'],
+            ['commune' => 'Tanger', 'province' => 'Tanger-Tétouan-Al Hoceïma', 'region' => 'Tanger-Tétouan-Al Hoceïma'],
+            ['commune' => 'Tétouan', 'province' => 'Tanger-Tétouan-Al Hoceïma', 'region' => 'Tanger-Tétouan-Al Hoceïma'],
+            ['commune' => 'Al Hoceïma', 'province' => 'Tanger-Tétouan-Al Hoceïma', 'region' => 'Tanger-Tétouan-Al Hoceïma'],
+            ['commune' => 'Oujda', 'province' => 'Oriental', 'region' => 'Oriental'],
+            ['commune' => 'Nador', 'province' => 'Oriental', 'region' => 'Oriental'],
+            ['commune' => 'Béni Mellal', 'province' => 'Béni Mellal-Khénifra', 'region' => 'Béni Mellal-Khénifra'],
+            ['commune' => 'Khénifra', 'province' => 'Béni Mellal-Khénifra', 'region' => 'Béni Mellal-Khénifra'],
+            ['commune' => 'Azilal', 'province' => 'Béni Mellal-Khénifra', 'region' => 'Béni Mellal-Khénifra'],
+            ['commune' => 'Khouribga', 'province' => 'Béni Mellal-Khénifra', 'region' => 'Béni Mellal-Khénifra'],
+            ['commune' => 'Safi', 'province' => 'Marrakech-Safi', 'region' => 'Marrakech-Safi'],
+            ['commune' => 'Essaouira', 'province' => 'Marrakech-Safi', 'region' => 'Marrakech-Safi'],
+            ['commune' => 'El Jadida', 'province' => 'Casablanca-Settat', 'region' => 'Casablanca-Settat'],
+            ['commune' => 'Settat', 'province' => 'Casablanca-Settat', 'region' => 'Casablanca-Settat'],
+            ['commune' => 'Benslimane', 'province' => 'Casablanca-Settat', 'region' => 'Casablanca-Settat'],
+            ['commune' => 'Kénitra', 'province' => 'Rabat-Salé-Kénitra', 'region' => 'Rabat-Salé-Kénitra'],
+            ['commune' => 'Salé', 'province' => 'Rabat-Salé-Kénitra', 'region' => 'Rabat-Salé-Kénitra'],
+            ['commune' => 'Sidi Slimane', 'province' => 'Rabat-Salé-Kénitra', 'region' => 'Rabat-Salé-Kénitra'],
+            ['commune' => 'Sidi Kacem', 'province' => 'Rabat-Salé-Kénitra', 'region' => 'Rabat-Salé-Kénitra'],
+            ['commune' => 'Ifrane', 'province' => 'Fès-Meknès', 'region' => 'Fès-Meknès'],
+            ['commune' => 'Sefrou', 'province' => 'Fès-Meknès', 'region' => 'Fès-Meknès'],
+            ['commune' => 'Taza', 'province' => 'Fès-Meknès', 'region' => 'Fès-Meknès'],
+            ['commune' => 'Taounate', 'province' => 'Fès-Meknès', 'region' => 'Fès-Meknès'],
+            ['commune' => 'Boulemane', 'province' => 'Fès-Meknès', 'region' => 'Fès-Meknès'],
+            ['commune' => 'Midelt', 'province' => 'Drâa-Tafilalet', 'region' => 'Drâa-Tafilalet'],
+            ['commune' => 'Errachidia', 'province' => 'Drâa-Tafilalet', 'region' => 'Drâa-Tafilalet'],
+            ['commune' => 'Ouarzazate', 'province' => 'Drâa-Tafilalet', 'region' => 'Drâa-Tafilalet'],
+            ['commune' => 'Zagora', 'province' => 'Drâa-Tafilalet', 'region' => 'Drâa-Tafilalet'],
+            ['commune' => 'Tinghir', 'province' => 'Drâa-Tafilalet', 'region' => 'Drâa-Tafilalet'],
+            ['commune' => 'Taroudant', 'province' => 'Souss-Massa', 'region' => 'Souss-Massa'],
+            ['commune' => 'Tiznit', 'province' => 'Souss-Massa', 'region' => 'Souss-Massa'],
+            ['commune' => 'Sidi Ifni', 'province' => 'Guelmim-Oued Noun', 'region' => 'Guelmim-Oued Noun'],
+            ['commune' => 'Guelmim', 'province' => 'Guelmim-Oued Noun', 'region' => 'Guelmim-Oued Noun'],
+            ['commune' => 'Laâyoune', 'province' => 'Laâyoune-Sakia El Hamra', 'region' => 'Laâyoune-Sakia El Hamra'],
+            ['commune' => 'Dakhla', 'province' => 'Dakhla-Oued Ed-Dahab', 'region' => 'Dakhla-Oued Ed-Dahab'],
         ];
 
-        foreach ($administrativeData as $data) {
-            SituationAdministrative::create($data);
+        foreach ($situations as $situation) {
+            SituationAdministrative::firstOrCreate(
+                ['commune' => $situation['commune']],
+                $situation
+            );
         }
     }
 }

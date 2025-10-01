@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             NatureDeCoupeSeeder::class,
             SituationAdministrativeSeeder::class,
             ExploitantSeeder::class,
+            ArticleSeeder::class,
         ]);
     }
 }

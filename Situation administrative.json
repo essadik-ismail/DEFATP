@@ -1,0 +1,402 @@
+[
+ {
+  "Commune": "Mharza Sahel",
+  "Province": "El Jadida"
+ },
+ {
+  "Commune": "Haouzia",
+  "Province": "El Jadida"
+ },
+ {
+  "Commune": "Bouskoura",
+  "Province": "Nouaceur"
+ },
+ {
+  "Commune": "Mejjatia Old Taleb",
+  "Province": "Mediouna"
+ },
+ {
+  "Commune": "Mohammedia",
+  "Province": "Mohammedia"
+ },
+ {
+  "Commune": "Ziaida",
+  "Province": "Benslimane"
+ },
+ {
+  "Commune": "Mansouria",
+  "Province": "Benslimane"
+ },
+ {
+  "Commune": "Mellila",
+  "Province": "Benslimane"
+ },
+ {
+  "Commune": "Beni Khloug",
+  "Province": "Settat"
+ },
+ {
+  "Commune": "Aghouatim",
+  "Province": "Al Haouz"
+ },
+ {
+  "Commune": "Oukaimden",
+  "Province": "Al Haouz"
+ },
+ {
+  "Commune": "Moulay Brahim",
+  "Province": "Al Haouz"
+ },
+ {
+  "Commune": "Sidi Ahmed Oumbarek",
+  "Province": "Essaouira"
+ },
+ {
+  "Commune": "Ounagha",
+  "Province": "Essaouira"
+ },
+ {
+  "Commune": "Talat n'yaakoub",
+  "Province": "Al Haouz"
+ },
+ {
+  "Commune": "Amazmiz",
+  "Province": "Al Haouz"
+ },
+ {
+  "Commune": "Ijoukak",
+  "Province": "Al Haouz"
+ },
+ {
+  "Commune": "Ouirgane",
+  "Province": "Al Haouz"
+ },
+ {
+  "Commune": "Imegdal",
+  "Province": "Al Haouz"
+ },
+ {
+  "Commune": "Maachate",
+  "Province": "Safi"
+ },
+ {
+  "Commune": "Dar si aissa",
+  "Province": "Safi"
+ },
+ {
+  "Commune": "Oulad el garne",
+  "Province": "Kelaa sraghna"
+ },
+ {
+  "Commune": "Jbiyel",
+  "Province": "Kelaa sraghna"
+ },
+ {
+  "Commune": "Beni Chiker",
+  "Province": "Nador"
+ },
+ {
+  "Commune": "Beni Sidel Louta",
+  "Province": "Nador"
+ },
+ {
+  "Commune": "Saidia",
+  "Province": "Berkane"
+ },
+ {
+  "Commune": "Boughriba",
+  "Province": "Berkane"
+ },
+ {
+  "Commune": "Tafoughalt",
+  "Province": "Berkane"
+ },
+ {
+  "Commune": "El Aioun",
+  "Province": "Taourirt"
+ },
+ {
+  "Commune": "Sidi Ali Belkacem",
+  "Province": "Taourirt"
+ },
+ {
+  "Commune": "Debdou",
+  "Province": "Taourirt"
+ },
+ {
+  "Commune": "Mtalssa",
+  "Province": "Driouch"
+ },
+ {
+  "Commune": "Tsaft",
+  "Province": "Driouch"
+ },
+ {
+  "Commune": "Temsaman",
+  "Province": "Driouch"
+ },
+ {
+  "Commune": "Trogout",
+  "Province": "Driouch"
+ },
+ {
+  "Commune": "Ahl Angad",
+  "Province": "Oujda"
+ },
+ {
+  "Commune": "Berkine",
+  "Province": "Guercif"
+ },
+ {
+  "Commune": "Ain Béni Mathar",
+  "Province": "Jerada"
+ },
+ {
+  "Commune": "Amercid",
+  "Province": "Midelt"
+ },
+ {
+  "Commune": "Ait Izdeg",
+  "Province": "Midelt"
+ },
+ {
+  "Commune": "Aguelmame Azigza",
+  "Province": "Khénifra"
+ },
+ {
+  "Commune": "Tighassaline",
+  "Province": "Khénifra"
+ },
+ {
+  "Commune": "Oum Erbiaa",
+  "Province": "Khénifra"
+ },
+ {
+  "Commune": "Oulad Fennane",
+  "Province": "Khouribga"
+ },
+ {
+  "Commune": "Agoudi N'El khir",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Tifni",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Aghbala",
+  "Province": "Beni Mellal"
+ },
+ {
+  "Commune": "Ait Oum EL Bakht",
+  "Province": "Béni Mellal"
+ },
+ {
+  "Commune": "Naour",
+  "Province": "Béni Mellal"
+ },
+ {
+  "Commune": "Boutferda",
+  "Province": "Béni Mellal"
+ },
+ {
+  "Commune": "Tizi N'Isly",
+  "Province": "Béni Mellal"
+ },
+ {
+  "Commune": "Gourrama",
+  "Province": "Midelt"
+ },
+ {
+  "Commune": "Rich",
+  "Province": "Midelt"
+ },
+ {
+  "Commune": "Midelt",
+  "Province": "Midelt"
+ },
+ {
+  "Commune": "Foum EL Anceur",
+  "Province": "Béni Mellal"
+ },
+ {
+  "Commune": "Sidi Aissa Ben Ali",
+  "Province": "Fqih Ben Saleh"
+ },
+ {
+  "Commune": "Ouaouizerth",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Ait Abbas",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Demnate",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Taguelft",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Ait M'Hamed",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "El Hammam et Oum Erbiaa",
+  "Province": "Khénifra"
+ },
+ {
+  "Commune": "Lehri",
+  "Province": "Khénifra"
+ },
+ {
+  "Commune": "Aguelmous",
+  "Province": "Khénifra"
+ },
+ {
+  "Commune": "Béni Zrantel",
+  "Province": "Khouribga"
+ },
+ {
+  "Commune": "Boukhrisse",
+  "Province": "Khouribga"
+ },
+ {
+  "Commune": "Tamda Noumercid",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Ait Taguella",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Tabia",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Tanant",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Taounza",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Bin Elouidane",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Afourar",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Issekssi",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Tabaroucht et Ait Mazigh",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Tillouguite",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Timoulite",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Ait Ouaarda",
+  "Province": "Azilal"
+ },
+ {
+  "Commune": "Foum Oudi",
+  "Province": "Béni Mellal"
+ },
+ {
+  "Commune": "Tanogha",
+  "Province": "Béni Mellal"
+ },
+ {
+  "Commune": "Moha ouhammou Zayani",
+  "Province": "Khénifra"
+ },
+ {
+  "Commune": "El Borj",
+  "Province": "Khénifra"
+ },
+ {
+  "Commune": "Semguet",
+  "Province": "Béni Mellal"
+ },
+ {
+  "Commune": "Sidi Taibi",
+  "Province": "Kénitra"
+ },
+ {
+  "Commune": "Kénitra",
+  "Province": "Kénitra"
+ },
+ {
+  "Commune": "Haddada",
+  "Province": "Kénitra"
+ },
+ {
+  "Commune": "Kariat Ben Aouda",
+  "Province": "Kénitra"
+ },
+ {
+  "Commune": "Sidi Boubker El Haj",
+  "Province": "Kénitra"
+ },
+ {
+  "Commune": "Arbaoua",
+  "Province": "Kénitra"
+ },
+ {
+  "Commune": "Souk EL Arbaa",
+  "Province": "Kénitra"
+ },
+ {
+  "Commune": "Benslimane",
+  "Province": "Benslimane"
+ },
+ {
+  "Commune": "Ain Tizgha",
+  "Province": "Benslimane"
+ },
+ {
+  "Commune": "Bir Annasr",
+  "Province": "Benslimane"
+ },
+ {
+  "Commune": "M'zoura",
+  "Province": "Settat"
+ },
+ {
+  "Commune": "Mzamza Janoubiya",
+  "Province": "Settat"
+ },
+ {
+  "Commune": "Ouled Faress",
+  "Province": "Settat"
+ },
+ {
+  "Commune": "Settat",
+  "Province": "Settat"
+ },
+ {
+  "Commune": "Mgartou",
+  "Province": "Settat"
+ },
+ {
+  "Commune": "Boulaouane",
+  "Province": "El Jadida"
+ },
+ {
+  "Commune": "Beni Bounsar",
+  "Province": "Al Hoceima"
+ }
+]

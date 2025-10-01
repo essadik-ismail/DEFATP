@@ -1,34 +1,3 @@
-<?php
-
-namespace Database\Seeders;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\Essence;
-
-class EssenceSeeder extends Seeder
-{
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
-    {
-        $essencesData = $this->getEssencesData();
-
-        foreach ($essencesData as $item) {
-            Essence::firstOrCreate(
-                ['essence' => $item['Essence']],
-                ['is_deleted' => false]
-            );
-        }
-    }
-
-    /**
-     * Get the essences data from the provided JSON payload
-     */
-    private function getEssencesData(): array
-    {
-        $json = <<<'JSON'
 [
  {
   "Clé": "32",
@@ -211,7 +180,3 @@ class EssenceSeeder extends Seeder
   "Essence": "cèdre de l'atlas"
  }
 ]
-JSON;
-        return json_decode($json, true);
-    }
-}

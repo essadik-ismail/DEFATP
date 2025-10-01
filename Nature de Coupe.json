@@ -1,19 +1,3 @@
-<?php
-
-namespace Database\Seeders;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\NatureDeCoupe;
-
-class NatureDeCoupeSeeder extends Seeder
-{
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
-    {
-        $json = <<<'JSON'
 [
  {
   "N°": "1",
@@ -88,20 +72,3 @@ class NatureDeCoupeSeeder extends Seeder
   "Nature de coupe": "Récolte des cônes"
  }
 ]
-JSON;
-
-        $rows = json_decode($json, true) ?? [];
-
-        foreach ($rows as $row) {
-            $label = isset($row['Nature de coupe']) ? trim((string) $row['Nature de coupe']) : null;
-            if (!$label) {
-                continue;
-            }
-
-            NatureDeCoupe::firstOrCreate(
-                ['nature_de_coupe' => $label],
-                ['is_deleted' => false]
-            );
-        }
-    }
-}

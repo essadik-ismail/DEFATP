@@ -1,0 +1,114 @@
+[
+ {
+  "Année": "1",
+  "Appel d'offres": "True",
+  "Adjudication": "False",
+  "Date": "19022024",
+  "DRANEF": "Marrakech Safi"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "True",
+  "Adjudication": "False",
+  "Date": "29022024",
+  "DRANEF": "Casablanca Settat"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "False",
+  "Adjudication": "True",
+  "Date": "18042024",
+  "DRANEF": "Marrakech Safi"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "False",
+  "Adjudication": "True",
+  "Date": "15052024",
+  "DRANEF": "Oriental"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "True",
+  "Adjudication": "False",
+  "Date": "16052024",
+  "DRANEF": "Draa Tafilalet"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "False",
+  "Adjudication": "True",
+  "Date": "30052024",
+  "DRANEF": "Béni Mellal Khénifra"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "False",
+  "Adjudication": "True",
+  "Date": "17072024",
+  "DRANEF": "Rabat Salé Kénitra"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "False",
+  "Adjudication": "True",
+  "Date": "26062024",
+  "DRANEF": "Fès Meknès"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "True",
+  "Adjudication": "False",
+  "Date": "10072024",
+  "DRANEF": "Marrakech Safi"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "False",
+  "Adjudication": "True",
+  "Date": "25072024",
+  "DRANEF": "Béni Mellal Khénifra"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "True",
+  "Adjudication": "False",
+  "Date": "30092024",
+  "DRANEF": "Marrakech Safi"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "True",
+  "Adjudication": "False",
+  "Date": "15102024",
+  "DRANEF": "Casablanca Settat"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "True",
+  "Adjudication": "False",
+  "Date": "22102024",
+  "DRANEF": "Oriental"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "False",
+  "Adjudication": "True",
+  "Date": "14112024",
+  "DRANEF": "Casablanca Settat"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "False",
+  "Adjudication": "True",
+  "Date": "28112024",
+  "DRANEF": "Tanger Tétouan Al Hoceima"
+ },
+ {
+  "Année": "1",
+  "Appel d'offres": "True",
+  "Adjudication": "False",
+  "Date": "15112024",
+  "DRANEF": "Casablanca Settat"
+ }
+]
