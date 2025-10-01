@@ -1923,6 +1923,188 @@
             border: 0;
         }
 
+        /* Sidebar Backdrop */
+        .sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sidebar-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Mobile and Tablet Sidebar Styles */
+        @media (max-width: 1023px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                z-index: 50;
+                height: 100vh;
+                overflow-y: auto;
+                transition: left 0.3s ease-in-out;
+                width: 280px;
+            }
+            
+            .sidebar.open {
+                left: 0;
+            }
+            
+            .content-wrapper {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Desktop Sidebar Styles - Simple Fixed Layout */
+        @media (min-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 280px;
+                height: 100vh;
+                overflow-y: auto;
+                z-index: 30;
+            }
+            
+            .sidebar-backdrop {
+                display: none;
+            }
+            
+            .content-wrapper {
+                margin-left: 280px;
+                min-height: 100vh;
+            }
+        }
+
+        /* Mobile Header Improvements */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding-top: 0;
+            }
+            
+            header {
+                position: sticky;
+                top: 0;
+                z-index: 30;
+                background: white;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .content-area {
+                padding: 1rem;
+            }
+        }
+
+        /* Tablet Header Improvements */
+        @media (min-width: 769px) and (max-width: 1023px) {
+            .content-wrapper {
+                padding-top: 0;
+            }
+            
+            header {
+                position: sticky;
+                top: 0;
+                z-index: 30;
+                background: white;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .content-area {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Mobile Table Responsiveness */
+        @media (max-width: 768px) {
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .table-responsive table {
+                min-width: 600px;
+            }
+        }
+
+        /* Mobile Form Improvements */
+        @media (max-width: 640px) {
+            .form-control {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            .btn {
+                min-height: 44px; /* Touch-friendly button size */
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        /* Mobile Navigation Improvements */
+        @media (max-width: 768px) {
+            .nav-link {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .nav-link i {
+                margin-right: 0.5rem;
+                width: 20px;
+                text-align: center;
+            }
+        }
+
+        /* Tablet Navigation Improvements */
+        @media (min-width: 769px) and (max-width: 1023px) {
+            .nav-link {
+                padding: 0.875rem 1rem;
+                font-size: 0.95rem;
+            }
+            
+            .nav-link i {
+                margin-right: 0.75rem;
+                width: 22px;
+                text-align: center;
+            }
+        }
+
+        /* Mobile Sidebar Navigation */
+        @media (max-width: 1023px) {
+            .sidebar-nav {
+                padding: 1rem 0;
+            }
+            
+            .nav-item {
+                margin: 0.25rem 0;
+            }
+            
+            .nav-link {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem 1rem;
+                margin: 0.25rem 0.5rem;
+                border-radius: 0.5rem;
+                transition: all 0.2s ease;
+            }
+            
+            .nav-link:hover {
+                background: rgba(74, 124, 89, 0.1);
+            }
+            
+            .nav-link.active {
+                background: var(--primary-color);
+                color: white;
+            }
+        }
+
         /* Print Styles */
         @media print {
             .no-print {
@@ -1993,57 +2175,39 @@
                     </a>
                 </div>
 
-                <div class="border-t border-gray-200 mt-6 pt-4">
-                    <div class="nav-item">
-                        <a href="{{ route('auth.profile') }}" class="nav-link {{ request()->routeIs('auth.profile') ? 'active' : '' }}">
-                            <i class="fas fa-user"></i>
-                            Mon Profil
-                        </a>
-                    </div>
-
-                    <div class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST" class="inline">
-                            @csrf
-                            <button type="submit" class="nav-link w-full text-left bg-transparent border-0">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Déconnexion
-                            </button>
-                        </form>
-                    </div>
-                </div>
             </nav>
         </aside>
 
         <!-- Main Content -->
         <div class="content-wrapper flex-1">
             <!-- Top Header with Mobile Navigation -->
-            <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-                <div class="flex items-center">
+            <header class="bg-white border-b border-gray-200 px-3 sm:px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center min-w-0 flex-1">
                     <!-- Mobile menu button -->
-                    <button class="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 mr-3" 
-                            onclick="document.getElementById('sidebar').classList.toggle('open')">
-                        <i class="fas fa-bars text-xl"></i>
+                    <button class="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 mr-2 sm:mr-3 flex-shrink-0" 
+                            onclick="toggleSidebar()">
+                        <i class="fas fa-bars text-lg sm:text-xl"></i>
                     </button>
                     
-                    <h2 class="text-lg font-semibold text-gray-900">@yield('title', 'SylvaNet')</h2>
+                    <h2 class="text-base sm:text-lg font-semibold text-gray-900 truncate">@yield('title', 'SylvaNet')</h2>
                 </div>
                 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
                     <!-- Notifications -->
                     <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
-                        <i class="fas fa-bell text-xl"></i>
+                        <i class="fas fa-bell text-lg sm:text-xl"></i>
                         <span class="sr-only">Notifications</span>
                     </button>
                     
                     <!-- User menu -->
                     <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100">
+                        <button @click="open = !open" class="flex items-center space-x-1 sm:space-x-2 p-1 sm:p-2 rounded-md hover:bg-gray-100">
                             <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'User' }}&background=8b5cf6&color=fff" 
-                                 alt="Profile" class="w-8 h-8 rounded-full">
-                            <span class="hidden md:block text-sm font-medium text-gray-900">
+                                 alt="Profile" class="w-6 h-6 sm:w-8 sm:h-8 rounded-full">
+                            <span class="hidden sm:block text-sm font-medium text-gray-900">
                                 {{ auth()->user()->name ?? 'Utilisateur' }}
                             </span>
-                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                            <i class="fas fa-chevron-down text-xs text-gray-500 hidden sm:block"></i>
                         </button>
                         
                         <div x-show="open" 
@@ -2119,8 +2283,11 @@
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
             
-            sidebar.classList.toggle('open');
-            backdrop.classList.toggle('active');
+            // Only work on mobile and tablet devices
+            if (window.innerWidth < 1024) {
+                sidebar.classList.toggle('open');
+                backdrop.classList.toggle('active');
+            }
         }
 
         // Close sidebar
@@ -2132,12 +2299,13 @@
             backdrop.classList.remove('active');
         }
 
-        // Close sidebar when clicking outside on mobile
+        // Close sidebar when clicking outside on mobile/tablet
         document.addEventListener('click', function(event) {
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.querySelector('.lg\\:hidden');
             
             if (window.innerWidth < 1024 && 
+                sidebar.classList.contains('open') &&
                 !sidebar.contains(event.target) && 
                 !sidebarToggle.contains(event.target)) {
                 closeSidebar();
@@ -2150,6 +2318,14 @@
                 closeSidebar();
             }
         });
+
+        // Close sidebar on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+
 
         // Auto-hide alerts after 5 seconds
         document.addEventListener('DOMContentLoaded', function() {
