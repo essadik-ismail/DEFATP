@@ -16,6 +16,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasRoles;
 
     /**
+     * The database connection for the model.
+     *
+     * @var string
+     */
+    protected $connection = 'auth_mysql';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>

@@ -25,4 +25,14 @@ class DatabaseSeeder extends Seeder
             ArticleSeeder::class,
         ]);
     }
+
+    /**
+     * Seed the authentication database.
+     */
+    public function runAuth(): void
+    {
+        $this->call([
+            AuthUserSeeder::class,
+        ]);
+    }
 }
