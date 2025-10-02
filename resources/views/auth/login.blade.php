@@ -50,10 +50,11 @@
         }
         
         .login-card {
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 3rem 2.5rem;
             box-sizing: border-box;
         }
@@ -61,34 +62,7 @@
 
 
         .login-header {
-            text-align: center;
             margin-bottom: 2.5rem;
-        }
-        
-        .login-header h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark-color);
-            line-height: 1.2;
-        }
-        
-        .login-header p {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #6b7280;
-            line-height: 1.5;
-        }
-
-        .logo-icon {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--dark-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
         
         .login-body {
@@ -113,7 +87,7 @@
             padding: 0.875rem 1rem;
             font-size: 1rem;
             border: 2px solid #e5e7eb;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             background: white;
             box-sizing: border-box;
             transition: all 0.3s ease;
@@ -125,6 +99,10 @@
             outline: none;
             box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
             background: white;
+        }
+        
+        .form-control:hover {
+            border-color: #9ca3af;
         }
 
         /* Password field with toggle */
@@ -169,8 +147,8 @@
         .btn-login {
             background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
             border: none;
-            border-radius: 0.75rem;
-            height: 3rem;
+            border-radius: 1rem;
+            height: 3.5rem;
             padding: 0 2rem;
             font-size: 1rem;
             font-weight: 600;
@@ -180,7 +158,7 @@
             min-width: 8rem;
             text-transform: none;
             letter-spacing: normal;
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -202,13 +180,13 @@
         
         .btn-login:hover {
             background: linear-gradient(135deg, #047857, #0f3d1a);
-            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
-            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(5, 150, 105, 0.4);
+            transform: translateY(-3px) scale(1.02);
         }
 
         .btn-login:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
         }
         
         .form-check {
@@ -316,9 +294,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #f8fafc;
-            border: 2px solid #e5e7eb;
-            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+            border: 2px solid #bbf7d0;
+            border-radius: 1rem;
             padding: 1rem 1.25rem;
             font-size: 1.25rem;
             font-weight: 700;
@@ -327,6 +305,12 @@
             box-sizing: border-box;
             width: 100%;
             position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .captcha-question:hover {
+            border-color: #86efac;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
         }
 
         .captcha-question span {
@@ -339,9 +323,9 @@
         }
 
         .captcha-refresh {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), #047857);
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             color: white;
             width: 2.5rem;
             height: 2.5rem;
@@ -354,11 +338,13 @@
             flex-shrink: 0;
             min-width: 2.5rem;
             min-height: 2.5rem;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
         }
 
         .captcha-refresh:hover {
-            background: #047857;
-            transform: rotate(180deg);
+            background: linear-gradient(135deg, #047857, #065f46);
+            transform: rotate(180deg) scale(1.05);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
         }
 
         .captcha-refresh:active {
@@ -719,25 +705,39 @@
 <body>
     <div class="login-container">
         <div class="login-card">
+            <!-- Modern Header Section -->
             <div class="login-header">
-                <i class="fas fa-tree logo-icon"></i>
-                <h1>Se connecter</h1>
-                <p>Accédez à votre compte SylvaNet</p>
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-tree text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                            Se connecter
+                        </h1>
+                        <p class="text-gray-600 text-lg mt-2">Accédez à votre compte SylvaNet</p>
+                    </div>
+                </div>
             </div>
             
             <div class="login-body">
                 @if ($errors->any())
-                    <div class="alert">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <ul style="margin: 0; padding-left: 20px;">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                    <div class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 text-red-700 p-6 rounded-xl mb-6 shadow-lg">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-exclamation-triangle text-2xl"></i>
+                            <div>
+                                <h3 class="font-semibold text-lg">Erreur de connexion!</h3>
+                                <ul class="mt-2">
+                                    @foreach ($errors->all() as $error)
+                                        <li class="text-sm">{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 @endif
                 
-                <form method="POST" action="{{ route('login') }}" id="loginForm">
+                <form method="POST" action="{{ route('login') }}" id="loginForm" class="space-y-6">
                     @csrf
                     
                     <div class="form-group">
@@ -798,36 +798,47 @@
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="captcha" class="form-label">
-                            Vérification de sécurité
-                            <span class="form-text">(Résolvez cette addition simple)</span>
-                        </label>
-                        <div class="captcha-container">
-                            <div class="captcha-question">
-                                <span id="captchaQuestion">{{ $captcha_question ?? '5 + 3' }}</span>
-                                <button type="button" class="captcha-refresh" id="refreshCaptcha" title="Nouvelle question">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
+                    <!-- Security Verification Section -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-shield-alt text-white"></i>
                             </div>
-                            <input type="number" 
-                                   class="form-control @error('captcha') is-invalid @enderror" 
-                                   id="captcha" 
-                                   name="captcha" 
-                                   placeholder="Votre réponse" 
-                                   required
-                                   autocomplete="off"
-                                   aria-describedby="captcha-help">
+                            <h3 class="text-lg font-bold text-green-900">Vérification de sécurité</h3>
                         </div>
-                        @error('captcha')
-                            <div class="invalid-feedback">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
+                        <div class="form-group">
+                            <label for="captcha" class="form-label">
+                                Résolvez cette addition simple
+                                <span class="form-text">(Protection contre les attaques automatisées)</span>
+                            </label>
+                            <div class="captcha-container">
+                                <div class="captcha-question">
+                                    <span id="captchaQuestion">{{ $captcha_question ?? '5 + 3' }}</span>
+                                    <button type="button" class="captcha-refresh" id="refreshCaptcha" title="Nouvelle question">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                                <input type="number" 
+                                       class="form-control @error('captcha') is-invalid @enderror" 
+                                       id="captcha" 
+                                       name="captcha" 
+                                       placeholder="Votre réponse" 
+                                       min="1"
+                                       max="10"
+                                       required
+                                       autocomplete="off"
+                                       aria-describedby="captcha-help">
                             </div>
-                        @enderror
-                        <div id="captcha-help" class="form-text">
-                            <i class="fas fa-shield-alt"></i>
-                            Protection contre les attaques automatisées
+                            @error('captcha')
+                                <div class="invalid-feedback">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                            <div id="captcha-help" class="form-text">
+                                <i class="fas fa-info-circle"></i>
+                                Réponse attendue entre 1 et 10
+                            </div>
                         </div>
                     </div>
                     
@@ -842,16 +853,20 @@
                         </label>
                     </div>
                     
-                    <div class="button-container">
+                    <!-- Form Actions -->
+                    <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
                         <button type="submit" class="btn-login" id="loginBtn">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
                             <span class="btn-text">Se connecter</span>
                         </button>
                     </div>
                 </form>
                 
-                <div class="security-note">
-                    <i class="fas fa-shield-alt me-1"></i>
-                    Accès sécurisé au système de gestion forestière
+                <div class="mt-6 text-center">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-xl border border-green-200">
+                        <i class="fas fa-shield-alt"></i>
+                        <span class="text-sm font-medium">Accès sécurisé au système de gestion forestière</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -881,8 +896,10 @@
         let currentCaptchaAnswer = {{ $captcha_answer ?? 8 }};
         
         function generateCaptcha() {
-            const num1 = Math.floor(Math.random() * 10) + 1;
-            const num2 = Math.floor(Math.random() * 10) + 1;
+            // Generate captcha question with sum between 1-10
+            const maxSum = 10;
+            const num1 = Math.floor(Math.random() * (maxSum - 1)) + 1;
+            const num2 = Math.floor(Math.random() * (maxSum - num1)) + 1;
             const question = `${num1} + ${num2}`;
             const answer = num1 + num2;
             
@@ -906,6 +923,13 @@
             captchaInput.classList.remove('is-valid', 'is-invalid');
             
             if (captchaInput.value === '') {
+                return false;
+            }
+            
+            // Check if answer is within valid range (1-10)
+            if (userAnswer < 1 || userAnswer > 10) {
+                captchaQuestion.classList.add('invalid');
+                captchaInput.classList.add('is-invalid');
                 return false;
             }
             

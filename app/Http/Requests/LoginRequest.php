@@ -24,7 +24,7 @@ class LoginRequest extends FormRequest
         return [
             'ppr' => ['required', 'string'],
             'password' => ['required', 'string'],
-            'captcha' => ['required', 'integer', 'min:1', 'max:20'],
+            'captcha' => ['required', 'integer', 'min:1', 'max:10'],
             'remember' => ['boolean'],
         ];
     }
@@ -42,7 +42,7 @@ class LoginRequest extends FormRequest
             'captcha.required' => 'La réponse à la question de sécurité est requise.',
             'captcha.integer' => 'La réponse doit être un nombre entier.',
             'captcha.min' => 'La réponse doit être un nombre positif.',
-            'captcha.max' => 'La réponse semble incorrecte.',
+            'captcha.max' => 'La réponse doit être un nombre entre 1 et 10.',
         ];
     }
 }

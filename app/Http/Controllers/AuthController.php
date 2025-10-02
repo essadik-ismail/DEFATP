@@ -19,9 +19,10 @@ class AuthController extends Controller
 {
     public function showLogin(): View
     {
-        // Generate captcha question
-        $num1 = rand(1, 10);
-        $num2 = rand(1, 10);
+        // Generate captcha question with sum between 1-10
+        $maxSum = 10;
+        $num1 = rand(1, $maxSum - 1);
+        $num2 = rand(1, $maxSum - $num1);
         $captcha_question = "{$num1} + {$num2}";
         $captcha_answer = $num1 + $num2;
         
@@ -33,9 +34,10 @@ class AuthController extends Controller
 
     public function refreshCaptcha()
     {
-        // Generate new captcha question
-        $num1 = rand(1, 10);
-        $num2 = rand(1, 10);
+        // Generate new captcha question with sum between 1-10
+        $maxSum = 10;
+        $num1 = rand(1, $maxSum - 1);
+        $num2 = rand(1, $maxSum - $num1);
         $captcha_question = "{$num1} + {$num2}";
         $captcha_answer = $num1 + $num2;
         
