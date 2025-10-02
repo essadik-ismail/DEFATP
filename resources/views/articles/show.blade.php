@@ -3,51 +3,53 @@
 @section('title', 'Détails de l\'Article - SylvaNet')
 
 @section('content')
-<div class="min-h-screen py-8">
-    <div class="container mx-auto px-4">
-        <!-- Header Section -->
-        <div class="mb-8">
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-file-alt text-white text-2xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-gray-800 mb-2">
-                                Détails de l'Article #{{ $article->numero ?? $article->id }}
-                            </h1>
-                            <p class="text-gray-600 flex items-center gap-2">
-                                <i class="fas fa-calendar-alt text-blue-500"></i>
-                                Créé le {{ $article->created_at ? $article->created_at->format('d/m/Y à H:i') : 'N/A' }}
-                            </p>
-                        </div>
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-file-alt text-white text-2xl"></i>
                     </div>
-                    <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('articles.edit', $article) }}" 
-                           class="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-2">
-                            <i class="fas fa-edit"></i>
-                            Modifier
-                        </a>
-                        <a href="{{ route('articles.index') }}" 
-                           class="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-2">
-                            <i class="fas fa-arrow-left"></i>
-                            Retour
-                        </a>
+                    <div>
+                        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+                            Détails de l'Article #{{ $article->numero ?? $article->id }}
+                        </h1>
+                        <p class="text-gray-600 flex items-center gap-2">
+                            <i class="fas fa-calendar-alt text-blue-500"></i>
+                            Créé le {{ $article->created_at ? $article->created_at->format('d/m/Y à H:i') : 'N/A' }}
+                        </p>
                     </div>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{{ route('articles.edit', $article) }}" 
+                       class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-edit"></i>
+                        <span>Modifier</span>
+                    </a>
+                    <a href="{{ route('articles.index') }}" 
+                       class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Retour</span>
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Main Content -->
-        <div class="space-y-8">
-            
-            <!-- Section 1: Informations de Base -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                        <i class="fas fa-info-circle"></i>
-                        Section 1: Informations de Base
+    <!-- Main Content -->
+    <div class="space-y-8">
+        
+        <!-- Section 1: Informations de Base -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-8 py-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-info-circle text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">
+                        Informations de Base
                     </h2>
                 </div>
                 <div class="p-6">
@@ -88,12 +90,15 @@
                 </div>
             </div>
 
-            <!-- Section 2: Localisation -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                        <i class="fas fa-map-marker-alt"></i>
-                        Section 2: Localisation
+        <!-- Section 2: Localisation -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-map-marker-alt text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">
+                        Localisation
                     </h2>
                 </div>
                 <div class="p-6">
@@ -154,12 +159,15 @@
                 </div>
             </div>
 
-            <!-- Section 3: Détails Techniques -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                        <i class="fas fa-calculator"></i>
-                        Section 3: Détails Techniques
+        <!-- Section 3: Détails Techniques -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-500 to-pink-600 px-8 py-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-calculator text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">
+                        Détails Techniques
                     </h2>
                 </div>
                 <div class="p-6">
@@ -276,12 +284,15 @@
             </div>
 
 
-            <!-- Section 4: Produits -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                        <i class="fas fa-box"></i>
-                        Section 4: Produits
+        <!-- Section 4: Produits -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-500 to-blue-600 px-8 py-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-box text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">
+                        Produits
                     </h2>
                 </div>
                 <div class="p-6">
@@ -331,12 +342,15 @@
                 </div>
             </div>
 
-            <!-- Section 5: Emplacements -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                        <i class="fas fa-map-marker-alt"></i>
-                        Section 5: Emplacements
+        <!-- Section 5: Emplacements -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-500 to-green-600 px-8 py-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-map-marker-alt text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">
+                        Emplacements
                     </h2>
                 </div>
                 <div class="p-6">
@@ -414,12 +428,15 @@
                 </div>
             </div>
 
-            <!-- Section 6: Observations et Validation -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div class="bg-gradient-to-r from-gray-500 to-gray-600 px-6 py-4">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                        <i class="fas fa-clipboard"></i>
-                        Section 6: Observations et Validation
+        <!-- Section 6: Observations et Validation -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-500 to-slate-600 px-8 py-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clipboard text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">
+                        Observations et Validation
                     </h2>
                 </div>
                 <div class="p-6">

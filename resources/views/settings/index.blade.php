@@ -4,107 +4,178 @@
 @section('page-title', 'Paramètres')
 
 @section('content')
-    <div class="settings-grid">
-        <x-card title="Essences" subtitle="Types d'arbres forestiers" collapsible="false">
-            <div class="card-content">
-                <div class="card-stats">
-                    <span class="stat-number">{{ \App\Models\Essence::count() }}</span>
-                    <span class="stat-label">essences</span>
-                </div>
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-cog text-white text-2xl"></i>
             </div>
-            <div class="card-actions">
-                <x-button href="{{ route('settings.essences') }}" variant="primary" icon="fas fa-cog">
-                    Gérer
-                </x-button>
+            <div>
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Paramètres
+                </h1>
+                <p class="text-gray-600 text-lg mt-2">Gérez les données de base du système forestier</p>
             </div>
-        </x-card>
-        
-        <x-card title="Forêts" subtitle="Zones forestières" collapsible="false">
-            <div class="card-content">
-                <div class="card-stats">
-                    <span class="stat-number">{{ \App\Models\Foret::count() }}</span>
-                    <span class="stat-label">forêts</span>
-                </div>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('settings.forets') }}" variant="primary" icon="fas fa-cog">
-                    Gérer
-                </x-button>
-            </div>
-        </x-card>
-        
-        <x-card title="Nature de Coupes" subtitle="Méthodes d'exploitation" collapsible="false">
-            <div class="card-content">
-                <div class="card-stats">
-                    <span class="stat-number">{{ \App\Models\NatureDeCoupe::count() }}</span>
-                    <span class="stat-label">types</span>
-                </div>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('settings.nature-de-coupes') }}" variant="primary" icon="fas fa-cog">
-                    Gérer
-                </x-button>
-            </div>
-        </x-card>
-        
-        <x-card title="Situations Administratives" subtitle="Communes & Provinces" collapsible="false">
-            <div class="card-content">
-                <div class="card-stats">
-                    <span class="stat-number">{{ \App\Models\SituationAdministrative::count() }}</span>
-                    <span class="stat-label">situations</span>
-                </div>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('settings.situation-administratives') }}" variant="primary" icon="fas fa-cog">
-                    Gérer
-                </x-button>
-            </div>
-        </x-card>
-        
-        <x-card title="Exploitants" subtitle="Gestion des exploitants" collapsible="false">
-            <div class="card-content">
-                <div class="card-stats">
-                    <span class="stat-number">{{ \App\Models\Exploitant::count() }}</span>
-                    <span class="stat-label">exploitants</span>
-                </div>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('settings.exploitants') }}" variant="primary" icon="fas fa-cog">
-                    Gérer
-                </x-button>
-            </div>
-        </x-card>
-        
-
-        
-        <x-card title="Localisations" subtitle="Gestion des localisations" collapsible="false">
-            <div class="card-content">
-                <div class="card-stats">
-                    <span class="stat-number">{{ \App\Models\Localisation::count() }}</span>
-                    <span class="stat-label">localisations</span>
-                </div>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('settings.localisations') }}" variant="primary" icon="fas fa-cog">
-                    Gérer
-                </x-button>
-            </div>
-        </x-card>
-        
-        <x-card title="Import/Export" subtitle="Gestion des données" collapsible="false">
-            <div class="card-content">
-                <div class="card-stats">
-                    <span class="stat-number">-</span>
-                    <span class="stat-label">fonctionnalités</span>
-                </div>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('excel.index') }}" variant="primary" icon="fas fa-cog">
-                    Gérer
-                </x-button>
-            </div>
-        </x-card>
+        </div>
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Essences Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Essences</h3>
+                    <p class="text-gray-600 text-sm">Types d'arbres forestiers</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="text-3xl font-bold text-gray-900">{{ \App\Models\Essence::count() }}</div>
+                <div class="text-sm text-gray-600">essences</div>
+            </div>
+            <a href="{{ route('settings.essences') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300">
+                <i class="fas fa-cog"></i>
+                <span>Gérer</span>
+            </a>
+        </div>
+        
+        <!-- Forêts Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-tree text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Forêts</h3>
+                    <p class="text-gray-600 text-sm">Zones forestières</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="text-3xl font-bold text-gray-900">{{ \App\Models\Foret::count() }}</div>
+                <div class="text-sm text-gray-600">forêts</div>
+            </div>
+            <a href="{{ route('settings.forets') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300">
+                <i class="fas fa-cog"></i>
+                <span>Gérer</span>
+            </a>
+        </div>
+        
+        <!-- Nature de Coupes Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-cut text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Nature de Coupes</h3>
+                    <p class="text-gray-600 text-sm">Méthodes d'exploitation</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="text-3xl font-bold text-gray-900">{{ \App\Models\NatureDeCoupe::count() }}</div>
+                <div class="text-sm text-gray-600">types</div>
+            </div>
+            <a href="{{ route('settings.nature-de-coupes') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-yellow-600 text-white rounded-lg hover:from-orange-700 hover:to-yellow-700 transition-all duration-300">
+                <i class="fas fa-cog"></i>
+                <span>Gérer</span>
+            </a>
+        </div>
+        
+        <!-- Situations Administratives Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-building text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Situations Administratives</h3>
+                    <p class="text-gray-600 text-sm">Communes & Provinces</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="text-3xl font-bold text-gray-900">{{ \App\Models\SituationAdministrative::count() }}</div>
+                <div class="text-sm text-gray-600">situations</div>
+            </div>
+            <a href="{{ route('settings.situation-administratives') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
+                <i class="fas fa-cog"></i>
+                <span>Gérer</span>
+            </a>
+        </div>
+        
+        <!-- Exploitants Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-user-tie text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Exploitants</h3>
+                    <p class="text-gray-600 text-sm">Gestion des exploitants</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="text-3xl font-bold text-gray-900">{{ \App\Models\Exploitant::count() }}</div>
+                <div class="text-sm text-gray-600">exploitants</div>
+            </div>
+            <a href="{{ route('settings.exploitants') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg hover:from-indigo-700 hover:to-blue-700 transition-all duration-300">
+                <i class="fas fa-cog"></i>
+                <span>Gérer</span>
+            </a>
+        </div>
+        
+        <!-- Localisations Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-map-marker-alt text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Localisations</h3>
+                    <p class="text-gray-600 text-sm">Gestion des localisations</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="text-3xl font-bold text-gray-900">{{ \App\Models\Localisation::count() }}</div>
+                <div class="text-sm text-gray-600">localisations</div>
+            </div>
+            <a href="{{ route('settings.localisations') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all duration-300">
+                <i class="fas fa-cog"></i>
+                <span>Gérer</span>
+            </a>
+        </div>
+        
+        <!-- Import/Export Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-download text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Import/Export</h3>
+                    <p class="text-gray-600 text-sm">Gestion des données</p>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="text-3xl font-bold text-gray-900">-</div>
+                <div class="text-sm text-gray-600">fonctionnalités</div>
+            </div>
+            <a href="{{ route('excel.index') }}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-600 to-slate-600 text-white rounded-lg hover:from-gray-700 hover:to-slate-700 transition-all duration-300">
+                <i class="fas fa-cog"></i>
+                <span>Gérer</span>
+            </a>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('styles')

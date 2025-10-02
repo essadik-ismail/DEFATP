@@ -9,260 +9,273 @@
 @endsection
 
 @section('content')
-<!-- Create Form Card -->
-<div class="card mb-4">
-    <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-user-plus text-primary"></i> Créer un Nouvel Utilisateur</h5>
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-user-plus text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Créer un Utilisateur
+                </h1>
+                <p class="text-gray-600 text-lg mt-2">Ajoutez un nouvel utilisateur au système</p>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <form action="{{ route('auth.users.store') }}" method="POST">
+
+    <!-- Create Form -->
+    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <i class="fas fa-user-plus text-white text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Formulaire de création</h2>
+                <p class="text-gray-600">Remplissez les informations pour créer un nouvel utilisateur</p>
+            </div>
+        </div>
+        <form action="{{ route('auth.users.store') }}" method="POST" class="space-y-8">
             @csrf
             
-            <!-- Basic Information Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-info-circle text-info"></i> Informations de Base</h6>
+            <!-- Section 1: Informations de Base -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-info-circle text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-blue-900">Section 1: Informations de Base</h3>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Nom complet <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Nom complet <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 @error('name') border-red-500 @enderror" 
                                id="name" name="name" value="{{ old('name') }}" 
                                placeholder="Ex: Jean Dupont" required>
                         @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
                         @enderror
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="ppr" class="form-label">PPR <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('ppr') is-invalid @enderror" 
+                    <div class="form-group">
+                        <label for="ppr" class="block text-sm font-semibold text-gray-700 mb-2">
+                            PPR <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 @error('ppr') border-red-500 @enderror" 
                                id="ppr" name="ppr" value="{{ old('ppr') }}" 
                                placeholder="Ex: 12345678" required>
                         @error('ppr')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
                         @enderror
-                        <div class="form-text">
+                        <div class="form-text mt-2">
                             <i class="fas fa-info-circle"></i> Le PPR doit être unique dans le système
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Security Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-shield-alt text-warning"></i> Sécurité</h6>
+            <!-- Section 2: Sécurité -->
+            <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-6 border border-orange-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-orange-900">Section 2: Sécurité</h3>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Mot de passe <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Mot de passe <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="password" 
+                                   class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400 @error('password') border-red-500 @enderror" 
                                    id="password" name="password" placeholder="Mot de passe" required>
-                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
+                            <button type="button" 
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                    onclick="togglePassword('password')">
                                 <i class="fas fa-eye" id="password-icon"></i>
                             </button>
                         </div>
                         @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
                         @enderror
-                        <div class="form-text">
+                        <div class="form-text mt-2">
                             <i class="fas fa-shield-alt"></i> Le mot de passe doit contenir au moins 8 caractères
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="password_confirmation" class="form-label">Confirmer le mot de passe <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" 
+                    <div class="form-group">
+                        <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Confirmer le mot de passe <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="password" 
+                                   class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400 @error('password_confirmation') border-red-500 @enderror" 
                                    id="password_confirmation" name="password_confirmation" 
                                    placeholder="Confirmer le mot de passe" required>
-                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password_confirmation')">
+                            <button type="button" 
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                    onclick="togglePassword('password_confirmation')">
                                 <i class="fas fa-eye" id="password_confirmation-icon"></i>
                             </button>
                         </div>
                         @error('password_confirmation')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
                         @enderror
                     </div>
                 </div>
             </div>
 
-            <!-- Contact Information Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-envelope text-success"></i> Informations de Contact</h6>
+            <!-- Section 3: Informations de Contact -->
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-envelope text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-900">Section 3: Informations de Contact</h3>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Email <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400 @error('email') border-red-500 @enderror" 
                                id="email" name="email" value="{{ old('email') }}" 
                                placeholder="exemple@email.com" required>
                         @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
                         @enderror
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Téléphone</label>
-                        <input type="tel" class="form-control @error('phone') is-invalid @enderror" 
+                    <div class="form-group">
+                        <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Téléphone
+                        </label>
+                        <input type="tel" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400 @error('phone') border-red-500 @enderror" 
                                id="phone" name="phone" value="{{ old('phone') }}" 
                                placeholder="Ex: +212 6 12 34 56 78">
                         @error('phone')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
                         @enderror
                     </div>
                 </div>
             </div>
 
-            <!-- Role & Permissions Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h6 class="section-title"><i class="fas fa-user-tag text-info"></i> Rôle et Permissions</h6>
+            <!-- Section 4: Rôle et Permissions -->
+            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user-tag text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-purple-900">Section 4: Rôle et Permissions</h3>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="role" class="form-label">Rôle <span class="text-danger">*</span></label>
-                        <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="role" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Rôle <span class="text-red-500">*</span>
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400 @error('role') border-red-500 @enderror" 
+                                id="role" name="role" required>
                             <option value="">Sélectionner un rôle</option>
                             <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrateur</option>
                             <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Gestionnaire</option>
                             <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>Utilisateur</option>
                         </select>
                         @error('role')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
                         @enderror
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
-                        <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
+                    <div class="form-group">
+                        <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Statut <span class="text-red-500">*</span>
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400 @error('status') border-red-500 @enderror" 
+                                id="status" name="status" required>
                             <option value="">Sélectionner un statut</option>
                             <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Actif</option>
                             <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
                         </select>
                         @error('status')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
                         @enderror
                     </div>
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <div class="row">
-                <div class="col-12 d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Créer l'Utilisateur
-                    </button>
-                </div>
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
+                <a href="{{ route('auth.users.index') }}" 
+                   class="inline-flex items-center gap-3 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Retour</span>
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-save"></i>
+                    <span class="font-semibold">Créer l'Utilisateur</span>
+                </button>
             </div>
         </form>
     </div>
 </div>
 
+@push('styles')
 <style>
-.card {
-    border: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border-radius: 15px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.card-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 1px solid #dee2e6;
-    padding: 20px;
-}
-
-.card-header h5 {
-    margin: 0;
-    font-weight: 600;
-    color: #495057;
-}
-
-.card-body {
-    padding: 25px;
-}
-
-.section-title {
-    color: #495057;
-    font-weight: 600;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #e9ecef;
-}
-
-.form-label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 8px;
-}
-
-.form-control, .form-select {
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
-    padding: 12px 15px;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-}
-
-.input-group .btn {
-    border-radius: 0 10px 10px 0;
-    border: 2px solid #e9ecef;
-    border-left: none;
-}
-
-.input-group .form-control {
-    border-radius: 10px 0 0 10px;
-}
-
-
-}
-
-.btn-secondary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
-}
-
-.btn-outline-secondary {
-    border: 2px solid #e9ecef;
-    color: #6c757d;
-    background: transparent;
-}
-
-.btn-outline-secondary:hover {
-    background: #6c757d;
-    border-color: #6c757d;
-    color: white;
-}
-
-.form-text {
-    font-size: 0.875rem;
-    color: #6c757d;
-    margin-top: 5px;
-}
-
-.alert {
-    border-radius: 10px;
-    border: none;
-}
+    .form-input {
+        background-image: none;
+    }
+    
+    .form-input:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    /* Prevent duplicate error messages */
+    .form-group .text-red-500:not(:first-child) {
+        display: none;
+    }
+    
+    /* Dark mode support */
+    .dark-mode .form-input {
+        background-color: var(--dark-bg-secondary);
+        border-color: var(--dark-border);
+        color: var(--dark-text-primary);
+    }
+    
+    .dark-mode .form-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
 </style>
+@endpush
 
 <script>
 function togglePassword(fieldId) {

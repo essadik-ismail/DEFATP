@@ -3,152 +3,418 @@
 @section('title', 'Articles Forestiers - SylvaNet')
 
 @section('content')
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-file-alt text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Articles Forestiers
+                </h1>
+                <p class="text-gray-600 text-lg mt-2">Gérez et consultez tous les articles forestiers du système</p>
+            </div>
+        </div>
+    </div>
 
-<!-- Main Content Area -->
-<div class="main-content">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Articles Overview Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-file-alt text-white text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900">
+                        Articles
+                        @if(request()->hasAny(['start_date', 'end_date', 'search', 'type', 'status', 'year']))
+                            <span class="text-xs text-blue-600 font-normal">(filtrés)</span>
+                        @endif
+                    </h3>
+                    <p class="text-gray-600 text-sm">{{ $articles->total() }} total</p>
+                    <div class="flex items-center text-xs text-gray-500 mt-1">
+                        <span class="text-green-600 font-medium">{{ $stats['sold_articles'] }} vendus</span>
+                        <span class="mx-1">•</span>
+                        <span class="text-orange-600">{{ $stats['unsold_articles'] }} invendus</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Financial Overview Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-coins text-white text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900">
+                        Revenus
+                        @if(request()->hasAny(['start_date', 'end_date', 'search', 'type', 'status', 'year']))
+                            <span class="text-xs text-blue-600 font-normal">(filtrés)</span>
+                        @endif
+                    </h3>
+                    <p class="text-gray-600 text-sm">{{ number_format($stats['total_revenue'], 0) }} DH</p>
+                    <div class="flex items-center text-xs text-gray-500 mt-1">
+                        <span class="text-blue-600">{{ number_format($stats['total_retrait'], 0) }} DH retrait</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Volume Overview Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-cube text-white text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900">
+                        Volume
+                        @if(request()->hasAny(['start_date', 'end_date', 'search', 'type', 'status', 'year']))
+                            <span class="text-xs text-blue-600 font-normal">(filtré)</span>
+                        @endif
+                    </h3>
+                    <p class="text-gray-600 text-sm">{{ number_format($stats['total_volume'], 2) }} m³</p>
+                    <div class="flex items-center text-xs text-gray-500 mt-1">
+                        <span class="text-blue-600">Bois total</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Overview Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-database text-white text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900">Système</h3>
+                    <p class="text-gray-600 text-sm">{{ $stats['total_forets'] }} forêts</p>
+                    <div class="flex items-center text-xs text-gray-500 mt-1">
+                        <span class="text-blue-600">{{ $stats['total_essences'] }} essences</span>
+                        <span class="mx-1">•</span>
+                        <span class="text-green-600">{{ $stats['total_exploitants'] }} exploitants</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Category Cards (Top Row) -->
-    <div class="category-cards">
-        <div class="category-card">
-            <div class="category-icon design">
-                <i class="fas fa-tree"></i>
+    <!-- Date Filter Section -->
+    <div class="mb-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-calendar-alt text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Filtre par Période</h2>
+                    <p class="text-gray-600">Sélectionnez une période pour filtrer les articles et statistiques</p>
+                </div>
             </div>
-            <div class="category-info">
-                <h3>Forêts</h3>
-                <p>{{ \App\Models\Foret::count() }} forêts</p>
-                <span class="category-size">{{ \App\Models\Foret::count() * 2 }} ha</span>
-            </div>
-            <div class="category-options">
-                <i class="fas fa-ellipsis-v"></i>
-            </div>
+            
+            <form method="GET" action="{{ route('articles.index') }}" id="dateFilterForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="form-group">
+                        <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-plus text-purple-500 mr-2"></i>
+                            Date de Début
+                        </label>
+                        <input type="date" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="start_date" 
+                               name="start_date" 
+                               value="{{ request('start_date', now()->startOfMonth()->format('Y-m-d')) }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-minus text-purple-500 mr-2"></i>
+                            Date de Fin
+                        </label>
+                        <input type="date" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="end_date" 
+                               name="end_date" 
+                               value="{{ request('end_date', now()->format('Y-m-d')) }}">
+                    </div>
+                    
+                    <div class="form-group flex items-end">
+                        <div class="flex gap-3 w-full">
+                            <button type="submit" 
+                                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                <i class="fas fa-filter"></i>
+                                <span>Filtrer</span>
+                            </button>
+                            <button type="button" 
+                                    onclick="resetDateFilter()"
+                                    class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
+                                    title="Réinitialiser">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                @if(request('start_date') || request('end_date'))
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                        <div class="flex items-center gap-2 text-blue-700">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="font-semibold">Période sélectionnée :</span>
+                            <span>{{ request('start_date') ? \Carbon\Carbon::parse(request('start_date'))->format('d/m/Y') : 'Début' }}</span>
+                            <span>→</span>
+                            <span>{{ request('end_date') ? \Carbon\Carbon::parse(request('end_date'))->format('d/m/Y') : 'Fin' }}</span>
+                        </div>
+                    </div>
+                @endif
+                
+                <!-- Preserve other filters -->
+                @if(request('search'))
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
+                @if(request('type'))
+                    <input type="hidden" name="type" value="{{ request('type') }}">
+                @endif
+                @if(request('status'))
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                @endif
+                @if(request('year'))
+                    <input type="hidden" name="year" value="{{ request('year') }}">
+                @endif
+                @if(request('per_page'))
+                    <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                @endif
+            </form>
         </div>
-        
-        <div class="category-card">
-            <div class="category-icon documents">
-                <i class="fas fa-file-alt"></i>
+    </div>
+
+    <!-- Articles by Type Statistics -->
+    <div class="mb-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        Répartition par Type
+                        @if(request()->hasAny(['start_date', 'end_date', 'search', 'type', 'status', 'year']))
+                            <span class="text-lg text-blue-600 font-normal">(Filtres actifs)</span>
+                        @endif
+                    </h2>
+                    <p class="text-gray-600">Distribution des articles selon leur type</p>
+                </div>
             </div>
-            <div class="category-info">
-                <h3>Articles</h3>
-                <p>{{ $articles->total() }} articles</p>
-                <span class="category-size">{{ number_format($articles->sum('bo_m3') + $articles->sum('bi_m3'), 2) }} m³</span>
-            </div>
-            <div class="category-options">
-                <i class="fas fa-ellipsis-v"></i>
-            </div>
-        </div>
-        
-        <div class="category-card">
-            <div class="category-icon music">
-                <i class="fas fa-leaf"></i>
-            </div>
-            <div class="category-info">
-                <h3>Essences</h3>
-                <p>{{ \App\Models\Essence::count() }} essences</p>
-                <span class="category-size">{{ \App\Models\Essence::count() * 5 }} types</span>
-            </div>
-            <div class="category-options">
-                <i class="fas fa-ellipsis-v"></i>
-            </div>
-        </div>
-        
-        <div class="category-card">
-            <div class="category-icon images">
-                <i class="fas fa-map-marker-alt"></i>
-            </div>
-            <div class="category-info">
-                <h3>Localisations</h3>
-                <p>{{ \App\Models\Localisation::count() }} zones</p>
-                <span class="category-size">{{ \App\Models\Localisation::count() }} codes</span>
-            </div>
-            <div class="category-options">
-                <i class="fas fa-ellipsis-v"></i>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-blue-900">Appels d'Offre</h3>
+                            <p class="text-2xl font-bold text-blue-600">{{ $stats['articles_by_type']['appel_doffre'] }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-gavel text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-green-900">Adjudications</h3>
+                            <p class="text-2xl font-bold text-green-600">{{ $stats['articles_by_type']['adjudication'] }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hammer text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-purple-900">Marchés Négociés</h3>
+                            <p class="text-2xl font-bold text-purple-600">{{ $stats['articles_by_type']['marche_negocié'] }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-handshake text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Articles Data Table -->
-    <div class="entity-data-card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title">
-                <i class="fas fa-file-alt me-2 text-primary"></i>Articles
-            </h3>
-            <a href="{{ route('articles.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-2"></i>Nouvel Article
+    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-table text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Liste des Articles</h2>
+                    <p class="text-gray-600">Gérez et consultez tous les articles forestiers</p>
+                </div>
+            </div>
+            <a href="{{ route('articles.create') }}" 
+               class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                <i class="fas fa-plus"></i>
+                <span class="font-semibold">Nouvel Article</span>
             </a>
         </div>
-        <div class="card-body">
-            <!-- Search and Filter Section -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" class="form-control" id="searchInput" placeholder="Rechercher dans les articles..." autocomplete="off" aria-label="Rechercher dans les articles">
-                    </div>
+        <!-- Search and Filter Section -->
+        <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200 mb-6">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-search text-white"></i>
                 </div>
-                <div class="col-md-4">
-                    <div class="d-flex gap-2">
-                        <select class="form-select" id="statusFilter" aria-label="Filtrer par statut">
-                            <option value="">Tous les statuts</option>
-                            <option value="validated">Validés</option>
-                            <option value="pending">En attente</option>
-                        </select>
-                        <select class="form-select" id="typeFilter" aria-label="Filtrer par type">
+                <h3 class="text-lg font-bold text-gray-900">Recherche et Filtres Avancés</h3>
+            </div>
+            
+            <form method="GET" action="{{ route('articles.index') }}" id="filterForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div class="form-group">
+                        <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-search text-blue-500 mr-1"></i>Recherche
+                        </label>
+                        <div class="relative">
+                            <input type="text" 
+                                   class="form-input w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                   name="search" 
+                                   id="search" 
+                                   value="{{ request('search') }}"
+                                   placeholder="Numéro, année, forêt, essence...">
+                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-tag text-green-500 mr-1"></i>Type
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                name="type" id="type">
                             <option value="">Tous les types</option>
-                            <option value="adjudication">Adjudication</option>
-                            <option value="appel_doffre">Appel d'Offre</option>
+                            <option value="appel_doffre" {{ request('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'Offre</option>
+                            <option value="adjudication" {{ request('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
+                            <option value="marche_negocié" {{ request('type') == 'marche_negocié' ? 'selected' : '' }}>Marché Négocié</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-check-circle text-orange-500 mr-1"></i>Statut
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400" 
+                                name="status" id="status">
+                            <option value="">Tous les statuts</option>
+                            <option value="sold" {{ request('status') == 'sold' ? 'selected' : '' }}>Vendus</option>
+                            <option value="unsold" {{ request('status') == 'unsold' ? 'selected' : '' }}>Invendus</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="year" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar text-purple-500 mr-1"></i>Année
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                                name="year" id="year">
+                            <option value="">Toutes les années</option>
+                            @for($year = now()->year; $year >= 2020; $year--)
+                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
                         </select>
                     </div>
                 </div>
-            </div>
-            
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="d-flex align-items-center gap-2">
-                        <label for="perPageSelect" class="form-label mb-0">Articles par page:</label>
-                        <select class="form-select form-select-sm" id="perPageSelect" style="width: auto;" onchange="changePerPage()">
-                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                            <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
-                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-6 text-end">
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-secondary" onclick="refreshTable()">
-                            <i class="fas fa-sync-alt"></i> Actualiser
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex gap-3">
+                        <button type="submit" 
+                                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            <i class="fas fa-filter"></i>
+                            <span>Filtrer</span>
                         </button>
-                        <button type="button" class="btn btn-outline-success" onclick="exportAllArticles()">
-                            <i class="fas fa-download"></i> Exporter Tout
+                        <button type="button" 
+                                onclick="clearFilters()"
+                                class="inline-flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
+                                title="Effacer les filtres">
+                            <i class="fas fa-times"></i>
+                            <span>Effacer</span>
                         </button>
                     </div>
+                    
+                    @if(request()->hasAny(['search', 'type', 'status', 'year']))
+                        <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Filtres actifs
+                        </div>
+                    @endif
                 </div>
-            </div>
+                
+                <!-- Hidden fields to preserve pagination -->
+                @if(request('per_page'))
+                    <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                @endif
+            </form>
+        </div>
             
-            <div class="table-responsive position-relative" style="overflow-x: auto;">
-                <div class="table-scroll-indicator"></div>
-                <table class="table table-striped table-hover">
-                    <thead>
+        <!-- Actions and Pagination Section -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div class="flex items-center gap-4">
+                <label for="perPageSelect" class="text-sm font-semibold text-gray-700">Articles par page:</label>
+                <select class="form-input px-4 py-2 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                        id="perPageSelect" onchange="changePerPage()">
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
+                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                </select>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" 
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-300"
+                        onclick="refreshTable()">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Actualiser</span>
+                </button>
+                <button type="button" 
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300"
+                        onclick="exportAllArticles()">
+                    <i class="fas fa-download"></i>
+                    <span>Exporter Tout</span>
+                </button>
+            </div>
+        </div>
+            
+        <!-- Data Table -->
+        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
                         <tr>
-                            <th>ID</th>
-                            <th>Année</th>
-                            <th>Numéro</th>
-                            <th>Date d'Adjudication</th>
-                            <th>Forêt</th>
-                            <th>Essence</th>
-                            <th>Localisation</th>
-                            <th>Prix de Retrait</th>
-                            <th>Prix de Vente</th>
-                            <th>Type</th>
-                            <th>Actions</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Année</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Numéro</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date d'Adjudication</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Forêt</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Essence</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Localisation</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Prix de Retrait</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Prix de Vente</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-200">
                         @forelse($articles as $article)
-                            <tr>
-                                <td>{{ $article->id }}</td>
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $article->id }}</td>
                                 <td>
                                     <span class="badge bg-primary">{{ $article->annee ?? '-' }}</span>
                                 </td>
@@ -293,27 +559,25 @@
                     </table>
                 </div>
                 
-                @if($articles->hasPages())
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-                        <div class="pagination-info">
-                            <small class="text-muted">
-                                Affichage de {{ $articles->firstItem() ?? 0 }} à {{ $articles->lastItem() ?? 0 }} 
-                                sur {{ $articles->total() }} articles
-                            </small>
-                        </div>
-                        <div class="pagination-controls">
-                            {{ $articles->appends(request()->query())->links() }}
-                        </div>
-                        <div class="pagination-per-page">
-                            <small class="text-muted">
-                                {{ $articles->perPage() }} par page
-                            </small>
-                        </div>
+        @if($articles->hasPages())
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-sm text-gray-600">
+                        Affichage de {{ $articles->firstItem() ?? 0 }} à {{ $articles->lastItem() ?? 0 }} 
+                        sur {{ $articles->total() }} articles
                     </div>
-                @endif
+                    <div class="pagination-controls">
+                        {{ $articles->appends(request()->query())->links() }}
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        {{ $articles->perPage() }} par page
+                    </div>
+                </div>
             </div>
+        @endif
         </div>
     </div>
+</div>
 
     <!-- Quick Create Cards -->
     <!-- <div class="quick-create-section">
@@ -369,315 +633,502 @@
         </div>
     </div> -->
 
-    <!-- Data Tables for All Entities -->
-    <div class="entities-data-section">
-        <h2 class="section-title">Données des Entités</h2>
-        
-        <!-- Tabs Section -->
-        <div class="card">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" id="entitiesTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="essences-tab" data-bs-toggle="tab" data-bs-target="#essences" type="button" role="tab" aria-controls="essences" aria-selected="true">
-                            <i class="fas fa-leaf me-2"></i>Essences
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="forets-tab" data-bs-toggle="tab" data-bs-target="#forets" type="button" role="tab" aria-controls="forets" aria-selected="false">
-                            <i class="fas fa-tree me-2"></i>Forêts
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="localisations-tab" data-bs-toggle="tab" data-bs-target="#localisations" type="button" role="tab" aria-controls="localisations" aria-selected="false">
-                            <i class="fas fa-map-marker-alt me-2"></i>Localisations
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="situations-tab" data-bs-toggle="tab" data-bs-target="#situations" type="button" role="tab" aria-controls="situations" aria-selected="false">
-                            <i class="fas fa-building me-2"></i>Situations Administratives
-                        </button>
-                    </li>
-                    <!-- <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="exploitants-tab" data-bs-toggle="tab" data-bs-target="#exploitants" type="button" role="tab" aria-controls="exploitants" aria-selected="false">
-                            <i class="fas fa-user-tie me-2"></i>Exploitants
-                        </button>
-                    </li> -->
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="natures-coupe-tab" data-bs-toggle="tab" data-bs-target="#natures-coupe" type="button" role="tab" aria-controls="natures-coupe" aria-selected="false">
-                            <i class="fas fa-cut me-2"></i>Natures de Coupe
-                        </button>
-                    </li>
-                </ul>
+    <!-- Entity Data Management Section -->
+    <div class="mb-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-database text-white text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        Données des Entités
+                    </h2>
+                    <p class="text-gray-600 text-lg mt-2">Gérez les données de base du système forestier</p>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="tab-content" id="entitiesTabContent">
-                    <!-- Essences Tab -->
-                    <div class="tab-pane fade show active" id="essences" role="tabpanel" aria-labelledby="essences-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Essences</h5>
-                            <a href="{{ route('settings.essences.create') }}" class="btn btn-success btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Essence
-                            </a>
-                        </div>
-                        
-                        <!-- Search Box -->
-                        <div class="mb-3">
-                            <form method="GET" action="{{ route('articles.index') }}" class="d-flex gap-2">
-                                <input type="text" name="essence_search" class="form-control" 
-                                       placeholder="Rechercher une essence..." 
-                                       value="{{ request('essence_search') }}">
-                                <button type="submit" class="btn btn-outline-primary">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                                @if(request('essence_search'))
-                                    <a href="{{ route('articles.index') }}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                @endif
-                            </form>
-                        </div>
-                        
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nom de l'Essence</th>
-                                        <th>Date de Création</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($essences as $essence)
-                                    <tr>
-                                        <td>{{ $essence->id }}</td>
-                                        <td>{{ $essence->essence }}</td>
-                                        <td>{{ $essence->created_at->format('d/m/Y') }}</td>
-                                        <td>
-                                            <a href="{{ route('settings.essences.edit', $essence) }}" class="btn btn-sm btn-warning">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('settings.essences.destroy', $essence) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette essence ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">
-                                            <i class="fas fa-leaf fa-2x mb-2"></i>
-                                            <p>Aucune essence trouvée</p>
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Pagination -->
-                        @if($essences->hasPages())
-                            <div class="d-flex justify-content-center mt-3">
-                                {{ $essences->appends(request()->query())->links() }}
+            
+            <!-- Modern Tabs Section -->
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-50 to-slate-50 border-b border-gray-200">
+                    <div class="flex flex-wrap">
+                        <button class="tab-button active" data-tab="essences">
+                            <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-leaf text-white text-sm"></i>
                             </div>
-                        @endif
-                    </div>
-
-                    <!-- Forêts Tab -->
-                    <div class="tab-pane fade" id="forets" role="tabpanel" aria-labelledby="forets-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Forêts</h5>
-                            <a href="{{ route('settings.forets.create') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Forêt
-                            </a>
-                        </div>
-                        
-                        <!-- Search Box -->
-                        <div class="mb-3">
-                            <form method="GET" action="{{ route('articles.index') }}" class="d-flex gap-2">
-                                <input type="text" name="foret_search" class="form-control" 
-                                       placeholder="Rechercher une forêt..." 
-                                       value="{{ request('foret_search') }}">
-                                <button type="submit" class="btn btn-outline-primary">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                                @if(request('foret_search'))
-                                    <a href="{{ route('articles.index') }}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                @endif
-                            </form>
-                        </div>
-                        
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nom de la Forêt</th>
-                                        <th>Date de Création</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($forets as $foret)
-                                    <tr>
-                                        <td>{{ $foret->id }}</td>
-                                        <td>{{ $foret->foret }}</td>
-                                        <td>{{ $foret->created_at->format('d/m/Y') }}</td>
-                                        <td>
-                                            <a href="{{ route('settings.forets.edit', $foret) }}" class="btn btn-sm btn-warning">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('settings.forets.destroy', $foret) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette forêt ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">
-                                            <i class="fas fa-tree fa-2x mb-2"></i>
-                                            <p>Aucune forêt trouvée</p>
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Pagination -->
-                        @if($forets->hasPages())
-                            <div class="d-flex justify-content-center mt-3">
-                                {{ $forets->appends(request()->query())->links() }}
+                            <span>Essences</span>
+                        </button>
+                        <button class="tab-button" data-tab="forets">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-tree text-white text-sm"></i>
                             </div>
-                        @endif
+                            <span>Forêts</span>
+                        </button>
+                        <button class="tab-button" data-tab="localisations">
+                            <div class="w-8 h-8 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-map-marker-alt text-white text-sm"></i>
+                            </div>
+                            <span>Localisations</span>
+                        </button>
+                        <button class="tab-button" data-tab="situations">
+                            <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-building text-white text-sm"></i>
+                            </div>
+                            <span>Situations Administratives</span>
+                        </button>
+                        <button class="tab-button" data-tab="natures-coupe">
+                            <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-cut text-white text-sm"></i>
+                            </div>
+                            <span>Natures de Coupe</span>
+                        </button>
                     </div>
-
-                    <!-- Localisations Tab -->
-                    <div class="tab-pane fade" id="localisations" role="tabpanel" aria-labelledby="localisations-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Localisations</h5>
-                            <div>
-                                <a href="{{ route('settings.localisations.create') }}" class="btn btn-info btn-sm me-2">
-                                    <i class="fas fa-plus me-2"></i>Nouvelle Localisation
+                </div>
+                <div class="p-6">
+                    <div class="tab-content" id="entitiesTabContent">
+                        <!-- Essences Tab -->
+                        <div class="tab-pane fade show active" id="essences" role="tabpanel">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-leaf text-white text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900">Liste des Essences</h3>
+                                        <p class="text-gray-600">Gérez les essences forestières</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('settings.essences.create') }}" 
+                                   class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Nouvelle Essence</span>
                                 </a>
-                                <a href="{{ route('settings.localisations.export') }}" class="btn btn-info btn-sm me-2">
-                                    <i class="fas fa-download me-2"></i>Exporter
-                                </a>
-                                <button class="btn btn-success btn-sm" onclick="document.getElementById('importLocalisationForm').click()">
-                                    <i class="fas fa-upload me-2"></i>Importer
-                                </button>
-                                <input type="file" id="importLocalisationForm" style="display: none;" accept=".xlsx,.xls,.csv" onchange="importLocalisations(this)">
                             </div>
-                        </div>
-                        
-                        <!-- Search Box -->
-                        <div class="mb-3">
-                            <form method="GET" action="{{ route('articles.index') }}" class="d-flex gap-2">
-                                <input type="text" name="localisation_search" class="form-control" 
-                                       placeholder="Rechercher par Code, DRANEF ou Entité..." 
-                                       value="{{ request('localisation_search') }}">
-                                <button type="submit" class="btn btn-outline-primary">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                                @if(request('localisation_search'))
-                                    <a href="{{ route('articles.index') }}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                @endif
-                            </form>
-                        </div>
-                        
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Code</th>
-                                        <th>DRANEF</th>
-                                        <th>Entité</th>
-                                        <th>Date de Création</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($localisations as $localisation)
-                                    <tr>
-                                        <td>{{ $localisation->id }}</td>
-                                        <td>{{ $localisation->CODE }}</td>
-                                        <td>{{ $localisation->DRANEF }}</td>
-                                        <td>{{ $localisation->ENTITE }}</td>
-                                        <td>{{ $localisation->created_at->format('d/m/Y') }}</td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">
-                                            <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
-                                            <p>Aucune localisation trouvée</p>
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Pagination -->
-                        @if($localisations->hasPages())
-                            <div class="d-flex justify-content-center mt-3">
-                                {{ $localisations->appends(request()->query())->links() }}
+                            
+                            <!-- Search Box -->
+                            <div class="mb-6">
+                                <form method="GET" action="{{ route('articles.index') }}" class="flex gap-3">
+                                    <div class="flex-1 relative">
+                                        <input type="text" 
+                                               name="essence_search" 
+                                               class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                               placeholder="Rechercher une essence..." 
+                                               value="{{ request('essence_search') }}">
+                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                    </div>
+                                    <button type="submit" 
+                                            class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    @if(request('essence_search'))
+                                        <a href="{{ route('articles.index') }}" 
+                                           class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    @endif
+                                </form>
                             </div>
-                        @endif
-                    </div>
+                            
+                            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
+                                            <tr>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom de l'Essence</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @forelse($essences as $essence)
+                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $essence->id }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                                            <i class="fas fa-leaf text-green-600 text-sm"></i>
+                                                        </div>
+                                                        <span class="font-medium">{{ $essence->essence }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $essence->created_at->format('d/m/Y') }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <div class="flex items-center gap-2">
+                                                        <a href="{{ route('settings.essences.edit', $essence) }}" 
+                                                           class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
+                                                           title="Modifier">
+                                                            <i class="fas fa-edit text-sm"></i>
+                                                        </a>
+                                                        <form action="{{ route('settings.essences.destroy', $essence) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
+                                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette essence ?')"
+                                                                    title="Supprimer">
+                                                                <i class="fas fa-trash text-sm"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                                    <div class="flex flex-col items-center">
+                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                            <i class="fas fa-leaf text-2xl text-gray-400"></i>
+                                                        </div>
+                                                        <p class="text-lg font-medium">Aucune essence trouvée</p>
+                                                        <p class="text-sm">Commencez par ajouter une nouvelle essence</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            @if($essences->hasPages())
+                                <div class="mt-6 flex items-center justify-between">
+                                    <div class="text-sm text-gray-700">
+                                        Affichage de {{ $essences->firstItem() }} à {{ $essences->lastItem() }} sur {{ $essences->total() }} résultats
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        {{ $essences->appends(request()->query())->links() }}
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
 
-                    <!-- Situations Administratives Tab -->
-                    <div class="tab-pane fade" id="situations" role="tabpanel" aria-labelledby="situations-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Situations Administratives</h5>
-                            <a href="{{ route('settings.situation-administratives.create') }}" class="btn btn-warning btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Situation
-                            </a>
+                        <!-- Forêts Tab -->
+                        <div class="tab-pane fade" id="forets" role="tabpanel">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-tree text-white text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900">Liste des Forêts</h3>
+                                        <p class="text-gray-600">Gérez les forêts forestières</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('settings.forets.create') }}" 
+                                   class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Nouvelle Forêt</span>
+                                </a>
+                            </div>
+                            
+                            <!-- Search Box -->
+                            <div class="mb-6">
+                                <form method="GET" action="{{ route('articles.index') }}" class="flex gap-3">
+                                    <div class="flex-1 relative">
+                                        <input type="text" 
+                                               name="foret_search" 
+                                               class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                               placeholder="Rechercher une forêt..." 
+                                               value="{{ request('foret_search') }}">
+                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                    </div>
+                                    <button type="submit" 
+                                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    @if(request('foret_search'))
+                                        <a href="{{ route('articles.index') }}" 
+                                           class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    @endif
+                                </form>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
+                                            <tr>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom de la Forêt</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @forelse($forets as $foret)
+                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $foret->id }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                            <i class="fas fa-tree text-blue-600 text-sm"></i>
+                                                        </div>
+                                                        <span class="font-medium">{{ $foret->foret }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $foret->created_at->format('d/m/Y') }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <div class="flex items-center gap-2">
+                                                        <a href="{{ route('settings.forets.edit', $foret) }}" 
+                                                           class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
+                                                           title="Modifier">
+                                                            <i class="fas fa-edit text-sm"></i>
+                                                        </a>
+                                                        <form action="{{ route('settings.forets.destroy', $foret) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
+                                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette forêt ?')"
+                                                                    title="Supprimer">
+                                                                <i class="fas fa-trash text-sm"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                                    <div class="flex flex-col items-center">
+                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                            <i class="fas fa-tree text-2xl text-gray-400"></i>
+                                                        </div>
+                                                        <p class="text-lg font-medium">Aucune forêt trouvée</p>
+                                                        <p class="text-sm">Commencez par ajouter une nouvelle forêt</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            @if($forets->hasPages())
+                                <div class="mt-6 flex items-center justify-between">
+                                    <div class="text-sm text-gray-700">
+                                        Affichage de {{ $forets->firstItem() }} à {{ $forets->lastItem() }} sur {{ $forets->total() }} résultats
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        {{ $forets->appends(request()->query())->links() }}
+                                    </div>
+                                </div>
+                            @endif
                         </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Commune</th>
-                                        <th>Province</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(\App\Models\SituationAdministrative::all() as $situation)
-                                    <tr>
-                                        <td>{{ $situation->id }}</td>
-                                        <td>{{ $situation->commune }}</td>
-                                        <td>{{ $situation->province }}</td>
-                                        <td>
-                                            <a href="{{ route('settings.situation-administratives.edit', $situation) }}" class="btn btn-sm btn-warning">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('settings.situation-administratives.destroy', $situation) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette situation administrative ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+
+                        <!-- Localisations Tab -->
+                        <div class="tab-pane fade" id="localisations" role="tabpanel">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-map-marker-alt text-white text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900">Liste des Localisations</h3>
+                                        <p class="text-gray-600">Gérez les localisations forestières</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <a href="{{ route('settings.localisations.create') }}" 
+                                       class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                        <i class="fas fa-plus"></i>
+                                        <span>Nouvelle Localisation</span>
+                                    </a>
+                                    <a href="{{ route('settings.localisations.export') }}" 
+                                       class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                        <i class="fas fa-download"></i>
+                                        <span>Exporter</span>
+                                    </a>
+                                    <button onclick="document.getElementById('importLocalisationForm').click()" 
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                        <i class="fas fa-upload"></i>
+                                        <span>Importer</span>
+                                    </button>
+                                    <input type="file" id="importLocalisationForm" style="display: none;" accept=".xlsx,.xls,.csv" onchange="importLocalisations(this)">
+                                </div>
+                            </div>
+                            
+                            <!-- Search Box -->
+                            <div class="mb-6">
+                                <form method="GET" action="{{ route('articles.index') }}" class="flex gap-3">
+                                    <div class="flex-1 relative">
+                                        <input type="text" 
+                                               name="localisation_search" 
+                                               class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 hover:border-gray-400" 
+                                               placeholder="Rechercher par Code, DRANEF ou Entité..." 
+                                               value="{{ request('localisation_search') }}">
+                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                    </div>
+                                    <button type="submit" 
+                                            class="px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-xl hover:from-teal-700 hover:to-cyan-700 transition-all duration-300">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    @if(request('localisation_search'))
+                                        <a href="{{ route('articles.index') }}" 
+                                           class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    @endif
+                                </form>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
+                                            <tr>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Code</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">DRANEF</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Entité</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @forelse($localisations as $localisation)
+                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $localisation->id }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                                                            <i class="fas fa-map-marker-alt text-teal-600 text-sm"></i>
+                                                        </div>
+                                                        <span class="font-medium">{{ $localisation->CODE }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    {{ $localisation->DRANEF }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    {{ $localisation->ENTITE }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $localisation->created_at->format('d/m/Y') }}
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                                    <div class="flex flex-col items-center">
+                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                            <i class="fas fa-map-marker-alt text-2xl text-gray-400"></i>
+                                                        </div>
+                                                        <p class="text-lg font-medium">Aucune localisation trouvée</p>
+                                                        <p class="text-sm">Commencez par ajouter une nouvelle localisation</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            @if($localisations->hasPages())
+                                <div class="mt-6 flex items-center justify-between">
+                                    <div class="text-sm text-gray-700">
+                                        Affichage de {{ $localisations->firstItem() }} à {{ $localisations->lastItem() }} sur {{ $localisations->total() }} résultats
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        {{ $localisations->appends(request()->query())->links() }}
+                                    </div>
+                                </div>
+                            @endif
                         </div>
-                    </div>
+
+                        <!-- Situations Administratives Tab -->
+                        <div class="tab-pane fade" id="situations" role="tabpanel">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-building text-white text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900">Liste des Situations Administratives</h3>
+                                        <p class="text-gray-600">Gérez les communes et provinces</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('settings.situation-administratives.create') }}" 
+                                   class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Nouvelle Situation</span>
+                                </a>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
+                                            <tr>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Commune</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Province</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @foreach(\App\Models\SituationAdministrative::all() as $situation)
+                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $situation->id }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                            <i class="fas fa-building text-purple-600 text-sm"></i>
+                                                        </div>
+                                                        <span class="font-medium">{{ $situation->commune }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    {{ $situation->province }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <div class="flex items-center gap-2">
+                                                        <a href="{{ route('settings.situation-administratives.edit', $situation) }}" 
+                                                           class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
+                                                           title="Modifier">
+                                                            <i class="fas fa-edit text-sm"></i>
+                                                        </a>
+                                                        <form action="{{ route('settings.situation-administratives.destroy', $situation) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
+                                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette situation administrative ?')"
+                                                                    title="Supprimer">
+                                                                <i class="fas fa-trash text-sm"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
 
                     <!-- Exploitants Tab -->
                     <!-- <div class="tab-pane fade" id="exploitants" role="tabpanel" aria-labelledby="exploitants-tab">
@@ -722,80 +1173,128 @@
                         </div>
                     </div> -->
 
-                    <!-- Natures de Coupe Tab -->
-                    <div class="tab-pane fade" id="natures-coupe" role="tabpanel" aria-labelledby="natures-coupe-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Natures de Coupe</h5>
-                            <a href="{{ route('settings.nature-de-coupes.create') }}" class="btn btn-secondary btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Nature
-                            </a>
-                        </div>
-                        
-                        <!-- Search Box -->
-                        <div class="mb-3">
-                            <form method="GET" action="{{ route('articles.index') }}" class="d-flex gap-2">
-                                <input type="text" name="nature_search" class="form-control" 
-                                       placeholder="Rechercher une nature de coupe..." 
-                                       value="{{ request('nature_search') }}">
-                                <button type="submit" class="btn btn-outline-primary">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                                @if(request('nature_search'))
-                                    <a href="{{ route('articles.index') }}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                @endif
-                            </form>
-                        </div>
-                        
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nature</th>
-                                        <th>Date de Création</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($natureDeCoupes as $nature)
-                                    <tr>
-                                        <td>{{ $nature->id }}</td>
-                                        <td>{{ $nature->nature_de_coupe }}</td>
-                                        <td>{{ $nature->created_at->format('d/m/Y') }}</td>
-                                        <td>
-                                            <a href="{{ route('settings.nature-de-coupes.edit', $nature) }}" class="btn btn-sm btn-warning">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('settings.nature-de-coupes.destroy', $nature) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette nature de coupe ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">
-                                            <i class="fas fa-cut fa-2x mb-2"></i>
-                                            <p>Aucune nature de coupe trouvée</p>
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Pagination -->
-                        @if($natureDeCoupes->hasPages())
-                            <div class="d-flex justify-content-center mt-3">
-                                {{ $natureDeCoupes->appends(request()->query())->links() }}
+                        <!-- Natures de Coupe Tab -->
+                        <div class="tab-pane fade" id="natures-coupe" role="tabpanel">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-cut text-white text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900">Liste des Natures de Coupe</h3>
+                                        <p class="text-gray-600">Gérez les méthodes d'exploitation</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('settings.nature-de-coupes.create') }}" 
+                                   class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-yellow-600 text-white rounded-lg hover:from-orange-700 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Nouvelle Nature</span>
+                                </a>
                             </div>
-                        @endif
-                    </div>
+                            
+                            <!-- Search Box -->
+                            <div class="mb-6">
+                                <form method="GET" action="{{ route('articles.index') }}" class="flex gap-3">
+                                    <div class="flex-1 relative">
+                                        <input type="text" 
+                                               name="nature_search" 
+                                               class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400" 
+                                               placeholder="Rechercher une nature de coupe..." 
+                                               value="{{ request('nature_search') }}">
+                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                    </div>
+                                    <button type="submit" 
+                                            class="px-6 py-3 bg-gradient-to-r from-orange-600 to-yellow-600 text-white rounded-xl hover:from-orange-700 hover:to-yellow-700 transition-all duration-300">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    @if(request('nature_search'))
+                                        <a href="{{ route('articles.index') }}" 
+                                           class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    @endif
+                                </form>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
+                                            <tr>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nature</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @forelse($natureDeCoupes as $nature)
+                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $nature->id }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                                            <i class="fas fa-cut text-orange-600 text-sm"></i>
+                                                        </div>
+                                                        <span class="font-medium">{{ $nature->nature_de_coupe }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $nature->created_at->format('d/m/Y') }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <div class="flex items-center gap-2">
+                                                        <a href="{{ route('settings.nature-de-coupes.edit', $nature) }}" 
+                                                           class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
+                                                           title="Modifier">
+                                                            <i class="fas fa-edit text-sm"></i>
+                                                        </a>
+                                                        <form action="{{ route('settings.nature-de-coupes.destroy', $nature) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
+                                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette nature de coupe ?')"
+                                                                    title="Supprimer">
+                                                                <i class="fas fa-trash text-sm"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                                    <div class="flex flex-col items-center">
+                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                                            <i class="fas fa-cut text-2xl text-gray-400"></i>
+                                                        </div>
+                                                        <p class="text-lg font-medium">Aucune nature de coupe trouvée</p>
+                                                        <p class="text-sm">Commencez par ajouter une nouvelle nature de coupe</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            @if($natureDeCoupes->hasPages())
+                                <div class="mt-6 flex items-center justify-between">
+                                    <div class="text-sm text-gray-700">
+                                        Affichage de {{ $natureDeCoupes->firstItem() }} à {{ $natureDeCoupes->lastItem() }} sur {{ $natureDeCoupes->total() }} résultats
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        {{ $natureDeCoupes->appends(request()->query())->links() }}
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
                 </div>
             </div>
         </div>
@@ -2072,31 +2571,62 @@ function archiveArticle(articleId) {
     }
 }
 
+// Clear filters function
+function clearFilters() {
+    document.getElementById('search').value = '';
+    document.getElementById('type').value = '';
+    document.getElementById('status').value = '';
+    document.getElementById('year').value = '';
+    document.getElementById('filterForm').submit();
+}
+
+// Reset date filter function
+function resetDateFilter() {
+    // Set dates to current month
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    document.getElementById('start_date').value = firstDay.toISOString().split('T')[0];
+    document.getElementById('end_date').value = today.toISOString().split('T')[0];
+    
+    // Submit the form
+    document.getElementById('dateFilterForm').submit();
+}
+
 // Enhanced UX features
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
-    const typeFilter = document.getElementById('typeFilter');
+    const searchInput = document.getElementById('search');
+    const statusFilter = document.getElementById('status');
+    const typeFilter = document.getElementById('type');
+    const yearFilter = document.getElementById('year');
     const table = document.querySelector('.table');
     
-    // Debounced search function
-    const debouncedSearch = UXUtils.debounce(function() {
-        filterTable();
-    }, 300);
+    // Auto-submit form when filters change
+    if (searchInput) {
+        const debouncedSearch = UXUtils.debounce(function() {
+            document.getElementById('filterForm').submit();
+        }, 500);
+        
+        searchInput.addEventListener('input', debouncedSearch);
+    }
     
-    // Enhanced search with debouncing
-    searchInput.addEventListener('input', debouncedSearch);
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+    }
     
-    // Enhanced filter handling
-    statusFilter.addEventListener('change', function() {
-        filterTable();
-        UXUtils.showToast(`Filtre par statut: ${this.value || 'Tous'}`, 'info', 2000);
-    });
+    if (typeFilter) {
+        typeFilter.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+    }
     
-    typeFilter.addEventListener('change', function() {
-        filterTable();
-        UXUtils.showToast(`Filtre par type: ${this.value || 'Tous'}`, 'info', 2000);
-    });
+    if (yearFilter) {
+        yearFilter.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+    }
     
     // Enhanced table interactions
     if (table) {
@@ -2167,6 +2697,94 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Auto-refreshing data...');
         }
     }, 300000); // 5 minutes
-});
+    });
+    
+    // Modern Tabs Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and panes
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanes.forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                    pane.style.display = 'none';
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Show corresponding tab pane
+                const targetPane = document.getElementById(targetTab);
+                if (targetPane) {
+                    targetPane.classList.add('show', 'active');
+                    targetPane.style.display = 'block';
+                }
+            });
+        });
+    });
 </script>
+
+@push('styles')
+<style>
+    /* Modern Tabs Styling */
+    .tab-button {
+        @apply flex items-center px-6 py-4 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-800 hover:border-gray-300 transition-all duration-300 cursor-pointer;
+    }
+    
+    .tab-button.active {
+        @apply text-blue-600 border-blue-600 bg-blue-50;
+    }
+    
+    .tab-button:hover {
+        @apply bg-gray-50;
+    }
+    
+    .tab-button span {
+        @apply whitespace-nowrap;
+    }
+    
+    .tab-pane {
+        display: none;
+    }
+    
+    .tab-pane.active {
+        display: block;
+    }
+    
+    /* Enhanced Table Styling */
+    .table th {
+        @apply px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider;
+    }
+    
+    .table td {
+        @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+    }
+    
+    .table tbody tr {
+        @apply hover:bg-gray-50 transition-colors duration-200;
+    }
+    
+    /* Enhanced Pagination */
+    .pagination .page-link {
+        @apply px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200;
+    }
+    
+    .pagination .page-item.active .page-link {
+        @apply bg-blue-600 text-white border-blue-600;
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        @apply text-gray-400 bg-gray-100 border-gray-200 cursor-not-allowed;
+    }
+    
+    /* Form Input Styling */
+    .form-input {
+        @apply w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400;
+    }
+</style>
 @endpush

@@ -46,13 +46,13 @@
         
         .login-container {
             width: 100%;
-            max-width: 450px;
+            max-width: 50%;
         }
         
         .login-card {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(20px);
-            border-radius: 2rem;
+            border-radius: 0.5rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 3rem 2.5rem;
@@ -87,7 +87,7 @@
             padding: 0.875rem 1rem;
             font-size: 1rem;
             border: 2px solid #e5e7eb;
-            border-radius: 1rem;
+            border-radius: 0.375rem;
             background: white;
             box-sizing: border-box;
             transition: all 0.3s ease;
@@ -147,7 +147,7 @@
         .btn-login {
             background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
             border: none;
-            border-radius: 1rem;
+            border-radius: 0.375rem;
             height: 3.5rem;
             padding: 0 2rem;
             font-size: 1rem;
@@ -296,7 +296,7 @@
             justify-content: space-between;
             background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
             border: 2px solid #bbf7d0;
-            border-radius: 1rem;
+            border-radius: 0.375rem;
             padding: 1rem 1.25rem;
             font-size: 1.25rem;
             font-weight: 700;
@@ -325,7 +325,7 @@
         .captcha-refresh {
             background: linear-gradient(135deg, var(--primary-color), #047857);
             border: none;
-            border-radius: 0.75rem;
+            border-radius: 0.375rem;
             color: white;
             width: 2.5rem;
             height: 2.5rem;
@@ -406,8 +406,13 @@
             
             .login-card {
                 padding: 2rem 1.5rem;
-                border-radius: 1rem;
+                border-radius: 0.5rem;
                 margin: 0;
+            }
+            
+            /* Stack sections vertically on mobile */
+            .flex.flex-col.lg\\:flex-row {
+                flex-direction: column;
             }
             
             .login-header h1 {
@@ -740,117 +745,125 @@
                 <form method="POST" action="{{ route('login') }}" id="loginForm" class="space-y-6">
                     @csrf
                     
-                    <div class="form-group">
-                        <label for="ppr" class="form-label">
-                            PPR
-                            <span class="form-text">(Numéro de personnel)</span>
-                        </label>
-                        <input type="text" 
-                               class="form-control @error('ppr') is-invalid @enderror" 
-                               id="ppr" 
-                               name="ppr" 
-                               value="{{ old('ppr') }}" 
-                               placeholder="Entrez votre PPR" 
-                               required 
-                               autofocus
-                               autocomplete="username"
-                               aria-describedby="ppr-help">
-                        @error('ppr')
-                            <div class="invalid-feedback">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                        <div id="ppr-help" class="form-text">
-                            <i class="fas fa-info-circle"></i>
-                            Votre numéro de personnel unique
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password" class="form-label">Mot de passe</label>
-                        <div class="password-field">
-                            <input type="password" 
-                                   class="form-control @error('password') is-invalid @enderror" 
-                                   id="password" 
-                                   name="password" 
-                                   placeholder="Entrez votre mot de passe" 
-                                   required
-                                   autocomplete="current-password"
-                                   aria-describedby="password-help">
-                            <button type="button" 
-                                    class="password-toggle" 
-                                    id="passwordToggle"
-                                    aria-label="Afficher le mot de passe"
-                                    tabindex="-1">
-                                <i class="fas fa-eye" id="passwordToggleIcon"></i>
-                            </button>
-                        </div>
-                        @error('password')
-                            <div class="invalid-feedback">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                        <div id="password-help" class="form-text">
-                            <i class="fas fa-shield-alt"></i>
-                            Mot de passe sécurisé requis
-                        </div>
-                    </div>
-                    
-                    <!-- Security Verification Section -->
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-shield-alt text-white"></i>
-                            </div>
-                            <h3 class="text-lg font-bold text-green-900">Vérification de sécurité</h3>
-                        </div>
-                        <div class="form-group">
-                            <label for="captcha" class="form-label">
-                                Résolvez cette addition simple
-                                <span class="form-text">(Protection contre les attaques automatisées)</span>
-                            </label>
-                            <div class="captcha-container">
-                                <div class="captcha-question">
-                                    <span id="captchaQuestion">{{ $captcha_question ?? '5 + 3' }}</span>
-                                    <button type="button" class="captcha-refresh" id="refreshCaptcha" title="Nouvelle question">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
+                    <!-- Main Form Container with Flex -->
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <!-- Left Section: Credentials -->
+                        <div class="flex-1 space-y-6">
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-blue-900">Informations de connexion</h3>
                                 </div>
-                                <input type="number" 
-                                       class="form-control @error('captcha') is-invalid @enderror" 
-                                       id="captcha" 
-                                       name="captcha" 
-                                       placeholder="Votre réponse" 
-                                       min="1"
-                                       max="10"
-                                       required
-                                       autocomplete="off"
-                                       aria-describedby="captcha-help">
-                            </div>
-                            @error('captcha')
-                                <div class="invalid-feedback">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    {{ $message }}
+                                
+                                <div class="form-group">
+                                    <label for="ppr" class="form-label">
+                                        PPR
+                                        <span class="form-text">(Numéro de personnel)</span>
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control @error('ppr') is-invalid @enderror" 
+                                           id="ppr" 
+                                           name="ppr" 
+                                           value="{{ old('ppr') }}" 
+                                           placeholder="Entrez votre PPR" 
+                                           required 
+                                           autofocus
+                                           autocomplete="username"
+                                           aria-describedby="ppr-help">
+                                    @error('ppr')
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                    <div id="ppr-help" class="form-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        Votre numéro de personnel unique
+                                    </div>
                                 </div>
-                            @enderror
-                            <div id="captcha-help" class="form-text">
-                                <i class="fas fa-info-circle"></i>
-                                Réponse attendue entre 1 et 10
+                                
+                                <div class="form-group">
+                                    <label for="password" class="form-label">Mot de passe</label>
+                                    <div class="password-field">
+                                        <input type="password" 
+                                               class="form-control @error('password') is-invalid @enderror" 
+                                               id="password" 
+                                               name="password" 
+                                               placeholder="Entrez votre mot de passe" 
+                                               required
+                                               autocomplete="current-password"
+                                               aria-describedby="password-help">
+                                        <button type="button" 
+                                                class="password-toggle" 
+                                                id="passwordToggle"
+                                                aria-label="Afficher le mot de passe"
+                                                tabindex="-1">
+                                            <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                                        </button>
+                                    </div>
+                                    @error('password')
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                    <div id="password-help" class="form-text">
+                                        <i class="fas fa-shield-alt"></i>
+                                        Mot de passe sécurisé requis
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-check">
-                        <input class="form-check-input" 
-                               type="checkbox" 
-                               id="remember" 
-                               name="remember" 
-                               {{ old('remember') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="remember">
-                            Se souvenir de moi
-                        </label>
+                        
+                        <!-- Right Section: Security & Options -->
+                        <div class="flex-1 space-y-6">
+                            <!-- Security Verification Section -->
+                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-shield-alt text-white"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-green-900">Vérification de sécurité</h3>
+                                </div>
+                                <div class="form-group">
+                                    <label for="captcha" class="form-label">
+                                        Résolvez cette addition simple
+                                        <span class="form-text">(Protection contre les attaques automatisées)</span>
+                                    </label>
+                                    <div class="captcha-container">
+                                        <div class="captcha-question">
+                                            <span id="captchaQuestion">{{ $captcha_question ?? '5 + 3' }}</span>
+                                            <button type="button" class="captcha-refresh" id="refreshCaptcha" title="Nouvelle question">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                        </div>
+                                        <input type="number" 
+                                               class="form-control @error('captcha') is-invalid @enderror" 
+                                               id="captcha" 
+                                               name="captcha" 
+                                               placeholder="Votre réponse" 
+                                               min="1"
+                                               max="10"
+                                               required
+                                               autocomplete="off"
+                                               aria-describedby="captcha-help">
+                                    </div>
+                                    @error('captcha')
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                    <div id="captcha-help" class="form-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        Réponse attendue entre 1 et 10
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
                     </div>
                     
                     <!-- Form Actions -->
@@ -863,7 +876,7 @@
                 </form>
                 
                 <div class="mt-6 text-center">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-xl border border-green-200">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-lg border border-green-200">
                         <i class="fas fa-shield-alt"></i>
                         <span class="text-sm font-medium">Accès sécurisé au système de gestion forestière</span>
                     </div>

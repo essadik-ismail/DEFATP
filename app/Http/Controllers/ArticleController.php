@@ -29,9 +29,21 @@ class ArticleController extends Controller
         // Log view action
         ActivityLogger::log('view', 'Consultation de la liste des articles', Article::class);
         
+        // Get date filters from request
+        $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : null;
+        $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : null;
+        
+        // Build base query with date filtering
+        $articlesQuery = Article::where('is_deleted', false)
+            ->with(['foret', 'essence', 'localisation', 'situationAdministrative', 'exploitant', 'natureDeCoupe', 'products', 'locations']);
+            
+        // Apply date filtering if provided
+        if ($startDate && $endDate) {
+            $articlesQuery->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
         // Get articles with enhanced pagination and filtering
-        $articles = Article::where('is_deleted', false)
-            ->with(['foret', 'essence', 'localisation', 'situationAdministrative', 'exploitant', 'natureDeCoupe', 'products', 'locations'])
+        $articles = $articlesQuery
             ->when($request->filled('search'), function($query) use ($request) {
                 $query->where(function($q) use ($request) {
                     $q->where('numero', 'like', '%' . $request->search . '%')
@@ -45,11 +57,14 @@ class ArticleController extends Controller
                 });
             })
             ->when($request->filled('status'), function($query) use ($request) {
-                if ($request->status === 'validated') {
-                    $query->where('is_validated', true);
-                } elseif ($request->status === 'pending') {
-                    $query->where('is_validated', false);
+                if ($request->status === 'sold') {
+                    $query->where('invendu', false);
+                } elseif ($request->status === 'unsold') {
+                    $query->where('invendu', true);
                 }
+            })
+            ->when($request->filled('year'), function($query) use ($request) {
+                $query->where('annee', $request->year);
             })
             ->when($request->filled('type'), function($query) use ($request) {
                 $query->where('type', $request->type);
@@ -107,6 +122,72 @@ class ArticleController extends Controller
             ->orderBy('nature_de_coupe')
             ->paginate(10, ['*'], 'natures_page');
 
+        // Calculate comprehensive statistics with date filtering
+        $statsQuery = Article::where('is_deleted', false);
+        if ($startDate && $endDate) {
+            $statsQuery->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        // Calculate statistics based on the same filtered query as the articles
+        $filteredQuery = Article::where('is_deleted', false);
+        
+        // Apply the same filters as the main query
+        if ($startDate && $endDate) {
+            $filteredQuery->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        if ($request->filled('search')) {
+            $filteredQuery->where(function($q) use ($request) {
+                $q->where('numero', 'like', '%' . $request->search . '%')
+                  ->orWhere('annee', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('foret', function($foretQuery) use ($request) {
+                      $foretQuery->where('foret', 'like', '%' . $request->search . '%');
+                  })
+                  ->orWhereHas('essence', function($essenceQuery) use ($request) {
+                      $essenceQuery->where('essence', 'like', '%' . $request->search . '%');
+                  });
+            });
+        }
+        
+        if ($request->filled('status')) {
+            if ($request->status === 'sold') {
+                $filteredQuery->where('invendu', false);
+            } elseif ($request->status === 'unsold') {
+                $filteredQuery->where('invendu', true);
+            }
+        }
+        
+        if ($request->filled('year')) {
+            $filteredQuery->where('annee', $request->year);
+        }
+        
+        if ($request->filled('type')) {
+            $filteredQuery->where('type', $request->type);
+        }
+        
+        $stats = [
+            'total_articles' => $articles->total(),
+            'sold_articles' => (clone $filteredQuery)->where('invendu', false)->count(),
+            'unsold_articles' => (clone $filteredQuery)->where('invendu', true)->count(),
+            'total_revenue' => (clone $filteredQuery)->sum('prix_vente'),
+            'total_retrait' => (clone $filteredQuery)->sum('prix_de_retrait'),
+            'total_volume' => (clone $filteredQuery)->sum('bo_m3') + (clone $filteredQuery)->sum('bi_m3'),
+            'total_forets' => Foret::where('is_deleted', '')->count(),
+            'total_essences' => Essence::where('is_deleted', '')->count(),
+            'total_localisations' => Localisation::where('is_deleted', '')->count(),
+            'total_exploitants' => Exploitant::where('is_deleted', '')->count(),
+            'articles_by_type' => [
+                'appel_doffre' => (clone $filteredQuery)->where('type', 'appel_doffre')->count(),
+                'adjudication' => (clone $filteredQuery)->where('type', 'adjudication')->count(),
+                'marche_negocié' => (clone $filteredQuery)->where('type', 'marche_negocié')->count(),
+            ],
+            'recent_articles' => (clone $filteredQuery)
+                ->with(['foret', 'essence'])
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get(),
+        ];
+
         return view('articles.index', compact(
             'articles',
             'essences',
@@ -114,7 +195,8 @@ class ArticleController extends Controller
             'localisations',
             'situationAdministratives',
             'exploitants',
-            'natureDeCoupes'
+            'natureDeCoupes',
+            'stats'
         ));
     }
 

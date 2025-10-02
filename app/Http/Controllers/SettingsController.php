@@ -477,7 +477,16 @@ class SettingsController extends Controller
         // Log exploitants view
         ActivityLogger::log('view', 'Consultation de la liste des exploitants', Exploitant::class);
         
+        // Get date filters from request
+        $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : null;
+        $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : null;
+        
         $query = Exploitant::query();
+        
+        // Apply date filtering if provided
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
 
         // Search functionality
         if ($request->filled('search')) {
@@ -526,7 +535,7 @@ class SettingsController extends Controller
             }
         }
 
-        // Date range filter
+        // Legacy date range filter (for backward compatibility)
         if ($request->filled('date_from')) {
             $query->where('created_at', '>=', $request->get('date_from'));
         }
@@ -552,12 +561,66 @@ class SettingsController extends Controller
 
         $exploitants = $query->paginate($perPage);
 
+        // Calculate statistics based on the same filtered query as the exploitants
+        $filteredQuery = Exploitant::query();
+        
+        // Apply the same filters as the main query
+        if ($startDate && $endDate) {
+            $filteredQuery->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $filteredQuery->where(function($q) use ($search) {
+                $q->where('nom_complet', 'like', "%{$search}%")
+                  ->orWhere('raison_sociale', 'like', "%{$search}%")
+                  ->orWhere('n_cin', 'like', "%{$search}%")
+                  ->orWhere('telephone', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('numero', 'like', "%{$search}%");
+            });
+        }
+        
+        if ($request->filled('categorie')) {
+            $filteredQuery->where('categorie', $request->get('categorie'));
+        }
+        
+        if ($request->filled('activite')) {
+            $filteredQuery->where('activite', $request->get('activite'));
+        }
+        
+        if ($request->filled('exclusion')) {
+            if ($request->get('exclusion') === 'active') {
+                $filteredQuery->where('exclusion', false);
+            } elseif ($request->get('exclusion') === 'excluded') {
+                $filteredQuery->where('exclusion', true);
+            }
+        }
+        
+        if ($request->filled('status')) {
+            switch ($request->get('status')) {
+                case 'active':
+                    $filteredQuery->where('is_deleted', false);
+                    break;
+                case 'deleted':
+                    $filteredQuery->where('is_deleted', true);
+                    break;
+                case 'recent':
+                    $filteredQuery->where('created_at', '>=', now()->subDays(30));
+                    break;
+            }
+        }
+
         // Get statistics for the current filtered results
         $stats = [
-            'total' => $query->count(),
-            'active' => $query->where('is_deleted', false)->count(),
-            'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
-            'unique' => $query->distinct('nom_complet')->count(),
+            'total' => $exploitants->total(),
+            'active' => (clone $filteredQuery)->where('is_deleted', false)->count(),
+            'deleted' => (clone $filteredQuery)->where('is_deleted', true)->count(),
+            'recent' => (clone $filteredQuery)->where('created_at', '>=', now()->subDays(30))->count(),
+            'unique' => (clone $filteredQuery)->distinct('nom_complet')->count(),
+            'excluded' => (clone $filteredQuery)->where('exclusion', true)->count(),
+            'categories' => (clone $filteredQuery)->distinct('categorie')->count(),
+            'activities' => (clone $filteredQuery)->distinct('activite')->count(),
         ];
 
         return view('settings.exploitants.index', compact('exploitants', 'stats'));

@@ -15,35 +15,68 @@ class DashboardController extends Controller
         // Log dashboard access
         ActivityLogger::log('view', 'Accès au tableau de bord principal', null);
         
-        // Get statistics
-        $totalArticles = Article::count();
-        $vendus = Article::where('invendu', false)->count();
-        $invendus = Article::where('invendu', true)->count();
-        $totalPrixVente = Article::sum('prix_vente');
+        // Get date filters from request
+        $startDate = request('start_date') ? \Carbon\Carbon::parse(request('start_date'))->startOfDay() : now()->startOfMonth();
+        $endDate = request('end_date') ? \Carbon\Carbon::parse(request('end_date'))->endOfDay() : now()->endOfDay();
+        
+        // Build base query with date filtering
+        $articlesQuery = Article::query();
+        if (request('start_date') || request('end_date')) {
+            $articlesQuery->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        // Get statistics with date filtering
+        $totalArticles = $articlesQuery->count();
+        $vendus = (clone $articlesQuery)->where('invendu', false)->count();
+        $invendus = (clone $articlesQuery)->where('invendu', true)->count();
+        $totalPrixVente = (clone $articlesQuery)->sum('prix_vente');
+        $totalPrixRetrait = (clone $articlesQuery)->sum('prix_de_retrait');
+        
+        // Get volume statistics
+        $totalVolume = (clone $articlesQuery)->sum('bo_m3') + (clone $articlesQuery)->sum('bi_m3');
+        
+        // Get validation statistics (no validation column exists, so all articles are considered valid)
+        $validatedArticles = $totalArticles; // All existing articles are considered validated
+        $pendingArticles = 0; // No pending articles in current system
+        
+        // Get other statistics (not date-dependent)
         $totalForets = Foret::count();
         $totalExploitants = Exploitant::count();
+        $totalEssences = \App\Models\Essence::count();
+        $totalLocalisations = \App\Models\Localisation::count();
+        $totalUsers = \App\Models\User::count();
+        $activeExploitants = Exploitant::where('is_deleted', false)->count();
 
         // Calculate percentages
         $vendusPercentage = $totalArticles > 0 ? ($vendus / $totalArticles) * 100 : 0;
         $invendusPercentage = $totalArticles > 0 ? ($invendus / $totalArticles) * 100 : 0;
-        $caPercentage = 85; // Placeholder percentage
+        $validatedPercentage = $totalArticles > 0 ? ($validatedArticles / $totalArticles) * 100 : 0;
 
-        // Get recent articles
-        $recentArticles = Article::with(['foret', 'essence'])
+        // Get recent articles (with date filtering)
+        $recentArticles = (clone $articlesQuery)
+            ->with(['foret', 'essence'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
         $stats = [
-            'total_articles' => $totalArticles,
+            'totalArticles' => $totalArticles,
+            'validatedArticles' => $validatedArticles,
+            'pendingArticles' => $pendingArticles,
             'vendus' => $vendus,
             'invendus' => $invendus,
-            'total_prix_vente' => $totalPrixVente,
-            'total_forets' => $totalForets,
-            'total_exploitants' => $totalExploitants,
-            'vendus_percentage' => round($vendusPercentage),
-            'invendus_percentage' => round($invendusPercentage),
-            'ca_percentage' => $caPercentage,
+            'totalRevenue' => $totalPrixVente,
+            'totalRetrait' => $totalPrixRetrait,
+            'totalVolume' => $totalVolume,
+            'totalForests' => $totalForets,
+            'totalEssences' => $totalEssences,
+            'totalLocalisations' => $totalLocalisations,
+            'totalExploitants' => $totalExploitants,
+            'activeExploitants' => $activeExploitants,
+            'totalUsers' => $totalUsers,
+            'vendusPercentage' => round($vendusPercentage),
+            'invendusPercentage' => round($invendusPercentage),
+            'validatedPercentage' => round($validatedPercentage),
         ];
 
         return view('dashboard', compact('stats', 'recentArticles'));
