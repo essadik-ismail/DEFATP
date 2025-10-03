@@ -21,7 +21,7 @@
             <p class="text-xl text-gray-600 mb-8">Votre plateforme de gestion forestière intelligente</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
                 <a href="{{ route('articles.create') }}" 
-                   class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                   class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                     <i class="fas fa-plus"></i>
                     <span class="font-semibold">Nouvel Article</span>
                 </a>
