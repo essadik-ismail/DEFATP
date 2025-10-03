@@ -7,7 +7,7 @@ return [
          * The name of this application. You can use this name to monitor
          * the backups.
          */
-        'name' => env('APP_NAME', 'SylvaNet'),
+        'name' => env('APP_NAME', 'DEFATP'),
 
         'source' => [
 
@@ -119,7 +119,7 @@ return [
      */
     'monitor_backups' => [
         [
-            'name' => env('APP_NAME', 'SylvaNet'),
+            'name' => env('APP_NAME', 'DEFATP'),
             'disks' => ['local'],
             'health_checks' => [
                 \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class => 1,

@@ -14,7 +14,7 @@ class BasicTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('http://127.0.0.1:8000/login')
-                    ->assertTitle('Connexion - SylvaNet')
+                    ->assertTitle('Connexion - DEFATP')
                     ->assertSee('Se connecter');
         });
     }

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tableau de Bord - SylvaNet')
+@section('title', 'Tableau de Bord - DEFATP')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -16,7 +16,7 @@
                 </div>
             </div>
             <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4">
-                Bienvenue sur SylvaNet
+                Bienvenue sur DEFATP
             </h1>
             <p class="text-xl text-gray-600 mb-8">Votre plateforme de gestion forestière intelligente</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">

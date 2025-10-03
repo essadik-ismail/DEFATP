@@ -30,7 +30,7 @@
         </div>
         
         <div class="tour-content">
-            <h4 class="tour-title">Bienvenue dans SylvaNet!</h4>
+            <h4 class="tour-title">Bienvenue dans DEFATP!</h4>
             <p class="tour-description">Découvrez les fonctionnalités de votre application de gestion forestière.</p>
             
             <!-- Button Explanations -->

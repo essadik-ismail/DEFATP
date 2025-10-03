@@ -5,7 +5,7 @@
     <div class="flex items-start justify-between">
         <div class="flex-1">
             <h3 class="text-lg font-medium text-blue-900 mb-2">
-                <i class="fas fa-star me-2"></i>Bienvenue sur SylvaNet !
+                <i class="fas fa-star me-2"></i>Bienvenue sur DEFATP !
             </h3>
             <p class="text-blue-700 mb-4">
                 Voici un guide rapide pour vous aider à commencer avec la gestion de vos articles forestiers.

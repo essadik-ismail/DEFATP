@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nouvel Article - SylvaNet')
+@section('title', 'Nouvel Article - DEFATP')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -184,7 +184,7 @@
                             <option value="">Sélectionner une localisation</option>
                             @foreach($localisations as $localisation)
                                 <option value="{{ $localisation->id }}" {{ old('localisation_id') == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }} - {{ $localisation->ENTITE }}
+                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                 </option>
                             @endforeach
                         </select>
@@ -288,26 +288,6 @@
                                id="nature_juridique" name="nature_juridique" value="{{ old('nature_juridique') }}" 
                                placeholder="Nature juridique">
                         @error('nature_juridique')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="exploitant_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Exploitant
-                        </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="exploitant_id" name="exploitant_id">
-                            <option value="">Sélectionner un exploitant</option>
-                            @foreach($exploitants as $exploitant)
-                                <option value="{{ $exploitant->id }}" {{ old('exploitant_id') == $exploitant->id ? 'selected' : '' }}>
-                                    {{ $exploitant->nom_complet }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('exploitant_id')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}

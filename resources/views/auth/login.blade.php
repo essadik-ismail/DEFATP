@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - SylvaNet</title>
+    <title>Connexion - DEFATP</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -720,7 +720,7 @@
                         <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                             Se connecter
                         </h1>
-                        <p class="text-gray-600 text-lg mt-2">Accédez à votre compte SylvaNet</p>
+                        <p class="text-gray-600 text-lg mt-2">Accédez à votre compte DEFATP</p>
                     </div>
                 </div>
             </div>

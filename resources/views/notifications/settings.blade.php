@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Paramètres des Notifications - SylvaNet')
+@section('title', 'Paramètres des Notifications - DEFATP')
 
 @section('content')
 <div class="main-content">

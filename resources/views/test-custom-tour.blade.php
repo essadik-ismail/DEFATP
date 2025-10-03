@@ -117,7 +117,7 @@
     :steps="[
         [
             'element' => '#demo-sidebar',
-            'title' => 'Bienvenue dans SylvaNet! 🌳',
+            'title' => 'Bienvenue dans DEFATP! 🌳',
             'description' => 'Cette barre latérale vous permet de naviguer entre toutes les sections de l\'application. Commençons par explorer les fonctionnalités principales.',
             'popoverPosition' => 'right'
         ],
@@ -157,7 +157,7 @@
         [
             'element' => '#demo-sidebar',
             'title' => '🌲 Navigation Forestière',
-            'description' => 'Explorez la forêt numérique de SylvaNet avec cette barre de navigation intuitive.',
+            'description' => 'Explorez la forêt numérique de DEFATP avec cette barre de navigation intuitive.',
             'popoverPosition' => 'right'
         ],
         [

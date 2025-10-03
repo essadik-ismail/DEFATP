@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Carte des Forêts - SylvaNet')
+@section('title', 'Carte des Forêts - DEFATP')
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 

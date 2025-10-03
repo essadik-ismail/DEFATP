@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'SylvaNet - Gestion Forestière')</title>
+    <title>@yield('title', 'defatp - Gestion Forestière')</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -2133,7 +2133,7 @@
             <div class="sidebar-header">
                 <div class="flex items-center justify-center">
                     <i class="fas fa-tree text-2xl mr-3"></i>
-                    <h1 class="text-xl font-bold">SylvaNet</h1>
+                    <h1 class="text-xl font-bold">DEFATP</h1>
                 </div>
                 <p class="text-sm opacity-90 mt-2">Gestion Forestière</p>
             </div>
@@ -2189,7 +2189,7 @@
                         <i class="fas fa-bars text-lg sm:text-xl"></i>
                     </button>
                     
-                    <h2 class="text-base sm:text-lg font-semibold text-gray-900 truncate">@yield('title', 'SylvaNet')</h2>
+                    <h2 class="text-base sm:text-lg font-semibold text-gray-900 truncate">@yield('title', 'DEFATP')</h2>
                 </div>
                 
                 <div class="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">

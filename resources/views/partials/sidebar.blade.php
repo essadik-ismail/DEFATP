@@ -6,7 +6,7 @@
     <div class="sidebar-content">
         <div class="logo">
             <i class="fas fa-tree logo-icon"></i>
-            <span>SylvaNet</span>
+            <span>DEFATP</span>
         </div>
         
         <!-- Notification Dropdown -->

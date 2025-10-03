@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Articles Forestiers - SylvaNet')
+@section('title', 'Articles Forestiers - DEFATP')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
