@@ -261,7 +261,7 @@
                 </div>
             </div>
             <a href="{{ route('articles.create') }}" 
-               class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+               class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                 <i class="fas fa-plus"></i>
                 <span class="font-semibold">Nouvel Article</span>
             </a>
@@ -649,7 +649,7 @@
             </div>
             
             <!-- Modern Tabs Section -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+            <div class="bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden">
                 <div class="bg-gradient-to-r from-slate-50/80 to-gray-50/80 backdrop-blur-sm border-b border-white/20 p-2">
                     <div class="flex flex-wrap gap-2">
                         <button class="tab-button active group" data-tab="essences">
