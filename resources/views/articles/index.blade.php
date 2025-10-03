@@ -649,38 +649,58 @@
             </div>
             
             <!-- Modern Tabs Section -->
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                <div class="bg-gradient-to-r from-gray-50 to-slate-50 border-b border-gray-200">
-                    <div class="flex flex-wrap">
-                        <button class="tab-button active" data-tab="essences">
-                            <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
+            <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+                <div class="bg-gradient-to-r from-slate-50/80 to-gray-50/80 backdrop-blur-sm border-b border-white/20 p-2">
+                    <div class="flex flex-wrap gap-2">
+                        <button class="tab-button active group" data-tab="essences">
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                                 <i class="fas fa-leaf text-white text-sm"></i>
                             </div>
-                            <span>Essences</span>
+                            <div class="text-left">
+                                <span class="block font-semibold">Essences</span>
+                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Gestion des essences</span>
+                            </div>
+                            <div class="tab-indicator"></div>
                         </button>
-                        <button class="tab-button" data-tab="forets">
-                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                        <button class="tab-button group" data-tab="forets">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                                 <i class="fas fa-tree text-white text-sm"></i>
                             </div>
-                            <span>Forêts</span>
+                            <div class="text-left">
+                                <span class="block font-semibold">Forêts</span>
+                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Zones forestières</span>
+                            </div>
+                            <div class="tab-indicator"></div>
                         </button>
-                        <button class="tab-button" data-tab="localisations">
-                            <div class="w-8 h-8 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mr-3">
+                        <button class="tab-button group" data-tab="localisations">
+                            <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                                 <i class="fas fa-map-marker-alt text-white text-sm"></i>
                             </div>
-                            <span>Localisations</span>
+                            <div class="text-left">
+                                <span class="block font-semibold">Localisations</span>
+                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Points géographiques</span>
+                            </div>
+                            <div class="tab-indicator"></div>
                         </button>
-                        <button class="tab-button" data-tab="situations">
-                            <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3">
+                        <button class="tab-button group" data-tab="situations">
+                            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                                 <i class="fas fa-building text-white text-sm"></i>
                             </div>
-                            <span>Situations Administratives</span>
+                            <div class="text-left">
+                                <span class="block font-semibold">Situations</span>
+                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Administratives</span>
+                            </div>
+                            <div class="tab-indicator"></div>
                         </button>
-                        <button class="tab-button" data-tab="natures-coupe">
-                            <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-lg flex items-center justify-center mr-3">
+                        <button class="tab-button group" data-tab="natures-coupe">
+                            <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                                 <i class="fas fa-cut text-white text-sm"></i>
                             </div>
-                            <span>Natures de Coupe</span>
+                            <div class="text-left">
+                                <span class="block font-semibold">Natures</span>
+                                <span class="text-xs text-gray-500 group-hover:text-gray-700">de Coupe</span>
+                            </div>
+                            <div class="tab-indicator"></div>
                         </button>
                     </div>
                 </div>
@@ -1295,658 +1315,6 @@
                                 </div>
                             @endif
                         </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Create Article Modal -->
-<div class="modal fade" id="createArticleModal" tabindex="-1" aria-labelledby="createArticleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createArticleModalLabel">
-                    <i class="fas fa-plus me-2"></i>Créer un Nouvel Article
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ route('articles.store') }}" method="POST" id="createArticleForm">
-                    @csrf
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="annee" class="form-label">Année *</label>
-                                <input type="number" class="form-control" id="annee" name="annee" value="{{ date('Y') }}" min="2000" max="2100" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="numero" class="form-label">Numéro d'Article *</label>
-                                <input type="text" class="form-control" id="numero" name="numero" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="date_adjudication" class="form-label">Date d'Adjudication *</label>
-                                <input type="date" class="form-control" id="date_adjudication" name="date_adjudication" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="parcelle" class="form-label">Parcelle</label>
-                                <input type="number" class="form-control" id="parcelle" name="parcelle" min="0">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="foret_id" class="form-label">Forêt *</label>
-                                <select class="form-select" id="foret_id" name="foret_id" required>
-                                    <option value="">Sélectionner une forêt</option>
-                                    @foreach(\App\Models\Foret::all() as $foret)
-                                        <option value="{{ $foret->id }}">{{ $foret->foret }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="essence_id" class="form-label">Essence *</label>
-                                <select class="form-select" id="essence_id" name="essence_id" required>
-                                    <option value="">Sélectionner une essence</option>
-                                    @foreach(\App\Models\Essence::all() as $essence)
-                                        <option value="{{ $essence->id }}">{{ $essence->essence }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="localisation_id" class="form-label">Localisation *</label>
-                                <select class="form-select" id="localisation_id" name="localisation_id" required>
-                                    <option value="">Sélectionner une localisation</option>
-                                    @foreach(\App\Models\Localisation::all() as $localisation)
-                                        <option value="{{ $localisation->id }}">{{ $localisation->CODE }} - {{ $localisation->DRANEF }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="situation_administrative_id" class="form-label">Situation Administrative *</label>
-                                <select class="form-select" id="situation_administrative_id" name="situation_administrative_id" required>
-                                    <option value="">Sélectionner une situation</option>
-                                    @foreach(\App\Models\SituationAdministrative::all() as $situation)
-                                        <option value="{{ $situation->id }}">{{ $situation->commune }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="exploitant_id" class="form-label">Exploitant *</label>
-                                <select class="form-select" id="exploitant_id" name="exploitant_id" required>
-                                    <option value="">Sélectionner un exploitant</option>
-                                    @foreach(\App\Models\Exploitant::all() as $exploitant)
-                                        <option value="{{ $exploitant->id }}">{{ $exploitant->nom }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="nature_de_coupe_id" class="form-label">Nature de Coupe *</label>
-                                <select class="form-select" id="nature_de_coupe_id" name="nature_de_coupe_id" required>
-                                    <option value="">Sélectionner une nature</option>
-                                    @foreach(\App\Models\NatureDeCoupe::all() as $nature)
-                                        <option value="{{ $nature->id }}">{{ $nature->nature }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="bo_m3" class="form-label">BO (m³)</label>
-                                <input type="number" class="form-control" id="bo_m3" name="bo_m3" step="0.01" min="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="bi_m3" class="form-label">BI (m³)</label>
-                                <input type="number" class="form-control" id="bi_m3" name="bi_m3" step="0.01" min="0">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="prix_retrait" class="form-label">Prix de Retrait (DH) *</label>
-                                <input type="number" class="form-control" id="prix_retrait" name="prix_retrait" step="0.01" min="0" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="prix_vente" class="form-label">Prix de Vente (DH) *</label>
-                                <input type="number" class="form-control" id="prix_vente" name="prix_vente" step="0.01" min="0" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="type" class="form-label">Type *</label>
-                                <select class="form-select" id="type" name="type" required>
-                                    <option value="">Sélectionner le type</option>
-                                    <option value="adjudication">Adjudication</option>
-                                    <option value="appel_doffre">Appel d'Offre</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="bf_st" class="form-label">BF/ST</label>
-                                <input type="number" class="form-control" id="bf_st" name="bf_st" min="0">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label for="observations" class="form-label">Observations</label>
-                                <textarea class="form-control" id="observations" name="observations" rows="3"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-check mb-3">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="createArticleForm" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Créer l'Article
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Create Essence Modal -->
-<div class="modal fade" id="createEssenceModal" tabindex="-1" aria-labelledby="createEssenceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createEssenceModalLabel">
-                    <i class="fas fa-leaf me-2"></i>Nouvelle Essence
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createEssenceForm">
-                    <div class="mb-3">
-                        <label for="essence_name" class="form-label">Nom de l'Essence *</label>
-                        <input type="text" class="form-control" id="essence_name" name="essence" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="createEssenceForm" class="btn btn-success">
-                    <i class="fas fa-save me-2"></i>Créer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Create Foret Modal -->
-<div class="modal fade" id="createForetModal" tabindex="-1" aria-labelledby="createForetModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createForetModalLabel">
-                    <i class="fas fa-tree me-2"></i>Nouvelle Forêt
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createForetForm">
-                    <div class="mb-3">
-                        <label for="foret_name" class="form-label">Nom de la Forêt *</label>
-                        <input type="text" class="form-control" id="foret_name" name="foret" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="createForetForm" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Créer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Create Localisation Modal -->
-<div class="modal fade" id="createLocalisationModal" tabindex="-1" aria-labelledby="createLocalisationModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createLocalisationModalLabel">
-                    <i class="fas fa-map-marker-alt me-2"></i>Nouvelle Localisation
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createLocalisationForm">
-                    <div class="mb-3">
-                        <label for="localisation_code" class="form-label">Code *</label>
-                        <input type="text" class="form-control" id="localisation_code" name="CODE" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="localisation_dranef" class="form-label">DRANEF *</label>
-                        <input type="text" class="form-control" id="localisation_dranef" name="DRANEF" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="localisation_entite" class="form-label">Entité *</label>
-                        <input type="text" class="form-control" id="localisation_entite" name="ENTITE" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="createLocalisationForm" class="btn btn-info">
-                    <i class="fas fa-save me-2"></i>Créer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Create Situation Administrative Modal -->
-<div class="modal fade" id="createSituationModal" tabindex="-1" aria-labelledby="createSituationModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createSituationModalLabel">
-                    <i class="fas fa-building me-2"></i>Nouvelle Situation Administrative
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createSituationForm">
-                    <div class="mb-3">
-                        <label for="situation_commune" class="form-label">Commune *</label>
-                        <input type="text" class="form-control" id="situation_commune" name="commune" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="situation_province" class="form-label">Province *</label>
-                        <input type="text" class="form-control" id="situation_province" name="province" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="createSituationForm" class="btn btn-warning">
-                    <i class="fas fa-save me-2"></i>Créer
-                </button>
-            </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Create Exploitant Modal -->
-<div class="modal fade" id="createExploitantModal" tabindex="-1" aria-labelledby="createExploitantModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createExploitantModalLabel">
-                    <i class="fas fa-user-tie me-2"></i>Nouvel Exploitant
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createExploitantForm">
-                    <div class="mb-3">
-                        <label for="exploitant_nom" class="form-label">Nom Complet *</label>
-                        <input type="text" class="form-control" id="exploitant_nom" name="nom_complet" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="createExploitantForm" class="btn btn-danger">
-                    <i class="fas fa-save me-2"></i>Créer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Create Nature de Coupe Modal -->
-<div class="modal fade" id="createNatureCoupeModal" tabindex="-1" aria-labelledby="createNatureCoupeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createNatureCoupeModalLabel">
-                    <i class="fas fa-cut me-2"></i>Nouvelle Nature de Coupe
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createNatureCoupeForm">
-                    <div class="mb-3">
-                        <label for="nature_coupe_name" class="form-label">Nature de Coupe *</label>
-                        <input type="text" class="form-control" id="nature_coupe_name" name="nature_de_coupe" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="createNatureCoupeForm" class="btn btn-secondary">
-                    <i class="fas fa-save me-2"></i>Créer
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabs Section with Related Data Tables -->
-    <div class="tabs-section">
-        <h2 class="section-title">Données Associées aux Articles</h2>
-        <div class="card">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" id="relatedDataTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="forets-tab" data-bs-toggle="tab" data-bs-target="#forets" type="button" role="tab" aria-controls="forets" aria-selected="true">
-                            <i class="fas fa-tree me-2"></i>Forêts
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="essences-tab" data-bs-toggle="tab" data-bs-target="#essences" type="button" role="tab" aria-controls="essences" aria-selected="false">
-                            <i class="fas fa-leaf me-2"></i>Essences
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="localisations-tab" data-bs-toggle="tab" data-bs-target="#localisations" type="button" role="tab" aria-controls="localisations" aria-selected="false">
-                            <i class="fas fa-map-marker-alt me-2"></i>Localisations
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="situations-tab" data-bs-toggle="tab" data-bs-target="#situations" type="button" role="tab" aria-controls="situations" aria-selected="false">
-                            <i class="fas fa-building me-2"></i>Situations Administratives
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="exploitants-tab" data-bs-toggle="tab" data-bs-target="#exploitants" type="button" role="tab" aria-controls="exploitants" aria-selected="false">
-                            <i class="fas fa-user-tie me-2"></i>Exploitants
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="natures-coupe-tab" data-bs-toggle="tab" data-bs-target="#natures-coupe" type="button" role="tab" aria-controls="natures-coupe" aria-selected="false">
-                            <i class="fas fa-cut me-2"></i>Natures de Coupe
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body">
-                <div class="tab-content" id="relatedDataTabContent">
-                    <!-- Forêts Tab -->
-                    <div class="tab-pane fade show active" id="forets" role="tabpanel" aria-labelledby="forets-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Forêts</h5>
-                            <a href="{{ route('settings.forets') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Forêt
-                            </a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nom de la Forêt</th>
-                                        <th>Date de Création</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(\App\Models\Foret::all() as $foret)
-                                    <tr>
-                                        <td>{{ $foret->id }}</td>
-                                        <td>{{ $foret->foret }}</td>
-                                        <td>{{ $foret->created_at->format('d/m/Y') }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning" onclick="editForet({{ $foret->id }})">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteForet({{ $foret->id }})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Essences Tab -->
-                    <div class="tab-pane fade" id="essences" role="tabpanel" aria-labelledby="essences-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Essences</h5>
-                            <a href="{{ route('settings.essences') }}" class="btn btn-success btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Essence
-                            </a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nom de l'Essence</th>
-                                        <th>Date de Création</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(\App\Models\Essence::all() as $essence)
-                                    <tr>
-                                        <td>{{ $essence->id }}</td>
-                                        <td>{{ $essence->essence }}</td>
-                                        <td>{{ $essence->created_at->format('d/m/Y') }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning" onclick="editEssence({{ $essence->id }})">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteEssence({{ $essence->id }})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Localisations Tab -->
-                    <div class="tab-pane fade" id="localisations" role="tabpanel" aria-labelledby="localisations-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Localisations</h5>
-                            <a href="{{ route('settings.localisations') }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Localisation
-                            </a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Code</th>
-                                        <th>DRANEF</th>
-                                        <th>Entité</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(\App\Models\Localisation::all() as $localisation)
-                                    <tr>
-                                        <td>{{ $localisation->id }}</td>
-                                        <td>{{ $localisation->CODE }}</td>
-                                        <td>{{ $localisation->DRANEF }}</td>
-                                        <td>{{ $localisation->ENTITE }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning" onclick="editLocalisation({{ $localisation->id }})">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteLocalisation({{ $localisation->id }})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Situations Administratives Tab -->
-                    <div class="tab-pane fade" id="situations" role="tabpanel" aria-labelledby="situations-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Situations Administratives</h5>
-                            <a href="{{ route('settings.situation-administratives') }}" class="btn btn-warning btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Situation
-                            </a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Commune</th>
-                                        <th>Province</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(\App\Models\SituationAdministrative::all() as $situation)
-                                    <tr>
-                                        <td>{{ $situation->id }}</td>
-                                        <td>{{ $situation->commune }}</td>
-                                        <td>{{ $situation->province }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning" onclick="editSituation({{ $situation->id }})">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteSituation({{ $situation->id }})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Exploitants Tab -->
-                    <div class="tab-pane fade" id="exploitants" role="tabpanel" aria-labelledby="exploitants-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Exploitants</h5>
-                            <a href="{{ route('settings.exploitants') }}" class="btn btn-danger btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvel Exploitant
-                            </a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nom</th>
-                                        <th>Date de Création</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(\App\Models\Exploitant::all() as $exploitant)
-                                    <tr>
-                                        <td>{{ $exploitant->id }}</td>
-                                        <td>{{ $exploitant->nom_complet }}</td>
-                                        <td>{{ $exploitant->created_at->format('d/m/Y') }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning" onclick="editExploitant({{ $exploitant->id }})">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteExploitant({{ $exploitant->id }})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Natures de Coupe Tab -->
-                    <div class="tab-pane fade" id="natures-coupe" role="tabpanel" aria-labelledby="natures-coupe-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5>Liste des Natures de Coupe</h5>
-                            <a href="{{ route('settings.nature-de-coupes') }}" class="btn btn-secondary btn-sm">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Nature
-                            </a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nature</th>
-                                        <th>Date de Création</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(\App\Models\NatureDeCoupe::all() as $nature)
-                                    <tr>
-                                        <td>{{ $nature->id }}</td>
-                                        <td>{{ $nature->nature_de_coupe }}</td>
-                                        <td>{{ $nature->created_at->format('d/m/Y') }}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning" onclick="editNatureCoupe({{ $nature->id }})">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteNatureCoupe({{ $nature->id }})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -2733,19 +2101,33 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
     /* Modern Tabs Styling */
     .tab-button {
-        @apply flex items-center px-6 py-4 text-sm font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-800 hover:border-gray-300 transition-all duration-300 cursor-pointer;
+        @apply relative flex items-center px-6 py-4 text-sm font-medium text-gray-600 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30 hover:bg-white/80 hover:border-white/50 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-lg transform hover:-translate-y-1;
+        min-width: 200px;
     }
     
     .tab-button.active {
-        @apply text-blue-600 border-blue-600 bg-blue-50;
+        @apply text-white bg-gradient-to-r from-blue-600 to-indigo-600 border-blue-500 shadow-xl;
+        transform: translateY(-2px);
+    }
+    
+    .tab-button.active .tab-indicator {
+        @apply absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-white rounded-full;
     }
     
     .tab-button:hover {
-        @apply bg-gray-50;
+        @apply bg-white/80 shadow-lg;
     }
     
     .tab-button span {
         @apply whitespace-nowrap;
+    }
+    
+    .tab-button .tab-indicator {
+        @apply absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-blue-500 rounded-full transition-all duration-300;
+    }
+    
+    .tab-button:hover .tab-indicator {
+        @apply w-8;
     }
     
     .tab-pane {

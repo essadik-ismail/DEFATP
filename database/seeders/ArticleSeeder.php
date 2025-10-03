@@ -110,7 +110,7 @@ class ArticleSeeder extends Seeder
                 // Essence: pick first code/name if multiple
                 $essenceRaw = isset($row['Essence']) ? (string) $row['Essence'] : '';
                 $essenceFirst = trim((string) explode(';', str_replace(',', ';', $essenceRaw))[0]);
-                $essenceId = $essenceFirst !== '' ? $this->findOrCreateEssence($essenceFirst) : null;
+                $essenceId = $essenceFirst !== '' ? $this->findEssence($essenceFirst) : null;
 
                 // Nature de coupe from "Mode d'Exploitation" mapped to NatureDeCoupe label if available
                 $modeRaw = isset($row["Mode d'Exploitation"]) ? (string) $row["Mode d'Exploitation"] : '';
@@ -119,14 +119,14 @@ class ArticleSeeder extends Seeder
                 if ($modeFirst !== '') {
                     // If numeric, keep as code placeholder; else use it as label
                     $label = ctype_digit($modeFirst) ? 'Mode ' . $modeFirst : $modeFirst;
-                    $natureCoupeId = $this->findOrCreateNatureCoupe($label);
+                    $natureCoupeId = $this->findNatureCoupe($label);
                 }
 
-                // Handle adjudicataire - find or create exploitant
+                // Handle adjudicataire - find exploitant
                 $adjudicataire = isset($row['Adjudicataire']) ? trim((string) $row['Adjudicataire']) : null;
                 $exploitantId = null;
                 if ($adjudicataire && $adjudicataire !== '') {
-                    $exploitantId = $this->findOrCreateExploitant($adjudicataire);
+                    $exploitantId = $this->findExploitant($adjudicataire);
                 }
 
                 $data = [
@@ -135,9 +135,9 @@ class ArticleSeeder extends Seeder
                     'date_adjudication' => $date,
                     'invendu' => isset($row['Invendu']) ? (bool) filter_var($row['Invendu'], FILTER_VALIDATE_BOOLEAN) : false,
                     'prix_de_retrait' => isset($row['Prix de retrait']) ? (float) str_replace([','], ['.'], (string) $row['Prix de retrait']) : null,
-                    'situation_administrative_id' => $situationAdministrative ? $this->findOrCreateSituation($situationAdministrative) : null,
-                    'foret_id' => $situationForestiere ? $this->findOrCreateForet($situationForestiere) : null,
-                    'localisation_id' => $situationForestiere ? $this->findOrCreateLocalisation($situationForestiere) : null,
+                    'situation_administrative_id' => $situationAdministrative ? $this->findSituation($situationAdministrative) : null,
+                    'foret_id' => $situationForestiere ? $this->findForet($situationForestiere) : null,
+                    'localisation_id' => $situationForestiere ? $this->findLocalisation($situationForestiere) : null,
                     'exploitant_id' => $exploitantId,
                     'lot' => isset($row['Lot']) && $row['Lot'] !== '' ? (string) $row['Lot'] : null,
                     'parcelle' => $parcelle,
@@ -179,103 +179,56 @@ class ArticleSeeder extends Seeder
     }
 
     /**
-     * Find or create situation administrative
+     * Find situation administrative
      */
-    private function findOrCreateSituation(string $commune): int
+    private function findSituation(string $commune): ?int
     {
         $situation = SituationAdministrative::where('commune', $commune)->first();
-        if (!$situation) {
-            $situation = SituationAdministrative::create([
-                'commune' => $commune,
-                'province' => 'Unknown',
-                'region' => 'Unknown',
-            ]);
-        }
-        return $situation->id;
+        return $situation ? $situation->id : null;
     }
 
     /**
-     * Find or create forest
+     * Find forest
      */
-    private function findOrCreateForet(string $foretName): int
+    private function findForet(string $foretName): ?int
     {
         $foret = Foret::where('foret', $foretName)->first();
-        if (!$foret) {
-            $foret = Foret::create([
-                'foret' => $foretName,
-                'lat' => '0',
-                'log' => '0',
-            ]);
-        }
-        return $foret->id;
+        return $foret ? $foret->id : null;
     }
 
     /**
-     * Find or create localisation
+     * Find localisation
      */
-    private function findOrCreateLocalisation(string $code): int
+    private function findLocalisation(string $code): ?int
     {
         $localisation = Localisation::where('CODE', $code)->first();
-        if (!$localisation) {
-            $localisation = Localisation::create([
-                'CODE' => $code,
-                'DRANEF' => 'Unknown',
-                'DPANEF' => 'Unknown',
-                'ENTITE' => 'Unknown',
-            ]);
-        }
-        return $localisation->id;
+        return $localisation ? $localisation->id : null;
     }
 
     /**
-     * Find or create essence
+     * Find essence
      */
-    private function findOrCreateEssence(string $essenceName): int
+    private function findEssence(string $essenceName): ?int
     {
         $essence = Essence::where('essence', $essenceName)->first();
-        if (!$essence) {
-            $essence = Essence::create([
-                'essence' => $essenceName,
-                'is_deleted' => false,
-            ]);
-        }
-        return $essence->id;
+        return $essence ? $essence->id : null;
     }
 
     /**
-     * Find or create nature de coupe
+     * Find nature de coupe
      */
-    private function findOrCreateNatureCoupe(string $label): int
+    private function findNatureCoupe(string $label): ?int
     {
         $natureCoupe = NatureDeCoupe::where('nature_de_coupe', $label)->first();
-        if (!$natureCoupe) {
-            $natureCoupe = NatureDeCoupe::create([
-                'nature_de_coupe' => $label,
-                'is_deleted' => false,
-            ]);
-        }
-        return $natureCoupe->id;
+        return $natureCoupe ? $natureCoupe->id : null;
     }
 
     /**
-     * Find or create exploitant
+     * Find exploitant
      */
-    private function findOrCreateExploitant(string $adjudicataire): int
+    private function findExploitant(string $adjudicataire): ?int
     {
         $exploitant = Exploitant::where('numero', $adjudicataire)->first();
-        if (!$exploitant) {
-            $exploitant = Exploitant::create([
-                'categorie' => 'personne_physique',
-                'numero' => $adjudicataire,
-                'nom_complet' => $adjudicataire,
-                'n_cin' => 'AUTO-' . $adjudicataire,
-                'activite' => 'BI',
-                'qualification_rc' => 'Auto-created from seeder',
-                'date_obtention' => now()->format('Y-m-d'),
-                'duree_validite' => '5',
-                'exclusion' => false,
-            ]);
-        }
-        return $exploitant->id;
+        return $exploitant ? $exploitant->id : null;
     }
 }

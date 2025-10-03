@@ -20,7 +20,7 @@ class User extends Authenticatable
      *
      * @var string
      */
-    protected $connection = 'auth_mysql';
+    // protected $connection = 'auth_mysql';
 
     /**
      * The attributes that are mass assignable.

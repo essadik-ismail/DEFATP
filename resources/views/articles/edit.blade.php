@@ -425,12 +425,12 @@
                     </div>
                     <div class="form-group">
                         <label for="bf_st" class="block text-sm font-semibold text-gray-700 mb-2">
-                            BF/ST
+                            BF(ST)
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
                                id="bf_st" name="bf_st" value="{{ old('bf_st', $article->bf_st) }}" 
-                               min="0" step="0.01" placeholder="BF/ST">
+                               min="0" step="0.01" placeholder="BF (ST)">
                         @error('bf_st')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -605,7 +605,132 @@
             </div>
 
 
-            <!-- Form Actions -->
+   
+
+            <!-- Section Suivi -->
+            <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clipboard-check text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-orange-900">Suivi</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Invendu -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-times-circle text-orange-500 mr-2"></i>Invendu
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="invendu" value="0" {{ old('invendu', $article->invendu) == 0 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <span class="ml-2 text-gray-700">Non</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="invendu" value="1" {{ old('invendu', $article->invendu) == 1 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <span class="ml-2 text-gray-700">Oui</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Prix de retrait -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-money-bill-wave text-orange-500 mr-2"></i>Prix de retrait
+                        </label>
+                        <input type="number" name="prix_de_retrait" value="{{ old('prix_de_retrait', $article->prix_de_retrait) }}" 
+                               step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+
+                    <!-- Prix de vente -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-tag text-orange-500 mr-2"></i>Prix de vente
+                        </label>
+                        <input type="number" name="prix_vente" value="{{ old('prix_vente', $article->prix_vente) }}" 
+                               step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+
+                    <!-- Fourniture mise en charge -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-hand-holding-usd text-orange-500 mr-2"></i>Fourniture mise en charge
+                        </label>
+                        <input type="number" name="fourniture_mise_charge" value="{{ old('fourniture_mise_charge', $article->fourniture_mise_charge) }}" 
+                               step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+
+                    <!-- DC -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-check-circle text-orange-500 mr-2"></i>DC
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="dc" value="0" {{ old('dc', $article->dc) == 0 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <span class="ml-2 text-gray-700">Non</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="dc" value="1" {{ old('dc', $article->dc) == 1 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <span class="ml-2 text-gray-700">Oui</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- RC -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-shield-alt text-orange-500 mr-2"></i>RC
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="rc" value="0" {{ old('rc', $article->rc) == 0 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <span class="ml-2 text-gray-700">Non</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="rc" value="1" {{ old('rc', $article->rc) == 1 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <span class="ml-2 text-gray-700">Oui</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Date de résiliation -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-times text-orange-500 mr-2"></i>Date de résiliation
+                        </label>
+                        <input type="date" name="date_de_resiliation" value="{{ old('date_de_resiliation', $article->date_de_resiliation) }}" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+
+                    <!-- Date de déchéance -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-exclamation text-orange-500 mr-2"></i>Date de déchéance
+                        </label>
+                        <input type="date" name="date_de_decheance" value="{{ old('date_de_decheance', $article->date_de_decheance) }}" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+
+                    <!-- Exploitant -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-user-tie text-orange-500 mr-2"></i>Exploitant
+                        </label>
+                        <select name="exploitant_id" class="form-select w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            <option value="">Sélectionner un exploitant</option>
+                            @foreach(\App\Models\Exploitant::all() as $exploitant)
+                                <option value="{{ $exploitant->id }}" {{ old('exploitant_id', $article->exploitant_id) == $exploitant->id ? 'selected' : '' }}>
+                                    {{ $exploitant->nom_complet }} ({{ $exploitant->numero }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+                     <!-- Form Actions -->
             <div class="flex items-center gap-4 pt-6 border-t border-gray-200">
                 <button 
                     type="submit" 
@@ -627,56 +752,6 @@
         </form>
     </div>
 
-    <!-- Article Information -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 mt-8 border border-blue-200 shadow-xl">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-info-circle text-white text-xl"></i>
-            </div>
-            <div>
-                <h3 class="text-2xl font-bold text-blue-900">Informations de l'Article</h3>
-                <p class="text-blue-700">Détails et statistiques</p>
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-calendar text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Créé le</h4>
-                        <p class="text-gray-600 text-sm">{{ $article->created_at->format('d/m/Y H:i') }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-clock text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Modifié le</h4>
-                        <p class="text-gray-600 text-sm">{{ $article->updated_at->format('d/m/Y H:i') }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-database text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">ID</h4>
-                        <p class="text-gray-600 text-sm">#{{ $article->id }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
 

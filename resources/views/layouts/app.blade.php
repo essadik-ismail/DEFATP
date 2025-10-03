@@ -2157,7 +2157,7 @@
                 <div class="nav-item">
                     <a href="{{ route('settings.exploitants') }}" class="nav-link {{ request()->routeIs('settings.exploitants.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
-                        Exploitant Forêtier
+                        Exploitant Forêstier
                     </a>
                 </div>
 
