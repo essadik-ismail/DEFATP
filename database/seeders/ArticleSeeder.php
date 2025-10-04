@@ -179,56 +179,118 @@ class ArticleSeeder extends Seeder
     }
 
     /**
-     * Find situation administrative
+     * Find situation administrative - searches across all attributes
      */
     private function findSituation(string $commune): ?int
     {
+        // First try exact match on commune
         $situation = SituationAdministrative::where('commune', $commune)->first();
+        if ($situation) {
+            return $situation->id;
+        }
+        
+        // If not found, search with LIKE on commune and province
+        $situation = SituationAdministrative::where(function($query) use ($commune) {
+            $query->where('commune', 'LIKE', '%' . $commune . '%')
+                  ->orWhere('province', 'LIKE', '%' . $commune . '%');
+        })->first();
+        
         return $situation ? $situation->id : null;
     }
 
     /**
-     * Find forest
+     * Find forest - searches across all attributes
      */
     private function findForet(string $foretName): ?int
     {
+        // First try exact match on foret field
         $foret = Foret::where('foret', $foretName)->first();
+        if ($foret) {
+            return $foret->id;
+        }
+        
+        // If not found, search with LIKE on foret field only
+        $foret = Foret::where('foret', 'LIKE', '%' . $foretName . '%')->first();
+        
         return $foret ? $foret->id : null;
     }
 
     /**
-     * Find localisation
+     * Find localisation - searches across all attributes
      */
     private function findLocalisation(string $code): ?int
     {
+        // First try exact match on CODE field
         $localisation = Localisation::where('CODE', $code)->first();
+        if ($localisation) {
+            return $localisation->id;
+        }
+        
+        // If not found, search with LIKE on available fields
+        $localisation = Localisation::where(function($query) use ($code) {
+            $query->where('CODE', 'LIKE', '%' . $code . '%')
+                  ->orWhere('DRANEF', 'LIKE', '%' . $code . '%')
+                  ->orWhere('DPANEF', 'LIKE', '%' . $code . '%')
+                  ->orWhere('ENTITE', 'LIKE', '%' . $code . '%');
+        })->first();
+        
         return $localisation ? $localisation->id : null;
     }
 
     /**
-     * Find essence
+     * Find essence - searches across all attributes
      */
     private function findEssence(string $essenceName): ?int
     {
+        // First try exact match on essence field
         $essence = Essence::where('essence', $essenceName)->first();
+        if ($essence) {
+            return $essence->id;
+        }
+        
+        // If not found, search with LIKE on essence field only
+        $essence = Essence::where('essence', 'LIKE', '%' . $essenceName . '%')->first();
+        
         return $essence ? $essence->id : null;
     }
 
     /**
-     * Find nature de coupe
+     * Find nature de coupe - searches across all attributes
      */
     private function findNatureCoupe(string $label): ?int
     {
+        // First try exact match on nature_de_coupe field
         $natureCoupe = NatureDeCoupe::where('nature_de_coupe', $label)->first();
+        if ($natureCoupe) {
+            return $natureCoupe->id;
+        }
+        
+        // If not found, search with LIKE on nature_de_coupe field only
+        $natureCoupe = NatureDeCoupe::where('nature_de_coupe', 'LIKE', '%' . $label . '%')->first();
+        
         return $natureCoupe ? $natureCoupe->id : null;
     }
 
     /**
-     * Find exploitant
+     * Find exploitant - searches across all attributes
      */
     private function findExploitant(string $adjudicataire): ?int
     {
+        // First try exact match on numero field
         $exploitant = Exploitant::where('numero', $adjudicataire)->first();
+        if ($exploitant) {
+            return $exploitant->id;
+        }
+        
+        // If not found, search across available text attributes
+        $exploitant = Exploitant::where(function($query) use ($adjudicataire) {
+            $query->where('numero', 'LIKE', '%' . $adjudicataire . '%')
+                  ->orWhere('nom_complet', 'LIKE', '%' . $adjudicataire . '%')
+                  ->orWhere('raison_sociale', 'LIKE', '%' . $adjudicataire . '%')
+                  ->orWhere('adresse', 'LIKE', '%' . $adjudicataire . '%')
+                  ->orWhere('n_cin', 'LIKE', '%' . $adjudicataire . '%');
+        })->first();
+        
         return $exploitant ? $exploitant->id : null;
     }
 }

@@ -34,7 +34,7 @@
                     @elseif(request()->routeIs('settings.situation-administratives'))
                         <span class="breadcrumb-separator">/</span>
                         <span class="breadcrumb-item">Situations Administratives</span>
-                    @elseif(request()->routeIs('settings.exploitants'))
+                    @elseif(request()->routeIs('exploitants'))
                         <span class="breadcrumb-separator">/</span>
                         <span class="breadcrumb-item">Exploitants</span>
                     @elseif(request()->routeIs('settings.localisations'))

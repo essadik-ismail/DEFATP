@@ -80,8 +80,19 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/exploitants', [SettingsController::class, 'exploitants'])->name('exploitants.index');
+    Route::get('/exploitants/create', [SettingsController::class, 'createExploitant'])->name('exploitants.create');
+    Route::post('/exploitants', [SettingsController::class, 'storeExploitant'])->name('exploitants.store');
+    Route::get('/exploitants/{exploitant}', [SettingsController::class, 'showExploitant'])->name('exploitants.show');
+    Route::get('/exploitants/{exploitant}/carte-professionnelle', [SettingsController::class, 'carteProfessionnelle'])->name('exploitants.carte-professionnelle');
+    Route::get('/exploitants/{exploitant}/edit', [SettingsController::class, 'editExploitant'])->name('exploitants.edit');
+    Route::put('/exploitants/{exploitant}', [SettingsController::class, 'updateExploitant'])->name('exploitants.update');
+    Route::delete('/exploitants/{exploitant}', [SettingsController::class, 'destroyExploitant'])->name('exploitants.destroy');
+    Route::get('/exploitants/export', [SettingsController::class, 'exportExploitants'])->name('exploitants.export');
+    Route::post('/exploitants/import', [SettingsController::class, 'importExploitants'])->name('exploitants.import');
+    
     // Settings Routes
-Route::prefix('settings')->name('settings.')->group(function () {
+    Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/', [SettingsController::class, 'index'])->name('index');
     
 
@@ -126,18 +137,6 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::delete('/situation-administratives/{situationAdministrative}', [SettingsController::class, 'destroySituationAdministrative'])->name('situation-administratives.destroy');
     Route::get('/situation-administratives/export', [SettingsController::class, 'exportSituationAdministratives'])->name('situation-administratives.export');
     Route::post('/situation-administratives/import', [SettingsController::class, 'importSituationAdministratives'])->name('situation-administratives.import');
-    
-    // Exploitants
-    Route::get('/exploitants', [SettingsController::class, 'exploitants'])->name('exploitants');
-    Route::get('/exploitants/create', [SettingsController::class, 'createExploitant'])->name('exploitants.create');
-    Route::post('/exploitants', [SettingsController::class, 'storeExploitant'])->name('exploitants.store');
-    Route::get('/exploitants/{exploitant}', [SettingsController::class, 'showExploitant'])->name('exploitants.show');
-    Route::get('/exploitants/{exploitant}/carte-professionnelle', [SettingsController::class, 'carteProfessionnelle'])->name('exploitants.carte-professionnelle');
-    Route::get('/exploitants/{exploitant}/edit', [SettingsController::class, 'editExploitant'])->name('exploitants.edit');
-    Route::put('/exploitants/{exploitant}', [SettingsController::class, 'updateExploitant'])->name('exploitants.update');
-    Route::delete('/exploitants/{exploitant}', [SettingsController::class, 'destroyExploitant'])->name('exploitants.destroy');
-    Route::get('/exploitants/export', [SettingsController::class, 'exportExploitants'])->name('exploitants.export');
-    Route::post('/exploitants/import', [SettingsController::class, 'importExploitants'])->name('exploitants.import');
     
     // Localisations
     Route::get('/localisations', [SettingsController::class, 'localisations'])->name('localisations');

@@ -3,53 +3,51 @@
 @section('title', 'Détails de l\'Article - DEFATP')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <!-- Header Section -->
-    <div class="mb-8">
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
-                        <i class="fas fa-file-alt text-white text-2xl"></i>
+<div class="min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-file-alt text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                                Détails de l'Article #{{ $article->numero ?? $article->id }}
+                            </h1>
+                            <p class="text-gray-600 flex items-center gap-2">
+                                <i class="fas fa-calendar-alt text-blue-500"></i>
+                                Créé le {{ $article->created_at ? $article->created_at->format('d/m/Y à H:i') : 'N/A' }}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-                            Détails de l'Article #{{ $article->numero ?? $article->id }}
-                        </h1>
-                        <p class="text-gray-600 flex items-center gap-2">
-                            <i class="fas fa-calendar-alt text-blue-500"></i>
-                            Créé le {{ $article->created_at ? $article->created_at->format('d/m/Y à H:i') : 'N/A' }}
-                        </p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{{ route('articles.edit', $article) }}" 
+                           class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-edit"></i>
+                            <span>Modifier</span>
+                        </a>
+                        <a href="{{ route('articles.index') }}" 
+                           class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Retour</span>
+                        </a>
                     </div>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('articles.edit', $article) }}" 
-                       class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                        <i class="fas fa-edit"></i>
-                        <span>Modifier</span>
-                    </a>
-                    <a href="{{ route('articles.index') }}" 
-                       class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>Retour</span>
-                    </a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Main Content -->
-    <div class="space-y-8">
-        
-        <!-- Section 1: Informations de Base -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-8 py-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-info-circle text-white text-xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white">
-                        Informations de Base
+        <!-- Main Content -->
+        <div class="space-y-8">
+            
+            <!-- Section 1: Informations Générales -->
+            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                        <i class="fas fa-info-circle"></i>
+                        Section 1: Informations Générales
                     </h2>
                 </div>
                 <div class="p-6">
@@ -59,7 +57,27 @@
                                 <i class="fas fa-calendar text-blue-500 mr-2"></i>Année
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->annee ?? 'N/A' }}
+                                @if($article->annee)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                        {{ $article->annee }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-500">Non spécifiée</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-hashtag text-indigo-500 mr-2"></i>Numéro
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                @if($article->numero)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                                        {{ $article->numero }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-500">Non spécifié</span>
+                                @endif
                             </div>
                         </div>
                         <div class="form-group">
@@ -67,38 +85,65 @@
                                 <i class="fas fa-gavel text-green-500 mr-2"></i>Date d'Adjudication
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->date_adjudication ? $article->date_adjudication->format('d/m/Y') : 'N/A' }}
+                                {{ $article->date_adjudication ? $article->date_adjudication->format('d/m/Y') : 'Non spécifiée' }}
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-hashtag text-purple-500 mr-2"></i>Lot
+                                <i class="fas fa-tag text-purple-500 mr-2"></i>Lot
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->lot ?? 'N/A' }}
+                                {{ $article->lot ?? 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-barcode text-indigo-500 mr-2"></i>Numéro d'Article
+                                <i class="fas fa-barcode text-orange-500 mr-2"></i>Numéro d'Adjudication
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->numero ?? 'N/A' }}
+                                {{ $article->numero_adjudication ?? 'Non spécifié' }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-layer-group text-teal-500 mr-2"></i>Type
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                @if($article->type)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-100 text-teal-800">
+                                        {{ ucfirst(str_replace('_', ' ', $article->type)) }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-500">Non spécifié</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-balance-scale text-gray-500 mr-2"></i>Nature Juridique
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->nature_juridique ?? 'Non spécifiée' }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar-edit text-gray-500 mr-2"></i>Dernière modification
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->updated_at->format('d/m/Y H:i') }}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-        <!-- Section 2: Localisation -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-            <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-map-marker-alt text-white text-xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white">
-                        Localisation
+            <!-- Section 2: Localisation et Forêt -->
+            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Section 2: Localisation et Forêt
                     </h2>
                 </div>
                 <div class="p-6">
@@ -108,7 +153,15 @@
                                 <i class="fas fa-map text-green-500 mr-2"></i>Localisation
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->localisation ? $article->localisation->CODE . ' - ' . $article->localisation->DRANEF . ' - ' . $article->localisation->ENTITE : 'N/A' }}
+                                @if($article->localisation)
+                                    <div class="space-y-1">
+                                        <div><strong>Code:</strong> {{ $article->localisation->CODE }}</div>
+                                        <div><strong>DRANEF:</strong> {{ $article->localisation->DRANEF ?? 'N/A' }}</div>
+                                        <div><strong>Entité:</strong> {{ $article->localisation->ENTITE ?? 'N/A' }}</div>
+                                    </div>
+                                @else
+                                    <span class="text-gray-500">Non spécifiée</span>
+                                @endif
                             </div>
                         </div>
                         <div class="form-group">
@@ -116,7 +169,14 @@
                                 <i class="fas fa-building text-green-500 mr-2"></i>Situation Administrative
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->situationAdministrative ? $article->situationAdministrative->commune . ' - ' . $article->situationAdministrative->province : 'N/A' }}
+                                @if($article->situationAdministrative)
+                                    <div class="space-y-1">
+                                        <div><strong>Commune:</strong> {{ $article->situationAdministrative->commune }}</div>
+                                        <div><strong>Province:</strong> {{ $article->situationAdministrative->province ?? 'N/A' }}</div>
+                                    </div>
+                                @else
+                                    <span class="text-gray-500">Non spécifiée</span>
+                                @endif
                             </div>
                         </div>
                         <div class="form-group">
@@ -124,15 +184,16 @@
                                 <i class="fas fa-tree text-green-500 mr-2"></i>Forêt
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->foret->foret ?? 'N/A' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-balance-scale text-green-500 mr-2"></i>Nature Juridique
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->nature_juridique ?? 'N/A' }}
+                                @if($article->foret)
+                                    <div class="space-y-1">
+                                        <div><strong>Nom:</strong> {{ $article->foret->foret }}</div>
+                                        @if($article->foret->localisation)
+                                            <div><strong>Localisation:</strong> {{ $article->foret->localisation }}</div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-gray-500">Non spécifiée</span>
+                                @endif
                             </div>
                         </div>
                         <div class="form-group">
@@ -140,7 +201,7 @@
                                 <i class="fas fa-map-pin text-green-500 mr-2"></i>Parcelle
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->parcelle ?? 'N/A' }}
+                                {{ $article->parcelle ?? 'Non spécifiée' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -149,9 +210,12 @@
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
                                 @if($article->lat && $article->log)
-                                    {{ $article->lat }}, {{ $article->log }}
+                                    <div class="space-y-1">
+                                        <div><strong>Latitude:</strong> {{ $article->lat }}</div>
+                                        <div><strong>Longitude:</strong> {{ $article->log }}</div>
+                                    </div>
                                 @else
-                                    N/A
+                                    <span class="text-gray-500">Non spécifiées</span>
                                 @endif
                             </div>
                         </div>
@@ -159,15 +223,12 @@
                 </div>
             </div>
 
-        <!-- Section 3: Détails Techniques -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-            <div class="bg-gradient-to-r from-purple-500 to-pink-600 px-8 py-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-calculator text-white text-xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white">
-                        Détails Techniques
+            <!-- Section 3: Détails Techniques -->
+            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                        <i class="fas fa-cogs"></i>
+                        Section 3: Détails Techniques
                     </h2>
                 </div>
                 <div class="p-6">
@@ -177,7 +238,19 @@
                                 <i class="fas fa-seedling text-purple-500 mr-2"></i>Essence
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->essence->essence ?? 'N/A' }}
+                                @if($article->essence)
+                                    <div class="space-y-1">
+                                        <div><strong>Nom:</strong> {{ $article->essence->essence }}</div>
+                                        @if($article->essence->nom_scientifique)
+                                            <div><strong>Nom scientifique:</strong> {{ $article->essence->nom_scientifique }}</div>
+                                        @endif
+                                        @if($article->essence->famille)
+                                            <div><strong>Famille:</strong> {{ $article->essence->famille }}</div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-gray-500">Non spécifiée</span>
+                                @endif
                             </div>
                         </div>
                         <div class="form-group">
@@ -185,7 +258,16 @@
                                 <i class="fas fa-cut text-purple-500 mr-2"></i>Nature de Coupe
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->natureDeCoupe->nature_de_coupe ?? 'N/A' }}
+                                @if($article->natureDeCoupe)
+                                    <div class="space-y-1">
+                                        <div><strong>Type:</strong> {{ $article->natureDeCoupe->nature_de_coupe }}</div>
+                                        @if($article->natureDeCoupe->description)
+                                            <div><strong>Description:</strong> {{ $article->natureDeCoupe->description }}</div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-gray-500">Non spécifiée</span>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -196,7 +278,7 @@
                                 <i class="fas fa-ruler text-purple-500 mr-2"></i>Superficie
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->superficie ?? 'N/A' }}
+                                {{ $article->superficie ? number_format($article->superficie, 2) . ' ha' : 'Non spécifiée' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -204,7 +286,7 @@
                                 <i class="fas fa-cube text-purple-500 mr-2"></i>BO (m³)
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->bo_m3 ?? 'N/A' }}
+                                {{ $article->bo_m3 ? number_format($article->bo_m3, 2) . ' m³' : 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -212,7 +294,7 @@
                                 <i class="fas fa-cube text-purple-500 mr-2"></i>BI (m³)
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->bi_m3 ?? 'N/A' }}
+                                {{ $article->bi_m3 ? number_format($article->bi_m3, 2) . ' m³' : 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -220,7 +302,7 @@
                                 <i class="fas fa-cube text-purple-500 mr-2"></i>BF/ST
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->bf_st ?? 'N/A' }}
+                                {{ $article->bf_st ? number_format($article->bf_st, 2) . ' st' : 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -228,7 +310,7 @@
                                 <i class="fas fa-weight text-purple-500 mr-2"></i>Tanin (tonnes)
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->tanin_t ?? 'N/A' }}
+                                {{ $article->tanin_t ? number_format($article->tanin_t, 2) . ' T' : 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -236,7 +318,7 @@
                                 <i class="fas fa-weight text-purple-500 mr-2"></i>Fleur d'Acacia (tonnes)
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->fleur_acacia_t ?? 'N/A' }}
+                                {{ $article->fleur_acacia_t ? number_format($article->fleur_acacia_t, 2) . ' T' : 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -244,7 +326,7 @@
                                 <i class="fas fa-weight text-purple-500 mr-2"></i>Caroube (tonnes)
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->caroube_t ?? 'N/A' }}
+                                {{ $article->caroube_t ? number_format($article->caroube_t, 2) . ' T' : 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -252,7 +334,7 @@
                                 <i class="fas fa-weight text-purple-500 mr-2"></i>Romarin (tonnes)
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->romarin_t ?? 'N/A' }}
+                                {{ $article->romarin_t ? number_format($article->romarin_t, 2) . ' T' : 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -260,7 +342,7 @@
                                 <i class="fas fa-weight text-purple-500 mr-2"></i>PS (tonnes)
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->ps_t ?? 'N/A' }}
+                                {{ $article->ps_t ? number_format($article->ps_t, 2) . ' T' : 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -268,7 +350,7 @@
                                 <i class="fas fa-weight text-purple-500 mr-2"></i>Liège (stères)
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->liége_st ?? 'N/A' }}
+                                {{ $article->liége_st ? number_format($article->liége_st, 2) . ' st' : 'Non spécifié' }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -276,191 +358,63 @@
                                 <i class="fas fa-weight text-purple-500 mr-2"></i>Charbon de Bois (ox)
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->charbon_bois_ox ?? 'N/A' }}
+                                {{ $article->charbon_bois_ox ? number_format($article->charbon_bois_ox, 2) . ' ox' : 'Non spécifié' }}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-
-        <!-- Section 4: Produits -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-500 to-blue-600 px-8 py-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-box text-white text-xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white">
-                        Produits
+            <!-- Section 4: Informations Financières -->
+            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="bg-gradient-to-r from-yellow-500 to-orange-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Section 4: Informations Financières
                     </h2>
                 </div>
                 <div class="p-6">
-                    @if($article->products && $article->products->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="bg-gradient-to-r from-indigo-50 to-indigo-100">
-                                        <th class="px-6 py-4 text-left text-sm font-semibold text-indigo-800 border-b border-indigo-200">
-                                            <i class="fas fa-box mr-2"></i>Nom du Produit
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold text-indigo-800 border-b border-indigo-200">
-                                            <i class="fas fa-hashtag mr-2"></i>Quantité
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-indigo-100">
-                                    @foreach($article->products as $product)
-                                        <tr class="hover:bg-indigo-50 transition-colors duration-200">
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center">
-                                                    <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
-                                                        <i class="fas fa-box text-indigo-600 text-sm"></i>
-                                                    </div>
-                                                    <span class="text-gray-800 font-medium">{{ $product->name }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                                                    <i class="fas fa-hashtag mr-1"></i>{{ $product->quantity }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-12">
-                            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-box text-indigo-500 text-2xl"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Aucun produit associé</h3>
-                            <p class="text-gray-500">Cet article n'a pas de produits associés.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-        <!-- Section 5: Emplacements -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-            <div class="bg-gradient-to-r from-emerald-500 to-green-600 px-8 py-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-map-marker-alt text-white text-xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white">
-                        Emplacements
-                    </h2>
-                </div>
-                <div class="p-6">
-                    @if($article->locations && $article->locations->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="bg-gradient-to-r from-emerald-50 to-emerald-100">
-                                        <th class="px-6 py-4 text-left text-sm font-semibold text-emerald-800 border-b border-emerald-200">
-                                            <i class="fas fa-tag mr-2"></i>Matériel/Référence
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold text-emerald-800 border-b border-emerald-200">
-                                            <i class="fas fa-crosshairs mr-2"></i>Coordonnée X
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold text-emerald-800 border-b border-emerald-200">
-                                            <i class="fas fa-crosshairs mr-2"></i>Coordonnée Y
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-sm font-semibold text-emerald-800 border-b border-emerald-200">
-                                            <i class="fas fa-map-pin mr-2"></i>Position
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-emerald-100">
-                                    @foreach($article->locations as $location)
-                                        <tr class="hover:bg-emerald-50 transition-colors duration-200">
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center">
-                                                    <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
-                                                        <i class="fas fa-tag text-emerald-600 text-sm"></i>
-                                                    </div>
-                                                    <span class="text-gray-800 font-medium">{{ $location->mat ?? 'N/A' }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                @if($location->x)
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                                        <i class="fas fa-crosshairs mr-1"></i>{{ number_format($location->x, 6) }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-gray-500">N/A</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                @if($location->y)
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                                        <i class="fas fa-crosshairs mr-1"></i>{{ number_format($location->y, 6) }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-gray-500">N/A</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                @if($location->x && $location->y)
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
-                                                        <i class="fas fa-map-pin mr-1"></i>({{ number_format($location->x, 2) }}, {{ number_format($location->y, 2) }})
-                                                    </span>
-                                                @else
-                                                    <span class="text-gray-500">N/A</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-12">
-                            <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-map-marker-alt text-emerald-500 text-2xl"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Aucun emplacement associé</h3>
-                            <p class="text-gray-500">Cet article n'a pas d'emplacements associés.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-        <!-- Section 6: Observations et Validation -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-            <div class="bg-gradient-to-r from-gray-500 to-slate-600 px-8 py-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-clipboard text-white text-xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white">
-                        Observations et Validation
-                    </h2>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-sticky-note text-gray-500 mr-2"></i>Observations
+                                <i class="fas fa-tag text-yellow-500 mr-2"></i>Prix de Retrait
                             </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium min-h-[100px]">
-                                {{ $article->observations ?? 'Aucune observation' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-check-circle text-gray-500 mr-2"></i>Statut de Validation
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-                                @if($article->is_validated)
-                                    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check-circle mr-2"></i>Article validé
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                @if($article->prix_de_retrait)
+                                    <span class="text-lg font-bold text-green-600">
+                                        {{ number_format($article->prix_de_retrait, 2) }} DH
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                                        <i class="fas fa-clock mr-2"></i>En attente de validation
+                                    <span class="text-gray-500">Non spécifié</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-dollar-sign text-yellow-500 mr-2"></i>Prix de Vente
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                @if($article->prix_vente)
+                                    <span class="text-lg font-bold text-green-600">
+                                        {{ number_format($article->prix_vente, 2) }} DH
+                                    </span>
+                                @else
+                                    <span class="text-gray-500">Non spécifié</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-shopping-cart text-yellow-500 mr-2"></i>Statut de Vente
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                @if($article->invendu)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-times-circle mr-1"></i>Invendu
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>Vendu
                                     </span>
                                 @endif
                             </div>
@@ -468,30 +422,149 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Action Buttons -->
-        <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-between">
-            <a href="{{ route('articles.index') }}" 
-               class="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
-                <i class="fas fa-arrow-left"></i>
-                Retour à la liste
-            </a>
-            <div class="flex flex-col sm:flex-row gap-4">
-                <a href="{{ route('articles.edit', $article) }}" 
-                   class="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
-                    <i class="fas fa-edit"></i>
-                    Modifier l'Article
-                </a>
-                <form action="{{ route('articles.destroy', $article) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" 
-                            class="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 w-full">
-                        <i class="fas fa-trash"></i>
-                        Supprimer
-                    </button>
-                </form>
+            <!-- Section 5: Exploitant -->
+            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="bg-gradient-to-r from-indigo-500 to-blue-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                        <i class="fas fa-user-tie"></i>
+                        Section 5: Exploitant
+                    </h2>
+                </div>
+                <div class="p-6">
+                    @if($article->exploitant)
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-hashtag text-indigo-500 mr-2"></i>Numéro
+                                </label>
+                                <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                    {{ $article->exploitant->numero ?? 'Non spécifié' }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-user text-indigo-500 mr-2"></i>Nom Complet
+                                </label>
+                                <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                    {{ $article->exploitant->nom_complet ?? 'Non spécifié' }}
+                                </div>
+                            </div>
+                            @if($article->exploitant->categorie === 'societe')
+                                <div class="form-group">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-building text-indigo-500 mr-2"></i>Raison Sociale
+                                    </label>
+                                    <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                        {{ $article->exploitant->raison_sociale ?? 'Non spécifiée' }}
+                                    </div>
+                                </div>
+                            @endif
+                            <div class="form-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-envelope text-indigo-500 mr-2"></i>Email
+                                </label>
+                                <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                    {{ $article->exploitant->email ?? 'Non spécifié' }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-phone text-indigo-500 mr-2"></i>Téléphone
+                                </label>
+                                <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                    {{ $article->exploitant->telephone ?? 'Non spécifié' }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-map-marker-alt text-indigo-500 mr-2"></i>Adresse
+                                </label>
+                                <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                    {{ $article->exploitant->adresse ?? 'Non spécifiée' }}
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-user-slash text-indigo-500 text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">Aucun exploitant associé</h3>
+                            <p class="text-gray-500">Cet article n'a pas d'exploitant associé.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Section 6: Statut et Validation -->
+            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-500 to-slate-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                        <i class="fas fa-clipboard-check"></i>
+                        Section 6: Statut et Validation
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-check-circle text-gray-500 mr-2"></i>DC
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                @if($article->dc)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1"></i>Oui
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-times mr-1"></i>Non
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-check-circle text-gray-500 mr-2"></i>RC
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                @if($article->rc)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1"></i>Oui
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-times mr-1"></i>Non
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-trash text-gray-500 mr-2"></i>Supprimé
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                @if($article->is_deleted)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-trash mr-1"></i>Oui
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1"></i>Non
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar-edit text-gray-500 mr-2"></i>Dernière modification
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->updated_at->format('d/m/Y H:i') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -504,47 +577,6 @@
     
     .form-group:last-child {
         margin-bottom: 0;
-    }
-    
-    /* Custom scrollbar for tables */
-    .overflow-x-auto::-webkit-scrollbar {
-        height: 8px;
-    }
-    
-    .overflow-x-auto::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 4px;
-    }
-    
-    .overflow-x-auto::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-    }
-    
-    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
-    
-    /* Table styling */
-    table {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    
-    table th:first-child {
-        border-top-left-radius: 12px;
-    }
-    
-    table th:last-child {
-        border-top-right-radius: 12px;
-    }
-    
-    table tbody tr:last-child td:first-child {
-        border-bottom-left-radius: 12px;
-    }
-    
-    table tbody tr:last-child td:last-child {
-        border-bottom-right-radius: 12px;
     }
 </style>
 @endsection

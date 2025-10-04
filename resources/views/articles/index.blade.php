@@ -615,7 +615,7 @@
                 <p>Ajouter une situation administrative</p>
             </a>
             
-            <a href="{{ route('settings.exploitants') }}" class="quick-create-card">
+            <a href="{{ route('exploitants') }}" class="quick-create-card">
                 <div class="quick-create-icon exploitant">
                     <i class="fas fa-user-tie"></i>
                 </div>
@@ -1154,7 +1154,7 @@
                     <!-- <div class="tab-pane fade" id="exploitants" role="tabpanel" aria-labelledby="exploitants-tab">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5>Liste des Exploitants</h5>
-                            <a href="{{ route('settings.exploitants') }}" class="btn btn-danger btn-sm">
+                            <a href="{{ route('exploitants') }}" class="btn btn-danger btn-sm">
                                 <i class="fas fa-plus me-2"></i>Nouvel Exploitant
                             </a>
                         </div>
@@ -1175,10 +1175,10 @@
                                         <td>{{ $exploitant->nom_complet }}</td>
                                         <td>{{ $exploitant->created_at->format('d/m/Y') }}</td>
                                         <td>
-                                            <a href="{{ route('settings.exploitants.edit', $exploitant) }}" class="btn btn-sm btn-warning">
+                                            <a href="{{ route('exploitants.edit', $exploitant) }}" class="btn btn-sm btn-warning">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form action="{{ route('settings.exploitants.destroy', $exploitant) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet exploitant ?')">
+                                            <form action="{{ route('exploitants.destroy', $exploitant) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet exploitant ?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-danger">
