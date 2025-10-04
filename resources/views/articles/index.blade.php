@@ -615,7 +615,7 @@
                 <p>Ajouter une situation administrative</p>
             </a>
             
-            <a href="{{ route('exploitants') }}" class="quick-create-card">
+            <a href="{{ route('exploitants.index') }}" class="quick-create-card">
                 <div class="quick-create-icon exploitant">
                     <i class="fas fa-user-tie"></i>
                 </div>
@@ -1154,7 +1154,7 @@
                     <!-- <div class="tab-pane fade" id="exploitants" role="tabpanel" aria-labelledby="exploitants-tab">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5>Liste des Exploitants</h5>
-                            <a href="{{ route('exploitants') }}" class="btn btn-danger btn-sm">
+                            <a href="{{ route('exploitants.index') }}" class="btn btn-danger btn-sm">
                                 <i class="fas fa-plus me-2"></i>Nouvel Exploitant
                             </a>
                         </div>

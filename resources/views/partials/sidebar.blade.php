@@ -51,7 +51,7 @@
                     <a class="submenu-item {{ request()->routeIs('settings.situation-administratives') ? 'active' : '' }}" href="{{ route('settings.situation-administratives') }}">
                         <i class="fas fa-building"></i> <span>Situations Administratives</span>
                     </a>
-                    <a class="submenu-item {{ request()->routeIs('exploitants') ? 'active' : '' }}" href="{{ route('exploitants') }}">
+                    <a class="submenu-item {{ request()->routeIs('exploitants.*') ? 'active' : '' }}" href="{{ route('exploitants.index') }}">
                         <i class="fas fa-user-tie"></i> <span>Exploitants</span>
                     </a>
                 </div>
