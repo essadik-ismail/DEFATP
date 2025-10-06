@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
-use App\Models\Annee;
 use App\Models\Essence;
 use App\Models\Foret;
 use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
-use App\Models\SituationForestiere;
 use App\Models\Exploitant;
+use App\Models\Localisation;
 use App\Services\ActivityLogger;
 use App\Http\Requests\ArticlesByYearRequest;
 use App\Http\Requests\ArticlesByForetRequest;
@@ -37,19 +36,15 @@ class ReportController extends Controller
         ActivityLogger::log('view', "Génération du rapport des articles par année: {$year}", Article::class);
         
         $articles = Article::with([
-            'situationAdministrative',
-            'situationForestiere',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'exploitant',
-            'localisation'
+            'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
+            'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
+            'situationForestiere', 'exploitant', 'localisation'
         ])
         ->where('annee', $year)
-        ->orderBy('date', 'desc')
+        ->orderBy('date_adjudication', 'desc')
         ->get();
 
-        $annees = Annee::getYearsForSelect();
+        $annees = Article::select('annee')->distinct()->orderBy('annee', 'desc')->get();
         
         $stats = [
             'total' => $articles->count(),
@@ -71,20 +66,21 @@ class ReportController extends Controller
         ActivityLogger::log('view', "Génération du rapport des articles par forêt: {$foretName}", Article::class);
         
         $query = Article::with([
-            'situationAdministrative',
-            'situationForestiere',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'exploitant',
-            'localisation'
+            'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
+            'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
+            'situationForestiere', 'exploitant', 'localisation'
         ]);
 
         if ($foretId) {
-            $query->where('foret_id', $foretId);
+            $query->where(function ($q) use ($foretId) {
+                $q->where('foret_id', $foretId)
+                  ->orWhereHas('forets', function ($qq) use ($foretId) {
+                      $qq->where('forets.id', $foretId);
+                  });
+            });
         }
 
-        $articles = $query->orderBy('date', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->get();
         $forets = Foret::orderBy('foret')->get();
 
         $stats = [
@@ -107,20 +103,21 @@ class ReportController extends Controller
         ActivityLogger::log('view', "Génération du rapport des articles par essence: {$essenceName}", Article::class);
         
         $query = Article::with([
-            'situationAdministrative',
-            'situationForestiere',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'exploitant',
-            'localisation'
+            'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
+            'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
+            'situationForestiere', 'exploitant', 'localisation'
         ]);
 
         if ($essenceId) {
-            $query->where('essence_id', $essenceId);
+            $query->where(function ($q) use ($essenceId) {
+                $q->where('essence_id', $essenceId)
+                  ->orWhereHas('essences', function ($qq) use ($essenceId) {
+                      $qq->where('essences.id', $essenceId);
+                  });
+            });
         }
 
-        $articles = $query->orderBy('date', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->get();
         $essences = Essence::orderBy('essence')->get();
 
         $stats = [
@@ -143,20 +140,16 @@ class ReportController extends Controller
         ActivityLogger::log('view', "Génération du rapport des articles par exploitant: {$exploitantName}", Article::class);
         
         $query = Article::with([
-            'situationAdministrative',
-            'situationForestiere',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'exploitant',
-            'localisation'
+            'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
+            'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
+            'situationForestiere', 'exploitant', 'localisation'
         ]);
 
         if ($exploitantId) {
             $query->where('exploitant_id', $exploitantId);
         }
 
-        $articles = $query->orderBy('date', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->get();
         $exploitants = Exploitant::orderBy('nom_complet')->get();
 
         $stats = [
@@ -185,7 +178,7 @@ class ReportController extends Controller
             'localisation'
         ])
         ->where('invendu', true)
-        ->orderBy('date', 'desc')
+        ->orderBy('date_adjudication', 'desc')
         ->get();
 
         $stats = [
@@ -211,7 +204,7 @@ class ReportController extends Controller
             'localisation'
         ])
         ->where('invendu', false)
-        ->orderBy('date', 'desc')
+        ->orderBy('date_adjudication', 'desc')
         ->get();
 
         $stats = [
@@ -291,20 +284,21 @@ class ReportController extends Controller
         ActivityLogger::log('view', "Génération du rapport des articles par nature de coupe: {$natureName}", Article::class);
         
         $query = Article::with([
-            'situationAdministrative',
-            'situationForestiere',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'exploitant',
-            'localisation'
+            'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
+            'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
+            'situationForestiere', 'exploitant', 'localisation'
         ]);
 
         if ($natureDeCoupeId) {
-            $query->where('nature_de_coupe_id', $natureDeCoupeId);
+            $query->where(function ($q) use ($natureDeCoupeId) {
+                $q->where('nature_de_coupe_id', $natureDeCoupeId)
+                  ->orWhereHas('naturesDeCoupe', function ($qq) use ($natureDeCoupeId) {
+                      $qq->where('nature_de_coupes.id', $natureDeCoupeId);
+                  });
+            });
         }
 
-        $articles = $query->orderBy('date', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->get();
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
 
         $stats = [
@@ -340,7 +334,7 @@ class ReportController extends Controller
             $query->where('localisation_id', $localisationId);
         }
 
-        $articles = $query->orderBy('date', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->get();
         $localisations = Localisation::orderBy('ENTITE')->get();
 
         $stats = [

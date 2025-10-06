@@ -158,6 +158,41 @@
     </div>
     @endif
 
+    <!-- Charts -->
+    @if(isset($stats))
+    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Vendus vs Invendus</h3>
+                <canvas id="chartVendusInvendusValidation"></canvas>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Revenus (DH)</h3>
+                <canvas id="chartRevenusValidation"></canvas>
+            </div>
+        </div>
+    </div>
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const vendus = Number(@json($stats['vendus'] ?? 0));
+        const invendus = Number(@json($stats['invendus'] ?? 0));
+        const totalRevenue = Number(@json($stats['total_prix_vente'] ?? 0));
+
+        const c1 = document.getElementById('chartVendusInvendusValidation');
+        if (c1 && window.Chart) {
+            new Chart(c1, { type: 'doughnut', data: { labels: ['Vendus','Invendus'], datasets: [{ data: [vendus, invendus], backgroundColor: ['#22c55e','#f59e0b'], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom' } } } });
+        }
+        const c2 = document.getElementById('chartRevenusValidation');
+        if (c2 && window.Chart) {
+            new Chart(c2, { type: 'bar', data: { labels: ['Total Revenus'], datasets: [{ label: 'DH', data: [totalRevenue], backgroundColor: '#3b82f6' }] }, options: { scales: { y: { beginAtZero: true } } } });
+        }
+    });
+    </script>
+    @endpush
+    @endif
+
     @php
         $headers = ['ID', 'Numéro', 'Date', 'Forêts', 'Essences', 'Exploitant', 'Validation', 'Vente', 'Prix de Vente', 'Actions'];
         $rows = $articles->map(function ($article) {
