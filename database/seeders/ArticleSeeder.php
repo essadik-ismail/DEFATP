@@ -14,12 +14,22 @@ use Carbon\Carbon;
 
 class ArticleSeeder extends Seeder
 {
+    private $situationData = [];
+    private $foretData = [];
+    private $localisationData = [];
+    private $essenceData = [];
+    private $natureCoupeData = [];
+    private $exploitantData = [];
+
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
         $this->command->info('Starting ArticleSeeder...');
+        
+        // Load JSON data
+        $this->loadJsonData();
         
         // Get articles data
         $articlesData = $this->getArticlesData();
@@ -41,7 +51,25 @@ class ArticleSeeder extends Seeder
                     continue;
                 }
 
-                Article::create($articleData);
+                $article = Article::create($articleData);
+
+                // Populate pivot tables with single-linked IDs (backward compatible)
+                // Attach essence
+                if (!empty($articleData['essence_id'])) {
+                    $article->essences()->syncWithoutDetaching([$articleData['essence_id']]);
+                }
+                // Attach nature de coupe
+                if (!empty($articleData['nature_de_coupe_id'])) {
+                    $article->naturesDeCoupe()->syncWithoutDetaching([$articleData['nature_de_coupe_id']]);
+                }
+                // Attach foret
+                if (!empty($articleData['foret_id'])) {
+                    $article->forets()->syncWithoutDetaching([$articleData['foret_id']]);
+                }
+                // Attach situation administrative
+                if (!empty($articleData['situation_administrative_id'])) {
+                    $article->situationsAdministratives()->syncWithoutDetaching([$articleData['situation_administrative_id']]);
+                }
                 $createdCount++;
                 $this->command->info("Created article: {$articleData['numero']} - {$articleData['annee']}");
             } catch (\Exception $e) {
@@ -50,6 +78,42 @@ class ArticleSeeder extends Seeder
         }
 
         $this->command->info("ArticleSeeder completed. Created: {$createdCount}, Skipped: {$skippedCount}");
+    }
+
+    /**
+     * Load all JSON data files
+     */
+    private function loadJsonData(): void
+    {
+        $this->situationData = $this->loadJsonFile('Situation administrative.json');
+        $this->foretData = $this->loadJsonFile('Foret.json');
+        $this->localisationData = $this->loadJsonFile('Localisation.json');
+        $this->essenceData = $this->loadJsonFile('Essence.json');
+        $this->natureCoupeData = $this->loadJsonFile('Nature de Coupe.json');
+        $this->exploitantData = $this->loadJsonFile('Adjudication.json');
+    }
+
+    /**
+     * Load JSON file and return data
+     */
+    private function loadJsonFile(string $filename): array
+    {
+        $path = base_path($filename);
+        if (!file_exists($path)) {
+            $this->command->warn("JSON file not found: {$filename}");
+            return [];
+        }
+
+        $json = file_get_contents($path);
+        $data = json_decode($json, true) ?? [];
+        
+        if (empty($data)) {
+            $this->command->warn("JSON file is empty or invalid: {$filename}");
+            return [];
+        }
+
+        $this->command->info("Loaded " . count($data) . " records from {$filename}");
+        return $data;
     }
 
     /**
@@ -184,18 +248,23 @@ class ArticleSeeder extends Seeder
     private function findSituation(string $commune): ?int
     {
         // First try exact match on commune
-        $situation = SituationAdministrative::where('commune', $commune)->first();
-        if ($situation) {
-            return $situation->id;
+        foreach ($this->situationData as $situation) {
+            if (isset($situation['Commune']) && $situation['Commune'] === $commune) {
+                return $situation['id'] ?? null;
+            }
         }
         
         // If not found, search with LIKE on commune and province
-        $situation = SituationAdministrative::where(function($query) use ($commune) {
-            $query->where('commune', 'LIKE', '%' . $commune . '%')
-                  ->orWhere('province', 'LIKE', '%' . $commune . '%');
-        })->first();
+        foreach ($this->situationData as $situation) {
+            if (isset($situation['Commune']) && str_contains($situation['Commune'], $commune)) {
+                return $situation['id'] ?? null;
+            }
+            if (isset($situation['Province']) && str_contains($situation['Province'], $commune)) {
+                return $situation['id'] ?? null;
+            }
+        }
         
-        return $situation ? $situation->id : null;
+        return null;
     }
 
     /**
@@ -204,15 +273,20 @@ class ArticleSeeder extends Seeder
     private function findForet(string $foretName): ?int
     {
         // First try exact match on foret field
-        $foret = Foret::where('foret', $foretName)->first();
-        if ($foret) {
-            return $foret->id;
+        foreach ($this->foretData as $foret) {
+            if (isset($foret['foret']) && $foret['foret'] === $foretName) {
+                return $foret['id'] ?? null;
+            }
         }
         
         // If not found, search with LIKE on foret field only
-        $foret = Foret::where('foret', 'LIKE', '%' . $foretName . '%')->first();
+        foreach ($this->foretData as $foret) {
+            if (isset($foret['foret']) && str_contains($foret['foret'], $foretName)) {
+                return $foret['id'] ?? null;
+            }
+        }
         
-        return $foret ? $foret->id : null;
+        return null;
     }
 
     /**
@@ -221,20 +295,29 @@ class ArticleSeeder extends Seeder
     private function findLocalisation(string $code): ?int
     {
         // First try exact match on CODE field
-        $localisation = Localisation::where('CODE', $code)->first();
-        if ($localisation) {
-            return $localisation->id;
+        foreach ($this->localisationData as $localisation) {
+            if (isset($localisation['CODE']) && $localisation['CODE'] === $code) {
+                return $localisation['id'] ?? null;
+            }
         }
         
         // If not found, search with LIKE on available fields
-        $localisation = Localisation::where(function($query) use ($code) {
-            $query->where('CODE', 'LIKE', '%' . $code . '%')
-                  ->orWhere('DRANEF', 'LIKE', '%' . $code . '%')
-                  ->orWhere('DPANEF', 'LIKE', '%' . $code . '%')
-                  ->orWhere('ENTITE', 'LIKE', '%' . $code . '%');
-        })->first();
+        foreach ($this->localisationData as $localisation) {
+            if (isset($localisation['CODE']) && str_contains($localisation['CODE'], $code)) {
+                return $localisation['id'] ?? null;
+            }
+            if (isset($localisation['DRANEF']) && str_contains($localisation['DRANEF'], $code)) {
+                return $localisation['id'] ?? null;
+            }
+            if (isset($localisation['DPANEF']) && str_contains($localisation['DPANEF'], $code)) {
+                return $localisation['id'] ?? null;
+            }
+            if (isset($localisation['ENTITE']) && str_contains($localisation['ENTITE'], $code)) {
+                return $localisation['id'] ?? null;
+            }
+        }
         
-        return $localisation ? $localisation->id : null;
+        return null;
     }
 
     /**
@@ -243,15 +326,20 @@ class ArticleSeeder extends Seeder
     private function findEssence(string $essenceName): ?int
     {
         // First try exact match on essence field
-        $essence = Essence::where('essence', $essenceName)->first();
-        if ($essence) {
-            return $essence->id;
+        foreach ($this->essenceData as $essence) {
+            if (isset($essence['Essence']) && $essence['Essence'] === $essenceName) {
+                return $essence['id'] ?? null;
+            }
         }
         
         // If not found, search with LIKE on essence field only
-        $essence = Essence::where('essence', 'LIKE', '%' . $essenceName . '%')->first();
+        foreach ($this->essenceData as $essence) {
+            if (isset($essence['Essence']) && str_contains($essence['Essence'], $essenceName)) {
+                return $essence['id'] ?? null;
+            }
+        }
         
-        return $essence ? $essence->id : null;
+        return null;
     }
 
     /**
@@ -260,15 +348,20 @@ class ArticleSeeder extends Seeder
     private function findNatureCoupe(string $label): ?int
     {
         // First try exact match on nature_de_coupe field
-        $natureCoupe = NatureDeCoupe::where('nature_de_coupe', $label)->first();
-        if ($natureCoupe) {
-            return $natureCoupe->id;
+        foreach ($this->natureCoupeData as $natureCoupe) {
+            if (isset($natureCoupe['Nature de coupe']) && $natureCoupe['Nature de coupe'] === $label) {
+                return $natureCoupe['id'] ?? null;
+            }
         }
         
         // If not found, search with LIKE on nature_de_coupe field only
-        $natureCoupe = NatureDeCoupe::where('nature_de_coupe', 'LIKE', '%' . $label . '%')->first();
+        foreach ($this->natureCoupeData as $natureCoupe) {
+            if (isset($natureCoupe['Nature de coupe']) && str_contains($natureCoupe['Nature de coupe'], $label)) {
+                return $natureCoupe['id'] ?? null;
+            }
+        }
         
-        return $natureCoupe ? $natureCoupe->id : null;
+        return null;
     }
 
     /**
@@ -277,20 +370,31 @@ class ArticleSeeder extends Seeder
     private function findExploitant(string $adjudicataire): ?int
     {
         // First try exact match on numero field
-        $exploitant = Exploitant::where('numero', $adjudicataire)->first();
-        if ($exploitant) {
-            return $exploitant->id;
+        foreach ($this->exploitantData as $exploitant) {
+            if (isset($exploitant['numero']) && $exploitant['numero'] === $adjudicataire) {
+                return $exploitant['id'] ?? null;
+            }
         }
         
         // If not found, search across available text attributes
-        $exploitant = Exploitant::where(function($query) use ($adjudicataire) {
-            $query->where('numero', 'LIKE', '%' . $adjudicataire . '%')
-                  ->orWhere('nom_complet', 'LIKE', '%' . $adjudicataire . '%')
-                  ->orWhere('raison_sociale', 'LIKE', '%' . $adjudicataire . '%')
-                  ->orWhere('adresse', 'LIKE', '%' . $adjudicataire . '%')
-                  ->orWhere('n_cin', 'LIKE', '%' . $adjudicataire . '%');
-        })->first();
+        foreach ($this->exploitantData as $exploitant) {
+            if (isset($exploitant['numero']) && str_contains($exploitant['numero'], $adjudicataire)) {
+                return $exploitant['id'] ?? null;
+            }
+            if (isset($exploitant['nom_complet']) && str_contains($exploitant['nom_complet'], $adjudicataire)) {
+                return $exploitant['id'] ?? null;
+            }
+            if (isset($exploitant['raison_sociale']) && str_contains($exploitant['raison_sociale'], $adjudicataire)) {
+                return $exploitant['id'] ?? null;
+            }
+            if (isset($exploitant['adresse']) && str_contains($exploitant['adresse'], $adjudicataire)) {
+                return $exploitant['id'] ?? null;
+            }
+            if (isset($exploitant['n_cin']) && str_contains($exploitant['n_cin'], $adjudicataire)) {
+                return $exploitant['id'] ?? null;
+            }
+        }
         
-        return $exploitant ? $exploitant->id : null;
+        return null;
     }
 }

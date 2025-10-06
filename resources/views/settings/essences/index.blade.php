@@ -160,85 +160,42 @@
             </div>
 
             <!-- Data Table -->
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom de l'Essence</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Statut</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($essences as $essence)
-                                <tr class="hover:bg-gray-50 transition-colors duration-200">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {{ $essence->id }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                                <i class="fas fa-leaf text-green-600 text-sm"></i>
-                                            </div>
-                                            <span class="font-medium">{{ $essence->essence }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($essence->deleted_at)
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                <i class="fas fa-times-circle mr-1"></i>
-                                                Supprimée
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                <i class="fas fa-check-circle mr-1"></i>
-                                                Active
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $essence->created_at?->format('d/m/Y') ?? 'N/A' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="flex items-center gap-2">
-                                            <a href="{{ route('settings.essences.edit', $essence) }}" 
-                                               class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
-                                               title="Modifier">
-                                                <i class="fas fa-edit text-sm"></i>
-                                            </a>
-                                            <form action="{{ route('settings.essences.destroy', $essence) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" 
-                                                        class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-sm"
-                                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette essence ?')"
-                                                        title="Supprimer">
-                                                    <i class="fas fa-trash text-sm"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Pagination -->
-            @if($essences->hasPages())
-                <div class="mt-6 flex items-center justify-between">
-                    <div class="text-sm text-gray-700">
-                        Affichage de {{ $essences->firstItem() }} à {{ $essences->lastItem() }} sur {{ $essences->total() }} résultats
-                    </div>
-                    <div class="flex items-center gap-2">
-                        {{ $essences->appends(request()->query())->links() }}
-                    </div>
-                </div>
-            @endif
+            @php
+                $headers = ['ID', "Nom de l\'Essence", 'Statut', 'Date de Création', 'Actions'];
+                $rows = [];
+            @endphp
+            @foreach($essences as $essence)
+                @php
+                    $statusBadge = $essence->deleted_at
+                        ? '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><i class="fas fa-times-circle mr-1"></i>Supprimée</span>'
+                        : '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><i class="fas fa-check-circle mr-1"></i>Active</span>';
+                    $nameCell = '<div class="flex items-center gap-3">'
+                        . '<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">'
+                        . '<i class="fas fa-leaf text-green-600 text-sm"></i>'
+                        . '</div>'
+                        . '<span class="font-medium">' . e($essence->essence) . '</span>'
+                        . '</div>';
+                    $actionsHtml = '<div class="flex items-center gap-2">'
+                        . '<a href="' . e(route('settings.essences.edit', $essence)) . '" class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-sm" title="Modifier">'
+                        . '<i class="fas fa-edit text-sm"></i>'
+                        . '</a>'
+                        . '<form action="' . e(route('settings.essences.destroy', $essence)) . '" method="POST" class="inline" onsubmit="return confirm(\'Êtes-vous sûr de vouloir supprimer cette essence ?\')">'
+                        . csrf_field() . method_field('DELETE')
+                        . '<button type="submit" class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-sm" title="Supprimer">'
+                        . '<i class="fas fa-trash text-sm"></i>'
+                        . '</button>'
+                        . '</form>'
+                        . '</div>';
+                    $rows[] = [
+                        '<span class="badge bg-secondary">' . e($essence->id) . '</span>',
+                        $nameCell,
+                        $statusBadge,
+                        '<small class="text-muted">' . e($essence->created_at?->format('d/m/Y') ?? 'N/A') . '</small>',
+                        $actionsHtml,
+                    ];
+                @endphp
+            @endforeach
+            <x-data-table :headers="$headers" :rows="$rows" :pagination="$essences->appends(request()->query())->links()" />
         @else
             <!-- Empty State -->
             <div class="text-center py-12">

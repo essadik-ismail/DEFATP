@@ -3,17 +3,25 @@
 @section('title', 'Rapports')
 
 @section('content')
-<div class="content-card">
-    <!-- Header Content -->
-    <div class="header-content">
-        <div>
-            <h1 class="card-title">Rapports</h1>
-            <p class="card-subtitle">Générez et consultez différents types de rapports pour analyser vos données</p>
+<div class="min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <!-- Header Content -->
+        <div class="mb-8">
+            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-chart-line text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Rapports</h1>
+                        <p class="text-gray-600">Générez et consultez différents types de rapports pour analyser vos données</p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Reports Grid -->
-    <div class="settings-grid">
+        <!-- Reports Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Articles by Year -->
         <x-card title="Articles par Année" subtitle="Analysez les articles groupés par année avec des statistiques détaillées" collapsible="false">
             <div class="card-stats">
@@ -120,6 +128,7 @@
                 </x-button>
             </div>
         </x-card>
+        </div>
     </div>
 </div>
 @endsection

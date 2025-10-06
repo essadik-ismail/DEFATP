@@ -159,150 +159,26 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="table-responsive position-relative">
-                <div class="table-scroll-indicator"></div>
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nom</th>
-                            <th>Email</th>
-                            <th>PPR</th>
-                            <th>Rôles</th>
-                            <th>Statut</th>
-                            <th>Date de création</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($users as $user)
-                        <tr>
-                            <td>
-                                <span class="badge bg-secondary">{{ $user->id }}</span>
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    @if($user->image)
-                                        <img src="{{ asset('storage/' . $user->image) }}" 
-                                             alt="{{ $user->name }}" 
-                                             class="rounded-circle me-2" 
-                                             width="32" height="32">
-                                    @else
-                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                             style="width: 32px; height: 32px;">
-                                            <span class="text-white fw-bold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
-                                        </div>
-                                    @endif
-                                    <div>
-                                        <div class="fw-bold">{{ $user->name }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="text-muted">{{ $user->email }}</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-info">{{ $user->ppr }}</span>
-                            </td>
-                            <td>
-                                @forelse($user->roles as $role)
-                                    <span class="badge bg-success me-1">{{ $role->name }}</span>
-                                @empty
-                                    <span class="badge bg-light text-dark">Aucun rôle</span>
-                                @endforelse
-                            </td>
-                            <td>
-                                @if($user->is_deleted)
-                                    <span class="badge bg-danger">
-                                        <i class="fas fa-times-circle me-1"></i>Inactif
-                                    </span>
-                                @else
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check-circle me-1"></i>Actif
-                                    </span>
-                                @endif
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ $user->created_at->format('d/m/Y H:i') }}</small>
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <!-- Quick Actions -->
-                                    @can('view users')
-                                    <a href="{{ route('users.show', $user) }}" class="btn btn-sm btn-info" title="Voir">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    @endcan
-                                    
-                                    @can('edit users')
-                                    <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-warning" title="Modifier">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    @endcan
+            @php
+                $headers = ['ID', 'Nom', 'Email', 'PPR', 'Rôles', 'Statut', 'Date de création', 'Actions'];
+                $rows = [];
+            @endphp
+            @foreach($users as $user)
+                @php
+                    $rows[] = [
+                        '<span class="badge bg-secondary">' . e($user->id) . '</span>',
+                        view('components.users.partials.name-cell', compact('user'))->render(),
+                        '<span class="text-muted">' . e($user->email) . '</span>',
+                        '<span class="badge bg-info">' . e($user->ppr) . '</span>',
+                        view('components.users.partials.roles-cell', compact('user'))->render(),
+                        view('components.users.partials.status-cell', compact('user'))->render(),
+                        '<small class="text-muted">' . e($user->created_at->format('d/m/Y H:i')) . '</small>',
+                        view('components.users.partials.actions-cell', compact('user'))->render(),
+                    ];
+                @endphp
+            @endforeach
 
-                                    <!-- Dropdown for Additional Actions -->
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-split" 
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="visually-hidden">Toggle Dropdown</span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            @can('edit users')
-                                            <li>
-                                                <a class="dropdown-item" href="#" onclick="toggleUserStatus({{ $user->id }}, {{ $user->is_deleted ? 'false' : 'true' }})">
-                                                    @if($user->is_deleted)
-                                                        <i class="fas fa-user-check text-success me-2"></i>Activer
-                                                    @else
-                                                        <i class="fas fa-user-times text-warning me-2"></i>Désactiver
-                                                    @endif
-                                                </a>
-                                            </li>
-                                            @endcan
-                                            
-                                            @can('delete users')
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="dropdown-item text-danger" 
-                                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
-                                                        <i class="fas fa-trash me-2"></i>Supprimer
-                                                    </button>
-                                                </form>
-                                            </li>
-                                            @endcan
-                                        </ul>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="8" class="text-center py-4">
-                                <div class="text-muted">
-                                    <i class="fas fa-users fa-3x mb-3"></i>
-                                    <p>Aucun utilisateur trouvé</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            @if($users->hasPages())
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <div class="text-muted">
-                    Affichage de {{ $users->firstItem() }} à {{ $users->lastItem() }} 
-                    sur {{ $users->total() }} utilisateurs
-                </div>
-                <div>
-                    {{ $users->appends(request()->query())->links() }}
-                </div>
-            </div>
-            @endif
+            <x-data-table :headers="$headers" :rows="$rows" :pagination="$users->appends(request()->query())->links()" />
         </div>
     </div>
 </div>

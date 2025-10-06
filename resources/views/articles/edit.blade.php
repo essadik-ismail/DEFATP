@@ -197,19 +197,22 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Situation Administrative <span class="text-red-500">*</span>
+                        <label for="situation_administrative_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Situations Administratives <span class="text-red-500">*</span>
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="situation_administrative_id" name="situation_administrative_id" required>
-                            <option value="">Sélectionner une situation</option>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'situation_administrative_ids')">
+                        <select multiple
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                id="situation_administrative_ids" name="situation_administrative_ids[]">
+                            @php($selectedSituations = old('situation_administrative_ids', optional($article->situationsAdministratives)->pluck('id')->toArray() ?? []))
                             @foreach($situationAdministratives as $situation)
-                                <option value="{{ $situation->id }}" {{ old('situation_administrative_id', $article->situation_administrative_id) == $situation->id ? 'selected' : '' }}>
+                                <option value="{{ $situation->id }}" {{ in_array($situation->id, $selectedSituations) ? 'selected' : '' }}>
                                     {{ $situation->commune }} - {{ $situation->province }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('situation_administrative_id')
+                        <input type="hidden" name="situation_administrative_id" id="situation_administrative_id_hidden" value="{{ old('situation_administrative_id', $article->situation_administrative_id) }}">
+                        @error('situation_administrative_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -219,19 +222,22 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div class="form-group">
-                        <label for="foret_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Forêt <span class="text-red-500">*</span>
+                        <label for="foret_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Forêts <span class="text-red-500">*</span>
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="foret_id" name="foret_id" required>
-                            <option value="">Sélectionner une forêt</option>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'foret_ids')">
+                        <select multiple
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                id="foret_ids" name="foret_ids[]">
+                            @php($selectedForets = old('foret_ids', optional($article->forets)->pluck('id')->toArray() ?? []))
                             @foreach($forets as $foret)
-                                <option value="{{ $foret->id }}" {{ old('foret_id', $article->foret_id) == $foret->id ? 'selected' : '' }}>
+                                <option value="{{ $foret->id }}" {{ in_array($foret->id, $selectedForets) ? 'selected' : '' }}>
                                     {{ $foret->foret }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('foret_id')
+                        <input type="hidden" name="foret_id" id="foret_id_hidden" value="{{ old('foret_id', $article->foret_id) }}">
+                        @error('foret_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -239,19 +245,22 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="essence_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Essence <span class="text-red-500">*</span>
+                        <label for="essence_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Essences <span class="text-red-500">*</span>
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="essence_id" name="essence_id" required>
-                            <option value="">Sélectionner une essence</option>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'essence_ids')">
+                        <select multiple
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                id="essence_ids" name="essence_ids[]">
+                            @php($selectedEssences = old('essence_ids', optional($article->essences)->pluck('id')->toArray() ?? []))
                             @foreach($essences as $essence)
-                                <option value="{{ $essence->id }}" {{ old('essence_id', $article->essence_id) == $essence->id ? 'selected' : '' }}>
+                                <option value="{{ $essence->id }}" {{ in_array($essence->id, $selectedEssences) ? 'selected' : '' }}>
                                     {{ $essence->essence }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('essence_id')
+                        <input type="hidden" name="essence_id" id="essence_id_hidden" value="{{ old('essence_id', $article->essence_id) }}">
+                        @error('essence_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -261,19 +270,22 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div class="form-group">
-                        <label for="nature_de_coupe_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Nature de Coupe <span class="text-red-500">*</span>
+                        <label for="nature_de_coupe_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Natures de Coupe <span class="text-red-500">*</span>
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="nature_de_coupe_id" name="nature_de_coupe_id" required>
-                            <option value="">Sélectionner une nature de coupe</option>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'nature_de_coupe_ids')">
+                        <select multiple
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                id="nature_de_coupe_ids" name="nature_de_coupe_ids[]">
+                            @php($selectedNatures = old('nature_de_coupe_ids', optional($article->naturesDeCoupe)->pluck('id')->toArray() ?? []))
                             @foreach($natureDeCoupes as $natureDeCoupe)
-                                <option value="{{ $natureDeCoupe->id }}" {{ old('nature_de_coupe_id', $article->nature_de_coupe_id) == $natureDeCoupe->id ? 'selected' : '' }}>
+                                <option value="{{ $natureDeCoupe->id }}" {{ in_array($natureDeCoupe->id, $selectedNatures) ? 'selected' : '' }}>
                                     {{ $natureDeCoupe->nature_de_coupe }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('nature_de_coupe_id')
+                        <input type="hidden" name="nature_de_coupe_id" id="nature_de_coupe_id_hidden" value="{{ old('nature_de_coupe_id', $article->nature_de_coupe_id) }}">
+                        @error('nature_de_coupe_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -902,6 +914,18 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Veuillez remplir tous les champs obligatoires.');
         }
     });
+    
+    // Generic select filter
+    window.filterSelectOptions = function(inputEl, selectId) {
+        const filter = inputEl.value.toLowerCase();
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        Array.from(select.options).forEach(function(opt) {
+            const text = (opt.text || '').toLowerCase();
+            const match = text.indexOf(filter) !== -1;
+            opt.style.display = match ? '' : 'none';
+        });
+    };
 });
 </script>
 @endpush

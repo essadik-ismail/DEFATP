@@ -70,59 +70,38 @@
         </div>
         <div class="card-body">
             @if($localisations->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Code</th>
-                                <th>DRANEF</th>
-                                <th>Entité</th>
-                                <th>Statut</th>
-                                <th>Créé le</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($localisations as $localisation)
-                                <tr>
-                                    <td>{{ $localisation->id }}</td>
-                                    <td>{{ $localisation->CODE }}</td>
-                                    <td>{{ $localisation->DRANEF }}</td>
-                                    <td>{{ $localisation->ENTITE }}</td>
-                                    <td>
-                                        @if($localisation->deleted_at)
-                                            <span class="badge bg-danger">Supprimée</span>
-                                        @else
-                                            <span class="badge bg-success">Active</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $localisation->created_at?->format('d/m/Y H:i') ?? 'N/A' }}</td>
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ route('settings.localisations.edit', $localisation) }}" class="btn btn-sm btn-warning">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('settings.localisations.destroy', $localisation) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette localisation ?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                
-                @if($localisations->hasPages())
-                    <div class="d-flex justify-content-center mt-4">
-                        {{ $localisations->appends(request()->query())->links() }}
-                    </div>
-                @endif
+                @php
+                    $headers = ['ID', 'Code', 'DRANEF', 'Entité', 'Statut', 'Créé le', 'Actions'];
+                    $rows = [];
+                @endphp
+                @foreach($localisations as $localisation)
+                    @php
+                        $statusBadge = $localisation->deleted_at
+                            ? '<span class="badge bg-danger">Supprimée</span>'
+                            : '<span class="badge bg-success">Active</span>';
+                        $actionsHtml = '<div class="d-flex gap-2">'
+                            . '<a href="' . e(route('settings.localisations.edit', $localisation)) . '" class="btn btn-sm btn-warning" title="Modifier">'
+                            . '<i class="fas fa-edit"></i>'
+                            . '</a>'
+                            . '<form action="' . e(route('settings.localisations.destroy', $localisation)) . '" method="POST" class="d-inline" onsubmit="return confirm(\'Êtes-vous sûr de vouloir supprimer cette localisation ?\')">'
+                            . csrf_field() . method_field('DELETE')
+                            . '<button type="submit" class="btn btn-sm btn-danger" title="Supprimer">'
+                            . '<i class="fas fa-trash"></i>'
+                            . '</button>'
+                            . '</form>'
+                            . '</div>';
+                        $rows[] = [
+                            '<span class="badge bg-secondary">' . e($localisation->id) . '</span>',
+                            e($localisation->CODE),
+                            e($localisation->DRANEF),
+                            e($localisation->ENTITE),
+                            $statusBadge,
+                            '<small class="text-muted">' . e($localisation->created_at?->format('d/m/Y H:i') ?? 'N/A') . '</small>',
+                            $actionsHtml,
+                        ];
+                    @endphp
+                @endforeach
+                <x-data-table :headers="$headers" :rows="$rows" :pagination="$localisations->appends(request()->query())->links()" />
             @else
                 <div class="text-center py-4">
                     <i class="fas fa-map-marker-alt text-muted" style="font-size: 3rem;"></i>

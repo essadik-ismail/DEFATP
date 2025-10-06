@@ -7,14 +7,14 @@
     'responsive' => true
 ])
 
-<div class="data-table-wrapper">
+<div class="data-table-wrapper bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/20">
     @if($searchable)
     <div class="table-search-section mb-3">
         <div class="row align-items-center">
             <div class="col-md-6">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="form-control search-input" placeholder="Rechercher..." id="tableSearch">
+                    <input type="text" class="form-control search-input rounded-3" placeholder="Rechercher..." id="tableSearch">
                 </div>
             </div>
             <div class="col-md-6 text-md-end">
@@ -29,7 +29,7 @@
     <div class="table-container">
         <div class="table-responsive">
             <table class="data-table">
-                <thead>
+                <thead class="thead-soft">
                     <tr>
                         @foreach($headers as $header)
                         <th class="table-header-cell">
@@ -63,11 +63,11 @@
     <div class="export-section mt-3">
         <div class="row">
             <div class="col-md-6">
-                <button class="btn btn-outline-primary btn-sm" onclick="exportTable('csv')">
-                    <i class="fas fa-download me-1"></i>Export CSV
+                <button class="btn btn-sm btn-success-gradient" onclick="exportTable('csv')">
+                    <i class="fas fa-download me-1"></i>Exporter CSV
                 </button>
-                <button class="btn btn-outline-primary btn-sm ms-2" onclick="exportTable('excel')">
-                    <i class="fas fa-file-excel me-1"></i>Export Excel
+                <button class="btn btn-sm btn-success-gradient ms-2" onclick="exportTable('excel')">
+                    <i class="fas fa-file-excel me-1"></i>Exporter Excel
                 </button>
             </div>
         </div>
@@ -81,9 +81,6 @@
         width: 100%;
         max-width: 100%;
         overflow: hidden;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     /* Table Container - Fixed Dimensions */
@@ -115,14 +112,19 @@
         table-layout: fixed;
     }
 
+    .thead-soft {
+        background: linear-gradient(90deg, #ecfdf5, #d1fae5); /* green glass gradient */
+    }
+
     /* Table Header Cells - Fixed Width Distribution */
     .table-header-cell {
-        background: #f8f9fa;
-        padding: 12px 16px;
+        padding: 14px 18px;
         text-align: left;
-        font-weight: 600;
-        color: #495057;
-        border-bottom: 2px solid #dee2e6;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #065f46; /* emerald-800 */
+        border-bottom: 2px solid #a7f3d0; /* emerald-200 */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -132,12 +134,14 @@
         width: auto !important;
         min-width: auto !important;
         max-width: none !important;
+        background: linear-gradient(90deg, #ecfdf5, #d1fae5);
+        box-shadow: 0 1px 0 rgba(16, 185, 129, 0.15);
     }
 
     /* Table Cells - Fixed Width Distribution */
     .table-cell {
-        padding: 12px 16px;
-        border-bottom: 1px solid #e9ecef;
+        padding: 14px 18px;
+        border-bottom: 1px solid #e5e7eb;
         vertical-align: middle;
         word-wrap: break-word;
         overflow-wrap: break-word;
@@ -145,6 +149,7 @@
         width: auto !important;
         min-width: auto !important;
         max-width: none !important;
+        color: #111827; /* gray-900 */
     }
 
     /* Table Rows */
@@ -153,20 +158,20 @@
     }
 
     .table-row:hover {
-        background-color: #f8f9fa;
+        background-color: #f0fdf4; /* green-50 */
     }
 
     /* Search Section */
     .table-search-section {
         padding: 16px;
         border-bottom: 1px solid #e9ecef;
-        background: #f8f9fa;
-        border-radius: 8px 8px 0 0;
+        background: linear-gradient(90deg, #f8fafc, #f0fdf4);
+        border-radius: 16px 16px 0 0;
     }
 
     .search-box {
         position: relative;
-        max-width: 300px;
+        max-width: 360px;
     }
 
     .search-icon {
@@ -180,14 +185,14 @@
 
     .search-input {
         padding-left: 40px;
-        border-radius: 20px;
-        border: 1px solid #ced4da;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .search-input:focus {
-        border-color: #80bdff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
     }
 
     .table-info {
@@ -198,8 +203,8 @@
     .pagination-wrapper {
         padding: 16px;
         border-top: 1px solid #e9ecef;
-        background: #f8f9fa;
-        border-radius: 0 0 8px 8px;
+        background: rgba(240, 253, 244, 0.6);
+        border-radius: 0 0 16px 16px;
         display: flex;
         justify-content: center;
     }
@@ -208,8 +213,23 @@
     .export-section {
         padding: 16px;
         border-top: 1px solid #e9ecef;
-        background: #f8f9fa;
+        background: #f8fafc;
         border-radius: 0 0 8px 8px;
+    }
+
+    .btn-success-gradient {
+        background-image: linear-gradient(135deg, #10b981, #059669);
+        color: #fff;
+        border: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-success-gradient:hover {
+        background-image: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(5, 150, 105, 0.25);
     }
 
     /* Responsive Design */
@@ -296,6 +316,8 @@
     /* Ensure minimum table width for readability */
     .data-table {
         min-width: 600px;
+        border-radius: 16px;
+        overflow: hidden;
     }
 
     /* Table header sticky positioning */
@@ -303,7 +325,6 @@
         position: sticky;
         top: 0;
         z-index: 10;
-        background: #f8f9fa;
     }
 
     /* Ensure consistent spacing */

@@ -170,10 +170,10 @@
 
     .form-control, .form-select, .form-textarea {
         width: 100%;
-        padding: 0.75rem 1rem;
+        padding: 0.875rem 1rem;
         border: 1px solid #d1d5db;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
         background-color: white;
         transition: all 0.2s ease;
         line-height: 1.5;
@@ -181,8 +181,8 @@
 
     .form-control:focus, .form-select:focus, .form-textarea:focus {
         outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
 
     .form-control:disabled, .form-select:disabled, .form-textarea:disabled {

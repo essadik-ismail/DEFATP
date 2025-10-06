@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
 
 class Foret extends Model
@@ -38,5 +39,14 @@ class Foret extends Model
     public function articles(): HasMany
     {
         return $this->hasMany(Article::class);
+    }
+
+    /**
+     * Many-to-many: articles linked via pivot table.
+     */
+    public function articlesMany(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'article_foret', 'foret_id', 'article_id')
+            ->withTimestamps();
     }
 }

@@ -169,7 +169,15 @@
                                 <i class="fas fa-building text-green-500 mr-2"></i>Situation Administrative
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->situationAdministrative)
+                                @if(method_exists($article, 'situationsAdministratives') && $article->situationsAdministratives && $article->situationsAdministratives->count())
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($article->situationsAdministratives as $situation)
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                                {{ $situation->commune }}@if(!empty($situation->province)) — {{ $situation->province }}@endif
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @elseif($article->situationAdministrative)
                                     <div class="space-y-1">
                                         <div><strong>Commune:</strong> {{ $article->situationAdministrative->commune }}</div>
                                         <div><strong>Province:</strong> {{ $article->situationAdministrative->province ?? 'N/A' }}</div>
@@ -184,7 +192,15 @@
                                 <i class="fas fa-tree text-green-500 mr-2"></i>Forêt
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->foret)
+                                @if(method_exists($article, 'forets') && $article->forets && $article->forets->count())
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($article->forets as $foret)
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                                {{ $foret->foret }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @elseif($article->foret)
                                     <div class="space-y-1">
                                         <div><strong>Nom:</strong> {{ $article->foret->foret }}</div>
                                         @if($article->foret->localisation)
@@ -238,7 +254,15 @@
                                 <i class="fas fa-seedling text-purple-500 mr-2"></i>Essence
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->essence)
+                                @if(method_exists($article, 'essences') && $article->essences && $article->essences->count())
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($article->essences as $essence)
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                                                {{ $essence->essence }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @elseif($article->essence)
                                     <div class="space-y-1">
                                         <div><strong>Nom:</strong> {{ $article->essence->essence }}</div>
                                         @if($article->essence->nom_scientifique)
@@ -258,7 +282,15 @@
                                 <i class="fas fa-cut text-purple-500 mr-2"></i>Nature de Coupe
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->natureDeCoupe)
+                                @if(method_exists($article, 'naturesDeCoupe') && $article->naturesDeCoupe && $article->naturesDeCoupe->count())
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($article->naturesDeCoupe as $nature)
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-pink-100 text-pink-800">
+                                                {{ $nature->nature_de_coupe }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @elseif($article->natureDeCoupe)
                                     <div class="space-y-1">
                                         <div><strong>Type:</strong> {{ $article->natureDeCoupe->nature_de_coupe }}</div>
                                         @if($article->natureDeCoupe->description)

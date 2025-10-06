@@ -2162,6 +2162,13 @@
                 </div>
 
                 <div class="nav-item">
+                    <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i>
+                        Rapports
+                    </a>
+                </div>
+
+                <div class="nav-item">
                     <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         Utilisateurs
@@ -2174,6 +2181,8 @@
                         Journal d'Activités
                     </a>
                 </div>
+
+            
 
             </nav>
         </aside>

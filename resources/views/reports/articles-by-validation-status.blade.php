@@ -158,84 +158,42 @@
     </div>
     @endif
 
-    <!-- Articles Table -->
-    <div class="data-table-section">
-        <div class="table-header">
-            <h3>Liste des Articles</h3>
-            <div class="table-actions">
-                <span class="table-count">{{ $articles->count() }} articles trouvés</span>
-            </div>
-        </div>
+    @php
+        $headers = ['ID', 'Numéro', 'Date', 'Forêts', 'Essences', 'Exploitant', 'Validation', 'Vente', 'Prix de Vente', 'Actions'];
+        $rows = $articles->map(function ($article) {
+            $date = optional($article->date_adjudication)->format('d/m/Y') ?: 'N/A';
+            $forets = method_exists($article, 'forets') && $article->forets && $article->forets->count()
+                ? $article->forets->map(fn($f) => '<span class="badge bg-emerald-100 text-emerald-800 rounded px-2 py-0.5">'.e($f->foret).'</span>')->implode(' ')
+                : e(optional($article->foret)->foret ?: 'N/A');
+            $essences = method_exists($article, 'essences') && $article->essences && $article->essences->count()
+                ? $article->essences->map(fn($e) => '<span class="badge bg-purple-100 text-purple-800 rounded px-2 py-0.5">'.e($e->essence).'</span>')->implode(' ')
+                : e(optional($article->essence)->essence ?: 'N/A');
+            $exploitant = $article->exploitant ? e($article->exploitant->nom_complet ?? trim(($article->exploitant->nom ?? '').' '.($article->exploitant->prenom ?? ''))) : 'N/A';
+            $validation = $article->valide
+                ? '<span class="badge bg-success-soft text-success-700 px-2 py-1 rounded">Validé</span>'
+                : '<span class="badge bg-warning-soft text-warning-700 px-2 py-1 rounded">En attente</span>';
+            $vente = $article->invendu
+                ? '<span class="badge bg-warning-soft text-warning-700 px-2 py-1 rounded">Invendu</span>'
+                : '<span class="badge bg-success-soft text-success-700 px-2 py-1 rounded">Vendu</span>';
+            $actions = '<div class="flex gap-2">'
+                .'<a href="'.route('articles.show', $article).'" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>'
+                .'<a href="'.route('articles.edit', $article).'" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i></a>'
+                .'</div>';
+            return [
+                e($article->id),
+                e($article->numero),
+                e($date),
+                $forets,
+                $essences,
+                $exploitant,
+                $validation,
+                $vente,
+                $article->prix_vente ? e(number_format($article->prix_vente, 0, ',', ' ')).' DH' : 'N/A',
+                $actions,
+            ];
+        });
+    @endphp
 
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Numéro</th>
-                        <th>Date</th>
-                        <th>Forêt</th>
-                        <th>Essence</th>
-                        <th>Exploitant</th>
-                        <th>Statut de Validation</th>
-                        <th>Statut de Vente</th>
-                        <th>Prix de Vente</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($articles as $article)
-                    <tr>
-                        <td>{{ $article->id }}</td>
-                        <td>{{ $article->numero }}</td>
-                        <td>{{ $article->date ? \Carbon\Carbon::parse($article->date)->format('d/m/Y') : 'N/A' }}</td>
-                        <td>{{ $article->foret->foret ?? 'N/A' }}</td>
-                        <td>{{ $article->essence->essence ?? 'N/A' }}</td>
-                        <td>
-                            @if($article->exploitant)
-                                {{ $article->exploitant->nom_complet ?? ($article->exploitant->nom . ' ' . $article->exploitant->prenom) }}
-                            @else
-                                N/A
-                            @endif
-                        </td>
-                        <td>
-                            @if($article->valide)
-                                <span class="badge bg-success">Validé</span>
-                            @else
-                                <span class="badge bg-warning">En attente</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($article->invendu)
-                                <span class="badge bg-warning">Invendu</span>
-                            @else
-                                <span class="badge bg-success">Vendu</span>
-                            @endif
-                        </td>
-                        <td>{{ $article->prix_vente ? number_format($article->prix_vente, 0, ',', ' ') . ' DH' : 'N/A' }}</td>
-                        <td>
-                            <a href="{{ route('articles.show', $article) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{{ route('articles.edit', $article) }}" class="btn btn-sm btn-outline-warning">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="10" class="text-center text-muted py-4">
-                            <div class="empty-state">
-                                <i class="fas fa-check-circle fa-3x mb-3"></i>
-                                <h5>Aucun article trouvé</h5>
-                                <p>Aucun article ne correspond aux critères de recherche sélectionnés.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <x-data-table :headers="$headers" :rows="$rows" :pagination="$articles->links()" searchable="true" />
 </div>
 @endsection

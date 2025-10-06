@@ -15,15 +15,15 @@
     $baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
     
     $variantClasses = [
-        'primary' => 'btn-primary',
-        'secondary' => 'btn-secondary',
-        'success' => 'btn-primary',
-        'danger' => 'btn-danger',
-        'warning' => 'btn-warning',
-        'info' => 'btn-worning',
+        'primary' => 'btn-primary-gradient',
+        'secondary' => 'btn-secondary-soft',
+        'success' => 'btn-success-gradient',
+        'danger' => 'btn-danger-soft',
+        'warning' => 'btn-warning-soft',
+        'info' => 'btn-info-soft',
         'outline' => 'btn-outline',
         'ghost' => 'btn-ghost',
-        'link' => 'btn-primary'
+        'link' => 'btn-link'
     ];
     
     $sizeClasses = [
@@ -94,6 +94,27 @@
         position: relative;
         color: transparent;
     }
+    /* Gradients to match article design */
+    .btn-primary-gradient { background-image: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; padding: 0.75rem 1.25rem; border-radius: 0.75rem; }
+    .btn-primary-gradient:hover { background-image: linear-gradient(135deg, #1d4ed8, #4338ca); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(79,70,229,.25); }
+
+    .btn-success-gradient { background-image: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 0.75rem 1.25rem; border-radius: 0.75rem; }
+    .btn-success-gradient:hover { background-image: linear-gradient(135deg, #059669, #047857); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(5,150,105,.25); }
+
+    .btn-secondary-soft { background: #f3f4f6; color: #374151; padding: 0.75rem 1.25rem; border-radius: 0.75rem; }
+    .btn-secondary-soft:hover { background: #e5e7eb; }
+
+    .btn-danger-soft { background: #fee2e2; color: #b91c1c; padding: 0.75rem 1.25rem; border-radius: 0.75rem; }
+    .btn-warning-soft { background: #fef3c7; color: #b45309; padding: 0.75rem 1.25rem; border-radius: 0.75rem; }
+    .btn-info-soft { background: #dbeafe; color: #1d4ed8; padding: 0.75rem 1.25rem; border-radius: 0.75rem; }
+
+    .btn-outline { background: transparent; color: #4f46e5; border: 2px solid #4f46e5; padding: 0.75rem 1.25rem; border-radius: 0.75rem; }
+    .btn-outline:hover { background: #4f46e5; color: #fff; }
+
+    .btn-ghost { background: transparent; color: #374151; padding: 0.75rem 1.25rem; border-radius: 0.75rem; }
+    .btn-link { background: transparent; color: #4f46e5; text-decoration: none; padding: 0.75rem 1rem; }
+
+    .btn-full-mobile { width: 100%; }
 
     .btn-loading::after {
         content: '';

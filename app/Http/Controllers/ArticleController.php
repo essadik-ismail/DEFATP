@@ -232,6 +232,25 @@ class ArticleController extends Controller
                 'romarin_t', 'liege_st', 'charbon_bois_ox', 'prix_retrait', 'prix_vente'
             ]);
 
+            // Map multi-select arrays to primary single fields (use first selected if present)
+            $foretIds = $request->input('foret_ids', []);
+            $essenceIds = $request->input('essence_ids', []);
+            $situationIds = $request->input('situation_administrative_ids', []);
+            $natureIds = $request->input('nature_de_coupe_ids', []);
+
+            if (!empty($foretIds)) {
+                $articleData['foret_id'] = $foretIds[0];
+            }
+            if (!empty($essenceIds)) {
+                $articleData['essence_id'] = $essenceIds[0];
+            }
+            if (!empty($situationIds)) {
+                $articleData['situation_administrative_id'] = $situationIds[0];
+            }
+            if (!empty($natureIds)) {
+                $articleData['nature_de_coupe_id'] = $natureIds[0];
+            }
+
             // Create the article
             $article = Article::create($articleData);
 
@@ -246,6 +265,20 @@ class ArticleController extends Controller
                         ]);
                     }
                 }
+            }
+
+            // Sync many-to-many relations from multi-selects
+            if (!empty($foretIds)) {
+                $article->forets()->sync($foretIds);
+            }
+            if (!empty($essenceIds)) {
+                $article->essences()->sync($essenceIds);
+            }
+            if (!empty($situationIds)) {
+                $article->situationsAdministratives()->sync($situationIds);
+            }
+            if (!empty($natureIds)) {
+                $article->naturesDeCoupe()->sync($natureIds);
             }
 
             // Handle locations if provided
@@ -399,6 +432,29 @@ class ArticleController extends Controller
         ]);
 
         $article->update($articleData);
+
+        // Sync many-to-many from multi-selects; also keep primary fields aligned to first selection if provided
+        $foretIds = $request->input('foret_ids', []);
+        $essenceIds = $request->input('essence_ids', []);
+        $situationIds = $request->input('situation_administrative_ids', []);
+        $natureIds = $request->input('nature_de_coupe_ids', []);
+
+        if (!empty($foretIds)) {
+            $article->forets()->sync($foretIds);
+            $article->update(['foret_id' => $foretIds[0]]);
+        }
+        if (!empty($essenceIds)) {
+            $article->essences()->sync($essenceIds);
+            $article->update(['essence_id' => $essenceIds[0]]);
+        }
+        if (!empty($situationIds)) {
+            $article->situationsAdministratives()->sync($situationIds);
+            $article->update(['situation_administrative_id' => $situationIds[0]]);
+        }
+        if (!empty($natureIds)) {
+            $article->naturesDeCoupe()->sync($natureIds);
+            $article->update(['nature_de_coupe_id' => $natureIds[0]]);
+        }
 
         // Handle products update
         if ($request->has('products') && is_array($request->products)) {

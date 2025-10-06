@@ -161,74 +161,81 @@
     </div>
     @endif
 
-    <!-- Articles Table -->
-    <div class="content-card">
-        <div class="header-content">
-            <h2 class="card-title">Articles ({{ $articles->count() }})</h2>
+    <!-- Charts -->
+    @if(isset($stats))
+    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Vendus vs Invendus</h3>
+                <canvas id="chartVendusInvendusForet"></canvas>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Revenus (DH)</h3>
+                <canvas id="chartRevenusForet"></canvas>
+            </div>
         </div>
-        
-        @if($articles->count() > 0)
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th class="table-id">ID</th>
-                            <th>Année</th>
-                            <th>Numéro</th>
-                            <th>Date</th>
-                            <th>Statut</th>
-                            <th>Forêt</th>
-                            <th>Essence</th>
-                            <th>Exploitant</th>
-                            <th>Prix Retrait</th>
-                            <th>Prix Vente</th>
-                            <th class="table-actions">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($articles as $article)
-                            <tr>
-                                <td class="table-id">{{ $article->id }}</td>
-                                <td>{{ $article->annee }}</td>
-                                <td>{{ $article->numero }}</td>
-                                <td class="table-date">{{ $article->date ? $article->date->format('d/m/Y') : 'N/A' }}</td>
-                                <td>
-                                    @if($article->invendu)
-                                        <span class="status-badge warning">Invendu</span>
-                                    @else
-                                        <span class="status-badge success">Vendu</span>
-                                    @endif
-                                </td>
-                                <td>{{ $article->foret->foret ?? 'N/A' }}</td>
-                                <td>{{ $article->essence->essence ?? 'N/A' }}</td>
-                                <td>{{ $article->exploitant ? $article->exploitant->nom . ' ' . $article->exploitant->prenom : 'N/A' }}</td>
-                                <td>{{ number_format($article->prix_retrait, 0, ',', ' ') }} FCFA</td>
-                                <td>{{ $article->prix_vente ? number_format($article->prix_vente, 0, ',', ' ') . ' FCFA' : 'N/A' }}</td>
-                                <td class="table-actions">
-                                    <div class="action-buttons">
-                                        <a href="{{ route('articles.show', $article->id) }}" class="btn btn-sm btn-outline-primary" title="Voir">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('articles.edit', $article->id) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @else
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-inbox"></i>
-                </div>
-                <h3>Aucun article trouvé</h3>
-                <p>Aucun article ne correspond aux critères de recherche.</p>
-            </div>
-        @endif
     </div>
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const vendus = Number(@json($stats['vendus'] ?? 0));
+        const invendus = Number(@json($stats['invendus'] ?? 0));
+        const totalRevenue = Number(@json($stats['total_prix_vente'] ?? 0));
+
+        const c1 = document.getElementById('chartVendusInvendusForet');
+        if (c1 && window.Chart) {
+            new Chart(c1, { type: 'doughnut', data: { labels: ['Vendus','Invendus'], datasets: [{ data: [vendus, invendus], backgroundColor: ['#22c55e','#f59e0b'], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom' } } } });
+        }
+        const c2 = document.getElementById('chartRevenusForet');
+        if (c2 && window.Chart) {
+            new Chart(c2, { type: 'bar', data: { labels: ['Total Revenus'], datasets: [{ label: 'DH', data: [totalRevenue], backgroundColor: '#3b82f6' }] }, options: { scales: { y: { beginAtZero: true } } } });
+        }
+    });
+    </script>
+    @endpush
+    @endif
+
+    <!-- Articles Table (New Design) -->
+    @php
+        $headers = ['ID', 'Année', 'Numéro', 'Date', 'Statut', 'Forêts', 'Essences', 'Exploitant', 'Prix Retrait', 'Prix Vente', 'Actions'];
+        $rows = $articles->map(function ($article) {
+            $status = $article->invendu
+                ? '<span class="badge bg-warning-soft text-warning-700 px-2 py-1 rounded">Invendu</span>'
+                : '<span class="badge bg-success-soft text-success-700 px-2 py-1 rounded">Vendu</span>';
+
+            $forets = method_exists($article, 'forets') && $article->forets && $article->forets->count()
+                ? $article->forets->map(fn($f) => '<span class="badge bg-emerald-100 text-emerald-800 rounded px-2 py-0.5">'.e($f->foret).'</span>')->implode(' ')
+                : e(optional($article->foret)->foret ?: 'N/A');
+
+            $essences = method_exists($article, 'essences') && $article->essences && $article->essences->count()
+                ? $article->essences->map(fn($e) => '<span class="badge bg-purple-100 text-purple-800 rounded px-2 py-0.5">'.e($e->essence).'</span>')->implode(' ')
+                : e(optional($article->essence)->essence ?: 'N/A');
+
+            $exploitant = $article->exploitant ? e(trim(($article->exploitant->nom ?? '').' '.($article->exploitant->prenom ?? ''))) : 'N/A';
+
+            $actions = '<div class="flex gap-2">'
+                .'<a href="'.route('articles.show', $article->id).'" class="btn btn-sm btn-outline-primary" title="Voir"><i class="fas fa-eye"></i></a>'
+                .'<a href="'.route('articles.edit', $article->id).'" class="btn btn-sm btn-outline-secondary" title="Modifier"><i class="fas fa-edit"></i></a>'
+                .'</div>';
+
+            return [
+                e($article->id),
+                e($article->annee),
+                e($article->numero),
+                e(optional($article->date_adjudication)->format('d/m/Y') ?: 'N/A'),
+                $status,
+                $forets,
+                $essences,
+                $exploitant,
+                e(number_format($article->prix_de_retrait ?? 0, 0, ',', ' ')).' FCFA',
+                $article->prix_vente ? e(number_format($article->prix_vente, 0, ',', ' ')).' FCFA' : 'N/A',
+                $actions,
+            ];
+        });
+    @endphp
+
+    <x-data-table :headers="$headers" :rows="$rows" :pagination="$articles->links()" searchable="true" />
 </div>
 
 @push('styles')

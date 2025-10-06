@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
 
 class Article extends Model
@@ -102,6 +103,42 @@ class Article extends Model
     public function natureDeCoupe(): BelongsTo
     {
         return $this->belongsTo(NatureDeCoupe::class, 'nature_de_coupe_id');
+    }
+
+    /**
+     * Many-to-many: this article may be linked to multiple forests.
+     */
+    public function forets(): BelongsToMany
+    {
+        return $this->belongsToMany(Foret::class, 'article_foret', 'article_id', 'foret_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many: this article may be linked to multiple essences.
+     */
+    public function essences(): BelongsToMany
+    {
+        return $this->belongsToMany(Essence::class, 'article_essence', 'article_id', 'essence_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many: this article may be linked to multiple administrative situations.
+     */
+    public function situationsAdministratives(): BelongsToMany
+    {
+        return $this->belongsToMany(SituationAdministrative::class, 'article_situation_administrative', 'article_id', 'situation_administrative_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many: this article may be linked to multiple natures de coupe.
+     */
+    public function naturesDeCoupe(): BelongsToMany
+    {
+        return $this->belongsToMany(NatureDeCoupe::class, 'article_nature_de_coupe', 'article_id', 'nature_de_coupe_id')
+            ->withTimestamps();
     }
 
     /**

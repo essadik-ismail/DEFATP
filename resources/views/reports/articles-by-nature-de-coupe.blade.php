@@ -161,78 +161,77 @@
     </div>
     @endif
 
-    <!-- Articles Table -->
-    <div class="data-table-section">
-        <div class="table-header">
-            <h3>Liste des Articles</h3>
-            <div class="table-actions">
-                <span class="table-count">{{ $articles->count() }} articles trouvés</span>
+    <!-- Charts -->
+    @if(isset($stats))
+    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Vendus vs Invendus</h3>
+                <canvas id="chartVendusInvendusNature"></canvas>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Revenus (DH)</h3>
+                <canvas id="chartRevenusNature"></canvas>
             </div>
         </div>
-
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Numéro</th>
-                        <th>Date</th>
-                        <th>Forêt</th>
-                        <th>Essence</th>
-                        <th>Nature de Coupe</th>
-                        <th>Exploitant</th>
-                        <th>Statut</th>
-                        <th>Prix de Vente</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($articles as $article)
-                    <tr>
-                        <td>{{ $article->id }}</td>
-                        <td>{{ $article->numero }}</td>
-                        <td>{{ $article->date ? \Carbon\Carbon::parse($article->date)->format('d/m/Y') : 'N/A' }}</td>
-                        <td>{{ $article->foret->foret ?? 'N/A' }}</td>
-                        <td>{{ $article->essence->essence ?? 'N/A' }}</td>
-                        <td>{{ $article->natureDeCoupe->nature_de_coupe ?? 'N/A' }}</td>
-                        <td>
-                            @if($article->exploitant)
-                                {{ $article->exploitant->nom_complet ?? ($article->exploitant->nom . ' ' . $article->exploitant->prenom) }}
-                            @else
-                                N/A
-                            @endif
-                        </td>
-                        <td>
-                            @if($article->invendu)
-                                <span class="badge bg-warning">Invendu</span>
-                            @else
-                                <span class="badge bg-success">Vendu</span>
-                            @endif
-                        </td>
-                        <td>{{ $article->prix_vente ? number_format($article->prix_vente, 0, ',', ' ') . ' DH' : 'N/A' }}</td>
-                        <td>
-                            <a href="{{ route('articles.show', $article) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{{ route('articles.edit', $article) }}" class="btn btn-sm btn-outline-warning">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="10" class="text-center text-muted py-4">
-                            <div class="empty-state">
-                                <i class="fas fa-cut fa-3x mb-3"></i>
-                                <h5>Aucun article trouvé</h5>
-                                <p>Aucun article ne correspond aux critères de recherche sélectionnés.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
     </div>
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const vendus = Number(@json($stats['vendus'] ?? 0));
+        const invendus = Number(@json($stats['invendus'] ?? 0));
+        const totalRevenue = Number(@json($stats['total_prix_vente'] ?? 0));
+
+        const c1 = document.getElementById('chartVendusInvendusNature');
+        if (c1 && window.Chart) {
+            new Chart(c1, { type: 'doughnut', data: { labels: ['Vendus','Invendus'], datasets: [{ data: [vendus, invendus], backgroundColor: ['#22c55e','#f59e0b'], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom' } } } });
+        }
+        const c2 = document.getElementById('chartRevenusNature');
+        if (c2 && window.Chart) {
+            new Chart(c2, { type: 'bar', data: { labels: ['Total Revenus'], datasets: [{ label: 'DH', data: [totalRevenue], backgroundColor: '#3b82f6' }] }, options: { scales: { y: { beginAtZero: true } } } });
+        }
+    });
+    </script>
+    @endpush
+    @endif
+
+    @php
+        $headers = ['ID', 'Numéro', 'Date', 'Forêts', 'Essences', 'Natures de coupe', 'Exploitant', 'Statut', 'Prix de Vente', 'Actions'];
+        $rows = $articles->map(function ($article) {
+            $date = optional($article->date_adjudication)->format('d/m/Y') ?: 'N/A';
+            $forets = method_exists($article, 'forets') && $article->forets && $article->forets->count()
+                ? $article->forets->map(fn($f) => '<span class="badge bg-emerald-100 text-emerald-800 rounded px-2 py-0.5">'.e($f->foret).'</span>')->implode(' ')
+                : e(optional($article->foret)->foret ?: 'N/A');
+            $essences = method_exists($article, 'essences') && $article->essences && $article->essences->count()
+                ? $article->essences->map(fn($e) => '<span class="badge bg-purple-100 text-purple-800 rounded px-2 py-0.5">'.e($e->essence).'</span>')->implode(' ')
+                : e(optional($article->essence)->essence ?: 'N/A');
+            $natures = method_exists($article, 'naturesDeCoupe') && $article->naturesDeCoupe && $article->naturesDeCoupe->count()
+                ? $article->naturesDeCoupe->map(fn($n) => '<span class="badge bg-pink-100 text-pink-800 rounded px-2 py-0.5">'.e($n->nature_de_coupe).'</span>')->implode(' ')
+                : e(optional($article->natureDeCoupe)->nature_de_coupe ?: 'N/A');
+            $exploitant = $article->exploitant ? e($article->exploitant->nom_complet ?? trim(($article->exploitant->nom ?? '').' '.($article->exploitant->prenom ?? ''))) : 'N/A';
+            $statut = $article->invendu
+                ? '<span class="badge bg-warning-soft text-warning-700 px-2 py-1 rounded">Invendu</span>'
+                : '<span class="badge bg-success-soft text-success-700 px-2 py-1 rounded">Vendu</span>';
+            $actions = '<div class="flex gap-2">'
+                .'<a href="'.route('articles.show', $article).'" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>'
+                .'<a href="'.route('articles.edit', $article).'" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i></a>'
+                .'</div>';
+            return [
+                e($article->id),
+                e($article->numero),
+                e($date),
+                $forets,
+                $essences,
+                $natures,
+                $exploitant,
+                $statut,
+                $article->prix_vente ? e(number_format($article->prix_vente, 0, ',', ' ')).' DH' : 'N/A',
+                $actions,
+            ];
+        });
+    @endphp
+
+    <x-data-table :headers="$headers" :rows="$rows" :pagination="$articles->links()" searchable="true" />
 </div>
 @endsection

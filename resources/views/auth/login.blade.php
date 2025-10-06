@@ -711,35 +711,17 @@
     <div class="login-container">
         <div class="login-card">
             <!-- Modern Header Section -->
-            <div class="login-header">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
-                        <i class="fas fa-tree text-white text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                            Se connecter
-                        </h1>
-                        <p class="text-gray-600 text-lg mt-2">Accédez à votre compte DEFATP</p>
-                    </div>
-                </div>
-            </div>
+            <x-auth.login-header />
             
             <div class="login-body">
                 @if ($errors->any())
-                    <div class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 text-red-700 p-6 rounded-xl mb-6 shadow-lg">
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-exclamation-triangle text-2xl"></i>
-                            <div>
-                                <h3 class="font-semibold text-lg">Erreur de connexion!</h3>
-                                <ul class="mt-2">
-                                    @foreach ($errors->all() as $error)
-                                        <li class="text-sm">{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                    <x-alert type="error" title="Erreur de connexion!">
+                        <ul class="mt-2">
+                            @foreach ($errors->all() as $error)
+                                <li class="text-sm">{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </x-alert>
                 @endif
                 
                 <form method="POST" action="{{ route('login') }}" id="loginForm" class="space-y-6">
@@ -757,63 +739,30 @@
                                     <h3 class="text-lg font-bold text-blue-900">Informations de connexion</h3>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label for="ppr" class="form-label">
-                                        PPR
-                                        <span class="form-text">(Numéro de personnel)</span>
-                                    </label>
-                                    <input type="text" 
-                                           class="form-control @error('ppr') is-invalid @enderror" 
-                                           id="ppr" 
-                                           name="ppr" 
-                                           value="{{ old('ppr') }}" 
-                                           placeholder="Entrez votre PPR" 
-                                           required 
-                                           autofocus
-                                           autocomplete="username"
-                                           aria-describedby="ppr-help">
-                                    @error('ppr')
-                                        <div class="invalid-feedback">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
-                                    <div id="ppr-help" class="form-text">
-                                        <i class="fas fa-info-circle"></i>
-                                        Votre numéro de personnel unique
-                                    </div>
-                                </div>
+                                <x-form.input 
+                                    type="number" 
+                                    name="ppr" 
+                                    label="PPR" 
+                                    :value="old('ppr')" 
+                                    placeholder="Entrez votre PPR" 
+                                    required
+                                    icon="fas fa-id-badge"
+                                    autocomplete="username"
+                                    help="(Numéro de personnel)"
+                                    autofocus
+                                />
                                 
-                                <div class="form-group">
-                                    <label for="password" class="form-label">Mot de passe</label>
-                                    <div class="password-field">
-                                        <input type="password" 
-                                               class="form-control @error('password') is-invalid @enderror" 
-                                               id="password" 
-                                               name="password" 
-                                               placeholder="Entrez votre mot de passe" 
-                                               required
-                                               autocomplete="current-password"
-                                               aria-describedby="password-help">
-                                        <button type="button" 
-                                                class="password-toggle" 
-                                                id="passwordToggle"
-                                                aria-label="Afficher le mot de passe"
-                                                tabindex="-1">
-                                            <i class="fas fa-eye" id="passwordToggleIcon"></i>
-                                        </button>
-                                    </div>
-                                    @error('password')
-                                        <div class="invalid-feedback">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
-                                    <div id="password-help" class="form-text">
-                                        <i class="fas fa-shield-alt"></i>
-                                        Mot de passe sécurisé requis
-                                    </div>
-                                </div>
+                                <x-form.input 
+                                    type="password" 
+                                    name="password" 
+                                    label="Mot de passe" 
+                                    placeholder="Entrez votre mot de passe" 
+                                    required
+                                    autocomplete="current-password"
+                                    showPasswordToggle="true"
+                                    icon="fas fa-lock"
+                                    help="Mot de passe sécurisé requis"
+                                />
                             </div>
                         </div>
                         
@@ -827,40 +776,11 @@
                                     </div>
                                     <h3 class="text-lg font-bold text-green-900">Vérification de sécurité</h3>
                                 </div>
-                                <div class="form-group">
-                                    <label for="captcha" class="form-label">
-                                        Résolvez cette addition simple
-                                        <span class="form-text">(Protection contre les attaques automatisées)</span>
-                                    </label>
-                                    <div class="captcha-container">
-                                        <div class="captcha-question">
-                                            <span id="captchaQuestion">{{ $captcha_question ?? '5 + 3' }}</span>
-                                            <button type="button" class="captcha-refresh" id="refreshCaptcha" title="Nouvelle question">
-                                                <i class="fas fa-sync-alt"></i>
-                                            </button>
-                                        </div>
-                                        <input type="number" 
-                                               class="form-control @error('captcha') is-invalid @enderror" 
-                                               id="captcha" 
-                                               name="captcha" 
-                                               placeholder="Votre réponse" 
-                                               min="1"
-                                               max="10"
-                                               required
-                                               autocomplete="off"
-                                               aria-describedby="captcha-help">
-                                    </div>
-                                    @error('captcha')
-                                        <div class="invalid-feedback">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
-                                    <div id="captcha-help" class="form-text">
-                                        <i class="fas fa-info-circle"></i>
-                                        Réponse attendue entre 1 et 10
-                                    </div>
-                                </div>
+                                <x-form.captcha 
+                                    name="captcha"
+                                    :question="$captcha_question ?? null"
+                                    :answer="$captcha_answer ?? null"
+                                />
                             </div>
                             
                         </div>
@@ -868,10 +788,9 @@
                     
                     <!-- Form Actions -->
                     <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
-                        <button type="submit" class="btn-login" id="loginBtn">
-                            <i class="fas fa-sign-in-alt mr-2"></i>
+                        <x-button type="submit" variant="success" size="lg" id="loginBtn" icon="fas fa-sign-in-alt">
                             <span class="btn-text">Se connecter</span>
-                        </button>
+                        </x-button>
                     </div>
                 </form>
                 
