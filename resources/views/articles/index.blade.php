@@ -483,61 +483,72 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="btn-group" role="group">
-                                        <!-- Quick Actions -->
-                                        <a href="{{ route('articles.show', $article) }}" class="btn btn-sm btn-info" title="Voir">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('articles.edit', $article) }}" class="btn btn-sm btn-warning" title="Modifier">
-                                            <i class="fas fa-edit"></i>
+                                    <div class="flex items-center gap-1">
+                                        <!-- View Action -->
+                                        <a href="{{ route('articles.show', $article) }}" 
+                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors duration-200" 
+                                           title="Voir les détails">
+                                            <i class="fas fa-eye text-sm"></i>
                                         </a>
                                         
-                                        <!-- Dropdown for Additional Actions -->
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="visually-hidden">Toggle Dropdown</span>
+                                        <!-- Edit Action -->
+                                        <a href="{{ route('articles.edit', $article) }}" 
+                                           class="inline-flex items-center justify-center w-8 h-8 bg-orange-100 hover:bg-orange-200 text-orange-600 rounded-lg transition-colors duration-200" 
+                                           title="Modifier l'article">
+                                            <i class="fas fa-edit text-sm"></i>
+                                        </a>
+                                        
+                                        <!-- Duplicate Action -->
+                                        <button type="button" 
+                                                onclick="duplicateArticle({{ $article->id }})"
+                                                class="inline-flex items-center justify-center w-8 h-8 bg-purple-100 hover:bg-purple-200 text-purple-600 rounded-lg transition-colors duration-200" 
+                                                title="Dupliquer l'article">
+                                            <i class="fas fa-copy text-sm"></i>
+                                        </button>
+                                        
+                                        <!-- Export Action -->
+                                        <button type="button" 
+                                                onclick="exportArticle({{ $article->id }})"
+                                                class="inline-flex items-center justify-center w-8 h-8 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-colors duration-200" 
+                                                title="Exporter l'article">
+                                            <i class="fas fa-download text-sm"></i>
+                                        </button>
+                                        
+                                        <!-- Print Action -->
+                                        <button type="button" 
+                                                onclick="printArticle({{ $article->id }})"
+                                                class="inline-flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors duration-200" 
+                                                title="Imprimer l'article">
+                                            <i class="fas fa-print text-sm"></i>
+                                        </button>
+                                        
+                                        <!-- Share Action -->
+                                        <button type="button" 
+                                                onclick="shareArticle({{ $article->id }})"
+                                                class="inline-flex items-center justify-center w-8 h-8 bg-cyan-100 hover:bg-cyan-200 text-cyan-600 rounded-lg transition-colors duration-200" 
+                                                title="Partager l'article">
+                                            <i class="fas fa-share-alt text-sm"></i>
+                                        </button>
+                                        
+                                        <!-- Archive Action -->
+                                        <button type="button" 
+                                                onclick="archiveArticle({{ $article->id }})"
+                                                class="inline-flex items-center justify-center w-8 h-8 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors duration-200" 
+                                                title="Archiver l'article">
+                                            <i class="fas fa-archive text-sm"></i>
+                                        </button>
+                                        
+                                        <!-- Delete Action -->
+                                        <form action="{{ route('articles.destroy', $article) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')"
+                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200" 
+                                                    title="Supprimer l'article">
+                                                <i class="fas fa-trash text-sm"></i>
                                             </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
-                                                    <a class="dropdown-item" href="#" onclick="duplicateArticle({{ $article->id }})">
-                                                        <i class="fas fa-copy text-primary me-2"></i>Dupliquer
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#" onclick="exportArticle({{ $article->id }})">
-                                                        <i class="fas fa-download text-success me-2"></i>Exporter
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#" onclick="printArticle({{ $article->id }})">
-                                                        <i class="fas fa-print text-secondary me-2"></i>Imprimer
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#" onclick="shareArticle({{ $article->id }})">
-                                                        <i class="fas fa-share-alt text-info me-2"></i>Partager
-                                                    </a>
-                                                </li>
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#" onclick="archiveArticle({{ $article->id }})">
-                                                        <i class="fas fa-archive text-muted me-2"></i>Archiver
-                                                    </a>
-                                                </li>
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li>
-                                                    <form action="{{ route('articles.destroy', $article) }}" method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')">
-                                                            <i class="fas fa-trash me-2"></i>Supprimer
-                                                        </button>
-                                                    </form>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                        </form>
                                     </div>
                                 </td>
                                 </tr>

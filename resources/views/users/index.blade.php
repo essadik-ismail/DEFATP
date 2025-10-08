@@ -3,184 +3,196 @@
 @section('title', 'Gestion des Utilisateurs')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-users text-primary me-2"></i>
-                Gestion des Utilisateurs
-            </h1>
-            <p class="text-muted">Administration des utilisateurs et des rôles</p>
-        </div>
-        <div class="d-flex gap-2">
-            @can('create users')
-            <a href="{{ route('users.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Nouvel Utilisateur
-            </a>
-            @endcan
-            @can('view users')
-            <a href="{{ route('users.export') }}" class="btn btn-success">
-                <i class="fas fa-download me-2"></i>Exporter
-            </a>
-            @endcan
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Content -->
+    <div class="mb-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-users text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Gestion des Utilisateurs</h1>
+                        <p class="text-gray-600 text-lg mt-2">Administration des utilisateurs et des rôles</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    @can('users.create')
+                    <a href="{{ route('users.create') }}" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Nouvel Utilisateur
+                    </a>
+                    @endcan
+                    @can('users.view')
+                    <a href="{{ route('users.export') }}" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <i class="fas fa-download"></i>
+                        Exporter
+                    </a>
+                    @endcan
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Utilisateurs
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $users->total() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <x-card 
+            title="Total Utilisateurs" 
+            subtitle="{{ $users->total() }} utilisateurs enregistrés"
+            variant="gradient"
+            color="blue"
+            icon="fas fa-users"
+            padding="compact"
+        >
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600">{{ $users->total() }}</div>
+                <div class="text-sm text-gray-600 mt-1">Utilisateurs actifs</div>
             </div>
-        </div>
+        </x-card>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Utilisateurs Actifs
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $users->where('is_deleted', false)->count() }}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+        <x-card 
+            title="Utilisateurs Actifs" 
+            subtitle="{{ $users->where('is_deleted', false)->count() }} utilisateurs actifs"
+            variant="colored"
+            color="green"
+            icon="fas fa-user-check"
+            padding="compact"
+        >
+            <div class="text-center">
+                <div class="text-3xl font-bold text-green-600">{{ $users->where('is_deleted', false)->count() }}</div>
+                <div class="text-sm text-gray-600 mt-1">Actuellement actifs</div>
             </div>
-        </div>
+        </x-card>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Rôles Créés
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $roles->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-shield-alt fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+        <x-card 
+            title="Rôles Créés" 
+            subtitle="{{ $roles->count() }} rôles définis"
+            variant="gradient"
+            color="purple"
+            icon="fas fa-shield-alt"
+            padding="compact"
+        >
+            <div class="text-center">
+                <div class="text-3xl font-bold text-purple-600">{{ $roles->count() }}</div>
+                <div class="text-sm text-gray-600 mt-1">Rôles disponibles</div>
             </div>
-        </div>
+        </x-card>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Nouveaux (30j)
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $users->where('created_at', '>=', now()->subDays(30))->count() }}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+        <x-card 
+            title="Nouveaux (30j)" 
+            subtitle="{{ $users->where('created_at', '>=', now()->subDays(30))->count() }} nouveaux utilisateurs"
+            variant="colored"
+            color="blue"
+            icon="fas fa-calendar"
+            padding="compact"
+        >
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600">{{ $users->where('created_at', '>=', now()->subDays(30))->count() }}</div>
+                <div class="text-sm text-gray-600 mt-1">Derniers 30 jours</div>
             </div>
-        </div>
+        </x-card>
     </div>
 
     <!-- Search and Filters -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-search me-2"></i>Recherche et Filtres
-            </h6>
-        </div>
-        <div class="card-body">
-            <form method="GET" action="{{ route('users.index') }}" class="row g-3">
-                <div class="col-md-4">
-                    <label for="search" class="form-label">Recherche</label>
-                    <input type="text" class="form-control" id="search" name="search" 
-                           value="{{ request('search') }}" placeholder="Nom, email ou PPR...">
-                </div>
-                <div class="col-md-3">
-                    <label for="role" class="form-label">Rôle</label>
-                    <select class="form-select" id="role" name="role">
-                        <option value="">Tous les rôles</option>
-                        @foreach($roles as $role)
-                            <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
-                                {{ $role->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="status" class="form-label">Statut</label>
-                    <select class="form-select" id="status" name="status">
-                        <option value="">Tous les statuts</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actif</option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
-                    </select>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-2"></i>Filtrer
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <x-card 
+        title="Recherche et Filtres" 
+        subtitle="Filtrez et recherchez parmi les utilisateurs"
+        variant="colored"
+        color="blue"
+        icon="fas fa-search"
+        padding="normal"
+    >
+        <form method="GET" action="{{ route('users.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-search text-blue-500 mr-2"></i>
+                    Recherche
+                </label>
+                <input 
+                    type="text" 
+                    id="search" 
+                    name="search" 
+                    value="{{ request('search') }}" 
+                    placeholder="Nom, email ou PPR..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+            </div>
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-shield-alt text-blue-500 mr-2"></i>
+                    Rôle
+                </label>
+                <select 
+                    id="role" 
+                    name="role"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                    <option value="">Tous les rôles</option>
+                    @foreach($roles as $role)
+                        <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
+                            {{ $role->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-toggle-on text-blue-500 mr-2"></i>
+                    Statut
+                </label>
+                <select 
+                    id="status" 
+                    name="status"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                    <option value="">Tous les statuts</option>
+                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actif</option>
+                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button 
+                    type="submit" 
+                    class="w-full px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center gap-2"
+                >
+                    <i class="fas fa-search"></i>
+                    Filtrer
+                </button>
+            </div>
+        </form>
+    </x-card>
 
     <!-- Users Table -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-table me-2"></i>Liste des Utilisateurs
-            </h6>
-            <div class="d-flex gap-2">
-                <span class="badge bg-primary">{{ $users->total() }} utilisateurs</span>
-            </div>
-        </div>
-        <div class="card-body">
+    <x-card 
+        title="Liste des Utilisateurs" 
+        subtitle="{{ $users->total() }} utilisateurs trouvés"
+        variant="gradient"
+        color="blue"
+        icon="fas fa-table"
+        padding="normal"
+    >
+        @php
+            $headers = ['ID', 'Nom', 'Email', 'PPR', 'Rôles', 'Statut', 'Date de création', 'Actions'];
+            $rows = [];
+        @endphp
+        @foreach($users as $user)
             @php
-                $headers = ['ID', 'Nom', 'Email', 'PPR', 'Rôles', 'Statut', 'Date de création', 'Actions'];
-                $rows = [];
+                $rows[] = [
+                    '<span class="badge bg-secondary">' . e($user->id) . '</span>',
+                    view('components.users.partials.name-cell', compact('user'))->render(),
+                    '<span class="text-muted">' . e($user->email) . '</span>',
+                    '<span class="badge bg-info">' . e($user->ppr) . '</span>',
+                    view('components.users.partials.roles-cell', compact('user'))->render(),
+                    view('components.users.partials.status-cell', compact('user'))->render(),
+                    '<small class="text-muted">' . e($user->created_at->format('d/m/Y H:i')) . '</small>',
+                    view('components.users.partials.actions-cell', compact('user'))->render(),
+                ];
             @endphp
-            @foreach($users as $user)
-                @php
-                    $rows[] = [
-                        '<span class="badge bg-secondary">' . e($user->id) . '</span>',
-                        view('components.users.partials.name-cell', compact('user'))->render(),
-                        '<span class="text-muted">' . e($user->email) . '</span>',
-                        '<span class="badge bg-info">' . e($user->ppr) . '</span>',
-                        view('components.users.partials.roles-cell', compact('user'))->render(),
-                        view('components.users.partials.status-cell', compact('user'))->render(),
-                        '<small class="text-muted">' . e($user->created_at->format('d/m/Y H:i')) . '</small>',
-                        view('components.users.partials.actions-cell', compact('user'))->render(),
-                    ];
-                @endphp
-            @endforeach
+        @endforeach
 
-            <x-data-table :headers="$headers" :rows="$rows" :pagination="$users->appends(request()->query())->links()" />
-        </div>
-    </div>
+        <x-data-table :headers="$headers" :rows="$rows" :pagination="$users->appends(request()->query())->links()" />
+    </x-card>
 </div>
 
 <!-- Toggle Status Modal -->

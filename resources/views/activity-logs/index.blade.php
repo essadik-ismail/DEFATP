@@ -3,179 +3,218 @@
 @section('title', 'Journal d\'Activités')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-history text-primary me-2"></i>
-                Journal d'Activités
-            </h1>
-            <p class="text-muted">Suivi des actions des utilisateurs dans le système</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('activity-logs.export') }}" class="btn btn-success">
-                <i class="fas fa-download me-2"></i>Exporter
-            </a>
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Content -->
+    <div class="mb-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-history text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Journal d'Activités</h1>
+                        <p class="text-gray-600 text-lg mt-2">Suivi des actions des utilisateurs dans le système</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <a href="{{ route('activity-logs.export') }}" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <i class="fas fa-download"></i>
+                        Exporter
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Activités
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalActivities">-</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-history fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <x-card 
+            title="Total Activités" 
+            subtitle="Toutes les activités enregistrées"
+            variant="gradient"
+            color="purple"
+            icon="fas fa-history"
+            padding="compact"
+        >
+            <div class="text-center">
+                <div class="text-3xl font-bold text-purple-600" id="totalActivities">-</div>
+                <div class="text-sm text-gray-600 mt-1">Activités totales</div>
             </div>
-        </div>
+        </x-card>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Aujourd'hui
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="todayActivities">-</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+        <x-card 
+            title="Aujourd'hui" 
+            subtitle="Activités d'aujourd'hui"
+            variant="colored"
+            color="green"
+            icon="fas fa-calendar-day"
+            padding="compact"
+        >
+            <div class="text-center">
+                <div class="text-3xl font-bold text-green-600" id="todayActivities">-</div>
+                <div class="text-sm text-gray-600 mt-1">Activités du jour</div>
             </div>
-        </div>
+        </x-card>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Cette Semaine
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="weekActivities">-</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+        <x-card 
+            title="Cette Semaine" 
+            subtitle="Activités de cette semaine"
+            variant="gradient"
+            color="blue"
+            icon="fas fa-calendar-week"
+            padding="compact"
+        >
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600" id="weekActivities">-</div>
+                <div class="text-sm text-gray-600 mt-1">Activités hebdomadaires</div>
             </div>
-        </div>
+        </x-card>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Ce Mois
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="monthActivities">-</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+        <x-card 
+            title="Ce Mois" 
+            subtitle="Activités de ce mois"
+            variant="colored"
+            color="orange"
+            icon="fas fa-calendar-alt"
+            padding="compact"
+        >
+            <div class="text-center">
+                <div class="text-3xl font-bold text-orange-600" id="monthActivities">-</div>
+                <div class="text-sm text-gray-600 mt-1">Activités mensuelles</div>
             </div>
-        </div>
+        </x-card>
     </div>
 
     <!-- Search and Filters -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-search me-2"></i>Recherche et Filtres
-            </h6>
-        </div>
-        <div class="card-body">
-            <form id="activityLogsFilter" class="row g-3">
-                <div class="col-md-3">
-                    <label for="search" class="form-label">Recherche</label>
-                    <input type="text" class="form-control" id="search" name="search" 
-                           placeholder="Description...">
+    <x-card 
+        title="Recherche et Filtres" 
+        subtitle="Filtrez et recherchez parmi les activités"
+        variant="colored"
+        color="purple"
+        icon="fas fa-search"
+        padding="normal"
+    >
+        <form id="activityLogsFilter" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-search text-purple-500 mr-2"></i>
+                    Recherche
+                </label>
+                <input 
+                    type="text" 
+                    id="search" 
+                    name="search" 
+                    placeholder="Description..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                >
+            </div>
+            <div>
+                <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-user text-purple-500 mr-2"></i>
+                    Utilisateur
+                </label>
+                <select 
+                    id="user_id" 
+                    name="user_id"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                >
+                    <option value="">Tous les utilisateurs</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="action" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-cog text-purple-500 mr-2"></i>
+                    Action
+                </label>
+                <select 
+                    id="action" 
+                    name="action"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                >
+                    <option value="">Toutes les actions</option>
+                    @foreach($actions as $action)
+                        <option value="{{ $action }}">{{ ucfirst($action) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="model_type" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-database text-purple-500 mr-2"></i>
+                    Type de modèle
+                </label>
+                <select 
+                    id="model_type" 
+                    name="model_type"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                >
+                    <option value="">Tous les types</option>
+                    @foreach($modelTypes as $modelType)
+                        <option value="{{ $modelType }}">{{ class_basename($modelType) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="date_range" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-calendar text-purple-500 mr-2"></i>
+                    Période
+                </label>
+                <div class="flex gap-2">
+                    <input 
+                        type="date" 
+                        id="date_from" 
+                        name="date_from"
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                    >
+                    <span class="flex items-center text-gray-500">à</span>
+                    <input 
+                        type="date" 
+                        id="date_to" 
+                        name="date_to"
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                    >
                 </div>
-                <div class="col-md-2">
-                    <label for="user_id" class="form-label">Utilisateur</label>
-                    <select class="form-select" id="user_id" name="user_id">
-                        <option value="">Tous les utilisateurs</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="action" class="form-label">Action</label>
-                    <select class="form-select" id="action" name="action">
-                        <option value="">Toutes les actions</option>
-                        @foreach($actions as $action)
-                            <option value="{{ $action }}">{{ ucfirst($action) }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="model_type" class="form-label">Type de modèle</label>
-                    <select class="form-select" id="model_type" name="model_type">
-                        <option value="">Tous les types</option>
-                        @foreach($modelTypes as $modelType)
-                            <option value="{{ $modelType }}">{{ class_basename($modelType) }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="date_range" class="form-label">Période</label>
-                    <div class="input-group">
-                        <input type="date" class="form-control" id="date_from" name="date_from">
-                        <span class="input-group-text">à</span>
-                        <input type="date" class="form-control" id="date_to" name="date_to">
-                    </div>
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search me-2"></i>Filtrer
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="resetFilters()">
-                        <i class="fas fa-undo me-2"></i>Réinitialiser
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+            </div>
+            <div class="md:col-span-2 lg:col-span-5 flex gap-3">
+                <button 
+                    type="submit" 
+                    class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+                >
+                    <i class="fas fa-search"></i>
+                    Filtrer
+                </button>
+                <button 
+                    type="button" 
+                    onclick="resetFilters()"
+                    class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+                >
+                    <i class="fas fa-undo"></i>
+                    Réinitialiser
+                </button>
+            </div>
+        </form>
+    </x-card>
 
     <!-- Activity Logs Table -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-table me-2"></i>Journal d'Activités
-            </h6>
-            <div class="d-flex gap-2">
-                <span class="badge bg-primary" id="totalCount">0 activités</span>
-            </div>
+    <x-card 
+        title="Journal d'Activités" 
+        subtitle="<span id='totalCount'>0 activités</span> trouvées"
+        variant="gradient"
+        color="purple"
+        icon="fas fa-table"
+        padding="normal"
+    >
+        <div id="activityLogsTable">
+            @include('activity-logs.partials.activity-logs-table', ['activityLogs' => $activityLogs])
         </div>
-        <div class="card-body">
-            <div id="activityLogsTable">
-                @include('activity-logs.partials.activity-logs-table', ['activityLogs' => $activityLogs])
-            </div>
-            
-            <div id="activityLogsPagination">
-                @include('activity-logs.partials.pagination', ['activityLogs' => $activityLogs])
-            </div>
+        
+        <div id="activityLogsPagination">
+            @include('activity-logs.partials.pagination', ['activityLogs' => $activityLogs])
         </div>
-    </div>
+    </x-card>
 </div>
 @endsection
 

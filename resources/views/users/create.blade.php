@@ -3,258 +3,350 @@
 @section('title', 'Créer un Utilisateur')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-user-plus text-primary me-2"></i>
-                Créer un Utilisateur
-            </h1>
-            <p class="text-muted">Ajouter un nouvel utilisateur au système</p>
-        </div>
-        <div>
-            <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Retour
-            </a>
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Content -->
+    <div class="mb-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-user-plus text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Créer un Utilisateur</h1>
+                        <p class="text-gray-600 text-lg mt-2">Ajouter un nouvel utilisateur au système</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <a href="{{ route('users.index') }}" class="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i>
+                        Retour
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
             <!-- User Creation Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-user me-2"></i>Informations de l'Utilisateur
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" id="userCreateForm" novalidate>
-                        @csrf
+            <x-card 
+                title="Informations de l'Utilisateur" 
+                subtitle="Remplissez les informations pour créer un nouvel utilisateur"
+                variant="gradient"
+                color="green"
+                icon="fas fa-user"
+                padding="normal"
+            >
+                <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" id="userCreateForm" novalidate>
+                    @csrf
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Personal Information -->
+                        <div>
+                            <h6 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-id-card text-green-500"></i>
+                                Informations Personnelles
+                            </h6>
+                                
+                            <div class="mb-4">
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-user text-green-500 mr-2"></i>
+                                    Nom complet <span class="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="name" 
+                                    name="name" 
+                                    value="{{ old('name') }}" 
+                                    placeholder="Ex: Jean Dupont" 
+                                    required 
+                                    autocomplete="name"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors @error('name') border-red-500 @enderror"
+                                >
+                                @error('name')
+                                    <div class="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                                <div class="text-gray-500 text-sm mt-1 flex items-center gap-1">
+                                    <i class="fas fa-info-circle"></i>Nom complet de l'utilisateur
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-envelope text-green-500 mr-2"></i>
+                                    Email <span class="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    name="email" 
+                                    value="{{ old('email') }}" 
+                                    placeholder="Ex: jean.dupont@example.com" 
+                                    required 
+                                    autocomplete="email"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors @error('email') border-red-500 @enderror"
+                                >
+                                @error('email')
+                                    <div class="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                                <div class="text-gray-500 text-sm mt-1 flex items-center gap-1">
+                                    <i class="fas fa-info-circle"></i>Adresse email valide requise
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="ppr" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-id-card text-green-500 mr-2"></i>
+                                    PPR <span class="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="ppr" 
+                                    name="ppr" 
+                                    value="{{ old('ppr') }}" 
+                                    placeholder="Ex: 12345678" 
+                                    required 
+                                    pattern="[0-9]{8}" 
+                                    title="Le PPR doit contenir exactement 8 chiffres"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors @error('ppr') border-red-500 @enderror"
+                                >
+                                @error('ppr')
+                                    <div class="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                                <div class="text-gray-500 text-sm mt-1 flex items-center gap-1">
+                                    <i class="fas fa-info-circle"></i>Numéro de personnel (8 chiffres)
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security & Roles -->
+                        <div>
+                            <h6 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-shield-alt text-green-500"></i>
+                                Sécurité et Rôles
+                            </h6>
+                                
+                            <div class="mb-4">
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-lock text-green-500 mr-2"></i>
+                                    Mot de passe <span class="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    name="password" 
+                                    required 
+                                    minlength="8"
+                                    placeholder="Minimum 8 caractères"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors @error('password') border-red-500 @enderror"
+                                >
+                                @error('password')
+                                    <div class="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                                <div class="text-gray-500 text-sm mt-1 flex items-center gap-1">
+                                    <i class="fas fa-shield-alt"></i>Minimum 8 caractères avec lettres et chiffres
+                                </div>
+                                <div class="password-strength mt-2" id="passwordStrength" style="display: none;">
+                                    <div class="w-full bg-gray-200 rounded-full h-1">
+                                        <div class="bg-green-500 h-1 rounded-full transition-all duration-300" id="strengthBar" style="width: 0%"></div>
+                                    </div>
+                                    <small class="text-gray-500 mt-1 block" id="strengthText">Force du mot de passe</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-lock text-green-500 mr-2"></i>
+                                    Confirmer le mot de passe <span class="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="password" 
+                                    id="password_confirmation" 
+                                    name="password_confirmation" 
+                                    required
+                                    placeholder="Répétez le mot de passe"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                                >
+                                <div class="text-gray-500 text-sm mt-1 flex items-center gap-1">
+                                    <i class="fas fa-info-circle"></i>Doit correspondre au mot de passe
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="roles" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-user-tag text-green-500 mr-2"></i>
+                                    Rôles
+                                </label>
+                                <select 
+                                    id="roles" 
+                                    name="roles[]" 
+                                    multiple
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors @error('roles') border-red-500 @enderror"
+                                >
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->name }}" 
+                                            {{ in_array($role->name, old('roles', [])) ? 'selected' : '' }}>
+                                            {{ $role->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('roles')
+                                    <div class="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                                <div class="text-gray-500 text-sm mt-1 flex items-center gap-1">
+                                    <i class="fas fa-info-circle"></i>Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs rôles
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                    <!-- Profile Image -->
+                    <div class="mt-8">
+                        <h6 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fas fa-image text-green-500"></i>
+                            Photo de Profil
+                        </h6>
                         
-                        <div class="row">
-                            <!-- Personal Information -->
-                            <div class="col-md-6">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-id-card me-2"></i>Informations Personnelles
-                                </h6>
-                                
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">
-                                        <i class="fas fa-user me-1"></i>Nom complet <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                           id="name" name="name" value="{{ old('name') }}" 
-                                           placeholder="Ex: Jean Dupont" required autocomplete="name">
-                                    @error('name')
-                                        <div class="invalid-feedback">
-                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                    <div class="form-text">
-                                        <i class="fas fa-info-circle me-1"></i>Nom complet de l'utilisateur
-                                    </div>
+                        <div class="mb-4">
+                            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-upload text-green-500 mr-2"></i>
+                                Image de profil
+                            </label>
+                            <input 
+                                type="file" 
+                                id="image" 
+                                name="image" 
+                                accept="image/*"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors @error('image') border-red-500 @enderror"
+                            >
+                            @error('image')
+                                <div class="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                    <i class="fas fa-exclamation-circle"></i>{{ $message }}
                                 </div>
-
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">
-                                        <i class="fas fa-envelope me-1"></i>Email <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                           id="email" name="email" value="{{ old('email') }}" 
-                                           placeholder="Ex: jean.dupont@example.com" required autocomplete="email">
-                                    @error('email')
-                                        <div class="invalid-feedback">
-                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                    <div class="form-text">
-                                        <i class="fas fa-info-circle me-1"></i>Adresse email valide requise
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="ppr" class="form-label">
-                                        <i class="fas fa-id-card me-1"></i>PPR <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control @error('ppr') is-invalid @enderror" 
-                                           id="ppr" name="ppr" value="{{ old('ppr') }}" 
-                                           placeholder="Ex: 12345678" required pattern="[0-9]{8}" 
-                                           title="Le PPR doit contenir exactement 8 chiffres">
-                                    @error('ppr')
-                                        <div class="invalid-feedback">
-                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                    <div class="form-text">
-                                        <i class="fas fa-info-circle me-1"></i>Numéro de personnel (8 chiffres)
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Security & Roles -->
-                            <div class="col-md-6">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-shield-alt me-2"></i>Sécurité et Rôles
-                                </h6>
-                                
-                                <div class="mb-3">
-                                    <label for="password" class="form-label">
-                                        Mot de passe <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                               id="password" name="password" required minlength="8"
-                                               placeholder="Minimum 8 caractères">
-                                    </div>
-                                    @error('password')
-                                        <div class="invalid-feedback">
-                                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
-                                        </div>
-                                    @enderror
-                                    <div class="form-text">
-                                        <i class="fas fa-shield-alt me-1"></i>Minimum 8 caractères avec lettres et chiffres
-                                    </div>
-                                    <div class="password-strength mt-2" id="passwordStrength" style="display: none;">
-                                        <div class="progress" style="height: 4px;">
-                                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
-                                        </div>
-                                        <small class="text-muted" id="strengthText">Force du mot de passe</small>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="password_confirmation" class="form-label">
-                                        Confirmer le mot de passe <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="password" class="form-control" 
-                                           id="password_confirmation" name="password_confirmation" required
-                                           placeholder="Répétez le mot de passe">
-                                    <div class="form-text">
-                                        <i class="fas fa-info-circle me-1"></i>Doit correspondre au mot de passe
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="roles" class="form-label">Rôles</label>
-                                    <select class="form-select @error('roles') is-invalid @enderror" 
-                                            id="roles" name="roles[]" multiple>
-                                        @foreach($roles as $role)
-                                            <option value="{{ $role->name }}" 
-                                                {{ in_array($role->name, old('roles', [])) ? 'selected' : '' }}>
-                                                {{ $role->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('roles')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <small class="form-text text-muted">Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs rôles</small>
-                                </div>
+                            @enderror
+                            <div class="text-gray-500 text-sm mt-1 flex items-center gap-1">
+                                <i class="fas fa-info-circle"></i>Formats acceptés: JPG, PNG, GIF. Taille max: 2MB
                             </div>
                         </div>
 
-                        <!-- Profile Image -->
-                        <div class="row mt-3">
-                            <div class="col-12">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-image me-2"></i>Photo de Profil
-                                </h6>
-                                
-                                <div class="mb-3">
-                                    <label for="image" class="form-label">Image de profil</label>
-                                    <input type="file" class="form-control @error('image') is-invalid @enderror" 
-                                           id="image" name="image" accept="image/*">
-                                    @error('image')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <small class="form-text text-muted">Formats acceptés: JPG, PNG, GIF. Taille max: 2MB</small>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div id="imagePreview" class="d-none">
-                                        <img id="previewImg" src="" alt="Aperçu" 
-                                             class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
-                                    </div>
-                                </div>
+                        <div class="mb-4">
+                            <div id="imagePreview" class="hidden">
+                                <img id="previewImg" src="" alt="Aperçu" 
+                                     class="rounded-lg border border-gray-300" style="max-width: 200px; max-height: 200px;">
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Form Actions -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <hr>
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                                            <i class="fas fa-times me-2"></i>Annuler
-                                        </a>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary" id="submitBtn">
-                                            <i class="fas fa-save me-2"></i><span class="btn-text">Créer l'Utilisateur</span>
-                                        </button>
-                                        <button type="submit" class="btn btn-success" id="submitAndNextBtn" name="action" value="create_and_next">
-                                            <i class="fas fa-plus me-2"></i><span class="btn-text">Créer et Ajouter un Autre</span>
-                                        </button>
-                                    </div>
-                                </div>
+                    <!-- Form Actions -->
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div>
+                                <a href="{{ route('users.index') }}" class="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                                    <i class="fas fa-times"></i>
+                                    Annuler
+                                </a>
+                            </div>
+                            <div class="flex gap-3">
+                                <button 
+                                    type="submit" 
+                                    id="submitBtn"
+                                    class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
+                                >
+                                    <i class="fas fa-save"></i>
+                                    <span class="btn-text">Créer l'Utilisateur</span>
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    id="submitAndNextBtn" 
+                                    name="action" 
+                                    value="create_and_next"
+                                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
+                                >
+                                    <i class="fas fa-plus"></i>
+                                    <span class="btn-text">Créer et Ajouter un Autre</span>
+                                </button>
                             </div>
                         </div>
-                    </form>
-                </div>
-            </div>
+                    </div>
+                </form>
+            </x-card>
         </div>
 
         <!-- Sidebar with Help and Information -->
-        <div class="col-lg-4">
+        <div class="lg:col-span-1">
             <!-- Help Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-question-circle me-2"></i>Aide
-                    </h6>
+            <x-card 
+                title="Aide" 
+                subtitle="Informations utiles pour créer un utilisateur"
+                variant="colored"
+                color="blue"
+                icon="fas fa-question-circle"
+                padding="normal"
+            >
+                <div class="space-y-4">
+                    <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <h6 class="text-blue-800 font-semibold mb-2 flex items-center gap-2">
+                            <i class="fas fa-asterisk text-blue-600"></i>
+                            Champs obligatoires
+                        </h6>
+                        <p class="text-blue-700 text-sm">Les champs marqués d'un <span class="text-red-500 font-semibold">*</span> sont obligatoires.</p>
+                    </div>
+                    
+                    <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                        <h6 class="text-green-800 font-semibold mb-2 flex items-center gap-2">
+                            <i class="fas fa-lock text-green-600"></i>
+                            Mot de passe
+                        </h6>
+                        <p class="text-green-700 text-sm">Le mot de passe doit contenir au moins 8 caractères avec lettres et chiffres.</p>
+                    </div>
+                    
+                    <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <h6 class="text-purple-800 font-semibold mb-2 flex items-center gap-2">
+                            <i class="fas fa-user-tag text-purple-600"></i>
+                            Rôles
+                        </h6>
+                        <p class="text-purple-700 text-sm">Sélectionnez un ou plusieurs rôles pour définir les permissions de l'utilisateur.</p>
+                    </div>
+                    
+                    <div class="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                        <h6 class="text-orange-800 font-semibold mb-2 flex items-center gap-2">
+                            <i class="fas fa-image text-orange-600"></i>
+                            Image de profil
+                        </h6>
+                        <p class="text-orange-700 text-sm">L'image sera automatiquement redimensionnée et optimisée.</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h6 class="text-info">Champs obligatoires</h6>
-                        <p class="small text-muted">Les champs marqués d'un <span class="text-danger">*</span> sont obligatoires.</p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h6 class="text-info">Mot de passe</h6>
-                        <p class="small text-muted">Le mot de passe doit contenir au moins 8 caractères.</p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h6 class="text-info">Rôles</h6>
-                        <p class="small text-muted">Sélectionnez un ou plusieurs rôles pour définir les permissions de l'utilisateur.</p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h6 class="text-info">Image de profil</h6>
-                        <p class="small text-muted">L'image sera automatiquement redimensionnée et optimisée.</p>
-                    </div>
-                </div>
-            </div>
+            </x-card>
 
             <!-- Available Roles Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-success">
-                        <i class="fas fa-shield-alt me-2"></i>Rôles Disponibles
-                    </h6>
-                </div>
-                <div class="card-body">
+            <x-card 
+                title="Rôles Disponibles" 
+                subtitle="Liste des rôles que vous pouvez attribuer"
+                variant="colored"
+                color="green"
+                icon="fas fa-shield-alt"
+                padding="normal"
+            >
+                <div class="space-y-3">
                     @foreach($roles as $role)
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="badge bg-success me-2">{{ $role->name }}</span>
-                            <small class="text-muted">{{ $role->permissions->count() }} permissions</small>
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                            <span class="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-full">{{ $role->name }}</span>
+                            <span class="text-green-700 text-sm">{{ $role->permissions->count() }} permissions</span>
                         </div>
                     @endforeach
                 </div>
-            </div>
+            </x-card>
         </div>
     </div>
 </div>

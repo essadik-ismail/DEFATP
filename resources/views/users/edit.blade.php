@@ -3,55 +3,76 @@
 @section('title', 'Modifier l\'Utilisateur')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-user-edit text-primary me-2"></i>
-                Modifier l'Utilisateur
-            </h1>
-            <p class="text-muted">Modifier les informations de {{ $user->name }}</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('users.show', $user) }}" class="btn btn-info">
-                <i class="fas fa-eye me-2"></i>Voir
-            </a>
-            <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Retour
-            </a>
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Content -->
+    <div class="mb-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-user-edit text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">Modifier l'Utilisateur</h1>
+                        <p class="text-gray-600 text-lg mt-2">Modifier les informations de {{ $user->name }}</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <a href="{{ route('users.show', $user) }}" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <i class="fas fa-eye"></i>
+                        Voir
+                    </a>
+                    <a href="{{ route('users.index') }}" class="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i>
+                        Retour
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
             <!-- User Edit Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-user me-2"></i>Modifier l'Utilisateur
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('users.update', $user) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-                        
-                        <div class="row">
-                            <!-- Personal Information -->
-                            <div class="col-md-6">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-id-card me-2"></i>Informations Personnelles
-                                </h6>
+            <x-card 
+                title="Modifier l'Utilisateur" 
+                subtitle="Modifiez les informations de {{ $user->name }}"
+                variant="gradient"
+                color="orange"
+                icon="fas fa-user"
+                padding="normal"
+            >
+                <form action="{{ route('users.update', $user) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Personal Information -->
+                        <div>
+                            <h6 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-id-card text-orange-500"></i>
+                                Informations Personnelles
+                            </h6>
                                 
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Nom complet <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                           id="name" name="name" value="{{ old('name', $user->name) }}" required>
-                                    @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                            <div class="mb-4">
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-user text-orange-500 mr-2"></i>
+                                    Nom complet <span class="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="name" 
+                                    name="name" 
+                                    value="{{ old('name', $user->name) }}" 
+                                    required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors @error('name') border-red-500 @enderror"
+                                >
+                                @error('name')
+                                    <div class="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                        <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
 
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email <span class="text-danger">*</span></label>

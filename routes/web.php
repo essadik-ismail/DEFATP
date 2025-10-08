@@ -55,25 +55,25 @@ Route::middleware('auth')->group(function () {
     });
 
     // New User Management Routes (UserController with Spatie)
-    Route::prefix('admin/users')->name('users.')->middleware('permission:view users')->group(function () {
+    Route::prefix('admin/users')->name('users.')->middleware('permission:users.view')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
-        Route::get('/create', [UserController::class, 'create'])->middleware('permission:create users')->name('create');
-        Route::post('/', [UserController::class, 'store'])->middleware('permission:create users')->name('store');
+        Route::get('/create', [UserController::class, 'create'])->middleware('permission:users.create')->name('create');
+        Route::post('/', [UserController::class, 'store'])->middleware('permission:users.create')->name('store');
         Route::get('/{user}', [UserController::class, 'show'])->name('show');
-        Route::get('/{user}/edit', [UserController::class, 'edit'])->middleware('permission:edit users')->name('edit');
-        Route::put('/{user}', [UserController::class, 'update'])->middleware('permission:edit users')->name('update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->middleware('permission:delete users')->name('destroy');
-        Route::patch('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->middleware('permission:edit users')->name('toggle-status');
-        Route::get('/export', [UserController::class, 'export'])->middleware('permission:view users')->name('export');
+        Route::get('/{user}/edit', [UserController::class, 'edit'])->middleware('permission:users.edit')->name('edit');
+        Route::put('/{user}', [UserController::class, 'update'])->middleware('permission:users.edit')->name('update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->middleware('permission:users.delete')->name('destroy');
+        Route::patch('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->middleware('permission:users.edit')->name('toggle-status');
+        Route::get('/export', [UserController::class, 'export'])->middleware('permission:users.view')->name('export');
     });
 
     // Activity Logs Routes
-    Route::prefix('admin/activity-logs')->name('activity-logs.')->middleware('permission:view activity logs')->group(function () {
+    Route::prefix('admin/activity-logs')->name('activity-logs.')->middleware('permission:activity-logs.view')->group(function () {
         Route::get('/', [ActivityLogController::class, 'index'])->name('index');
         Route::get('/{activityLog}', [ActivityLogController::class, 'show'])->name('show');
         Route::get('/user/{user}', [ActivityLogController::class, 'userActivity'])->name('user-activity');
         Route::get('/ajax/logs', [ActivityLogController::class, 'getActivityLogs'])->name('ajax-logs');
-        Route::get('/export', [ActivityLogController::class, 'export'])->name('export');
+        Route::get('/export', [ActivityLogController::class, 'export'])->middleware('permission:activity-logs.export')->name('export');
         Route::get('/statistics', [ActivityLogController::class, 'getStatistics'])->name('statistics');
     });
 
