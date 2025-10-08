@@ -150,6 +150,15 @@ class Article extends Model
     }
 
     /**
+     * Many-to-many: this article may be linked to multiple localisations.
+     */
+    public function localisations(): BelongsToMany
+    {
+        return $this->belongsToMany(Localisation::class, 'article_localisation', 'article_id', 'localisation_id')
+            ->withTimestamps();
+    }
+
+    /**
      * Get the operator for this article.
      */
     public function exploitant(): BelongsTo

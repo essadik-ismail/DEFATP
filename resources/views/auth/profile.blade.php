@@ -146,7 +146,7 @@
                     <div class="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-200">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-lock text-white"></i>
+                                <span class="text-white text-lg">🔒</span>
                             </div>
                             <h3 class="text-xl font-bold text-orange-900">Changer le mot de passe</h3>
                         </div>
@@ -162,11 +162,6 @@
                                            id="current_password" 
                                            name="current_password" 
                                            placeholder="Mot de passe actuel">
-                                    <button type="button" 
-                                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                            onclick="togglePassword('current_password')">
-                                        <i class="fas fa-eye" id="current_password-icon"></i>
-                                    </button>
                                 </div>
                                 @error('current_password')
                                     <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
@@ -186,11 +181,6 @@
                                            id="new_password" 
                                            name="new_password" 
                                            placeholder="Nouveau mot de passe">
-                                    <button type="button" 
-                                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                            onclick="togglePassword('new_password')">
-                                        <i class="fas fa-eye" id="new_password-icon"></i>
-                                    </button>
                                 </div>
                                 @error('new_password')
                                     <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
@@ -210,11 +200,6 @@
                                            id="new_password_confirmation" 
                                            name="new_password_confirmation" 
                                            placeholder="Confirmer le nouveau mot de passe">
-                                    <button type="button" 
-                                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                            onclick="togglePassword('new_password_confirmation')">
-                                        <i class="fas fa-eye" id="new_password_confirmation-icon"></i>
-                                    </button>
                                 </div>
                             </div>
                         </div>

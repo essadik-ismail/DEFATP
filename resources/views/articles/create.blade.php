@@ -176,19 +176,21 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="form-group">
-                        <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Localisation <span class="text-red-500">*</span>
+                        <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Localisations <span class="text-red-500">*</span>
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="localisation_id" name="localisation_id" required>
-                            <option value="">Sélectionner une localisation</option>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
+                        <select multiple
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                id="localisation_ids" name="localisation_ids[]">
                             @foreach($localisations as $localisation)
-                                <option value="{{ $localisation->id }}" {{ old('localisation_id') == $localisation->id ? 'selected' : '' }}>
+                                <option value="{{ $localisation->id }}" {{ collect(old('localisation_ids', []))->contains($localisation->id) ? 'selected' : '' }}>
                                     {{ $localisation->CODE }} - {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('localisation_id')
+                        <input type="hidden" name="localisation_id" value="{{ old('localisation_id') }}">
+                        @error('localisation_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}

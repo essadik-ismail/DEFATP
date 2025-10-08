@@ -112,11 +112,6 @@
                                    id="password" 
                                    name="password" 
                                    placeholder="Laisser vide pour ne pas changer">
-                            <button type="button" 
-                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                    onclick="togglePassword('password')">
-                                <i class="fas fa-eye" id="password-icon"></i>
-                            </button>
                         </div>
                         @error('password')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
@@ -140,11 +135,6 @@
                                    id="password_confirmation" 
                                    name="password_confirmation" 
                                    placeholder="Confirmer le nouveau mot de passe">
-                            <button type="button" 
-                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                    onclick="togglePassword('password_confirmation')">
-                                <i class="fas fa-eye" id="password_confirmation-icon"></i>
-                            </button>
                         </div>
                         @error('password_confirmation')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">

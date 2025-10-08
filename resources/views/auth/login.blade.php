@@ -64,6 +64,25 @@
         .login-header {
             margin-bottom: 2.5rem;
         }
+
+        /* Icon fixes */
+        .fas, .fa {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900;
+        }
+
+        .fas.fa-user,
+        .fas.fa-shield-alt,
+        .fas.fa-id-badge,
+        .fas.fa-lock,
+        .fas.fa-tree {
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .text-2xl .fas {
+            font-size: 1.5rem;
+        }
         
         .login-body {
             margin-top: 1.5rem;
@@ -105,39 +124,6 @@
             border-color: #9ca3af;
         }
 
-        /* Password field with toggle */
-        .password-field {
-            position: relative;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #6b7280;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            transition: all 0.2s ease;
-            z-index: 10;
-        }
-
-        .password-toggle:hover {
-            color: var(--primary-color);
-            background: rgba(5, 150, 105, 0.1);
-        }
-
-        .password-toggle:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
-        }
-
-        .password-field .form-control {
-            padding-right: 3.5rem;
-        }
         
         .form-control::placeholder {
             color: #9ca3af;
@@ -430,12 +416,6 @@
                 padding: 1rem 1.25rem;
             }
 
-            .password-toggle {
-                padding: 0.75rem;
-                right: 0.75rem;
-                width: 3rem;
-                height: 3rem;
-            }
 
             .btn-login {
                 height: 3.5rem;
@@ -524,11 +504,6 @@
 
         /* Touch device optimizations */
         @media (hover: none) and (pointer: coarse) {
-            .password-toggle {
-                padding: 0.75rem;
-                width: 3rem;
-                height: 3rem;
-            }
 
             .captcha-refresh {
                 width: 3rem;
@@ -746,7 +721,6 @@
                                     :value="old('ppr')" 
                                     placeholder="Entrez votre PPR" 
                                     required
-                                    icon="fas fa-id-badge"
                                     autocomplete="username"
                                     help="(Numéro de personnel)"
                                     autofocus
@@ -759,8 +733,6 @@
                                     placeholder="Entrez votre mot de passe" 
                                     required
                                     autocomplete="current-password"
-                                    showPasswordToggle="true"
-                                    icon="fas fa-lock"
                                     help="Mot de passe sécurisé requis"
                                 />
                             </div>

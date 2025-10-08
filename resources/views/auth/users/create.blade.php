@@ -101,11 +101,6 @@
                             <input type="password" 
                                    class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400 @error('password') border-red-500 @enderror" 
                                    id="password" name="password" placeholder="Mot de passe" required>
-                            <button type="button" 
-                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                    onclick="togglePassword('password')">
-                                <i class="fas fa-eye" id="password-icon"></i>
-                            </button>
                         </div>
                         @error('password')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
@@ -126,11 +121,6 @@
                                    class="form-input w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400 @error('password_confirmation') border-red-500 @enderror" 
                                    id="password_confirmation" name="password_confirmation" 
                                    placeholder="Confirmer le mot de passe" required>
-                            <button type="button" 
-                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                    onclick="togglePassword('password_confirmation')">
-                                <i class="fas fa-eye" id="password_confirmation-icon"></i>
-                            </button>
                         </div>
                         @error('password_confirmation')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">

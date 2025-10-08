@@ -237,6 +237,7 @@ class ArticleController extends Controller
             $essenceIds = $request->input('essence_ids', []);
             $situationIds = $request->input('situation_administrative_ids', []);
             $natureIds = $request->input('nature_de_coupe_ids', []);
+            $localisationIds = $request->input('localisation_ids', []);
 
             if (!empty($foretIds)) {
                 $articleData['foret_id'] = $foretIds[0];
@@ -249,6 +250,9 @@ class ArticleController extends Controller
             }
             if (!empty($natureIds)) {
                 $articleData['nature_de_coupe_id'] = $natureIds[0];
+            }
+            if (!empty($localisationIds)) {
+                $articleData['localisation_id'] = $localisationIds[0];
             }
 
             // Create the article
@@ -279,6 +283,9 @@ class ArticleController extends Controller
             }
             if (!empty($natureIds)) {
                 $article->naturesDeCoupe()->sync($natureIds);
+            }
+            if (!empty($localisationIds)) {
+                $article->localisations()->sync($localisationIds);
             }
 
             // Handle locations if provided
@@ -438,6 +445,7 @@ class ArticleController extends Controller
         $essenceIds = $request->input('essence_ids', []);
         $situationIds = $request->input('situation_administrative_ids', []);
         $natureIds = $request->input('nature_de_coupe_ids', []);
+        $localisationIds = $request->input('localisation_ids', []);
 
         if (!empty($foretIds)) {
             $article->forets()->sync($foretIds);
@@ -454,6 +462,10 @@ class ArticleController extends Controller
         if (!empty($natureIds)) {
             $article->naturesDeCoupe()->sync($natureIds);
             $article->update(['nature_de_coupe_id' => $natureIds[0]]);
+        }
+        if (!empty($localisationIds)) {
+            $article->localisations()->sync($localisationIds);
+            $article->update(['localisation_id' => $localisationIds[0]]);
         }
 
         // Handle products update

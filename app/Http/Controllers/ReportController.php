@@ -17,15 +17,104 @@ use App\Http\Requests\ArticlesByExploitantRequest;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ReportController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         // Log report dashboard view
         ActivityLogger::log('view', 'Consultation du tableau de bord des rapports', null);
         
-        return view('reports.index');
+        // Get date filters from request
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        
+        // Build base query with date filtering
+        $baseQuery = Article::withoutGlobalScope('not_deleted')
+            ->where('articles.is_deleted', false);
+            
+        if ($startDate) {
+            $baseQuery->where('articles.created_at', '>=', $startDate);
+        }
+        
+        if ($endDate) {
+            $baseQuery->where('articles.created_at', '<=', $endDate . ' 23:59:59');
+        }
+        
+        // Lightweight aggregates for charts on the reports dashboard
+        $byYear = (clone $baseQuery)
+            ->selectRaw('articles.annee, COUNT(*) as total')
+            ->groupBy('articles.annee')
+            ->orderBy('articles.annee', 'asc')
+            ->get();
+
+        $byForet = (clone $baseQuery)
+            ->join('forets', 'articles.foret_id', '=', 'forets.id')
+            ->selectRaw('forets.foret as label, COUNT(*) as total')
+            ->where('forets.is_deleted', false)
+            ->groupBy('forets.id', 'forets.foret')
+            ->orderByDesc('total')
+            ->limit(8)
+            ->get();
+
+        $byEssence = (clone $baseQuery)
+            ->join('essences', 'articles.essence_id', '=', 'essences.id')
+            ->selectRaw('essences.essence as label, COUNT(*) as total')
+            ->where('essences.is_deleted', false)
+            ->groupBy('essences.id', 'essences.essence')
+            ->orderByDesc('total')
+            ->limit(8)
+            ->get();
+
+        $byExploitant = (clone $baseQuery)
+            ->join('exploitants', 'articles.exploitant_id', '=', 'exploitants.id')
+            ->selectRaw('COALESCE(exploitants.nom_complet, exploitants.raison_sociale) as label, COUNT(*) as total')
+            ->where('exploitants.is_deleted', false)
+            ->groupBy('exploitants.id', 'exploitants.nom_complet', 'exploitants.raison_sociale')
+            ->orderByDesc('total')
+            ->limit(8)
+            ->get();
+
+        $byNature = (clone $baseQuery)
+            ->join('nature_de_coupes', 'articles.nature_de_coupe_id', '=', 'nature_de_coupes.id')
+            ->selectRaw('nature_de_coupes.nature_de_coupe as label, COUNT(*) as total')
+            ->where('nature_de_coupes.is_deleted', false)
+            ->groupBy('nature_de_coupes.id', 'nature_de_coupes.nature_de_coupe')
+            ->orderByDesc('total')
+            ->limit(8)
+            ->get();
+
+        $byLocalisation = (clone $baseQuery)
+            ->join('localisations', 'articles.localisation_id', '=', 'localisations.id')
+            ->selectRaw('localisations.ENTITE as label, COUNT(*) as total')
+            ->where('localisations.is_deleted', false)
+            ->groupBy('localisations.id', 'localisations.ENTITE')
+            ->orderByDesc('total')
+            ->limit(8)
+            ->get();
+
+        if (Schema::hasColumn('articles', 'is_validated')) {
+            $byValidation = (clone $baseQuery)
+                ->selectRaw('articles.is_validated, COUNT(*) as total')
+                ->groupBy('articles.is_validated')
+                ->get();
+        } else {
+            // Fallback if column doesn't exist
+            $validated = (clone $baseQuery)
+                ->whereRaw('1=0') // no validated info available
+                ->count();
+            $pending = (clone $baseQuery)
+                ->count();
+            $byValidation = collect([
+                (object)['is_validated' => 1, 'total' => $validated],
+                (object)['is_validated' => 0, 'total' => $pending],
+            ]);
+        }
+        
+        return view('reports.index', compact(
+            'byYear', 'byForet', 'byEssence', 'byExploitant', 'byNature', 'byLocalisation', 'byValidation'
+        ));
     }
 
     public function articlesByYear(ArticlesByYearRequest $request): View
@@ -38,20 +127,22 @@ class ReportController extends Controller
         $articles = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'situationForestiere', 'exploitant', 'localisation'
+            'exploitant', 'localisation'
         ])
         ->where('annee', $year)
         ->orderBy('date_adjudication', 'desc')
-        ->get();
+        ->paginate(15);
 
         $annees = Article::select('annee')->distinct()->orderBy('annee', 'desc')->get();
         
+        // Calculate stats from all articles for the year (not just paginated ones)
+        $allArticles = Article::where('annee', $year)->get();
         $stats = [
-            'total' => $articles->count(),
-            'vendus' => $articles->where('invendu', false)->count(),
-            'invendus' => $articles->where('invendu', true)->count(),
-            'total_prix_vente' => $articles->sum('prix_vente'),
-            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+            'total' => $allArticles->count(),
+            'vendus' => $allArticles->where('invendu', false)->count(),
+            'invendus' => $allArticles->where('invendu', true)->count(),
+            'total_prix_vente' => $allArticles->sum('prix_vente'),
+            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
         ];
 
         return view('reports.articles-by-year', compact('articles', 'annees', 'year', 'stats'));
@@ -68,7 +159,7 @@ class ReportController extends Controller
         $query = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'situationForestiere', 'exploitant', 'localisation'
+            'exploitant', 'localisation'
         ]);
 
         if ($foretId) {
@@ -80,15 +171,17 @@ class ReportController extends Controller
             });
         }
 
-        $articles = $query->orderBy('date_adjudication', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
         $forets = Foret::orderBy('foret')->get();
 
+        // Calculate stats from all articles (not just paginated ones)
+        $allArticles = $query->get();
         $stats = [
-            'total' => $articles->count(),
-            'vendus' => $articles->where('invendu', false)->count(),
-            'invendus' => $articles->where('invendu', true)->count(),
-            'total_prix_vente' => $articles->sum('prix_vente'),
-            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+            'total' => $allArticles->count(),
+            'vendus' => $allArticles->where('invendu', false)->count(),
+            'invendus' => $allArticles->where('invendu', true)->count(),
+            'total_prix_vente' => $allArticles->sum('prix_vente'),
+            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
         ];
 
         return view('reports.articles-by-foret', compact('articles', 'forets', 'foretId', 'stats'));
@@ -105,7 +198,7 @@ class ReportController extends Controller
         $query = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'situationForestiere', 'exploitant', 'localisation'
+            'exploitant', 'localisation'
         ]);
 
         if ($essenceId) {
@@ -117,18 +210,31 @@ class ReportController extends Controller
             });
         }
 
-        $articles = $query->orderBy('date_adjudication', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
         $essences = Essence::orderBy('essence')->get();
 
+        // Calculate stats from all articles (not just paginated ones)
+        $allArticles = $query->get();
         $stats = [
-            'total' => $articles->count(),
-            'vendus' => $articles->where('invendu', false)->count(),
-            'invendus' => $articles->where('invendu', true)->count(),
-            'total_prix_vente' => $articles->sum('prix_vente'),
-            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+            'total' => $allArticles->count(),
+            'vendus' => $allArticles->where('invendu', false)->count(),
+            'invendus' => $allArticles->where('invendu', true)->count(),
+            'total_prix_vente' => $allArticles->sum('prix_vente'),
+            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
         ];
 
-        return view('reports.articles-by-essence', compact('articles', 'essences', 'essenceId', 'stats'));
+        // Get essence statistics for chart
+        $essenceStats = Article::withoutGlobalScope('not_deleted')
+            ->join('essences', 'articles.essence_id', '=', 'essences.id')
+            ->selectRaw('essences.essence as label, COUNT(*) as total')
+            ->where('articles.is_deleted', false)
+            ->where('essences.is_deleted', false)
+            ->groupBy('essences.id', 'essences.essence')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        return view('reports.articles-by-essence', compact('articles', 'essences', 'essenceId', 'stats', 'essenceStats'));
     }
 
     public function articlesByExploitant(ArticlesByExploitantRequest $request): View
@@ -142,22 +248,24 @@ class ReportController extends Controller
         $query = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'situationForestiere', 'exploitant', 'localisation'
+            'exploitant', 'localisation'
         ]);
 
         if ($exploitantId) {
             $query->where('exploitant_id', $exploitantId);
         }
 
-        $articles = $query->orderBy('date_adjudication', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
         $exploitants = Exploitant::orderBy('nom_complet')->get();
 
+        // Calculate stats from all articles (not just paginated ones)
+        $allArticles = $query->get();
         $stats = [
-            'total' => $articles->count(),
-            'vendus' => $articles->where('invendu', false)->count(),
-            'invendus' => $articles->where('invendu', true)->count(),
-            'total_prix_vente' => $articles->sum('prix_vente'),
-            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+            'total' => $allArticles->count(),
+            'vendus' => $allArticles->where('invendu', false)->count(),
+            'invendus' => $allArticles->where('invendu', true)->count(),
+            'total_prix_vente' => $allArticles->sum('prix_vente'),
+            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
         ];
 
         return view('reports.articles-by-exploitant', compact('articles', 'exploitants', 'exploitantId', 'stats'));
@@ -170,7 +278,6 @@ class ReportController extends Controller
         
         $articles = Article::with([
             'situationAdministrative',
-            'situationForestiere',
             'foret',
             'essence',
             'natureDeCoupe',
@@ -196,7 +303,6 @@ class ReportController extends Controller
         
         $articles = Article::with([
             'situationAdministrative',
-            'situationForestiere',
             'foret',
             'essence',
             'natureDeCoupe',
@@ -286,7 +392,7 @@ class ReportController extends Controller
         $query = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'situationForestiere', 'exploitant', 'localisation'
+            'exploitant', 'localisation'
         ]);
 
         if ($natureDeCoupeId) {
@@ -298,15 +404,17 @@ class ReportController extends Controller
             });
         }
 
-        $articles = $query->orderBy('date_adjudication', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
 
+        // Calculate stats from all articles (not just paginated ones)
+        $allArticles = $query->get();
         $stats = [
-            'total' => $articles->count(),
-            'vendus' => $articles->where('invendu', false)->count(),
-            'invendus' => $articles->where('invendu', true)->count(),
-            'total_prix_vente' => $articles->sum('prix_vente'),
-            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+            'total' => $allArticles->count(),
+            'vendus' => $allArticles->where('invendu', false)->count(),
+            'invendus' => $allArticles->where('invendu', true)->count(),
+            'total_prix_vente' => $allArticles->sum('prix_vente'),
+            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
         ];
 
         return view('reports.articles-by-nature-de-coupe', compact('articles', 'natureDeCoupes', 'natureDeCoupeId', 'stats'));
@@ -322,7 +430,6 @@ class ReportController extends Controller
         
         $query = Article::with([
             'situationAdministrative',
-            'situationForestiere',
             'foret',
             'essence',
             'natureDeCoupe',
@@ -334,15 +441,17 @@ class ReportController extends Controller
             $query->where('localisation_id', $localisationId);
         }
 
-        $articles = $query->orderBy('date_adjudication', 'desc')->get();
+        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
         $localisations = Localisation::orderBy('ENTITE')->get();
 
+        // Calculate stats from all articles (not just paginated ones)
+        $allArticles = $query->get();
         $stats = [
-            'total' => $articles->count(),
-            'vendus' => $articles->where('invendu', false)->count(),
-            'invendus' => $articles->where('invendu', true)->count(),
-            'total_prix_vente' => $articles->sum('prix_vente'),
-            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+            'total' => $allArticles->count(),
+            'vendus' => $allArticles->where('invendu', false)->count(),
+            'invendus' => $allArticles->where('invendu', true)->count(),
+            'total_prix_vente' => $allArticles->sum('prix_vente'),
+            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
         ];
 
         return view('reports.articles-by-localisation', compact('articles', 'localisations', 'localisationId', 'stats'));
@@ -358,7 +467,6 @@ class ReportController extends Controller
         
         $query = Article::with([
             'situationAdministrative',
-            'situationForestiere',
             'foret',
             'essence',
             'natureDeCoupe',
@@ -374,16 +482,18 @@ class ReportController extends Controller
             }
         }
 
-        $articles = $query->orderBy('date', 'desc')->get();
+        $articles = $query->orderBy('date', 'desc')->paginate(15);
 
+        // Calculate stats from all articles (not just paginated ones)
+        $allArticles = $query->get();
         $stats = [
-            'total' => $articles->count(),
-            'validated' => $articles->where('is_validated', true)->count(),
-            'pending' => $articles->where('is_validated', false)->count(),
-            'vendus' => $articles->where('invendu', false)->count(),
-            'invendus' => $articles->where('invendu', true)->count(),
-            'total_prix_vente' => $articles->sum('prix_vente'),
-            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
+            'total' => $allArticles->count(),
+            'validated' => $allArticles->where('is_validated', true)->count(),
+            'pending' => $allArticles->where('is_validated', false)->count(),
+            'vendus' => $allArticles->where('invendu', false)->count(),
+            'invendus' => $allArticles->where('invendu', true)->count(),
+            'total_prix_vente' => $allArticles->sum('prix_vente'),
+            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
         ];
 
         return view('reports.articles-by-validation-status', compact('articles', 'status', 'stats'));

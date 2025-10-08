@@ -164,7 +164,7 @@
     <!-- Charts -->
     @if(isset($stats))
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 mb-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <div>
                 <h3 class="text-lg font-bold text-gray-800 mb-3">Vendus vs Invendus</h3>
                 <canvas id="chartVendusInvendusEssence"></canvas>
@@ -174,6 +174,16 @@
                 <canvas id="chartRevenusEssence"></canvas>
             </div>
         </div>
+        
+        <!-- Essence Chart -->
+        @if(isset($essenceStats) && $essenceStats->count() > 0)
+        <div class="mt-8">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Articles par Essence</h3>
+            <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
+                <canvas id="chartEssences" height="400"></canvas>
+            </div>
+        </div>
+        @endif
     </div>
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -183,14 +193,120 @@
         const invendus = Number(@json($stats['invendus'] ?? 0));
         const totalRevenue = Number(@json($stats['total_prix_vente'] ?? 0));
 
+        // Vendus vs Invendus Chart
         const c1 = document.getElementById('chartVendusInvendusEssence');
         if (c1 && window.Chart) {
-            new Chart(c1, { type: 'doughnut', data: { labels: ['Vendus','Invendus'], datasets: [{ data: [vendus, invendus], backgroundColor: ['#22c55e','#f59e0b'], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom' } } } });
+            new Chart(c1, { 
+                type: 'doughnut', 
+                data: { 
+                    labels: ['Vendus','Invendus'], 
+                    datasets: [{ 
+                        data: [vendus, invendus], 
+                        backgroundColor: ['#22c55e','#f59e0b'], 
+                        borderWidth: 0 
+                    }] 
+                }, 
+                options: { 
+                    plugins: { 
+                        legend: { position: 'bottom' } 
+                    } 
+                } 
+            });
         }
+
+        // Revenue Chart
         const c2 = document.getElementById('chartRevenusEssence');
         if (c2 && window.Chart) {
-            new Chart(c2, { type: 'bar', data: { labels: ['Total Revenus'], datasets: [{ label: 'DH', data: [totalRevenue], backgroundColor: '#3b82f6' }] }, options: { scales: { y: { beginAtZero: true } } } });
+            new Chart(c2, { 
+                type: 'bar', 
+                data: { 
+                    labels: ['Total Revenus'], 
+                    datasets: [{ 
+                        label: 'DH', 
+                        data: [totalRevenue], 
+                        backgroundColor: '#3b82f6' 
+                    }] 
+                }, 
+                options: { 
+                    scales: { 
+                        y: { beginAtZero: true } 
+                    } 
+                } 
+            });
         }
+
+        // Essence Chart
+        @if(isset($essenceStats) && $essenceStats->count() > 0)
+        const essenceStats = @json($essenceStats);
+        const c3 = document.getElementById('chartEssences');
+        if (c3 && window.Chart && essenceStats) {
+            const labels = essenceStats.map(item => item.label);
+            const data = essenceStats.map(item => item.total);
+            
+            new Chart(c3, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nombre d\'articles',
+                        data: data,
+                        backgroundColor: [
+                            '#8b5cf6', '#a855f7', '#c084fc', '#d8b4fe', '#e9d5ff',
+                            '#f3e8ff', '#ddd6fe', '#c4b5fd', '#a78bfa', '#8b5cf6'
+                        ],
+                        borderColor: [
+                            '#7c3aed', '#9333ea', '#a855f7', '#c084fc', '#d8b4fe',
+                            '#e9d5ff', '#ddd6fe', '#c4b5fd', '#a78bfa', '#8b5cf6'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Distribution des articles par essence forestière',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            });
+        }
+        @endif
     });
     </script>
     @endpush

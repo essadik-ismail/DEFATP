@@ -20,7 +20,7 @@
 
 {{-- 
     CARD COMPONENT
-    Usage: <x-card title="Card Title" subtitle="Card Subtitle" collapsible="true" id="unique-id">
+    Usage: <x-card title="Card Title" subtitle="Card Subtitle" variant="gradient" color="green" icon="fas fa-chart" collapsible="true" id="unique-id">
         Card content here
     </x-card>
     
@@ -32,6 +32,24 @@
     - collapsible: Whether card can be collapsed
     - collapsed: Initial collapsed state
     - id: Unique identifier for collapsible cards
+    - variant: Card style (default, gradient, colored, minimal)
+    - color: Color theme (green, blue, purple, orange, red, gray)
+    - icon: Icon class for header
+    - iconColor: Custom icon color (optional)
+    - padding: Padding size (normal, compact, spacious)
+    
+    Examples:
+    <x-card title="Statistics" variant="gradient" color="blue" icon="fas fa-chart-bar">
+        Content here
+    </x-card>
+    
+    <x-card title="Settings" variant="colored" color="green" icon="fas fa-cog" collapsible="true" id="settings">
+        Settings content
+    </x-card>
+    
+    <x-card title="Minimal Card" variant="minimal" padding="compact">
+        Minimal content
+    </x-card>
 --}}
 
 {{-- 

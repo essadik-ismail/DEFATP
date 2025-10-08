@@ -101,15 +101,12 @@
                                 
                                 <div class="mb-3">
                                     <label for="password" class="form-label">
-                                        <i class="fas fa-lock me-1"></i>Mot de passe <span class="text-danger">*</span>
+                                        Mot de passe <span class="text-danger">*</span>
                                     </label>
                                     <div class="input-group">
                                         <input type="password" class="form-control @error('password') is-invalid @enderror" 
                                                id="password" name="password" required minlength="8"
                                                placeholder="Minimum 8 caractères">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')" aria-label="Afficher le mot de passe">
-                                            <i class="fas fa-eye" id="passwordIcon"></i>
-                                        </button>
                                     </div>
                                     @error('password')
                                         <div class="invalid-feedback">
@@ -129,7 +126,7 @@
 
                                 <div class="mb-3">
                                     <label for="password_confirmation" class="form-label">
-                                        <i class="fas fa-lock me-1"></i>Confirmer le mot de passe <span class="text-danger">*</span>
+                                        Confirmer le mot de passe <span class="text-danger">*</span>
                                     </label>
                                     <input type="password" class="form-control" 
                                            id="password_confirmation" name="password_confirmation" required

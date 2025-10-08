@@ -32,6 +32,9 @@
     <!-- Custom Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     
+    <!-- Component Styles -->
+    @stack('styles')
+    
     <!-- Custom Styles -->
     <style>
         :root {

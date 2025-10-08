@@ -117,11 +117,6 @@
             >
         @endif
         
-        @if($showPasswordToggle && $type === 'password')
-            <button type="button" class="password-toggle" onclick="togglePassword('{{ $name }}')" aria-label="Afficher le mot de passe">
-                <i class="fas fa-eye" id="toggle-icon-{{ $name }}"></i>
-            </button>
-        @endif
     </div>
 
     @if($help)
@@ -152,6 +147,7 @@
     .input-wrapper {
         position: relative;
         width: 100%;
+        display: block;
     }
 
     .input-wrapper.has-icon {
@@ -166,6 +162,12 @@
         color: #9ca3af;
         z-index: 10;
         pointer-events: none;
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .form-control, .form-select, .form-textarea {
@@ -246,35 +248,6 @@
         box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
     }
 
-    /* Enhanced UX Styles */
-    .input-wrapper.has-password-toggle {
-        position: relative;
-    }
-
-    .password-toggle {
-        position: absolute;
-        right: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #6b7280;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 0.375rem;
-        transition: all 0.2s ease;
-        z-index: 10;
-    }
-
-    .password-toggle:hover {
-        color: #059669;
-        background: rgba(5, 150, 105, 0.1);
-    }
-
-    .password-toggle:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
-    }
 
     .input-loading {
         position: absolute;
@@ -350,23 +323,6 @@
 
 @push('scripts')
 <script>
-// Enhanced form input functionality
-function togglePassword(inputId) {
-    const input = document.getElementById(inputId);
-    const icon = document.getElementById('toggle-icon-' + inputId);
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-        icon.parentElement.setAttribute('aria-label', 'Masquer le mot de passe');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-        icon.parentElement.setAttribute('aria-label', 'Afficher le mot de passe');
-    }
-}
 
 // Enhanced form validation
 function validateFormField(field) {
