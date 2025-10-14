@@ -20,6 +20,7 @@ class ArticleSeeder extends Seeder
     private $essenceData = [];
     private $natureCoupeData = [];
     private $exploitantData = [];
+    private $autoNumber = 1;
 
     /**
      * Run the database seeds.
@@ -31,53 +32,77 @@ class ArticleSeeder extends Seeder
         // Load JSON data
         $this->loadJsonData();
         
-        // Get articles data
+        // Get articles data (Article.json + any JSON in articles/ directory)
         $articlesData = $this->getArticlesData();
+        $folderArticles = $this->getArticlesFromFolder(base_path('articles'));
+        $articlesData = array_merge($articlesData, $folderArticles);
         $this->command->info('Found ' . count($articlesData) . ' articles to process.');
 
         $createdCount = 0;
-        $skippedCount = 0;
+        $updatedCount = 0;
 
         foreach ($articlesData as $articleData) {
             try {
-                // Check if article already exists
-                $existingArticle = Article::where('numero', $articleData['numero'])
-                    ->where('annee', $articleData['annee'])
+                // Ensure numero exists; synthesize if missing
+                if (!isset($articleData['numero']) || $articleData['numero'] === null || $articleData['numero'] === '') {
+                    $articleData['numero'] = $this->generateNumero($articleData);
+                }
+
+                // Check if article already exists (update instead of skip)
+                $existingArticle = Article::where('numero', $articleData['numero'] ?? null)
+                    ->where('annee', $articleData['annee'] ?? null)
                     ->first();
-                
+                // Extract pivot ids (if present) and remove from mass-assignable attributes
+                $pivotEssenceIds = $articleData['_pivot_essence_ids'] ?? [];
+                $pivotNatureIds = $articleData['_pivot_nature_ids'] ?? [];
+                $pivotForetIds = $articleData['_pivot_foret_ids'] ?? [];
+                $pivotSituationIds = $articleData['_pivot_situation_ids'] ?? [];
+                $pivotLocalisationIds = $articleData['_pivot_localisation_ids'] ?? [];
+
+                unset(
+                    $articleData['_pivot_essence_ids'],
+                    $articleData['_pivot_nature_ids'],
+                    $articleData['_pivot_foret_ids'],
+                    $articleData['_pivot_situation_ids'],
+                    $articleData['_pivot_localisation_ids']
+                );
+
                 if ($existingArticle) {
-                    $skippedCount++;
-                    $this->command->warn("Article already exists: {$articleData['numero']} - {$articleData['annee']}");
-                    continue;
-                }
-
+                    $existingArticle->update($articleData);
+                    $article = $existingArticle;
+                    $updatedCount++;
+                    $this->command->info('Updated article: ' . ($articleData['numero'] ?? 'N/A') . ' - ' . ($articleData['annee'] ?? 'N/A'));
+                } else {
                 $article = Article::create($articleData);
+                    $createdCount++;
+                    $this->command->info('Created article: ' . ($articleData['numero'] ?? 'N/A') . ' - ' . ($articleData['annee'] ?? 'N/A'));
+                }
 
-                // Populate pivot tables with single-linked IDs (backward compatible)
-                // Attach essence
-                if (!empty($articleData['essence_id'])) {
-                    $article->essences()->syncWithoutDetaching([$articleData['essence_id']]);
+                // Sync many-to-many relations
+                if (!empty($pivotEssenceIds)) {
+                    $article->essences()->syncWithoutDetaching($pivotEssenceIds);
                 }
-                // Attach nature de coupe
-                if (!empty($articleData['nature_de_coupe_id'])) {
-                    $article->naturesDeCoupe()->syncWithoutDetaching([$articleData['nature_de_coupe_id']]);
+                if (!empty($pivotNatureIds)) {
+                    $article->naturesDeCoupe()->syncWithoutDetaching($pivotNatureIds);
                 }
-                // Attach foret
-                if (!empty($articleData['foret_id'])) {
-                    $article->forets()->syncWithoutDetaching([$articleData['foret_id']]);
+                if (!empty($pivotForetIds)) {
+                    $article->forets()->syncWithoutDetaching($pivotForetIds);
                 }
-                // Attach situation administrative
-                if (!empty($articleData['situation_administrative_id'])) {
-                    $article->situationsAdministratives()->syncWithoutDetaching([$articleData['situation_administrative_id']]);
+                if (!empty($pivotSituationIds)) {
+                    $article->situationsAdministratives()->syncWithoutDetaching($pivotSituationIds);
                 }
-                $createdCount++;
-                $this->command->info("Created article: {$articleData['numero']} - {$articleData['annee']}");
+                if (!empty($pivotLocalisationIds)) {
+                    $article->localisations()->syncWithoutDetaching($pivotLocalisationIds);
+                }
+                
             } catch (\Exception $e) {
-                $this->command->error("Failed to create article {$articleData['numero']}: " . $e->getMessage());
+                $num = $articleData['numero'] ?? 'N/A';
+                $yr = $articleData['annee'] ?? 'N/A';
+                $this->command->error('Failed to create/update article ' . $num . ' - ' . $yr . ': ' . $e->getMessage());
             }
         }
 
-        $this->command->info("ArticleSeeder completed. Created: {$createdCount}, Skipped: {$skippedCount}");
+        $this->command->info("ArticleSeeder completed. Created: {$createdCount}, Updated: {$updatedCount}");
     }
 
     /**
@@ -195,18 +220,13 @@ class ArticleSeeder extends Seeder
 
                 $data = [
                     'annee' => $annee,
-                    'numero' => $numero,
+                    'numero' => $numero ?? $this->generateNumero(['annee' => $annee]),
                     'date_adjudication' => $date,
                     'invendu' => isset($row['Invendu']) ? (bool) filter_var($row['Invendu'], FILTER_VALIDATE_BOOLEAN) : false,
                     'prix_de_retrait' => isset($row['Prix de retrait']) ? (float) str_replace([','], ['.'], (string) $row['Prix de retrait']) : null,
-                    'situation_administrative_id' => $situationAdministrative ? $this->findSituation($situationAdministrative) : null,
-                    'foret_id' => $situationForestiere ? $this->findForet($situationForestiere) : null,
-                    'localisation_id' => $situationForestiere ? $this->findLocalisation($situationForestiere) : null,
                     'exploitant_id' => $exploitantId,
                     'lot' => isset($row['Lot']) && $row['Lot'] !== '' ? (string) $row['Lot'] : null,
                     'parcelle' => $parcelle,
-                    'essence_id' => $essenceId,
-                    'nature_de_coupe_id' => $natureCoupeId,
                     'superficie' => isset($row['Superficie']) ? (float) str_replace([','], ['.'], (string) $row['Superficie']) : null,
                     'bo_m3' => isset($row['BO (m3)']) ? (float) str_replace([','], ['.'], (string) $row['BO (m3)']) : null,
                     'bi_m3' => isset($row['BI (m3)']) ? (float) str_replace([','], ['.'], (string) $row['BI (m3)']) : null,
@@ -215,7 +235,6 @@ class ArticleSeeder extends Seeder
                     'fleur_acacia_t' => isset($row["Fleur d'acacia (T)"]) ? (float) str_replace([','], ['.'], (string) $row["Fleur d'acacia (T)"]) : null,
                     'caroube_t' => isset($row['Caroube (T)']) ? (float) str_replace([','], ['.'], (string) $row['Caroube (T)']) : null,
                     'romarin_t' => isset($row['Romarin (T)']) ? (float) str_replace([','], ['.'], (string) $row['Romarin (T)']) : null,
-                    'ps_t' => isset($row['PS (T)']) ? (float) str_replace([','], ['.'], (string) $row['PS (T)']) : null,
                     // model fillable uses accented key for liège
                     'liége_st' => isset($row['Liège (St)']) ? (float) str_replace([','], ['.'], (string) $row['Liège (St)']) : null,
                     'charbon_bois_ox' => isset($row['Charbon de bois (Qx)']) ? (float) str_replace([','], ['.'], (string) $row['Charbon de bois (Qx)']) : null,
@@ -231,6 +250,17 @@ class ArticleSeeder extends Seeder
                 if ($lat !== null) { $data['lat'] = $lat; }
                 if ($log !== null) { $data['log'] = $log; }
 
+                // Add pivot IDs (arrays) built from the looked-up single ids
+                $situationId = $situationAdministrative ? $this->findSituation($situationAdministrative) : null;
+                $foretId = $situationForestiere ? $this->findForet($situationForestiere) : null;
+                $localisationId = $situationForestiere ? $this->findLocalisation($situationForestiere) : null;
+
+                $data['_pivot_situation_ids'] = $situationId ? [$situationId] : [];
+                $data['_pivot_foret_ids'] = $foretId ? [$foretId] : [];
+                $data['_pivot_localisation_ids'] = $localisationId ? [$localisationId] : [];
+                $data['_pivot_essence_ids'] = $essenceId ? [$essenceId] : [];
+                $data['_pivot_nature_ids'] = $natureCoupeId ? [$natureCoupeId] : [];
+
                 // Clean out nulls to avoid mass-assignment of null where not desired
                 $articles[] = array_filter($data, static function ($v) { return $v !== null; });
             } catch (\Throwable $e) {
@@ -240,6 +270,131 @@ class ArticleSeeder extends Seeder
         }
 
         return $articles;
+    }
+
+    /**
+     * Read all JSON files in a folder and aggregate parsed articles
+     */
+    private function getArticlesFromFolder(string $folderPath): array
+    {
+        $all = [];
+        if (!is_dir($folderPath)) {
+            $this->command->warn('Articles folder not found: ' . $folderPath);
+            return $all;
+        }
+        $files = glob($folderPath . DIRECTORY_SEPARATOR . '*.json');
+        if (!$files) {
+            return $all;
+        }
+        foreach ($files as $file) {
+            try {
+                $json = file_get_contents($file);
+                $payload = json_decode($json, true) ?? [];
+                if (empty($payload)) {
+                    $this->command->warn('Empty or invalid JSON: ' . $file);
+                    continue;
+                }
+                // Detect schema: either direct array of rows, or wrapped under Feuil1
+                if (isset($payload['Feuil1']) && is_array($payload['Feuil1'])) {
+                    $rows = $payload['Feuil1'];
+                } elseif (array_is_list($payload)) {
+                    $rows = $payload;
+                } else {
+                    $this->command->warn('Unrecognized JSON schema in ' . basename($file) . ' — skipping');
+                    continue;
+                }
+                $this->command->info('Parsing ' . count($rows) . ' rows from ' . basename($file));
+                // Try Feuil1 schema first
+                if (isset($payload['Feuil1'])) {
+                    foreach ($rows as $row) {
+                        $norm = $this->normalizeFeuil1Row($row);
+                        if (!empty($norm)) { $all[] = $norm; }
+                    }
+                    continue;
+                }
+                // Fallback: Inline the parsing loop (Article.json-like)
+                foreach ($rows as $row) {
+                    try {
+                        // Basic reuse of the transform from getArticlesData
+                        $date = isset($row['Date']) && $row['Date']
+                            ? \Carbon\Carbon::createFromFormat('dmY', preg_replace('/[^0-9]/', '', (string) $row['Date']))
+                            : null;
+                        $annee = $date ? (int) $date->format('Y') : null;
+                        $numero = isset($row['Numéro']) ? (int) $row['Numéro'] : null;
+                        $situationAdministrative = isset($row['Situation administrative']) ? trim((string) $row['Situation administrative']) : null;
+                        $situationForestiere = isset($row['Situation forestière']) ? trim((string) $row['Situation forestière']) : null;
+                        $parcelle = null;
+                        if (!empty($row['Parcelle'])) {
+                            $parcelle = (string) $row['Parcelle'];
+                        } elseif (!empty($row['Forêt'])) {
+                            $parcelle = (string) $row['Forêt'];
+                        }
+                        $lat = null; $log = null;
+                        if (!empty($row['Coordonnées'])) {
+                            $coords = (string) $row['Coordonnées'];
+                            if (preg_match('/x\s*=\s*([-0-9.,]+)/i', $coords, $mx)) { $log = (float) str_replace([','], ['.'], $mx[1]); }
+                            if (preg_match('/y\s*=\s*([-0-9.,]+)/i', $coords, $my)) { $lat = (float) str_replace([','], ['.'], $my[1]); }
+                        }
+                        $essenceRaw = isset($row['Essence']) ? (string) $row['Essence'] : '';
+                        $essenceFirst = trim((string) explode(';', str_replace(',', ';', $essenceRaw))[0]);
+                        $essenceId = $essenceFirst !== '' ? $this->findEssence($essenceFirst) : null;
+                        $modeRaw = isset($row["Mode d'Exploitation"]) ? (string) $row["Mode d'Exploitation"] : '';
+                        $modeFirst = trim((string) explode(';', str_replace([','], [';'], $modeRaw))[0]);
+                        $natureCoupeId = null;
+                        if ($modeFirst !== '') { $label = ctype_digit($modeFirst) ? 'Mode ' . $modeFirst : $modeFirst; $natureCoupeId = $this->findNatureCoupe($label); }
+                        $adjudicataire = isset($row['Adjudicataire']) ? trim((string) $row['Adjudicataire']) : null;
+                        $exploitantId = $adjudicataire ? $this->findExploitant($adjudicataire) : null;
+
+                        $data = [
+                            'annee' => $annee,
+                            'numero' => $numero ?? $this->generateNumero(['annee' => $annee]),
+                            'date_adjudication' => $date,
+                            'invendu' => isset($row['Invendu']) ? (bool) filter_var($row['Invendu'], FILTER_VALIDATE_BOOLEAN) : false,
+                            'prix_de_retrait' => isset($row['Prix de retrait']) ? (float) str_replace([','], ['.'], (string) $row['Prix de retrait']) : null,
+                            'exploitant_id' => $exploitantId,
+                            'lot' => isset($row['Lot']) && $row['Lot'] !== '' ? (string) $row['Lot'] : null,
+                            'parcelle' => $parcelle,
+                            'superficie' => isset($row['Superficie']) ? (float) str_replace([','], ['.'], (string) $row['Superficie']) : null,
+                            'bo_m3' => isset($row['BO (m3)']) ? (float) str_replace([','], ['.'], (string) $row['BO (m3)']) : null,
+                            'bi_m3' => isset($row['BI (m3)']) ? (float) str_replace([','], ['.'], (string) $row['BI (m3)']) : null,
+                            'bf_st' => isset($row['BF (St)']) ? (float) str_replace([','], ['.'], (string) $row['BF (St)']) : null,
+                            'tanin_t' => isset($row['Tanin (T)']) ? (float) str_replace([','], ['.'], (string) $row['Tanin (T)']) : null,
+                            'fleur_acacia_t' => isset($row["Fleur d'acacia (T)"]) ? (float) str_replace([','], ['.'], (string) $row["Fleur d'acacia (T)"]) : null,
+                            'caroube_t' => isset($row['Caroube (T)']) ? (float) str_replace([','], ['.'], (string) $row['Caroube (T)']) : null,
+                            'romarin_t' => isset($row['Romarin (T)']) ? (float) str_replace([','], ['.'], (string) $row['Romarin (T)']) : null,
+                            'liége_st' => isset($row['Liège (St)']) ? (float) str_replace([','], ['.'], (string) $row['Liège (St)']) : null,
+                            'charbon_bois_ox' => isset($row['Charbon de bois (Qx)']) ? (float) str_replace([','], ['.'], (string) $row['Charbon de bois (Qx)']) : null,
+                            'prix_vente' => isset($row['Prix de vente']) ? (float) str_replace([','], ['.'], (string) $row['Prix de vente']) : null,
+                            'dc' => isset($row['DC']) ? (bool) filter_var($row['DC'], FILTER_VALIDATE_BOOLEAN) : false,
+                            'rc' => isset($row['RC']) ? (bool) filter_var($row['RC'], FILTER_VALIDATE_BOOLEAN) : false,
+                            'numero_adjudication' => $adjudicataire,
+                            'type' => 'adjudication',
+                            'is_deleted' => false,
+                        ];
+                        if ($lat !== null) { $data['lat'] = $lat; }
+                        if ($log !== null) { $data['log'] = $log; }
+                        // build pivot arrays
+                        $situationId = $situationAdministrative ? $this->findSituation($situationAdministrative) : null;
+                        $foretId = $situationForestiere ? $this->findForet($situationForestiere) : null;
+                        $localisationId = $situationForestiere ? $this->findLocalisation($situationForestiere) : null;
+                        $data['_pivot_situation_ids'] = $situationId ? [$situationId] : [];
+                        $data['_pivot_foret_ids'] = $foretId ? [$foretId] : [];
+                        $data['_pivot_localisation_ids'] = $localisationId ? [$localisationId] : [];
+                        $data['_pivot_essence_ids'] = $essenceId ? [$essenceId] : [];
+                        $data['_pivot_nature_ids'] = $natureCoupeId ? [$natureCoupeId] : [];
+
+                        $all[] = array_filter($data, static function ($v) { return $v !== null; });
+                    } catch (\Throwable $e) {
+                        $this->command->warn('Skipping malformed row in ' . basename($file) . ': ' . $e->getMessage());
+                        continue;
+                    }
+                }
+            } catch (\Throwable $e) {
+                $this->command->warn('Failed to parse ' . basename($file) . ': ' . $e->getMessage());
+                continue;
+            }
+        }
+        return $all;
     }
 
     /**
@@ -396,5 +551,15 @@ class ArticleSeeder extends Seeder
         }
         
         return null;
+    }
+
+    /**
+     * Generate a synthetic numero when source data lacks a distinct number.
+     */
+    private function generateNumero(array $articleData): string
+    {
+        $year = $articleData['annee'] ?? date('Y');
+        $seq = str_pad((string) $this->autoNumber++, 5, '0', STR_PAD_LEFT);
+        return (string) $year . '-' . $seq;
     }
 }
