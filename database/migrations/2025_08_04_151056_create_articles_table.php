@@ -21,11 +21,6 @@ return new class extends Migration
 
             $table->decimal('prix_de_retrait', 10, 2)->nullable();
             
-            $table->foreignId('situation_administrative_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('foret_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('essence_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('nature_de_coupe_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('localisation_id')->nullable()->constrained()->onDelete('cascade');
 
             $table->integer('lot')->nullable();
             $table->integer('parcelle')->nullable();

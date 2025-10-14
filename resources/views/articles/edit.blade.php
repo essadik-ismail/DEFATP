@@ -191,7 +191,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="localisation_id" id="localisation_id_hidden" value="{{ old('localisation_id', $article->localisation_id) }}">
                         @error('localisation_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -214,7 +213,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="situation_administrative_id" id="situation_administrative_id_hidden" value="{{ old('situation_administrative_id', $article->situation_administrative_id) }}">
                         @error('situation_administrative_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -239,7 +237,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="foret_id" id="foret_id_hidden" value="{{ old('foret_id', $article->foret_id) }}">
                         @error('foret_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -262,7 +259,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="essence_id" id="essence_id_hidden" value="{{ old('essence_id', $article->essence_id) }}">
                         @error('essence_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -287,7 +283,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="nature_de_coupe_id" id="nature_de_coupe_id_hidden" value="{{ old('nature_de_coupe_id', $article->nature_de_coupe_id) }}">
                         @error('nature_de_coupe_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>

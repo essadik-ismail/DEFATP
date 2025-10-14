@@ -200,13 +200,15 @@
         $headers = ['ID', 'Numéro', 'Date', 'Localisation', 'Forêts', 'Essences', 'Exploitant', 'Statut', 'Prix de Vente', 'Actions'];
         $rows = $articles->map(function ($article) {
             $date = optional($article->date_adjudication)->format('d/m/Y') ?: 'N/A';
-            $localisation = $article->localisation ? e($article->localisation->CODE.' - '.($article->localisation->ENTITE ?? '')) : 'N/A';
+            $localisation = method_exists($article, 'localisations') && $article->localisations && $article->localisations->count()
+                ? $article->localisations->map(fn($l) => e($l->CODE.' - '.($l->ENTITE ?? '')))->implode(', ')
+                : 'N/A';
             $forets = method_exists($article, 'forets') && $article->forets && $article->forets->count()
                 ? $article->forets->map(fn($f) => '<span class="badge bg-emerald-100 text-emerald-800 rounded px-2 py-0.5">'.e($f->foret).'</span>')->implode(' ')
-                : e(optional($article->foret)->foret ?: 'N/A');
+                : 'N/A';
             $essences = method_exists($article, 'essences') && $article->essences && $article->essences->count()
                 ? $article->essences->map(fn($e) => '<span class="badge bg-purple-100 text-purple-800 rounded px-2 py-0.5">'.e($e->essence).'</span>')->implode(' ')
-                : e(optional($article->essence)->essence ?: 'N/A');
+                : 'N/A';
             $exploitant = $article->exploitant ? e($article->exploitant->nom_complet ?? trim(($article->exploitant->nom ?? '').' '.($article->exploitant->prenom ?? ''))) : 'N/A';
             $statut = $article->invendu
                 ? '<span class="badge bg-warning-soft text-warning-700 px-2 py-1 rounded">Invendu</span>'

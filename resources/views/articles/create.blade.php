@@ -180,7 +180,7 @@
                             Localisations <span class="text-red-500">*</span>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
-                        <select multiple
+                        <select multiple required
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
                                 id="localisation_ids" name="localisation_ids[]">
                             @foreach($localisations as $localisation)
@@ -189,7 +189,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="localisation_id" value="{{ old('localisation_id') }}">
                         @error('localisation_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -202,7 +201,7 @@
                             Situation Administrative <span class="text-red-500">*</span>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'situation_administrative_ids')">
-                        <select multiple
+                        <select multiple required
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
                                 id="situation_administrative_ids" name="situation_administrative_ids[]">
                             @foreach($situationAdministratives as $situation)
@@ -211,7 +210,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="situation_administrative_id" value="{{ old('situation_administrative_id') }}">
                         @error('situation_administrative_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -226,7 +224,7 @@
                             Forêts <span class="text-red-500">*</span>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'foret_ids')">
-                        <select multiple
+                        <select multiple required
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
                                 id="foret_ids" name="foret_ids[]">
                             @foreach($forets as $foret)
@@ -235,7 +233,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="foret_id" value="{{ old('foret_id') }}">
                         @error('foret_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -248,7 +245,7 @@
                             Essences <span class="text-red-500">*</span>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'essence_ids')">
-                        <select multiple
+                        <select multiple required
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
                                 id="essence_ids" name="essence_ids[]">
                             @foreach($essences as $essence)
@@ -257,7 +254,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="essence_id" value="{{ old('essence_id') }}">
                         @error('essence_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -272,7 +268,7 @@
                             Natures de Coupe <span class="text-red-500">*</span>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'nature_de_coupe_ids')">
-                        <select multiple
+                        <select multiple required
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
                                 id="nature_de_coupe_ids" name="nature_de_coupe_ids[]">
                             @foreach($natureDeCoupes as $natureDeCoupe)
@@ -281,7 +277,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="nature_de_coupe_id" value="{{ old('nature_de_coupe_id') }}">
                         @error('nature_de_coupe_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -750,7 +745,18 @@ document.addEventListener('DOMContentLoaded', function() {
         let isValid = true;
         
         fields.forEach(field => {
-            if (!field.value.trim()) {
+            let hasValue = false;
+            
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                hasValue = field.checked;
+            } else if (field.multiple) {
+                // For multi-select fields, check if at least one option is selected
+                hasValue = field.selectedOptions.length > 0;
+            } else {
+                hasValue = field.value.trim() !== '';
+            }
+            
+            if (!hasValue) {
                 field.classList.add('is-invalid');
                 isValid = false;
             } else {

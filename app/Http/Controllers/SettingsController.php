@@ -681,11 +681,11 @@ class SettingsController extends Controller
             
             // Handle create_and_next action for regular requests
             if ($request->input('action') === 'create_and_next') {
-                return redirect()->route('settings.exploitants.create')
+                return redirect()->route('exploitants.create')
                     ->with('success', 'Exploitant ajouté avec succès. Vous pouvez créer un autre exploitant.');
             }
             
-            return redirect()->route('settings.exploitants')->with('success', 'Exploitant ajouté avec succès.');
+            return redirect()->route('exploitants.index')->with('success', 'Exploitant ajouté avec succès.');
             
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->ajax()) {
@@ -734,7 +734,7 @@ class SettingsController extends Controller
             $request
         );
         
-        return redirect()->route('settings.exploitants')->with('success', 'Exploitant mis à jour avec succès.');
+        return redirect()->route('exploitants.index')->with('success', 'Exploitant mis à jour avec succès.');
     }
 
     public function destroyExploitant(Exploitant $exploitant): RedirectResponse
@@ -750,7 +750,7 @@ class SettingsController extends Controller
             request()
         );
         
-        return redirect()->route('settings.exploitants')->with('success', 'Exploitant supprimé avec succès.');
+        return redirect()->route('exploitants.index')->with('success', 'Exploitant supprimé avec succès.');
     }
 
     // Localisations Management
@@ -1273,7 +1273,7 @@ class SettingsController extends Controller
                 $request
             );
             
-            return redirect()->route('settings.exploitants')->with('success', 'Exploitants importés avec succès.');
+            return redirect()->route('exploitants.index')->with('success', 'Exploitants importés avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
         }

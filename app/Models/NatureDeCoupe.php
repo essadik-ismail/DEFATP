@@ -32,17 +32,9 @@ class NatureDeCoupe extends Model
     }
 
     /**
-     * Get the articles for this nature de coupe.
-     */
-    public function articles(): HasMany
-    {
-        return $this->hasMany(Article::class);
-    }
-
-    /**
      * Many-to-many: articles linked via pivot table.
      */
-    public function articlesMany(): BelongsToMany
+    public function articles(): BelongsToMany
     {
         return $this->belongsToMany(Article::class, 'article_nature_de_coupe', 'nature_de_coupe_id', 'article_id')
             ->withTimestamps();

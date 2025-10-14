@@ -33,17 +33,9 @@ class SituationAdministrative extends Model
     }
 
     /**
-     * Get the articles for this situation administrative.
-     */
-    public function articles(): HasMany
-    {
-        return $this->hasMany(Article::class);
-    }
-
-    /**
      * Many-to-many: articles linked via pivot table.
      */
-    public function articlesMany(): BelongsToMany
+    public function articles(): BelongsToMany
     {
         return $this->belongsToMany(Article::class, 'article_situation_administrative', 'situation_administrative_id', 'article_id')
             ->withTimestamps();

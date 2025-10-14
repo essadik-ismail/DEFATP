@@ -54,7 +54,7 @@ class DashboardController extends Controller
 
         // Get recent articles (with date filtering)
         $recentArticles = (clone $articlesQuery)
-            ->with(['foret', 'essence'])
+            ->with(['forets', 'essences'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();

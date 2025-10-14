@@ -482,7 +482,7 @@ class ReportController extends Controller
             }
         }
 
-        $articles = $query->orderBy('date', 'desc')->paginate(15);
+        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
 
         // Calculate stats from all articles (not just paginated ones)
         $allArticles = $query->get();

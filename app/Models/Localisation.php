@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
 
 class Localisation extends Model
@@ -49,11 +50,12 @@ class Localisation extends Model
     }
 
     /**
-     * Get the articles for this localisation.
+     * Many-to-many: articles linked via pivot table.
      */
-    public function articles(): HasMany
+    public function articles(): BelongsToMany
     {
-        return $this->hasMany(Article::class);
+        return $this->belongsToMany(Article::class, 'article_localisation', 'localisation_id', 'article_id')
+            ->withTimestamps();
     }
 
     /**

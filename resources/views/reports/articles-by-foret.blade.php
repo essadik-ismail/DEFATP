@@ -206,11 +206,11 @@
 
             $forets = method_exists($article, 'forets') && $article->forets && $article->forets->count()
                 ? $article->forets->map(fn($f) => '<span class="badge bg-emerald-100 text-emerald-800 rounded px-2 py-0.5">'.e($f->foret).'</span>')->implode(' ')
-                : e(optional($article->foret)->foret ?: 'N/A');
+                : 'N/A';
 
             $essences = method_exists($article, 'essences') && $article->essences && $article->essences->count()
                 ? $article->essences->map(fn($e) => '<span class="badge bg-purple-100 text-purple-800 rounded px-2 py-0.5">'.e($e->essence).'</span>')->implode(' ')
-                : e(optional($article->essence)->essence ?: 'N/A');
+                : 'N/A';
 
             $exploitant = $article->exploitant ? e(trim(($article->exploitant->nom ?? '').' '.($article->exploitant->prenom ?? ''))) : 'N/A';
 

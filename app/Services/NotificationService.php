@@ -215,7 +215,7 @@ class NotificationService
             'exploitant_id' => $exploitant->id,
             'action' => $action
         ], array_merge($options, [
-            'action_url' => route('settings.exploitants.show', $exploitant),
+            'action_url' => route('exploitants.show', $exploitant),
             'icon' => 'fas fa-user-tie',
             'color' => 'primary'
         ]));

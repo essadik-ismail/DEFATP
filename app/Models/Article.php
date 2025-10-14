@@ -17,11 +17,6 @@ class Article extends Model
         'numero_adjudication',
         'lot',
         'type',
-        'situation_administrative_id',
-        'foret_id',
-        'essence_id',
-        'nature_de_coupe_id',
-        'localisation_id',
         'exploitant_id',
         'nature_juridique',
         'parcelle',
@@ -52,9 +47,9 @@ class Article extends Model
         'fleur_acacia_t' => 'decimal:2',
         'caroube_t' => 'decimal:2',
         'romarin_t' => 'decimal:2',
-        'liege_st' => 'decimal:2',
+        'liége_st' => 'decimal:2',
         'charbon_bois_ox' => 'decimal:2',
-        'prix_retrait' => 'decimal:2',
+        'prix_de_retrait' => 'decimal:2',
         'prix_vente' => 'decimal:2',
         'superficie' => 'decimal:2',
         'is_deleted' => 'boolean',
@@ -73,37 +68,6 @@ class Article extends Model
         });
     }
 
-    /**
-     * Get the administrative situation for this article.
-     */
-    public function situationAdministrative(): BelongsTo
-    {
-        return $this->belongsTo(SituationAdministrative::class, 'situation_administrative_id');
-    }
-
-    /**
-     * Get the forest for this article.
-     */
-    public function foret(): BelongsTo
-    {
-        return $this->belongsTo(Foret::class, 'foret_id');
-    }
-
-    /**
-     * Get the tree species for this article.
-     */
-    public function essence(): BelongsTo
-    {
-        return $this->belongsTo(Essence::class, 'essence_id');
-    }
-
-    /**
-     * Get the cutting nature for this article.
-     */
-    public function natureDeCoupe(): BelongsTo
-    {
-        return $this->belongsTo(NatureDeCoupe::class, 'nature_de_coupe_id');
-    }
 
     /**
      * Many-to-many: this article may be linked to multiple forests.
@@ -141,13 +105,6 @@ class Article extends Model
             ->withTimestamps();
     }
 
-    /**
-     * Get the location for this article.
-     */
-    public function localisation(): BelongsTo
-    {
-        return $this->belongsTo(Localisation::class, 'localisation_id');
-    }
 
     /**
      * Many-to-many: this article may be linked to multiple localisations.

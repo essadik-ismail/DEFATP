@@ -3,11 +3,6 @@
 namespace App\Imports;
 
 use App\Models\Article;
-use App\Models\SituationAdministrative;
-use App\Models\Foret;
-use App\Models\Essence;
-use App\Models\NatureDeCoupe;
-use App\Models\Localisation;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -23,43 +18,13 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
 
     public function model(array $row)
     {
-        // Find related models by name/code
-        $situationAdministrative = null;
-        if (!empty($row['commune'])) {
-            $situationAdministrative = SituationAdministrative::where('commune', $row['commune'])->first();
-        }
-
-        $foret = null;
-        if (!empty($row['foret'])) {
-            $foret = Foret::where('foret', $row['foret'])->first();
-        }
-
-        $essence = null;
-        if (!empty($row['essence'])) {
-            $essence = Essence::where('essence', $row['essence'])->first();
-        }
-
-        $natureDeCoupe = null;
-        if (!empty($row['nature_de_coupe'])) {
-            $natureDeCoupe = NatureDeCoupe::where('nature_de_coupe', $row['nature_de_coupe'])->first();
-        }
-
-        $localisation = null;
-        if (!empty($row['localisation'])) {
-            $localisation = Localisation::where('CODE', $row['localisation'])->first();
-        }
 
         return new Article([
             'annee' => $row['annee'] ?? $row['Année'] ?? null,
             'numero' => $row['numero'] ?? $row['Numéro'] ?? null,
-            'date' => $row['date'] ?? $row['Date'] ?? null,
+            'date_adjudication' => $row['date_adjudication'] ?? $row['date'] ?? $row['Date'] ?? $row["Date d'adjudication"] ?? null,
             'invendu' => $this->parseBoolean($row['invendu'] ?? $row['Invendu'] ?? false),
             'prix_de_retrait' => $row['prix_de_retrait'] ?? $row['Prix de retrait'] ?? null,
-            'situation_administrative_id' => $situationAdministrative?->id,
-            'foret_id' => $foret?->id,
-            'essence_id' => $essence?->id,
-            'nature_de_coupe_id' => $natureDeCoupe?->id,
-            'localisation_id' => $localisation?->id,
             'lot' => $row['lot'] ?? $row['Lot'] ?? null,
             'parcelle' => $row['parcelle'] ?? $row['Parcelle'] ?? null,
             'superficie' => $row['superficie'] ?? $row['Superficie'] ?? null,
@@ -75,7 +40,7 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'caroube_t' => $row['caroube_t'] ?? $row['Caroube (t)'] ?? null,
             'romarin_t' => $row['romarin_t'] ?? $row['Romarin (t)'] ?? null,
             'ps_t' => $row['ps_t'] ?? $row['PS (t)'] ?? null,
-            'liege_st' => $row['liege_st'] ?? $row['Liège (st)'] ?? null,
+            'liége_st' => $row['liége_st'] ?? $row['liege_st'] ?? $row['Liège (st)'] ?? null,
             'charbon_bois_ox' => $row['charbon_bois_ox'] ?? $row['Charbon Bois (ox)'] ?? null,
         ]);
     }
@@ -85,7 +50,7 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
         return [
             'annee' => 'required|integer|min:1900|max:2100',
             'numero' => 'required|string|max:255',
-            'date' => 'required|date',
+            'date_adjudication' => 'required|date',
             'invendu' => 'nullable|boolean',
             'prix_de_retrait' => 'nullable|numeric|min:0',
             'lot' => 'nullable|string|max:255',
@@ -103,7 +68,7 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'caroube_t' => 'nullable|numeric|min:0',
             'romarin_t' => 'nullable|numeric|min:0',
             'ps_t' => 'nullable|numeric|min:0',
-            'liege_st' => 'nullable|numeric|min:0',
+            'liége_st' => 'nullable|numeric|min:0',
             'charbon_bois_ox' => 'nullable|numeric|min:0',
         ];
     }
@@ -118,8 +83,8 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'numero.required' => 'Le champ numéro est requis.',
             'numero.string' => 'Le champ numéro doit être une chaîne de caractères.',
             'numero.max' => 'Le champ numéro ne peut pas dépasser 255 caractères.',
-            'date.required' => 'Le champ date est requis.',
-            'date.date' => 'Le champ date doit être une date valide.',
+            'date_adjudication.required' => "La date d'adjudication est requise.",
+            'date_adjudication.date' => "La date d'adjudication doit être une date valide.",
             'invendu.boolean' => 'Le champ invendu doit être vrai ou faux.',
             'prix_de_retrait.numeric' => 'Le prix de retrait doit être un nombre.',
             'prix_de_retrait.min' => 'Le prix de retrait doit être positif.',

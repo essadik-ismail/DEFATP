@@ -402,9 +402,7 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Année</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Numéro</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date d'Adjudication</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Forêt</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Essence</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Localisation</th>
+                            
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Prix de Retrait</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Prix de Vente</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
@@ -432,33 +430,11 @@
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
+                                
                                 <td>
-                                    @if($article->foret)
-                                        {{ $article->foret->foret }}
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($article->essence)
-                                        {{ $article->essence->essence }}
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($article->localisation)
-                                        <span title="{{ $article->localisation->CODE }}">
-                                            {{ Str::limit($article->localisation->CODE, 20) }}
-                                        </span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($article->prix_retrait)
+                                    @if($article->prix_de_retrait)
                                         <span class="badge bg-warning text-dark">
-                                            {{ number_format($article->prix_retrait, 2) }} DH
+                                            {{ number_format($article->prix_de_retrait, 2) }} DH
                                         </span>
                                     @else
                                         <span class="text-muted">-</span>
@@ -498,13 +474,6 @@
                                             <i class="fas fa-edit text-sm"></i>
                                         </a>
                                         
-                                        <!-- Duplicate Action -->
-                                        <button type="button" 
-                                                onclick="duplicateArticle({{ $article->id }})"
-                                                class="inline-flex items-center justify-center w-8 h-8 bg-purple-100 hover:bg-purple-200 text-purple-600 rounded-lg transition-colors duration-200" 
-                                                title="Dupliquer l'article">
-                                            <i class="fas fa-copy text-sm"></i>
-                                        </button>
                                         
                                         <!-- Export Action -->
                                         <button type="button" 
@@ -512,30 +481,6 @@
                                                 class="inline-flex items-center justify-center w-8 h-8 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-colors duration-200" 
                                                 title="Exporter l'article">
                                             <i class="fas fa-download text-sm"></i>
-                                        </button>
-                                        
-                                        <!-- Print Action -->
-                                        <button type="button" 
-                                                onclick="printArticle({{ $article->id }})"
-                                                class="inline-flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors duration-200" 
-                                                title="Imprimer l'article">
-                                            <i class="fas fa-print text-sm"></i>
-                                        </button>
-                                        
-                                        <!-- Share Action -->
-                                        <button type="button" 
-                                                onclick="shareArticle({{ $article->id }})"
-                                                class="inline-flex items-center justify-center w-8 h-8 bg-cyan-100 hover:bg-cyan-200 text-cyan-600 rounded-lg transition-colors duration-200" 
-                                                title="Partager l'article">
-                                            <i class="fas fa-share-alt text-sm"></i>
-                                        </button>
-                                        
-                                        <!-- Archive Action -->
-                                        <button type="button" 
-                                                onclick="archiveArticle({{ $article->id }})"
-                                                class="inline-flex items-center justify-center w-8 h-8 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors duration-200" 
-                                                title="Archiver l'article">
-                                            <i class="fas fa-archive text-sm"></i>
                                         </button>
                                         
                                         <!-- Delete Action -->

@@ -153,11 +153,15 @@
                                 <i class="fas fa-map text-green-500 mr-2"></i>Localisation
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->localisation)
-                                    <div class="space-y-1">
-                                        <div><strong>Code:</strong> {{ $article->localisation->CODE }}</div>
-                                        <div><strong>DRANEF:</strong> {{ $article->localisation->DRANEF ?? 'N/A' }}</div>
-                                        <div><strong>Entité:</strong> {{ $article->localisation->ENTITE ?? 'N/A' }}</div>
+                                @if($article->localisations && $article->localisations->count())
+                                    <div class="space-y-2">
+                                        @foreach($article->localisations as $localisation)
+                                            <div class="border-b border-gray-200 pb-2 last:border-b-0">
+                                                <div><strong>Code:</strong> {{ $localisation->CODE }}</div>
+                                                <div><strong>DRANEF:</strong> {{ $localisation->DRANEF ?? 'N/A' }}</div>
+                                                <div><strong>Entité:</strong> {{ $localisation->ENTITE ?? 'N/A' }}</div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 @else
                                     <span class="text-gray-500">Non spécifiée</span>
@@ -177,10 +181,14 @@
                                             </span>
                                         @endforeach
                                     </div>
-                                @elseif($article->situationAdministrative)
-                                    <div class="space-y-1">
-                                        <div><strong>Commune:</strong> {{ $article->situationAdministrative->commune }}</div>
-                                        <div><strong>Province:</strong> {{ $article->situationAdministrative->province ?? 'N/A' }}</div>
+                                @elseif($article->situationsAdministratives && $article->situationsAdministratives->count())
+                                    <div class="space-y-2">
+                                        @foreach($article->situationsAdministratives as $situation)
+                                            <div class="border-b border-gray-200 pb-2 last:border-b-0">
+                                                <div><strong>Commune:</strong> {{ $situation->commune }}</div>
+                                                <div><strong>Province:</strong> {{ $situation->province ?? 'N/A' }}</div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 @else
                                     <span class="text-gray-500">Non spécifiée</span>
@@ -200,12 +208,16 @@
                                             </span>
                                         @endforeach
                                     </div>
-                                @elseif($article->foret)
-                                    <div class="space-y-1">
-                                        <div><strong>Nom:</strong> {{ $article->foret->foret }}</div>
-                                        @if($article->foret->localisation)
-                                            <div><strong>Localisation:</strong> {{ $article->foret->localisation }}</div>
-                                        @endif
+                                @elseif($article->forets && $article->forets->count())
+                                    <div class="space-y-2">
+                                        @foreach($article->forets as $foret)
+                                            <div class="border-b border-gray-200 pb-2 last:border-b-0">
+                                                <div><strong>Nom:</strong> {{ $foret->foret }}</div>
+                                                @if($foret->lat && $foret->log)
+                                                    <div><strong>Coordonnées:</strong> {{ $foret->lat }}, {{ $foret->log }}</div>
+                                                @endif
+                                            </div>
+                                        @endforeach
                                     </div>
                                 @else
                                     <span class="text-gray-500">Non spécifiée</span>
@@ -262,15 +274,13 @@
                                             </span>
                                         @endforeach
                                     </div>
-                                @elseif($article->essence)
-                                    <div class="space-y-1">
-                                        <div><strong>Nom:</strong> {{ $article->essence->essence }}</div>
-                                        @if($article->essence->nom_scientifique)
-                                            <div><strong>Nom scientifique:</strong> {{ $article->essence->nom_scientifique }}</div>
-                                        @endif
-                                        @if($article->essence->famille)
-                                            <div><strong>Famille:</strong> {{ $article->essence->famille }}</div>
-                                        @endif
+                                @elseif($article->essences && $article->essences->count())
+                                    <div class="space-y-2">
+                                        @foreach($article->essences as $essence)
+                                            <div class="border-b border-gray-200 pb-2 last:border-b-0">
+                                                <div><strong>Nom:</strong> {{ $essence->essence }}</div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 @else
                                     <span class="text-gray-500">Non spécifiée</span>
@@ -290,12 +300,13 @@
                                             </span>
                                         @endforeach
                                     </div>
-                                @elseif($article->natureDeCoupe)
-                                    <div class="space-y-1">
-                                        <div><strong>Type:</strong> {{ $article->natureDeCoupe->nature_de_coupe }}</div>
-                                        @if($article->natureDeCoupe->description)
-                                            <div><strong>Description:</strong> {{ $article->natureDeCoupe->description }}</div>
-                                        @endif
+                                @elseif($article->naturesDeCoupe && $article->naturesDeCoupe->count())
+                                    <div class="space-y-2">
+                                        @foreach($article->naturesDeCoupe as $natureDeCoupe)
+                                            <div class="border-b border-gray-200 pb-2 last:border-b-0">
+                                                <div><strong>Type:</strong> {{ $natureDeCoupe->nature_de_coupe }}</div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 @else
                                     <span class="text-gray-500">Non spécifiée</span>

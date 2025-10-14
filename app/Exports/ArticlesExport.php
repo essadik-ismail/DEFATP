@@ -22,11 +22,7 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
     public function collection()
     {
         $query = Article::with([
-            'situationAdministrative',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'localisation',
+            'exploitant',
             'products',
             'locations'
         ]);
@@ -48,7 +44,7 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             $query->where('invendu', $this->filters['invendu']);
         }
 
-        return $query->orderBy('date', 'desc')->get();
+        return $query->orderBy('date_adjudication', 'desc')->get();
     }
 
     public function headings(): array
@@ -61,13 +57,7 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             'Numéro d\'Adjudication',
             'Lot',
             'Type',
-            'Statut',
-            'Commune',
-            'Province',
-            'Forêt',
-            'Essence',
-            'Nature de coupe',
-            'Localisation',
+            'Exploitant',
             'Nature Juridique',
             'Parcelle',
             'Latitude',
@@ -99,19 +89,13 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             $article->numero_adjudication ?? 'N/A',
             $article->lot ?? 'N/A',
             $article->type == 'appel_doffre' ? 'Appel d\'Offre' : 'Adjudication',
-            $article->statut ?? 'N/A',
-            $article->situationAdministrative?->commune ?? 'N/A',
-            $article->situationAdministrative?->province ?? 'N/A',
-            $article->foret?->foret ?? 'N/A',
-            $article->essence?->essence ?? 'N/A',
-            $article->natureDeCoupe?->nature_de_coupe ?? 'N/A',
-            $article->localisation?->CODE ?? 'N/A',
+            $article->exploitant?->nom_complet ?? 'N/A',
             $article->nature_juridique ?? 'N/A',
             $article->parcelle ?? 'N/A',
             $article->lat ?? 'N/A',
             $article->log ?? 'N/A',
             $article->superficie ?? 'N/A',
-            $article->prix_retrait ?? 'N/A',
+            $article->prix_de_retrait ?? 'N/A',
             $article->prix_vente ?? 'N/A',
             $article->bo_m3 ?? 'N/A',
             $article->bi_m3 ?? 'N/A',
@@ -120,7 +104,7 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             $article->fleur_acacia_t ?? 'N/A',
             $article->caroube_t ?? 'N/A',
             $article->romarin_t ?? 'N/A',
-            $article->liege_st ?? 'N/A',
+            $article->liége_st ?? 'N/A',
             $article->charbon_bois_ox ?? 'N/A',
             $article->products->map(function($product) {
                 return $product->name . ' (x' . $product->quantity . ')';

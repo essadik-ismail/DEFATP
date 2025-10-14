@@ -35,7 +35,7 @@ class ArticleController extends Controller
         
         // Build base query with date filtering
         $articlesQuery = Article::where('is_deleted', false)
-            ->with(['foret', 'essence', 'localisation', 'situationAdministrative', 'exploitant', 'natureDeCoupe', 'products', 'locations']);
+            ->with(['exploitant', 'products', 'locations', 'forets', 'essences', 'situationsAdministratives', 'naturesDeCoupe', 'localisations']);
             
         // Apply date filtering if provided
         if ($startDate && $endDate) {
@@ -48,10 +48,10 @@ class ArticleController extends Controller
                 $query->where(function($q) use ($request) {
                     $q->where('numero', 'like', '%' . $request->search . '%')
                       ->orWhere('annee', 'like', '%' . $request->search . '%')
-                      ->orWhereHas('foret', function($foretQuery) use ($request) {
+                      ->orWhereHas('forets', function($foretQuery) use ($request) {
                           $foretQuery->where('foret', 'like', '%' . $request->search . '%');
                       })
-                      ->orWhereHas('essence', function($essenceQuery) use ($request) {
+                      ->orWhereHas('essences', function($essenceQuery) use ($request) {
                           $essenceQuery->where('essence', 'like', '%' . $request->search . '%');
                       });
                 });
@@ -72,55 +72,12 @@ class ArticleController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page', 15));
 
-        // Get entities with search and pagination
-        $essences = Essence::where('is_deleted', '')
-            ->when($request->filled('essence_search'), function($query) use ($request) {
-                $query->where('essence', 'like', '%' . $request->essence_search . '%');
-            })
-            ->orderBy('essence')
-            ->paginate(10, ['*'], 'essences_page');
-
-        $forets = Foret::where('is_deleted', '')
-            ->when($request->filled('foret_search'), function($query) use ($request) {
-                $query->where('foret', 'like', '%' . $request->foret_search . '%');
-            })
-            ->orderBy('foret')
-            ->paginate(10, ['*'], 'forets_page');
-
-        $localisations = Localisation::where('is_deleted', '')
-            ->when($request->filled('localisation_search'), function($query) use ($request) {
-                $query->where(function($q) use ($request) {
-                    $q->where('CODE', 'like', '%' . $request->localisation_search . '%')
-                      ->orWhere('DRANEF', 'like', '%' . $request->localisation_search . '%')
-                      ->orWhere('ENTITE', 'like', '%' . $request->localisation_search . '%');
-                });
-            })
-            ->orderBy('CODE')
-            ->paginate(10, ['*'], 'localisations_page');
-
-        $situationAdministratives = SituationAdministrative::where('is_deleted', '')
-            ->when($request->filled('situation_search'), function($query) use ($request) {
-                $query->where(function($q) use ($request) {
-                    $q->where('commune', 'like', '%' . $request->localisation_search . '%')
-                      ->orWhere('province', 'like', '%' . $request->localisation_search . '%');
-                });
-            })
-            ->orderBy('commune')
-            ->paginate(10, ['*'], 'situations_page');
-
-        $exploitants = Exploitant::where('is_deleted', '')
+        $exploitants = Exploitant::where('is_deleted', false)
             ->when($request->filled('exploitant_search'), function($query) use ($request) {
                 $query->where('nom_complet', 'like', '%' . $request->exploitant_search . '%');
             })
             ->orderBy('nom_complet')
             ->paginate(10, ['*'], 'exploitants_page');
-
-        $natureDeCoupes = NatureDeCoupe::where('is_deleted', '')
-            ->when($request->filled('nature_search'), function($query) use ($request) {
-                $query->where('nature_de_coupe', 'like', '%' . $request->nature_search . '%');
-            })
-            ->orderBy('nature_de_coupe')
-            ->paginate(10, ['*'], 'natures_page');
 
         // Calculate comprehensive statistics with date filtering
         $statsQuery = Article::where('is_deleted', false);
@@ -140,10 +97,10 @@ class ArticleController extends Controller
             $filteredQuery->where(function($q) use ($request) {
                 $q->where('numero', 'like', '%' . $request->search . '%')
                   ->orWhere('annee', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('foret', function($foretQuery) use ($request) {
+                  ->orWhereHas('forets', function($foretQuery) use ($request) {
                       $foretQuery->where('foret', 'like', '%' . $request->search . '%');
                   })
-                  ->orWhereHas('essence', function($essenceQuery) use ($request) {
+                  ->orWhereHas('essences', function($essenceQuery) use ($request) {
                       $essenceQuery->where('essence', 'like', '%' . $request->search . '%');
                   });
             });
@@ -172,31 +129,64 @@ class ArticleController extends Controller
             'total_revenue' => (clone $filteredQuery)->sum('prix_vente'),
             'total_retrait' => (clone $filteredQuery)->sum('prix_de_retrait'),
             'total_volume' => (clone $filteredQuery)->sum('bo_m3') + (clone $filteredQuery)->sum('bi_m3'),
-            'total_forets' => Foret::where('is_deleted', '')->count(),
-            'total_essences' => Essence::where('is_deleted', '')->count(),
-            'total_localisations' => Localisation::where('is_deleted', '')->count(),
-            'total_exploitants' => Exploitant::where('is_deleted', '')->count(),
+            'total_forets' => Foret::where('is_deleted', false)->count(),
+            'total_essences' => Essence::where('is_deleted', false)->count(),
+            'total_localisations' => Localisation::where('is_deleted', false)->count(),
+            'total_exploitants' => Exploitant::where('is_deleted', false)->count(),
             'articles_by_type' => [
                 'appel_doffre' => (clone $filteredQuery)->where('type', 'appel_doffre')->count(),
                 'adjudication' => (clone $filteredQuery)->where('type', 'adjudication')->count(),
                 'marche_negocié' => (clone $filteredQuery)->where('type', 'marche_negocié')->count(),
             ],
             'recent_articles' => (clone $filteredQuery)
-                ->with(['foret', 'essence'])
+                ->with(['forets', 'essences'])
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get(),
         ];
 
+        // Provide essences list for the essences table section
+        $essences = Essence::where('is_deleted', false)
+            ->when($request->filled('essence_search'), function($query) use ($request) {
+                $query->where('essence', 'like', '%' . $request->essence_search . '%');
+            })
+            ->orderBy('essence')
+            ->paginate(10, ['*'], 'essences_page');
+
+        // Provide forets list for the forets table section
+        $forets = Foret::where('is_deleted', false)
+            ->when($request->filled('foret_search'), function($query) use ($request) {
+                $query->where('foret', 'like', '%' . $request->foret_search . '%');
+            })
+            ->orderBy('foret')
+            ->paginate(10, ['*'], 'forets_page');
+
+        // Provide localisations list for the localisations table section
+        $localisations = Localisation::where('is_deleted', false)
+            ->when($request->filled('localisation_search'), function($query) use ($request) {
+                $query->where('CODE', 'like', '%' . $request->localisation_search . '%')
+                      ->orWhere('DRANEF', 'like', '%' . $request->localisation_search . '%')
+                      ->orWhere('ENTITE', 'like', '%' . $request->localisation_search . '%');
+            })
+            ->orderBy('CODE')
+            ->paginate(10, ['*'], 'localisations_page');
+
+        // Provide natures de coupe list for the natures table section
+        $natureDeCoupes = NatureDeCoupe::where('is_deleted', false)
+            ->when($request->filled('nature_search'), function($query) use ($request) {
+                $query->where('nature_de_coupe', 'like', '%' . $request->nature_search . '%');
+            })
+            ->orderBy('nature_de_coupe')
+            ->paginate(10, ['*'], 'natures_page');
+
         return view('articles.index', compact(
             'articles',
-            'essences',
-            'forets', 
-            'localisations',
-            'situationAdministratives',
             'exploitants',
-            'natureDeCoupes',
-            'stats'
+            'stats',
+            'essences',
+            'forets',
+            'localisations',
+            'natureDeCoupes'
         ));
     }
 
@@ -207,7 +197,6 @@ class ArticleController extends Controller
         $essences = Essence::orderBy('essence')->get();
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
         $exploitants = Exploitant::orderBy('nom_complet')->get();
-
         $localisations = Localisation::orderBy('CODE')->get();
 
         return view('articles.create', compact(
@@ -225,35 +214,12 @@ class ArticleController extends Controller
         try {
             // Prepare article data with new field structure
             $articleData = $request->only([
-                'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type', 'statut',
-                'situation_administrative_id', 'foret_id', 'essence_id', 'nature_de_coupe_id',
-                'localisation_id', 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
+                'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
+                'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
                 'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-                'romarin_t', 'liege_st', 'charbon_bois_ox', 'prix_retrait', 'prix_vente'
+                'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente'
             ]);
 
-            // Map multi-select arrays to primary single fields (use first selected if present)
-            $foretIds = $request->input('foret_ids', []);
-            $essenceIds = $request->input('essence_ids', []);
-            $situationIds = $request->input('situation_administrative_ids', []);
-            $natureIds = $request->input('nature_de_coupe_ids', []);
-            $localisationIds = $request->input('localisation_ids', []);
-
-            if (!empty($foretIds)) {
-                $articleData['foret_id'] = $foretIds[0];
-            }
-            if (!empty($essenceIds)) {
-                $articleData['essence_id'] = $essenceIds[0];
-            }
-            if (!empty($situationIds)) {
-                $articleData['situation_administrative_id'] = $situationIds[0];
-            }
-            if (!empty($natureIds)) {
-                $articleData['nature_de_coupe_id'] = $natureIds[0];
-            }
-            if (!empty($localisationIds)) {
-                $articleData['localisation_id'] = $localisationIds[0];
-            }
 
             // Create the article
             $article = Article::create($articleData);
@@ -272,6 +238,12 @@ class ArticleController extends Controller
             }
 
             // Sync many-to-many relations from multi-selects
+            $foretIds = $request->input('foret_ids', []);
+            $essenceIds = $request->input('essence_ids', []);
+            $situationIds = $request->input('situation_administrative_ids', []);
+            $natureIds = $request->input('nature_de_coupe_ids', []);
+            $localisationIds = $request->input('localisation_ids', []);
+
             if (!empty($foretIds)) {
                 $article->forets()->sync($foretIds);
             }
@@ -319,24 +291,6 @@ class ArticleController extends Controller
                 $request
             );
 
-            // Check if this is an AJAX request
-            if ($request->ajax()) {
-                $isCreateAndNext = $request->input('action') === 'create_and_next';
-                
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Article ajouté avec succès.',
-                    'create_and_next' => $isCreateAndNext,
-                    'article' => [
-                        'id' => $article->id,
-                        'numero' => $article->numero,
-                        'annee' => $article->annee,
-                        'foret' => $article->foret->foret ?? null,
-                        'essence' => $article->essence->essence ?? null
-                    ]
-                ]);
-            }
-            
             // Handle create_and_next action for regular requests
             if ($request->input('action') === 'create_and_next') {
                 return redirect()->route('articles.create')
@@ -346,25 +300,10 @@ class ArticleController extends Controller
             return redirect()->route('articles.index')->with('success', 'Article ajouté avec succès.');
             
         } catch (\Illuminate\Validation\ValidationException $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Erreurs de validation',
-                    'errors' => $e->errors()
-                ], 422);
-            }
-            
             return redirect()->back()
                 ->withErrors($e->errors())
                 ->withInput();
         } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Erreur lors de la création de l\'article: ' . $e->getMessage()
-                ], 500);
-            }
-            
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Erreur lors de la création de l\'article: ' . $e->getMessage());
@@ -382,12 +321,7 @@ class ArticleController extends Controller
         );
 
         $article->load([
-            'situationAdministrative',
-            'foret',
-            'essence',
-            'natureDeCoupe',
             'exploitant',
-            'localisation',
             'products',
             'locations'
         ]);
@@ -402,7 +336,6 @@ class ArticleController extends Controller
         $essences = Essence::orderBy('essence')->get();
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
         $exploitants = Exploitant::orderBy('nom_complet')->get();
-
         $localisations = Localisation::orderBy('CODE')->get();
 
         // Load products and locations for the article
@@ -422,51 +355,22 @@ class ArticleController extends Controller
     public function update(UpdateArticleRequest $request, Article $article): RedirectResponse
     {
         $oldData = $article->only([
-            'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type', 'statut',
-            'situation_administrative_id', 'foret_id', 'essence_id', 'nature_de_coupe_id',
-            'localisation_id', 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
+            'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
+            'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
             'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-            'romarin_t', 'liege_st', 'charbon_bois_ox', 'prix_retrait', 'prix_vente'
+            'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente'
         ]);
 
         // Update article data
         $articleData = $request->only([
             'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type', 'statut',
-            'situation_administrative_id', 'foret_id', 'essence_id', 'nature_de_coupe_id',
-            'localisation_id', 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
+            'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
             'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-            'romarin_t', 'liege_st', 'charbon_bois_ox', 'prix_retrait', 'prix_vente'
+            'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente'
         ]);
 
         $article->update($articleData);
 
-        // Sync many-to-many from multi-selects; also keep primary fields aligned to first selection if provided
-        $foretIds = $request->input('foret_ids', []);
-        $essenceIds = $request->input('essence_ids', []);
-        $situationIds = $request->input('situation_administrative_ids', []);
-        $natureIds = $request->input('nature_de_coupe_ids', []);
-        $localisationIds = $request->input('localisation_ids', []);
-
-        if (!empty($foretIds)) {
-            $article->forets()->sync($foretIds);
-            $article->update(['foret_id' => $foretIds[0]]);
-        }
-        if (!empty($essenceIds)) {
-            $article->essences()->sync($essenceIds);
-            $article->update(['essence_id' => $essenceIds[0]]);
-        }
-        if (!empty($situationIds)) {
-            $article->situationsAdministratives()->sync($situationIds);
-            $article->update(['situation_administrative_id' => $situationIds[0]]);
-        }
-        if (!empty($natureIds)) {
-            $article->naturesDeCoupe()->sync($natureIds);
-            $article->update(['nature_de_coupe_id' => $natureIds[0]]);
-        }
-        if (!empty($localisationIds)) {
-            $article->localisations()->sync($localisationIds);
-            $article->update(['localisation_id' => $localisationIds[0]]);
-        }
 
         // Handle products update
         if ($request->has('products') && is_array($request->products)) {
@@ -484,6 +388,19 @@ class ArticleController extends Controller
                 }
             }
         }
+
+        // Sync many-to-many from multi-selects
+        $foretIds = $request->input('foret_ids', []);
+        $essenceIds = $request->input('essence_ids', []);
+        $situationIds = $request->input('situation_administrative_ids', []);
+        $natureIds = $request->input('nature_de_coupe_ids', []);
+        $localisationIds = $request->input('localisation_ids', []);
+
+        $article->forets()->sync($foretIds);
+        $article->essences()->sync($essenceIds);
+        $article->situationsAdministratives()->sync($situationIds);
+        $article->naturesDeCoupe()->sync($natureIds);
+        $article->localisations()->sync($localisationIds);
 
         // Handle locations update
         if ($request->has('locations') && is_array($request->locations)) {
