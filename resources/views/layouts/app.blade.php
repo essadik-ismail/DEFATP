@@ -2156,6 +2156,12 @@
                     </a>
                 </div>
 
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-handshake"></i>
+                        Contrat de Partenariat
+                    </a>
+                </div>
 
                 <div class="nav-item">
                     <a href="{{ route('exploitants.index') }}" class="nav-link {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
@@ -2184,6 +2190,8 @@
                         Journal d'Activités
                     </a>
                 </div>
+
+               
 
             
 

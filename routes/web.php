@@ -181,7 +181,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('articles', ArticleController::class);
     Route::get('/articles/export', [ArticleController::class, 'export'])->name('articles.export');
     Route::post('/articles/import', [ArticleController::class, 'import'])->name('articles.import');
-Route::post('/articles/{article}/import-locations', [ArticleController::class, 'importLocations'])->name('articles.import-locations');
+    Route::post('/articles/{article}/import-locations', [ArticleController::class, 'importLocations'])->name('articles.import-locations');
+    
+    // Simple Article Creation Routes
+    Route::get('/articles/create/simple', [ArticleController::class, 'createSimple'])->name('articles.create.simple');
+    Route::post('/articles/store/simple', [ArticleController::class, 'storeSimple'])->name('articles.store.simple');
+    Route::get('/articles/template/download', [ArticleController::class, 'downloadTemplate'])->name('articles.template.download');
 
     // Reports Routes
     Route::prefix('reports')->name('reports.')->group(function () {

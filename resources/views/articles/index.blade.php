@@ -260,11 +260,18 @@
                     <p class="text-gray-600">Gérez et consultez tous les articles forestiers</p>
                 </div>
             </div>
-            <a href="{{ route('articles.create') }}" 
-               class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                <i class="fas fa-plus"></i>
-                <span class="font-semibold">Nouvel Article</span>
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('articles.create.simple') }}" 
+                   class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-file-excel"></i>
+                    <span class="font-semibold">Création Simple</span>
+                </a>
+                <a href="{{ route('articles.create') }}" 
+                   class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-plus"></i>
+                    <span class="font-semibold">Nouvel Article</span>
+                </a>
+            </div>
         </div>
         <!-- Search and Filter Section -->
         <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200 mb-6">

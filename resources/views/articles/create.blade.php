@@ -98,13 +98,13 @@
                     </div>
                     <div class="form-group" id="numero_adjudication_group" style="display: none;">
                         <label for="numero_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Numéro d'Adjudication
+                            Numéro Juridique
                         </label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="numero_adjudication" name="numero_adjudication" 
                                value="{{ old('numero_adjudication') }}" 
-                               placeholder="Numéro d'adjudication">
+                               placeholder="Numéro juridique">
                         @error('numero_adjudication')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -661,7 +661,7 @@ function toggleNumeroAdjudication() {
     const typeSelect = document.getElementById('type');
     const numeroAdjudicationGroup = document.getElementById('numero_adjudication_group');
     
-    if (typeSelect.value === 'Appel d\'Offre') {
+    if (typeSelect.value === 'appel_doffre') {
         numeroAdjudicationGroup.style.display = 'block';
     } else {
         numeroAdjudicationGroup.style.display = 'none';

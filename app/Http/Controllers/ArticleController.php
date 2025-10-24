@@ -14,6 +14,7 @@ use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Requests\IndexArticleRequest;
 use App\Http\Requests\ExportArticleRequest;
 use App\Exports\ArticlesExport;
+use App\Exports\ArticlesTemplateExport;
 use App\Imports\ArticlesImport;
 use App\Imports\LocationsImport;
 use App\Services\ActivityLogger;
@@ -512,5 +513,106 @@ class ArticleController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'importation: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Show simple article creation form
+     */
+    public function createSimple(): View
+    {
+        $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
+        $forets = Foret::orderBy('foret')->get();
+        $essences = Essence::orderBy('essence')->get();
+        $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
+        $exploitants = Exploitant::orderBy('nom_complet')->get();
+        $localisations = Localisation::orderBy('CODE')->get();
+
+        return view('articles.create-simple', compact(
+            'situationAdministratives',
+            'forets',
+            'essences',
+            'natureDeCoupes',
+            'exploitants',
+            'localisations'
+        ));
+    }
+
+    /**
+     * Store article from simple form
+     */
+    public function storeSimple(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'type' => 'required|in:appel_doffre,adjudication',
+            'annee' => 'required|integer|min:2000|max:2100',
+            'numero' => 'required|string|max:255',
+            'date_adjudication' => 'required|date',
+            'numero_adjudication' => 'nullable|string|max:255',
+            'lot' => 'nullable|integer|min:0',
+            'exploitant_id' => 'required|exists:exploitants,id',
+            'foret_ids' => 'required|array|min:1',
+            'foret_ids.*' => 'exists:forets,id',
+            'essence_ids' => 'required|array|min:1',
+            'essence_ids.*' => 'exists:essences,id',
+            'localisation_ids' => 'required|array|min:1',
+            'localisation_ids.*' => 'exists:localisations,id',
+            'situation_administrative_ids' => 'required|array|min:1',
+            'situation_administrative_ids.*' => 'exists:situation_administratives,id',
+            'nature_de_coupe_ids' => 'required|array|min:1',
+            'nature_de_coupe_ids.*' => 'exists:nature_de_coupes,id',
+            'excel_file' => 'nullable|file|mimes:xlsx,xls,csv|max:10240'
+        ]);
+
+        try {
+            // Prepare article data
+            $articleData = $request->only([
+                'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
+                'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
+                'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
+                'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente'
+            ]);
+
+            // Create the article
+            $article = Article::create($articleData);
+
+            // Sync many-to-many relations
+            $article->forets()->sync($request->foret_ids);
+            $article->essences()->sync($request->essence_ids);
+            $article->situationsAdministratives()->sync($request->situation_administrative_ids);
+            $article->naturesDeCoupe()->sync($request->nature_de_coupe_ids);
+            $article->localisations()->sync($request->localisation_ids);
+
+            // Handle Excel file import if provided
+            if ($request->hasFile('excel_file')) {
+                try {
+                    Excel::import(new ArticlesImport, $request->file('excel_file'));
+                } catch (\Exception $e) {
+                    \Log::error('Error importing Excel file: ' . $e->getMessage());
+                }
+            }
+
+            // Log article creation
+            ActivityLogger::logCreate(
+                Article::class,
+                $article->id,
+                "Article {$article->numero} ({$article->annee})",
+                $request
+            );
+
+            return redirect()->route('articles.index')->with('success', 'Article créé avec succès via le formulaire simplifié.');
+            
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de l\'article: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download Excel template for article creation
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new ArticlesTemplateExport, 'template_article_creation.xlsx');
     }
 } 

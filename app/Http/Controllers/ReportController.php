@@ -50,7 +50,8 @@ class ReportController extends Controller
             ->get();
 
         $byForet = (clone $baseQuery)
-            ->join('forets', 'articles.foret_id', '=', 'forets.id')
+            ->join('article_foret', 'articles.id', '=', 'article_foret.article_id')
+            ->join('forets', 'article_foret.foret_id', '=', 'forets.id')
             ->selectRaw('forets.foret as label, COUNT(*) as total')
             ->where('forets.is_deleted', false)
             ->groupBy('forets.id', 'forets.foret')
@@ -59,7 +60,8 @@ class ReportController extends Controller
             ->get();
 
         $byEssence = (clone $baseQuery)
-            ->join('essences', 'articles.essence_id', '=', 'essences.id')
+            ->join('article_essence', 'articles.id', '=', 'article_essence.article_id')
+            ->join('essences', 'article_essence.essence_id', '=', 'essences.id')
             ->selectRaw('essences.essence as label, COUNT(*) as total')
             ->where('essences.is_deleted', false)
             ->groupBy('essences.id', 'essences.essence')
@@ -77,7 +79,8 @@ class ReportController extends Controller
             ->get();
 
         $byNature = (clone $baseQuery)
-            ->join('nature_de_coupes', 'articles.nature_de_coupe_id', '=', 'nature_de_coupes.id')
+            ->join('article_nature_de_coupe', 'articles.id', '=', 'article_nature_de_coupe.article_id')
+            ->join('nature_de_coupes', 'article_nature_de_coupe.nature_de_coupe_id', '=', 'nature_de_coupes.id')
             ->selectRaw('nature_de_coupes.nature_de_coupe as label, COUNT(*) as total')
             ->where('nature_de_coupes.is_deleted', false)
             ->groupBy('nature_de_coupes.id', 'nature_de_coupes.nature_de_coupe')
@@ -86,7 +89,8 @@ class ReportController extends Controller
             ->get();
 
         $byLocalisation = (clone $baseQuery)
-            ->join('localisations', 'articles.localisation_id', '=', 'localisations.id')
+            ->join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
+            ->join('localisations', 'article_localisation.localisation_id', '=', 'localisations.id')
             ->selectRaw('localisations.ENTITE as label, COUNT(*) as total')
             ->where('localisations.is_deleted', false)
             ->groupBy('localisations.id', 'localisations.ENTITE')
@@ -225,7 +229,8 @@ class ReportController extends Controller
 
         // Get essence statistics for chart
         $essenceStats = Article::withoutGlobalScope('not_deleted')
-            ->join('essences', 'articles.essence_id', '=', 'essences.id')
+            ->join('article_essence', 'articles.id', '=', 'article_essence.article_id')
+            ->join('essences', 'article_essence.essence_id', '=', 'essences.id')
             ->selectRaw('essences.essence as label, COUNT(*) as total')
             ->where('articles.is_deleted', false)
             ->where('essences.is_deleted', false)
@@ -341,14 +346,16 @@ class ReportController extends Controller
             ->get();
 
         // Get statistics by forest
-        $statsByForet = Article::join('forets', 'articles.foret_id', '=', 'forets.id')
+        $statsByForet = Article::join('article_foret', 'articles.id', '=', 'article_foret.article_id')
+            ->join('forets', 'article_foret.foret_id', '=', 'forets.id')
             ->selectRaw('forets.foret, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
             ->groupBy('forets.id', 'forets.foret')
             ->orderBy('forets.foret')
             ->get();
 
         // Get statistics by essence
-        $statsByEssence = Article::join('essences', 'articles.essence_id', '=', 'essences.id')
+        $statsByEssence = Article::join('article_essence', 'articles.id', '=', 'article_essence.article_id')
+            ->join('essences', 'article_essence.essence_id', '=', 'essences.id')
             ->selectRaw('essences.essence, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
             ->groupBy('essences.id', 'essences.essence')
             ->orderBy('essences.essence')
