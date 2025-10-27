@@ -73,6 +73,279 @@
         </div>
     </div>
 
+    <!-- Advanced Filters Section -->
+    <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200 mb-6">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center">
+                <i class="fas fa-filter text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Filtres Avancés</h3>
+            <button 
+                type="button" 
+                onclick="toggleAdvancedFilters()" 
+                class="ml-auto text-sm text-amber-600 hover:text-amber-700 font-medium"
+            >
+                <i class="fas fa-chevron-down" id="filterToggleIcon"></i>
+                Filtres avancés
+            </button>
+        </div>
+        
+        <form method="GET" action="{{ route('reports.legacy-articles-table') }}" id="filterForm">
+            <!-- Basic Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-search text-blue-500 mr-2"></i>
+                        Recherche globale
+                    </label>
+                    <input 
+                        type="text" 
+                        id="search" 
+                        name="search" 
+                        value="{{ request('search') }}"
+                        placeholder="DREF, Forêt, Province, Essence, Acheteur..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                    >
+                </div>
+                
+                <div>
+                    <label for="year" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar text-green-500 mr-2"></i>
+                        Année
+                    </label>
+                    <select 
+                        id="year" 
+                        name="year" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                    >
+                        <option value="">Toutes les années</option>
+                        @foreach($years as $year)
+                            <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                {{ $year }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="province" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+                        Province
+                    </label>
+                    <select 
+                        id="province" 
+                        name="province" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                    >
+                        <option value="">Toutes les provinces</option>
+                        @foreach($provinces as $province)
+                            <option value="{{ $province }}" {{ request('province') == $province ? 'selected' : '' }}>
+                                {{ $province }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="essence" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-leaf text-green-500 mr-2"></i>
+                        Essence
+                    </label>
+                    <select 
+                        id="essence" 
+                        name="essence" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                    >
+                        <option value="">Toutes les essences</option>
+                        @foreach($essences as $essence)
+                            <option value="{{ $essence }}" {{ request('essence') == $essence ? 'selected' : '' }}>
+                                {{ $essence }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Advanced Filters (Collapsible) -->
+            <div id="advancedFilters" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+                    <div>
+                        <label for="dref" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tag text-purple-500 mr-2"></i>
+                            DREF
+                        </label>
+                        <input 
+                            type="text" 
+                            id="dref" 
+                            name="dref" 
+                            value="{{ request('dref') }}"
+                            placeholder="Filtrer par DREF..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="foret" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tree text-green-500 mr-2"></i>
+                            Forêt
+                        </label>
+                        <input 
+                            type="text" 
+                            id="foret" 
+                            name="foret" 
+                            value="{{ request('foret') }}"
+                            placeholder="Filtrer par forêt..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="min_volume" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-cube text-blue-500 mr-2"></i>
+                            Volume Min (m³)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="min_volume" 
+                            name="min_volume" 
+                            value="{{ request('min_volume') }}"
+                            placeholder="0"
+                            step="0.01"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="max_volume" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-cube text-blue-500 mr-2"></i>
+                            Volume Max (m³)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="max_volume" 
+                            name="max_volume" 
+                            value="{{ request('max_volume') }}"
+                            placeholder="999999"
+                            step="0.01"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="min_price" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-coins text-yellow-500 mr-2"></i>
+                            Prix Min (DH)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="min_price" 
+                            name="min_price" 
+                            value="{{ request('min_price') }}"
+                            placeholder="0"
+                            step="0.01"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="max_price" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-coins text-yellow-500 mr-2"></i>
+                            Prix Max (DH)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="max_price" 
+                            name="max_price" 
+                            value="{{ request('max_price') }}"
+                            placeholder="999999"
+                            step="0.01"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                        >
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label for="min_surface" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-expand-arrows-alt text-indigo-500 mr-2"></i>
+                            Surface Min (ha)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="min_surface" 
+                            name="min_surface" 
+                            value="{{ request('min_surface') }}"
+                            placeholder="0"
+                            step="0.01"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="max_surface" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-expand-arrows-alt text-indigo-500 mr-2"></i>
+                            Surface Max (ha)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="max_surface" 
+                            name="max_surface" 
+                            value="{{ request('max_surface') }}"
+                            placeholder="999999"
+                            step="0.01"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="per_page" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-list text-gray-500 mr-2"></i>
+                            Résultats par page
+                        </label>
+                        <select 
+                            id="per_page" 
+                            name="per_page" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                        >
+                            <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ request('per_page') == '20' ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-3">
+                <button 
+                    type="submit" 
+                    class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+                >
+                    <i class="fas fa-filter"></i>
+                    Appliquer les filtres
+                </button>
+                
+                <a 
+                    href="{{ route('reports.legacy-articles-table') }}" 
+                    class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+                >
+                    <i class="fas fa-times"></i>
+                    Effacer tous les filtres
+                </a>
+                
+                <button 
+                    type="button" 
+                    onclick="exportToExcel()" 
+                    class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+                >
+                    <i class="fas fa-file-excel"></i>
+                    Exporter Excel
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- DataTable Card -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
         <div class="mb-6">
@@ -249,6 +522,69 @@ document.addEventListener('DOMContentLoaded', function () {
             // Add custom styling to buttons
             $('.dt-buttons').addClass('mb-4');
             $('.dt-buttons button').addClass('mr-2');
+        }
+    });
+});
+
+// Toggle advanced filters
+function toggleAdvancedFilters() {
+    const advancedFilters = document.getElementById('advancedFilters');
+    const toggleIcon = document.getElementById('filterToggleIcon');
+    
+    if (advancedFilters.classList.contains('hidden')) {
+        advancedFilters.classList.remove('hidden');
+        toggleIcon.classList.remove('fa-chevron-down');
+        toggleIcon.classList.add('fa-chevron-up');
+    } else {
+        advancedFilters.classList.add('hidden');
+        toggleIcon.classList.remove('fa-chevron-up');
+        toggleIcon.classList.add('fa-chevron-down');
+    }
+}
+
+// Export to Excel function
+function exportToExcel() {
+    // Get current filter parameters
+    const form = document.getElementById('filterForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    
+    // Add all form data to URL parameters
+    for (let [key, value] of formData.entries()) {
+        if (value) {
+            params.append(key, value);
+        }
+    }
+    
+    // Add export parameter
+    params.append('export', 'excel');
+    
+    // Create download link
+    const url = '{{ route("reports.legacy-articles-table") }}?' + params.toString();
+    window.open(url, '_blank');
+}
+
+// Auto-submit form on filter change
+document.addEventListener('DOMContentLoaded', function() {
+    const filterInputs = document.querySelectorAll('#filterForm input, #filterForm select');
+    
+    filterInputs.forEach(input => {
+        // For select elements, submit immediately on change
+        if (input.tagName === 'SELECT') {
+            input.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
+        }
+        
+        // For text inputs, add debounced search
+        if (input.type === 'text' || input.type === 'number') {
+            let timeout;
+            input.addEventListener('input', function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    document.getElementById('filterForm').submit();
+                }, 500); // 500ms delay
+            });
         }
     });
 });

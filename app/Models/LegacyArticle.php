@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class LegacyArticle extends Model
+{
+    use HasFactory;
+
+    protected $table = 'legacy_articles';
+
+    protected $fillable = [
+        'dref',
+        'foret',
+        'province',
+        'date',
+        'essence',
+        'intervent',
+        'surface',
+        'bom3',
+        'bim3',
+        'bfst',
+        'lcst',
+        'ett',
+        'pst',
+        'acheteur',
+        'ppdh',
+        'dr',
+        'source_file',
+    ];
+
+    protected $casts = [
+        'surface' => 'decimal:2',
+        'bom3' => 'decimal:2',
+        'bim3' => 'decimal:2',
+        'bfst' => 'decimal:2',
+        'lcst' => 'decimal:2',
+        'ett' => 'decimal:2',
+        'pst' => 'decimal:2',
+        'ppdh' => 'decimal:2',
+    ];
+
+    // Scope for filtering by province
+    public function scopeByProvince($query, $province)
+    {
+        return $query->where('province', $province);
+    }
+
+    // Scope for filtering by essence
+    public function scopeByEssence($query, $essence)
+    {
+        return $query->where('essence', $essence);
+    }
+
+    // Scope for filtering by year (extracted from date field)
+    public function scopeByYear($query, $year)
+    {
+        return $query->where('date', 'like', $year . '%');
+    }
+
+    // Scope for filtering by forest
+    public function scopeByForet($query, $foret)
+    {
+        return $query->where('foret', $foret);
+    }
+
+    // Accessor to get formatted date
+    public function getFormattedDateAttribute()
+    {
+        if (!$this->date || strlen($this->date) !== 6) {
+            return null;
+        }
+        
+        $year = '20' . substr($this->date, 0, 2);
+        $month = substr($this->date, 2, 2);
+        $day = substr($this->date, 4, 2);
+        
+        return $year . '-' . $month . '-' . $day;
+    }
+
+    // Accessor to get year from date
+    public function getYearAttribute()
+    {
+        if (!$this->date || strlen($this->date) !== 6) {
+            return null;
+        }
+        
+        return '20' . substr($this->date, 0, 2);
+    }
+}

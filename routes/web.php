@@ -202,6 +202,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/articles-by-validation-status', [ReportController::class, 'articlesByValidationStatus'])->name('articles-by-validation-status');
         Route::get('/invendus', [ReportController::class, 'invendus'])->name('invendus');
         Route::get('/vendus', [ReportController::class, 'vendus'])->name('vendus');
+        Route::get('/legacy-articles', [ReportController::class, 'legacyArticles'])->name('legacy-articles');
+        Route::get('/legacy-articles-table', [ReportController::class, 'legacyArticlesTable'])->name('legacy-articles-table');
+        Route::get('/legacy-articles-by-year', [ReportController::class, 'legacyArticlesByYear'])->name('legacy-articles-by-year');
+        Route::get('/legacy-articles-by-province', [ReportController::class, 'legacyArticlesByProvince'])->name('legacy-articles-by-province');
+        Route::get('/legacy-articles-by-essence', [ReportController::class, 'legacyArticlesByEssence'])->name('legacy-articles-by-essence');
+        Route::get('/unified', [ReportController::class, 'unifiedReports'])->name('unified');
+        Route::get('/unified-table', [ReportController::class, 'unifiedTable'])->name('unified-table');
     });
 
     // Simple Tour Test Route
