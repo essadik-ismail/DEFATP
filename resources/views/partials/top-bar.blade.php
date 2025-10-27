@@ -46,13 +46,13 @@
                     <span class="breadcrumb-item">Rapports</span>
                     @if(request()->routeIs('reports.articles-by-year'))
                         <span class="breadcrumb-separator">/</span>
-                        <span class="breadcrumb-item">Articles par Année</span>
+                        <span class="breadcrumb-item">Volume par Année</span>
                     @elseif(request()->routeIs('reports.articles-by-foret'))
                         <span class="breadcrumb-separator">/</span>
-                        <span class="breadcrumb-item">Articles par Forêt</span>
+                        <span class="breadcrumb-item">Volume par Forêt</span>
                     @elseif(request()->routeIs('reports.articles-by-essence'))
                         <span class="breadcrumb-separator">/</span>
-                        <span class="breadcrumb-item">Articles par Essence</span>
+                        <span class="breadcrumb-item">Volume par Essence</span>
                     @endif
                 @elseif(request()->routeIs('auth.users.*'))
                     <span class="breadcrumb-separator">/</span>

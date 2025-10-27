@@ -644,7 +644,7 @@ class SettingsController extends Controller
 
     public function createExploitant(): View
     {
-        $localisations = Localisation::where('is_deleted', false)->orderBy('CODE')->get();
+        $localisations = Localisation::where('is_deleted', false)->groupBy('DRANEF')->orderBy('CODE')->get();
         return view('settings.exploitants.create', compact('localisations'));
     }
 

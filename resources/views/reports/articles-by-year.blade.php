@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Articles par Année')
+@section('title', 'Volume par Année')
 
 @section('content')
 <div class="content-card">
     <!-- Header Content -->
     <div class="header-content">
         <div>
-            <h1 class="card-title">Articles par Année</h1>
-            <p class="card-subtitle">Analysez les articles par année avec des statistiques détaillées</p>
+            <h1 class="card-title">Volume par Année</h1>
+            <p class="card-subtitle">Analysez les volumes par année avec des statistiques détaillées</p>
         </div>
         <div class="header-actions">
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">

@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Articles par Nature de Coupe')
+@section('title', 'Volume par Nature de Coupe')
 
 @section('content')
 <div class="content-card">
     <!-- Header Content -->
     <div class="header-content">
         <div>
-            <h1 class="card-title">Articles par Nature de Coupe</h1>
-            <p class="card-subtitle">Analysez les articles par nature de coupe avec des statistiques détaillées</p>
+            <h1 class="card-title">Volume par Nature de Coupe</h1>
+            <p class="card-subtitle">Analysez les volumes par nature de coupe avec des statistiques détaillées</p>
         </div>
         <div class="header-actions">
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">

@@ -101,8 +101,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         <!-- Articles by Year -->
         <x-card 
-            title="Articles par Année" 
-            subtitle="Analysez les articles groupés par année avec des statistiques détaillées"
+            title="Volume par Année" 
+            subtitle="Analysez les volumes groupés par année avec des statistiques détaillées"
             variant="gradient"
             color="blue"
             icon="fas fa-chart-line"
@@ -133,8 +133,8 @@
 
         <!-- Articles by Forest -->
         <x-card 
-            title="Articles par Forêt" 
-            subtitle="Consultez les articles organisés par forêt avec analyses détaillées"
+            title="Volume par Forêt" 
+            subtitle="Consultez les volumes organisés par forêt avec analyses détaillées"
             variant="colored"
             color="green"
             icon="fas fa-tree"
@@ -165,8 +165,8 @@
 
         <!-- Articles by Essence -->
         <x-card 
-            title="Articles par Essence" 
-            subtitle="Analysez les articles selon les types d'essences forestières"
+            title="Volume par Essence" 
+            subtitle="Analysez les volumes selon les types d'essences forestières"
             variant="gradient"
             color="purple"
             icon="fas fa-leaf"
@@ -197,8 +197,8 @@
 
         <!-- Articles by Exploitant -->
         <x-card 
-            title="Articles par Exploitant" 
-            subtitle="Consultez les articles associés à chaque exploitant forestier"
+            title="Volume par Exploitant" 
+            subtitle="Consultez les volumes associés à chaque exploitant forestier"
             variant="colored"
             color="blue"
             icon="fas fa-users"
@@ -229,8 +229,8 @@
 
         <!-- Articles by Nature de Coupe -->
         <x-card 
-            title="Articles par Nature de Coupe" 
-            subtitle="Analysez les articles selon les méthodes d'exploitation"
+            title="Volume par Nature de Coupe" 
+            subtitle="Analysez les volumes selon les méthodes d'exploitation"
             variant="gradient"
             color="orange"
             icon="fas fa-cut"
@@ -422,11 +422,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  renderBarChart('chartByYear', @json(($byYear ?? collect())->pluck('annee')), @json(($byYear ?? collect())->pluck('total')));
-  renderBarChart('chartByForet', @json(($byForet ?? collect())->pluck('label')), @json(($byForet ?? collect())->pluck('total')), '#22c55e');
-  renderBarChart('chartByEssence', @json(($byEssence ?? collect())->pluck('label')), @json(($byEssence ?? collect())->pluck('total')), '#a855f7');
-  renderBarChart('chartByExploitant', @json(($byExploitant ?? collect())->pluck('label')), @json(($byExploitant ?? collect())->pluck('total')), '#06b6d4');
-  renderBarChart('chartByNature', @json(($byNature ?? collect())->pluck('label')), @json(($byNature ?? collect())->pluck('total')), '#f97316');
+  renderBarChart('chartByYear', @json(($byYear ?? collect())->pluck('annee')), @json(($byYear ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)));
+  renderBarChart('chartByForet', @json(($byForet ?? collect())->pluck('label')), @json(($byForet ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)), '#22c55e');
+  renderBarChart('chartByEssence', @json(($byEssence ?? collect())->pluck('label')), @json(($byEssence ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)), '#a855f7');
+  renderBarChart('chartByExploitant', @json(($byExploitant ?? collect())->pluck('label')), @json(($byExploitant ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)), '#06b6d4');
+  renderBarChart('chartByNature', @json(($byNature ?? collect())->pluck('label')), @json(($byNature ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)), '#f97316');
 
   const validated = (@json(($byValidation ?? collect())->where('is_validated', 1)->first()->total ?? 0)) * 1;
   const pending = (@json(($byValidation ?? collect())->where('is_validated', 0)->first()->total ?? 0)) * 1;

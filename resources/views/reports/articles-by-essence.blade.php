@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Articles par Essence')
+@section('title', 'Volume par Essence')
 
 @section('content')
 <div class="content-card">
     <!-- Header Content -->
     <div class="header-content">
         <div>
-            <h1 class="card-title">Articles par Essence</h1>
-            <p class="card-subtitle">Analysez les articles par essence avec des statistiques détaillées</p>
+            <h1 class="card-title">Volume par Essence</h1>
+            <p class="card-subtitle">Analysez les volumes par essence avec des statistiques détaillées</p>
         </div>
         <div class="header-actions">
             <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">
@@ -178,7 +178,7 @@
         <!-- Essence Chart -->
         @if(isset($essenceStats) && $essenceStats->count() > 0)
         <div class="mt-8">
-            <h3 class="text-lg font-bold text-gray-800 mb-3">Articles par Essence</h3>
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Volume par Essence</h3>
             <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
                 <canvas id="chartEssences" height="400"></canvas>
             </div>

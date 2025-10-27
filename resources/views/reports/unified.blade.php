@@ -109,7 +109,7 @@
                 <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
                     <i class="fas fa-calendar-alt text-white"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900">Articles par Année</h3>
+                <h3 class="text-xl font-bold text-gray-900">Volume par Année</h3>
             </div>
             <canvas id="articlesByYearChart" height="300"></canvas>
         </div>
@@ -120,7 +120,7 @@
                 <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
                     <i class="fas fa-tree text-white"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900">Articles par Forêt</h3>
+                <h3 class="text-xl font-bold text-gray-900">Volume par Forêt</h3>
             </div>
             <canvas id="articlesByForetChart" height="300"></canvas>
         </div>
@@ -191,9 +191,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Articles by Year Chart
     const yearCtx = document.getElementById('articlesByYearChart').getContext('2d');
     const currentYears = @json($currentArticlesByYear->pluck('annee'));
-    const currentYearData = @json($currentArticlesByYear->pluck('total'));
+    const currentYearData = @json($currentArticlesByYear->pluck('volume')->map(fn($v) => $v ?? 0));
     const legacyYears = @json($legacyArticlesByYear->pluck('annee'));
-    const legacyYearData = @json($legacyArticlesByYear->pluck('total'));
+    const legacyYearData = @json($legacyArticlesByYear->pluck('volume')->map(fn($v) => $v ?? 0));
     
     new Chart(yearCtx, {
         type: 'line',
@@ -201,14 +201,14 @@ document.addEventListener('DOMContentLoaded', function () {
             labels: [...new Set([...currentYears, ...legacyYears])].sort(),
             datasets: [
                 {
-                    label: 'Articles Actuels',
+                    label: 'Volume Actuel (m³)',
                     data: currentYearData,
                     borderColor: '#3b82f6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     tension: 0.4
                 },
                 {
-                    label: 'Articles Historiques',
+                    label: 'Volume Historique (m³)',
                     data: legacyYearData,
                     borderColor: '#f59e0b',
                     backgroundColor: 'rgba(245, 158, 11, 0.1)',
@@ -234,9 +234,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Articles by Forest Chart
     const foretCtx = document.getElementById('articlesByForetChart').getContext('2d');
     const currentForets = @json($currentArticlesByForet->pluck('foret'));
-    const currentForetData = @json($currentArticlesByForet->pluck('total'));
+    const currentForetData = @json($currentArticlesByForet->pluck('volume')->map(fn($v) => $v ?? 0));
     const legacyForets = @json($legacyArticlesByForet->pluck('foret'));
-    const legacyForetData = @json($legacyArticlesByForet->pluck('total'));
+    const legacyForetData = @json($legacyArticlesByForet->pluck('volume')->map(fn($v) => $v ?? 0));
     
     new Chart(foretCtx, {
         type: 'bar',
@@ -244,14 +244,14 @@ document.addEventListener('DOMContentLoaded', function () {
             labels: [...new Set([...currentForets, ...legacyForets])].slice(0, 10),
             datasets: [
                 {
-                    label: 'Articles Actuels',
+                    label: 'Volume Actuel (m³)',
                     data: currentForetData,
                     backgroundColor: 'rgba(34, 197, 94, 0.8)',
                     borderColor: '#22c55e',
                     borderWidth: 1
                 },
                 {
-                    label: 'Articles Historiques',
+                    label: 'Volume Historique (m³)',
                     data: legacyForetData,
                     backgroundColor: 'rgba(245, 158, 11, 0.8)',
                     borderColor: '#f59e0b',
@@ -277,9 +277,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Articles by Essence Chart
     const essenceCtx = document.getElementById('articlesByEssenceChart').getContext('2d');
     const currentEssences = @json($currentArticlesByEssence->pluck('essence'));
-    const currentEssenceData = @json($currentArticlesByEssence->pluck('total'));
+    const currentEssenceData = @json($currentArticlesByEssence->pluck('volume')->map(fn($v) => $v ?? 0));
     const legacyEssences = @json($legacyArticlesByEssence->pluck('essence'));
-    const legacyEssenceData = @json($legacyArticlesByEssence->pluck('total'));
+    const legacyEssenceData = @json($legacyArticlesByEssence->pluck('volume')->map(fn($v) => $v ?? 0));
     
     new Chart(essenceCtx, {
         type: 'doughnut',
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
             labels: [...new Set([...currentEssences, ...legacyEssences])].slice(0, 8),
             datasets: [
                 {
-                    label: 'Articles Actuels',
+                    label: 'Volume Actuel (m³)',
                     data: currentEssenceData,
                     backgroundColor: [
                         '#3b82f6', '#22c55e', '#f59e0b', '#ef4444',
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ]
                 },
                 {
-                    label: 'Articles Historiques',
+                    label: 'Volume Historique (m³)',
                     data: legacyEssenceData,
                     backgroundColor: [
                         '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4',
