@@ -293,6 +293,41 @@
 
 
 
+        <!-- Product Quantities Charts -->
+        <x-card 
+            title="Graphiques des Quantités de Produits" 
+            subtitle="Analysez les quantités de produits par année et par localisation avec des graphiques interactifs"
+            variant="gradient"
+            color="green"
+            icon="fas fa-chart-bar"
+            collapsible="true"
+            id="product-quantities-charts"
+        >
+            <div class="mb-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-200">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-bar text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-green-900">Analyse des quantités</h3>
+                </div>
+                <div class="text-sm text-green-700">
+                    <p class="mb-2"><i class="fas fa-chart-line mr-2"></i>Graphique 1: Quantités par année</p>
+                    <p><i class="fas fa-map-marker-alt mr-2"></i>Graphique 2: Quantités par localisation</p>
+                </div>
+            </div>
+            <div class="card-stats">
+                <span class="stat-item">
+                    <i class="fas fa-chart-bar"></i>
+                    Graphiques interactifs
+                </span>
+            </div>
+            <div class="card-actions">
+                <x-button href="{{ route('reports.product-quantities-charts') }}" variant="primary" icon="fas fa-arrow-right">
+                    Voir les graphiques
+                </x-button>
+            </div>
+        </x-card>
+
         <!-- Articles by Validation Status -->
         <x-card 
             title="Articles par Statut de Validation" 

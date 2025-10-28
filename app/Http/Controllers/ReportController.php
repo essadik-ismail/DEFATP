@@ -924,6 +924,229 @@ class ReportController extends Controller
         ));
     }
 
+    public function productQuantitiesCharts(Request $request): View
+    {
+        try {
+            // Log report generation
+            ActivityLogger::log('view', 'Consultation des graphiques de quantités de produits', null);
+            
+            // Get all years from both current and legacy articles
+            $currentYears = Article::select('annee')
+                ->distinct()
+                ->pluck('annee');
+            
+            $legacyYears = LegacyArticle::selectRaw('SUBSTRING(date, 1, 2) as annee')
+                ->distinct()
+                ->whereNotNull('date')
+                ->where('date', '!=', '')
+                ->whereRaw('SUBSTRING(date, 1, 2) REGEXP "^[0-9]{2}$"')
+                ->pluck('annee')
+                ->map(function($year) {
+                    // Convert YY to YYYY (assuming 20XX for years 00-99)
+                    return '20' . str_pad($year, 2, '0', STR_PAD_LEFT);
+                });
+            
+            // Combine and sort all years
+            $allYears = $currentYears->merge($legacyYears)->unique()->sort()->values();
+            
+            // Get all localisations for the second chart
+            $localisations = Localisation::select('id', 'CODE', 'DRANEF', 'ENTITE')
+                ->orderBy('CODE')
+                ->get();
+            
+            // Chart 1: Product quantities by year (combined current + legacy)
+            $yearlyData = [];
+            $productFields = ['bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t', 'romarin_t', 'liége_st', 'charbon_bois_ox'];
+            
+            foreach ($allYears as $year) {
+                // Get data from current articles
+                $currentData = Article::where('annee', $year)
+                    ->selectRaw('
+                        SUM(COALESCE(bo_m3, 0)) as bo_m3,
+                        SUM(COALESCE(bi_m3, 0)) as bi_m3,
+                        SUM(COALESCE(bf_st, 0)) as bf_st,
+                        SUM(COALESCE(tanin_t, 0)) as tanin_t,
+                        SUM(COALESCE(fleur_acacia_t, 0)) as fleur_acacia_t,
+                        SUM(COALESCE(caroube_t, 0)) as caroube_t,
+                        SUM(COALESCE(romarin_t, 0)) as romarin_t,
+                        SUM(COALESCE(liége_st, 0)) as liége_st,
+                        SUM(COALESCE(charbon_bois_ox, 0)) as charbon_bois_ox
+                    ')
+                    ->first();
+                
+                // Get data from legacy articles (convert bom3 to bo_m3)
+                $legacyData = LegacyArticle::whereRaw('SUBSTRING(date, 1, 2) = ?', [substr($year, 2, 2)])
+                    ->whereNotNull('date')
+                    ->where('date', '!=', '')
+                    ->selectRaw('
+                        SUM(COALESCE(bom3, 0)) as bo_m3,
+                        SUM(COALESCE(bim3, 0)) as bi_m3,
+                        SUM(COALESCE(bfst, 0)) as bf_st,
+                        0 as tanin_t,
+                        0 as fleur_acacia_t,
+                        0 as caroube_t,
+                        0 as romarin_t,
+                        SUM(COALESCE(lcst, 0)) as liége_st,
+                        0 as charbon_bois_ox
+                    ')
+                    ->first();
+                
+                // Combine the data
+                $combinedData = (object) [
+                    'bo_m3' => ($currentData->bo_m3 ?? 0) + ($legacyData->bo_m3 ?? 0),
+                    'bi_m3' => ($currentData->bi_m3 ?? 0) + ($legacyData->bi_m3 ?? 0),
+                    'bf_st' => ($currentData->bf_st ?? 0) + ($legacyData->bf_st ?? 0),
+                    'tanin_t' => ($currentData->tanin_t ?? 0) + ($legacyData->tanin_t ?? 0),
+                    'fleur_acacia_t' => ($currentData->fleur_acacia_t ?? 0) + ($legacyData->fleur_acacia_t ?? 0),
+                    'caroube_t' => ($currentData->caroube_t ?? 0) + ($legacyData->caroube_t ?? 0),
+                    'romarin_t' => ($currentData->romarin_t ?? 0) + ($legacyData->romarin_t ?? 0),
+                    'liége_st' => ($currentData->liége_st ?? 0) + ($legacyData->liége_st ?? 0),
+                    'charbon_bois_ox' => ($currentData->charbon_bois_ox ?? 0) + ($legacyData->charbon_bois_ox ?? 0),
+                ];
+                
+                $yearlyData[$year] = $combinedData;
+            }
+            
+            // Chart 2: Product quantities by localisation and year (combined current + legacy)
+            $localisationData = [];
+            
+            // Check if article_localisation table has data
+            $hasLocalisationData = DB::table('article_localisation')->exists();
+            
+            if ($hasLocalisationData) {
+                foreach ($localisations as $localisation) {
+                    $localisationYearlyData = [];
+                    foreach ($allYears as $year) {
+                        try {
+                            // Get current articles data for this localisation and year
+                            $currentData = Article::join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
+                                ->where('article_localisation.localisation_id', $localisation->id)
+                                ->where('articles.annee', $year)
+                                ->selectRaw('
+                                    SUM(COALESCE(articles.bo_m3, 0)) as bo_m3,
+                                    SUM(COALESCE(articles.bi_m3, 0)) as bi_m3,
+                                    SUM(COALESCE(articles.bf_st, 0)) as bf_st,
+                                    SUM(COALESCE(articles.tanin_t, 0)) as tanin_t,
+                                    SUM(COALESCE(articles.fleur_acacia_t, 0)) as fleur_acacia_t,
+                                    SUM(COALESCE(articles.caroube_t, 0)) as caroube_t,
+                                    SUM(COALESCE(articles.romarin_t, 0)) as romarin_t,
+                                    SUM(COALESCE(articles.liége_st, 0)) as liége_st,
+                                    SUM(COALESCE(articles.charbon_bois_ox, 0)) as charbon_bois_ox
+                                ')
+                                ->first();
+                            
+                            // Get legacy articles data for this localisation and year
+                            // Map legacy articles by province to localisation
+                            $legacyData = LegacyArticle::whereRaw('SUBSTRING(date, 1, 2) = ?', [substr($year, 2, 2)])
+                                ->whereNotNull('date')
+                                ->where('date', '!=', '')
+                                ->where(function($query) use ($localisation) {
+                                    // Try to match province with localisation fields
+                                    $query->where('province', 'LIKE', '%' . $localisation->DRANEF . '%')
+                                          ->orWhere('province', 'LIKE', '%' . $localisation->ENTITE . '%')
+                                          ->orWhere('province', 'LIKE', '%' . $localisation->CODE . '%');
+                                })
+                                ->selectRaw('
+                                    SUM(COALESCE(bom3, 0)) as bo_m3,
+                                    SUM(COALESCE(bim3, 0)) as bi_m3,
+                                    SUM(COALESCE(bfst, 0)) as bf_st,
+                                    0 as tanin_t,
+                                    0 as fleur_acacia_t,
+                                    0 as caroube_t,
+                                    0 as romarin_t,
+                                    SUM(COALESCE(lcst, 0)) as liége_st,
+                                    0 as charbon_bois_ox
+                                ')
+                                ->first();
+                            
+                            // Combine the data
+                            $combinedData = (object) [
+                                'bo_m3' => ($currentData->bo_m3 ?? 0) + ($legacyData->bo_m3 ?? 0),
+                                'bi_m3' => ($currentData->bi_m3 ?? 0) + ($legacyData->bi_m3 ?? 0),
+                                'bf_st' => ($currentData->bf_st ?? 0) + ($legacyData->bf_st ?? 0),
+                                'tanin_t' => ($currentData->tanin_t ?? 0) + ($legacyData->tanin_t ?? 0),
+                                'fleur_acacia_t' => ($currentData->fleur_acacia_t ?? 0) + ($legacyData->fleur_acacia_t ?? 0),
+                                'caroube_t' => ($currentData->caroube_t ?? 0) + ($legacyData->caroube_t ?? 0),
+                                'romarin_t' => ($currentData->romarin_t ?? 0) + ($legacyData->romarin_t ?? 0),
+                                'liége_st' => ($currentData->liége_st ?? 0) + ($legacyData->liége_st ?? 0),
+                                'charbon_bois_ox' => ($currentData->charbon_bois_ox ?? 0) + ($legacyData->charbon_bois_ox ?? 0),
+                            ];
+                            
+                            $localisationYearlyData[$year] = $combinedData;
+                        } catch (\Exception $e) {
+                            // If there's an error with the join, create empty data
+                            $localisationYearlyData[$year] = (object) [
+                                'bo_m3' => 0, 'bi_m3' => 0, 'bf_st' => 0, 'tanin_t' => 0,
+                                'fleur_acacia_t' => 0, 'caroube_t' => 0, 'romarin_t' => 0,
+                                'liége_st' => 0, 'charbon_bois_ox' => 0
+                            ];
+                        }
+                    }
+                    $localisationData[$localisation->id] = [
+                        'localisation' => $localisation,
+                        'data' => $localisationYearlyData
+                    ];
+                }
+            } else {
+                // If no localisation data exists, create data based on legacy articles provinces
+                foreach ($localisations as $localisation) {
+                    $localisationYearlyData = [];
+                    foreach ($allYears as $year) {
+                        // Get legacy articles data for this localisation and year by province matching
+                        $legacyData = LegacyArticle::whereRaw('SUBSTRING(date, 1, 2) = ?', [substr($year, 2, 2)])
+                            ->whereNotNull('date')
+                            ->where('date', '!=', '')
+                            ->where(function($query) use ($localisation) {
+                                // Try to match province with localisation fields
+                                $query->where('province', 'LIKE', '%' . $localisation->DRANEF . '%')
+                                      ->orWhere('province', 'LIKE', '%' . $localisation->ENTITE . '%')
+                                      ->orWhere('province', 'LIKE', '%' . $localisation->CODE . '%');
+                            })
+                            ->selectRaw('
+                                SUM(COALESCE(bom3, 0)) as bo_m3,
+                                SUM(COALESCE(bim3, 0)) as bi_m3,
+                                SUM(COALESCE(bfst, 0)) as bf_st,
+                                0 as tanin_t,
+                                0 as fleur_acacia_t,
+                                0 as caroube_t,
+                                0 as romarin_t,
+                                SUM(COALESCE(lcst, 0)) as liége_st,
+                                0 as charbon_bois_ox
+                            ')
+                            ->first();
+                        
+                        $localisationYearlyData[$year] = $legacyData ?: (object) [
+                            'bo_m3' => 0, 'bi_m3' => 0, 'bf_st' => 0, 'tanin_t' => 0,
+                            'fleur_acacia_t' => 0, 'caroube_t' => 0, 'romarin_t' => 0,
+                            'liége_st' => 0, 'charbon_bois_ox' => 0
+                        ];
+                    }
+                    $localisationData[$localisation->id] = [
+                        'localisation' => $localisation,
+                        'data' => $localisationYearlyData
+                    ];
+                }
+            }
+            
+            return view('reports.product-quantities-charts', compact(
+                'allYears', 'localisations', 'yearlyData', 'localisationData', 'productFields'
+            ));
+            
+        } catch (\Exception $e) {
+            // Log the error and return a simple view with error message
+            \Log::error('Error in productQuantitiesCharts: ' . $e->getMessage());
+            
+            return view('reports.product-quantities-charts', [
+                'allYears' => collect(),
+                'localisations' => collect(),
+                'yearlyData' => [],
+                'localisationData' => [],
+                'productFields' => ['bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t', 'romarin_t', 'liége_st', 'charbon_bois_ox'],
+                'error' => 'Une erreur est survenue lors du chargement des données. Veuillez réessayer.'
+            ]);
+        }
+    }
+
     public function unifiedTable(Request $request): View
     {
         // Log report generation
