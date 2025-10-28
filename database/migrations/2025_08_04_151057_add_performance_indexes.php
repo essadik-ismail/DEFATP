@@ -53,12 +53,8 @@ return new class extends Migration
                 if (!$this->indexExists('articles', 'articles_annee_deleted_idx')) {
                     $table->index(['annee', 'is_deleted'], 'articles_annee_deleted_idx');
                 }
-                if (!$this->indexExists('articles', 'articles_foret_deleted_idx')) {
-                    $table->index(['foret_id', 'is_deleted'], 'articles_foret_deleted_idx');
-                }
-                if (!$this->indexExists('articles', 'articles_essence_deleted_idx')) {
-                    $table->index(['essence_id', 'is_deleted'], 'articles_essence_deleted_idx');
-                }
+                // Removed foret_id and essence_id indexes as these columns don't exist in articles table
+                // The relationships are handled through pivot tables: article_foret and article_essence
                 if (!$this->indexExists('articles', 'articles_exploitant_deleted_idx')) {
                     $table->index(['exploitant_id', 'is_deleted'], 'articles_exploitant_deleted_idx');
                 }
@@ -160,12 +156,7 @@ return new class extends Migration
                 try {
                     $table->dropIndex('articles_annee_deleted_idx');
                 } catch (\Exception $e) {}
-                try {
-                    $table->dropIndex('articles_foret_deleted_idx');
-                } catch (\Exception $e) {}
-                try {
-                    $table->dropIndex('articles_essence_deleted_idx');
-                } catch (\Exception $e) {}
+                // Removed foret_id and essence_id indexes as these columns don't exist in articles table
                 try {
                     $table->dropIndex('articles_exploitant_deleted_idx');
                 } catch (\Exception $e) {}

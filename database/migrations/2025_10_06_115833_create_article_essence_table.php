@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
             
             // Ensure unique combinations
-            $table->unique(['article_id', 'essence_id']);
+            $table->unique(['article_id', 'essence_id'], 'ae_unique');
         });
     }
 

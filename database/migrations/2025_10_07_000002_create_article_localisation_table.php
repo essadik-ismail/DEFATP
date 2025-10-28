@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('article_id')->constrained('articles')->onDelete('cascade');
             $table->foreignId('localisation_id')->constrained('localisations')->onDelete('cascade');
             $table->timestamps();
-            $table->unique(['article_id', 'localisation_id']);
+            $table->unique(['article_id', 'localisation_id'], 'al_unique');
         });
 
         // Backfill existing single selections into pivot

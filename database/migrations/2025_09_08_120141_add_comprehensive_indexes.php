@@ -46,9 +46,7 @@ return new class extends Migration
             if (!$this->indexExists('articles', 'articles_year_status_idx')) {
                 $table->index(['annee', 'is_validated'], 'articles_year_status_idx');
             }
-            if (!$this->indexExists('articles', 'articles_forest_essence_idx')) {
-                $table->index(['foret_id', 'essence_id'], 'articles_forest_essence_idx');
-            }
+            // Removed foret_id and essence_id indexes - these are many-to-many relationships via pivot tables
             if (!$this->indexExists('articles', 'articles_price_status_idx')) {
                 $table->index(['prix_vente', 'invendu'], 'articles_price_status_idx');
             }
@@ -58,15 +56,9 @@ return new class extends Migration
             if (!$this->indexExists('articles', 'articles_exploitant_created_idx')) {
                 $table->index(['exploitant_id', 'created_at'], 'articles_exploitant_created_idx');
             }
-            if (!$this->indexExists('articles', 'articles_localisation_idx')) {
-                $table->index(['localisation_id'], 'articles_localisation_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_situation_admin_idx')) {
-                $table->index(['situation_administrative_id'], 'articles_situation_admin_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_nature_coupe_idx')) {
-                $table->index(['nature_de_coupe_id'], 'articles_nature_coupe_idx');
-            }
+            // Removed localisation_id index - this is a many-to-many relationship via pivot table
+            // Removed situation_administrative_id index - this is a many-to-many relationship via pivot table
+            // Removed nature_de_coupe_id index - this is a many-to-many relationship via pivot table
             // Date-based indexes for reporting
             if (!$this->indexExists('articles', 'articles_date_adjudication_idx')) {
                 $table->index(['date_adjudication'], 'articles_date_adjudication_idx');
@@ -188,13 +180,13 @@ return new class extends Migration
         // Articles table indexes
         Schema::table('articles', function (Blueprint $table) {
             $table->dropIndex('articles_year_status_idx');
-            $table->dropIndex('articles_forest_essence_idx');
+            // Removed foret_id and essence_id indexes - these are many-to-many relationships via pivot tables
             $table->dropIndex('articles_price_status_idx');
             $table->dropIndex('articles_type_year_idx');
             $table->dropIndex('articles_exploitant_created_idx');
-            $table->dropIndex('articles_localisation_idx');
-            $table->dropIndex('articles_situation_admin_idx');
-            $table->dropIndex('articles_nature_coupe_idx');
+            // Removed localisation_id index - this is a many-to-many relationship via pivot table
+            // Removed situation_administrative_id index - this is a many-to-many relationship via pivot table
+            // Removed nature_de_coupe_id index - this is a many-to-many relationship via pivot table
             $table->dropIndex('articles_date_adjudication_idx');
             $table->dropIndex('articles_created_updated_idx');
         });

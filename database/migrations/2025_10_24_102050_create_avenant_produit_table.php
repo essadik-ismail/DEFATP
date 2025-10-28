@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('avenant_produit', function (Blueprint $table) {
             $table->id();
             $table->foreignId('avenant_id')->constrained('avenants')->onDelete('cascade');
-            $table->foreignId('produit_id')->constrained('produits')->onDelete('cascade');
+            $table->foreignId('produit_id')->constrained('products')->onDelete('cascade');
             $table->timestamps();
             
             // Ensure unique combination
-            $table->unique(['avenant_id', 'produit_id']);
+            $table->unique(['avenant_id', 'produit_id'], 'ap_unique');
         });
     }
 

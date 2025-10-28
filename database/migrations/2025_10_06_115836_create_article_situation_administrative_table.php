@@ -23,7 +23,7 @@ return new class extends Migration
                 $table->timestamps();
                 
                 // Ensure unique combinations
-                $table->unique(['article_id', 'situation_administrative_id']);
+                $table->unique(['article_id', 'situation_administrative_id'], 'asi_unique');
             });
         } else {
             // Table exists (likely from a failed prior run); add missing columns and constraints.
