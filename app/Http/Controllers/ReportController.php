@@ -935,22 +935,24 @@ class ReportController extends Controller
                 ->distinct()
                 ->pluck('annee');
             
-            $legacyYears = LegacyArticle::selectRaw('SUBSTRING(date, 1, 2) as annee')
-                ->distinct()
-                ->whereNotNull('date')
+            // Get legacy years in a DB-agnostic way (avoid REGEXP/SUBSTRING)
+            $legacyYears = LegacyArticle::whereNotNull('date')
                 ->where('date', '!=', '')
-                ->whereRaw('SUBSTRING(date, 1, 2) REGEXP "^[0-9]{2}$"')
-                ->pluck('annee')
-                ->map(function($year) {
-                    // Convert YY to YYYY (assuming 20XX for years 00-99)
-                    return '20' . str_pad($year, 2, '0', STR_PAD_LEFT);
-                });
+                ->select('date')
+                ->distinct()
+                ->pluck('date')
+                ->map(function ($date) {
+                    $yy = substr((string) $date, 0, 2);
+                    return preg_match('/^\d{2}$/', (string) $yy) ? '20' . str_pad($yy, 2, '0', STR_PAD_LEFT) : null;
+                })
+                ->filter()
+                ->values();
             
             // Combine and sort all years
             $allYears = $currentYears->merge($legacyYears)->unique()->sort()->values();
             
             // Get all localisations for the second chart
-            $localisations = Localisation::select('id', 'CODE', 'DRANEF', 'ENTITE')
+            $localisations = Localisation::select('id', 'CODE', 'DRANEF', 'ENTITE', 'DPANEF')
                 ->orderBy('CODE')
                 ->get();
             
@@ -969,15 +971,15 @@ class ReportController extends Controller
                         SUM(COALESCE(fleur_acacia_t, 0)) as fleur_acacia_t,
                         SUM(COALESCE(caroube_t, 0)) as caroube_t,
                         SUM(COALESCE(romarin_t, 0)) as romarin_t,
-                        SUM(COALESCE(liége_st, 0)) as liége_st,
+                        SUM(COALESCE(`liége_st`, 0)) as `liége_st`,
                         SUM(COALESCE(charbon_bois_ox, 0)) as charbon_bois_ox
                     ')
                     ->first();
                 
                 // Get data from legacy articles (convert bom3 to bo_m3)
-                $legacyData = LegacyArticle::whereRaw('SUBSTRING(date, 1, 2) = ?', [substr($year, 2, 2)])
-                    ->whereNotNull('date')
+                $legacyData = LegacyArticle::whereNotNull('date')
                     ->where('date', '!=', '')
+                    ->where('date', 'like', substr($year, 2, 2) . '%')
                     ->selectRaw('
                         SUM(COALESCE(bom3, 0)) as bo_m3,
                         SUM(COALESCE(bim3, 0)) as bi_m3,
@@ -1030,16 +1032,16 @@ class ReportController extends Controller
                                     SUM(COALESCE(articles.fleur_acacia_t, 0)) as fleur_acacia_t,
                                     SUM(COALESCE(articles.caroube_t, 0)) as caroube_t,
                                     SUM(COALESCE(articles.romarin_t, 0)) as romarin_t,
-                                    SUM(COALESCE(articles.liége_st, 0)) as liége_st,
+                                    SUM(COALESCE(articles.`liége_st`, 0)) as `liége_st`,
                                     SUM(COALESCE(articles.charbon_bois_ox, 0)) as charbon_bois_ox
                                 ')
                                 ->first();
                             
                             // Get legacy articles data for this localisation and year
                             // Map legacy articles by province to localisation
-                            $legacyData = LegacyArticle::whereRaw('SUBSTRING(date, 1, 2) = ?', [substr($year, 2, 2)])
-                                ->whereNotNull('date')
+                            $legacyData = LegacyArticle::whereNotNull('date')
                                 ->where('date', '!=', '')
+                                ->where('date', 'like', substr($year, 2, 2) . '%')
                                 ->where(function($query) use ($localisation) {
                                     // Try to match province with localisation fields
                                     $query->where('province', 'LIKE', '%' . $localisation->DRANEF . '%')
@@ -1093,9 +1095,9 @@ class ReportController extends Controller
                     $localisationYearlyData = [];
                     foreach ($allYears as $year) {
                         // Get legacy articles data for this localisation and year by province matching
-                        $legacyData = LegacyArticle::whereRaw('SUBSTRING(date, 1, 2) = ?', [substr($year, 2, 2)])
-                            ->whereNotNull('date')
+                        $legacyData = LegacyArticle::whereNotNull('date')
                             ->where('date', '!=', '')
+                            ->where('date', 'like', substr($year, 2, 2) . '%')
                             ->where(function($query) use ($localisation) {
                                 // Try to match province with localisation fields
                                 $query->where('province', 'LIKE', '%' . $localisation->DRANEF . '%')
