@@ -208,6 +208,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/legacy-articles-by-province', [ReportController::class, 'legacyArticlesByProvince'])->name('legacy-articles-by-province');
         Route::get('/legacy-articles-by-essence', [ReportController::class, 'legacyArticlesByEssence'])->name('legacy-articles-by-essence');
         Route::get('/product-quantities-charts', [ReportController::class, 'productQuantitiesCharts'])->name('product-quantities-charts');
+        Route::get('/legacy-quantities-charts', [ReportController::class, 'legacyQuantitiesCharts'])->name('legacy-quantities-charts');
+        Route::get('/article-quantities-charts', [ReportController::class, 'articleQuantitiesCharts'])->name('article-quantities-charts');
         Route::get('/unified', [ReportController::class, 'unifiedReports'])->name('unified');
         Route::get('/unified-table', [ReportController::class, 'unifiedTable'])->name('unified-table');
     });

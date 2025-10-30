@@ -99,200 +99,6 @@
 
         <!-- Reports Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        <!-- Articles by Year -->
-        <x-card 
-            title="Volume par Année" 
-            subtitle="Analysez les volumes groupés par année avec des statistiques détaillées"
-            variant="gradient"
-            color="blue"
-            icon="fas fa-chart-line"
-            collapsible="true"
-            id="articles-year"
-        >
-            <div class="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-calendar-alt text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-blue-900">Vue annuelle</h3>
-                </div>
-                <canvas id="chartByYear" height="120"></canvas>
-            </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-chart-line"></i>
-                    Statistiques annuelles
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.articles-by-year') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir le rapport
-                </x-button>
-            </div>
-        </x-card>
-
-        <!-- Articles by Forest -->
-        <x-card 
-            title="Volume par Forêt" 
-            subtitle="Consultez les volumes organisés par forêt avec analyses détaillées"
-            variant="colored"
-            color="green"
-            icon="fas fa-tree"
-            collapsible="true"
-            id="articles-forest"
-        >
-            <div class="mb-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-tree text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-green-900">Analyse géographique</h3>
-                </div>
-                <canvas id="chartByForet" height="120"></canvas>
-            </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    Analyse géographique
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.articles-by-foret') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir le rapport
-                </x-button>
-            </div>
-        </x-card>
-
-        <!-- Articles by Essence -->
-        <x-card 
-            title="Volume par Essence" 
-            subtitle="Analysez les volumes selon les types d'essences forestières"
-            variant="gradient"
-            color="purple"
-            icon="fas fa-leaf"
-            collapsible="true"
-            id="articles-essence"
-        >
-            <div class="mb-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 border border-purple-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-leaf text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-purple-900">Analyse botanique</h3>
-                </div>
-                <canvas id="chartByEssence" height="120"></canvas>
-            </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-leaf"></i>
-                    Analyse botanique
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.articles-by-essence') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir le rapport
-                </x-button>
-            </div>
-        </x-card>
-
-        <!-- Articles by Exploitant -->
-        <x-card 
-            title="Volume par Exploitant" 
-            subtitle="Consultez les volumes associés à chaque exploitant forestier"
-            variant="colored"
-            color="blue"
-            icon="fas fa-users"
-            collapsible="true"
-            id="articles-exploitant"
-        >
-            <div class="mb-4 bg-gradient-to-r from-cyan-50 to-teal-50 rounded-2xl p-4 border border-cyan-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-users text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-cyan-900">Analyse par exploitant</h3>
-                </div>
-                <canvas id="chartByExploitant" height="120"></canvas>
-            </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-users"></i>
-                    Analyse par exploitant
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.articles-by-exploitant') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir le rapport
-                </x-button>
-            </div>
-        </x-card>
-
-        <!-- Articles by Nature de Coupe -->
-        <x-card 
-            title="Volume par Nature de Coupe" 
-            subtitle="Analysez les volumes selon les méthodes d'exploitation"
-            variant="gradient"
-            color="orange"
-            icon="fas fa-cut"
-            collapsible="true"
-            id="articles-nature"
-        >
-            <div class="mb-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-4 border border-orange-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-cut text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-orange-900">Analyse des méthodes</h3>
-                </div>
-                <canvas id="chartByNature" height="120"></canvas>
-            </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-cut"></i>
-                    Analyse des méthodes
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.articles-by-nature-de-coupe') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir le rapport
-                </x-button>
-            </div>
-        </x-card>
-
-        <!-- Articles by Localisation -->
-        <x-card 
-            title="Articles par Localisation" 
-            subtitle="Analysez les articles selon leur emplacement géographique"
-            variant="colored"
-            color="green"
-            icon="fas fa-map"
-            collapsible="true"
-            id="articles-localisation"
-        >
-            <div class="mb-4 bg-gradient-to-r from-emerald-50 to-lime-50 rounded-2xl p-4 border border-emerald-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-lime-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-map text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-emerald-900">Analyse spatiale</h3>
-                </div>
-                <canvas id="chartByLocalisation" height="120"></canvas>
-            </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-map"></i>
-                    Analyse spatiale
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.articles-by-localisation') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir le rapport
-                </x-button>
-            </div>
-        </x-card>
-
-
-
         <!-- Product Quantities Charts -->
         <x-card 
             title="Graphiques des Quantités de Produits" 
@@ -328,34 +134,72 @@
             </div>
         </x-card>
 
-        <!-- Articles by Validation Status -->
+        <!-- Legacy Quantities Charts -->
         <x-card 
-            title="Articles par Statut de Validation" 
-            subtitle="Analysez les articles selon leur statut de validation"
-            variant="minimal"
-            color="blue"
-            icon="fas fa-check-circle"
+            title="Graphiques des Quantités de Produits (Legacy)" 
+            subtitle="Analysez les quantités de produits par année et par province pour les articles historiques"
+            variant="gradient"
+            color="orange"
+            icon="fas fa-chart-bar"
             collapsible="true"
-            id="articles-validation"
+            id="legacy-quantities-charts"
         >
-            <div class="mb-4 bg-gradient-to-r from-teal-50 to-sky-50 rounded-2xl p-4 border border-sky-200">
+            <div class="mb-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-4 border border-orange-200">
                 <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-sky-500 to-teal-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-check-circle text-white"></i>
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-bar text-white"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-sky-900">Analyse des validations</h3>
+                    <h3 class="text-lg font-bold text-orange-900">Analyse des quantités (Legacy)</h3>
                 </div>
-                <canvas id="chartByValidation" height="120"></canvas>
+                <div class="text-sm text-orange-700">
+                    <p class="mb-2"><i class="fas fa-chart-line mr-2"></i>Graphique 1: Quantités par année</p>
+                    <p><i class="fas fa-map-marker-alt mr-2"></i>Graphique 2: Quantités par province</p>
+                </div>
             </div>
             <div class="card-stats">
                 <span class="stat-item">
-                    <i class="fas fa-check-circle"></i>
-                    Analyse des validations
+                    <i class="fas fa-chart-bar"></i>
+                    Articles historiques uniquement
                 </span>
             </div>
             <div class="card-actions">
-                <x-button href="{{ route('reports.articles-by-validation-status') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir le rapport
+                <x-button href="{{ route('reports.legacy-quantities-charts') }}" variant="primary" icon="fas fa-arrow-right">
+                    Voir les graphiques
+                </x-button>
+            </div>
+        </x-card>
+
+        <!-- Article Quantities Charts -->
+        <x-card 
+            title="Graphiques des Quantités de Produits (Articles)" 
+            subtitle="Analysez les quantités de produits par année et par localisation pour les articles actuels"
+            variant="gradient"
+            color="blue"
+            icon="fas fa-chart-bar"
+            collapsible="true"
+            id="article-quantities-charts"
+        >
+            <div class="mb-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-4 border border-blue-200">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-bar text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-blue-900">Analyse des quantités (Articles)</h3>
+                </div>
+                <div class="text-sm text-blue-700">
+                    <p class="mb-2"><i class="fas fa-chart-line mr-2"></i>Graphique 1: Quantités par année</p>
+                    <p><i class="fas fa-map-marker-alt mr-2"></i>Graphique 2: Quantités par localisation</p>
+                </div>
+            </div>
+            <div class="card-stats">
+                <span class="stat-item">
+                    <i class="fas fa-chart-bar"></i>
+                    Articles actuels uniquement
+                </span>
+            </div>
+            <div class="card-actions">
+                <x-button href="{{ route('reports.article-quantities-charts') }}" variant="primary" icon="fas fa-arrow-right">
+                    Voir les graphiques
                 </x-button>
             </div>
         </x-card>
@@ -447,25 +291,6 @@ document.addEventListener('DOMContentLoaded', function () {
       options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
   }
-  function renderDoughnut(canvasId, labels, data, colors) {
-    const el = document.getElementById(canvasId);
-    if (!el || !window.Chart) return;
-    new Chart(el, {
-      type: 'doughnut',
-      data: { labels, datasets: [{ data, backgroundColor: colors || ['#22c55e','#f59e0b'] }] },
-      options: { plugins: { legend: { position: 'bottom' } } }
-    });
-  }
-
-  renderBarChart('chartByYear', @json(($byYear ?? collect())->pluck('annee')), @json(($byYear ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)));
-  renderBarChart('chartByForet', @json(($byForet ?? collect())->pluck('label')), @json(($byForet ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)), '#22c55e');
-  renderBarChart('chartByEssence', @json(($byEssence ?? collect())->pluck('label')), @json(($byEssence ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)), '#a855f7');
-  renderBarChart('chartByExploitant', @json(($byExploitant ?? collect())->pluck('label')), @json(($byExploitant ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)), '#06b6d4');
-  renderBarChart('chartByNature', @json(($byNature ?? collect())->pluck('label')), @json(($byNature ?? collect())->pluck('volume')->map(fn($v) => $v ?? 0)), '#f97316');
-
-  const validated = (@json(($byValidation ?? collect())->where('is_validated', 1)->first()->total ?? 0)) * 1;
-  const pending = (@json(($byValidation ?? collect())->where('is_validated', 0)->first()->total ?? 0)) * 1;
-  renderDoughnut('chartByValidation', ['Validés','En attente'], [validated, pending]);
 });
 </script>
 @endpush

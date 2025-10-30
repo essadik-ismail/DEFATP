@@ -16,16 +16,16 @@ return new class extends Migration
             $table->integer('annee');
             $table->string('contarct'); // Note: keeping original typo as per schema
             $table->foreignId('localisation_id')->constrained('localisations')->onDelete('cascade');
-            $table->string('attribute2')->nullable();
-            $table->string('attribute4')->nullable();
-            $table->string('attribute5')->nullable();
-            $table->string('attribute6')->nullable();
-            $table->string('attribute7')->nullable();
-            $table->string('attribute8')->nullable();
-            $table->string('attribute9')->nullable();
-            $table->string('attribute10')->nullable();
-            $table->string('attribute11')->nullable();
-            $table->string('attribute12')->nullable();
+            $table->string('bo_m3')->nullable();
+            $table->string('bi_m3')->nullable();
+            $table->string('bf_st')->nullable();
+            $table->string('tanin_t')->nullable();
+            $table->string('fleur_acacia_t')->nullable();
+            $table->string('caroube_t')->nullable();
+            $table->string('romarin_t')->nullable();
+            $table->string('ps_t')->nullable();
+            $table->string('liége_st')->nullable();
+            $table->string('charbon_bois_ox')->nullable();
             $table->string('attribute13')->nullable();
             $table->string('attribute14')->nullable();
             $table->string('attribute15')->nullable();
