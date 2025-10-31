@@ -37,24 +37,7 @@
         --google-gray: #5f6368;
     }
 
-    /* Dark Mode Variables */
-    .dark-mode {
-        --text-primary: #f9fafb;
-        --text-secondary: #d1d5db;
-        --text-muted: #9ca3af;
-        
-        --background-light: #1f2937;
-        --background-medium: #111827;
-        --background-dark: #0f172a;
-        
-        --border-light: #374151;
-        --border-medium: #4b5563;
-        
-        --shadow-light: rgba(0, 0, 0, 0.2);
-        --shadow-medium: rgba(0, 0, 0, 0.3);
-        --shadow-heavy: rgba(0, 0, 0, 0.4);
-        --shadow-lighter: rgba(0, 0, 0, 0.1);
-    }
+    
 
     /* Content Container - Depends on App Overflow */
     .content-scroll-container {
@@ -96,16 +79,7 @@
         background: transparent;
     }
 
-    /* Dark Mode Sidebar-Style Scrollbar */
-    .dark-mode .content-scroll-container::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .dark-mode .content-scroll-container::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
-        box-shadow: 0 2px 8px rgba(74, 124, 89, 0.5);
-    }
+    
 
     /* Top Bar Fixed Sizing */
     .top-bar {
@@ -258,11 +232,6 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .dark-mode-btn {
-        min-width: 48px; /* Match new button size */
-        justify-content: center;
-        padding: 0.75rem; /* Consistent padding */
-    }
 
     .profile-btn {
         min-width: auto;
@@ -292,22 +261,7 @@
         margin-left: 0.5rem; /* Better spacing from avatar */
     }
 
-    /* Dark Mode Top Bar Enhancements */
-    .dark-mode .top-bar {
-        background: linear-gradient(135deg, rgba(31, 41, 55, 0.98) 0%, rgba(17, 24, 39, 0.98) 100%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .dark-mode .top-bar-btn {
-        background: rgba(31, 41, 55, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: var(--text-primary);
-    }
-
-    .dark-mode .top-bar-btn:hover {
-        background: rgba(31, 41, 55, 0.95);
-        border-color: var(--primary-color);
-    }
+    
 
     /* Content Area Styling */
     .content-area {
@@ -440,20 +394,7 @@
         border-radius: 0 0 2px 2px;
     } */
 
-    /* Dark Mode Content Enhancements */
-    .dark-mode .content-wrapper {
-        background: linear-gradient(135deg, rgba(31, 41, 55, 0.98) 0%, rgba(17, 24, 39, 0.98) 100%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .dark-mode .content-area::before {
-        opacity: 0.2; /* More visible in dark mode */
-    }
-
-    .dark-mode .content-header {
-        background: linear-gradient(135deg, rgba(31, 41, 55, 0.95) 0%, var(--background-light) 100%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
+    
     
     /* Card and Component Spacing */
     .card, .x-card, [class*="card"] {
@@ -468,16 +409,7 @@
         /* box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); */
     }
 
-    /* Dark Mode Card Enhancements */
-    .dark-mode .card, .dark-mode .x-card, .dark-mode [class*="card"] {
-        background: var(--background-light);
-        border: 1px solid var(--border-light);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .dark-mode .card:hover, .dark-mode .x-card:hover, .dark-mode [class*="card"]:hover {
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-    }
+    
     
     /* Stats Grid Spacing */
     .stats-grid, [class*="stats"] {
@@ -1167,10 +1099,7 @@
             background: var(--background-light);
         }
 
-        .dark-mode .sidebar-footer {
-            background: var(--background-light);
-            border-top-color: var(--border-light);
-        }
+        
     }
 
     /* Extra Small Mobile Sidebar */
@@ -1305,11 +1234,7 @@
             z-index: -1;
         }
 
-        .dark-mode .sidebar::before {
-            background: linear-gradient(135deg, 
-                rgba(31, 41, 55, 0.95) 0%, 
-                rgba(17, 24, 39, 0.95) 100%);
-        }
+        
     }
 
     /* Mobile Sidebar Scroll */

@@ -7,11 +7,11 @@
     <!-- Header Section -->
     <div class="mb-8">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                 <i class="fas fa-file-excel text-white text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                     Création Simple d'Article
                 </h1>
                 <p class="text-gray-600 text-lg mt-2">Créez un article rapidement avec Excel ou le formulaire simplifié</p>
@@ -58,11 +58,11 @@
     <!-- Excel Template Section -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 mb-8">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                 <i class="fas fa-download text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">1. Télécharger le Modèle Excel</h2>
+                <h2 class="text-2xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">1. Télécharger le Modèle Excel</h2>
                 <p class="text-gray-600">Téléchargez le modèle Excel avec des données d'exemple</p>
             </div>
         </div>
@@ -95,11 +95,11 @@
     <!-- Simple Form Section -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                 <i class="fas fa-plus text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">2. Créer l'Article</h2>
+                <h2 class="text-2xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">2. Créer l'Article</h2>
                 <p class="text-gray-600">Utilisez le formulaire simplifié ou importez votre fichier Excel</p>
             </div>
         </div>
@@ -410,17 +410,7 @@
         display: none;
     }
     
-    /* Dark mode support */
-    .dark-mode .form-input {
-        background-color: var(--dark-bg-secondary);
-        border-color: var(--dark-border);
-        color: var(--dark-text-primary);
-    }
     
-    .dark-mode .form-input:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-    }
 </style>
 @endpush
 

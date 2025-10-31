@@ -218,7 +218,8 @@ class ArticleController extends Controller
                 'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
                 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
                 'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-                'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente'
+                'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente',
+                'invendu', 'dc', 'rc', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
             ]);
 
 
@@ -359,15 +360,17 @@ class ArticleController extends Controller
             'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
             'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
             'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-            'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente'
+            'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente',
+            'invendu', 'dc', 'rc', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
         ]);
 
         // Update article data
         $articleData = $request->only([
-            'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type', 'statut',
+            'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
             'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
             'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-            'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente'
+            'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente',
+            'invendu', 'dc', 'rc', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
         ]);
 
         $article->update($articleData);

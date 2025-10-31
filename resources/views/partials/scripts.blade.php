@@ -468,42 +468,6 @@
         }
     });
 
-    // Dark Mode Toggle
-    function toggleDarkMode() {
-        const body = document.body;
-        const isDarkMode = body.classList.contains('dark-mode');
-        
-        if (isDarkMode) {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('darkMode', 'false');
-            updateDarkModeIcons(false);
-        } else {
-            body.classList.add('dark-mode');
-            localStorage.setItem('darkMode', 'true');
-            updateDarkModeIcons(true);
-        }
-    }
-
-    function updateDarkModeIcons(isDarkMode) {
-        const sidebarIcon = document.getElementById('dark-mode-icon');
-        const topBarIcon = document.getElementById('top-dark-mode-icon');
-        
-        if (sidebarIcon) {
-            sidebarIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-        }
-        if (topBarIcon) {
-            topBarIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-        }
-    }
-
-    // Initialize dark mode from localStorage
-    document.addEventListener('DOMContentLoaded', function() {
-        const isDarkMode = localStorage.getItem('darkMode') === 'true';
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-            updateDarkModeIcons(true);
-        }
-    });
 </script>
 
 @stack('scripts')

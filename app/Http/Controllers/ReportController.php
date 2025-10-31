@@ -171,11 +171,8 @@ class ReportController extends Controller
         ]);
 
         if ($foretId) {
-            $query->where(function ($q) use ($foretId) {
-                $q->where('foret_id', $foretId)
-                  ->orWhereHas('forets', function ($qq) use ($foretId) {
-                      $qq->where('forets.id', $foretId);
-                  });
+            $query->whereHas('forets', function ($qq) use ($foretId) {
+                $qq->where('forets.id', $foretId);
             });
         }
 
@@ -213,11 +210,8 @@ class ReportController extends Controller
         ]);
 
         if ($essenceId) {
-            $query->where(function ($q) use ($essenceId) {
-                $q->where('essence_id', $essenceId)
-                  ->orWhereHas('essences', function ($qq) use ($essenceId) {
-                      $qq->where('essences.id', $essenceId);
-                  });
+            $query->whereHas('essences', function ($qq) use ($essenceId) {
+                $qq->where('essences.id', $essenceId);
             });
         }
 

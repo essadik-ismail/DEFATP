@@ -9,11 +9,11 @@
         <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg" style="background: linear-gradient(to bottom right, #059669, #047857);">
                         <i class="fas fa-leaf text-white text-2xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                             Articles par Essence
                         </h1>
                         <p class="text-gray-600 text-lg mt-2">Analysez les articles historiques par essence forestière</p>

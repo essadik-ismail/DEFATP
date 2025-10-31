@@ -171,16 +171,5 @@
         display: none;
     }
     
-    /* Dark mode support */
-    .dark-mode .form-input {
-        background-color: var(--dark-bg-secondary);
-        border-color: var(--dark-border);
-        color: var(--dark-text-primary);
-    }
-    
-    .dark-mode .form-input:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
-    }
 </style>
 @endpush

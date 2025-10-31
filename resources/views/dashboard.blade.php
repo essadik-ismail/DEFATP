@@ -38,11 +38,11 @@
     <div class="mb-8">
         <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
             <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                     <i class="fas fa-calendar-alt text-white text-xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Filtre par Période</h2>
+                    <h2 class="text-2xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">Filtre par Période</h2>
                     <p class="text-gray-600">Sélectionnez une période pour afficher les statistiques correspondantes</p>
                 </div>
             </div>
@@ -108,10 +108,10 @@
     <!-- Statistics Overview -->
     <div class="mb-8">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                 <i class="fas fa-chart-bar text-white text-xl"></i>
             </div>
-            <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h2 class="text-3xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                 Vue d'Ensemble
                 @if(request('start_date') || request('end_date'))
                     <span class="text-lg text-gray-600 font-normal">(Période filtrée)</span>
@@ -196,10 +196,10 @@
     <!-- Quick Actions -->
     <div class="mb-8">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                 <i class="fas fa-bolt text-white text-xl"></i>
             </div>
-            <h2 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h2 class="text-3xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                 Actions Rapides
             </h2>
         </div>
@@ -257,10 +257,10 @@
     <!-- Quick Tips -->
     <div class="mb-8">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                 <i class="fas fa-lightbulb text-white text-xl"></i>
             </div>
-            <h2 class="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+            <h2 class="text-3xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                 Conseils Rapides
             </h2>
         </div>

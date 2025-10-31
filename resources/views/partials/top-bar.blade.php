@@ -121,11 +121,6 @@
                     </div>
                 </div>
 
-                <!-- Dark Mode Toggle -->
-                <button class="top-bar-btn dark-mode-btn" onclick="toggleDarkMode()" title="Basculer le mode sombre">
-                    <i class="fas fa-moon" id="top-dark-mode-icon"></i>
-                </button>
-
                 <!-- Profile Dropdown -->
                 <div class="profile-dropdown">
                     <button class="top-bar-btn profile-btn" onclick="toggleProfile()" title="Mon profil">

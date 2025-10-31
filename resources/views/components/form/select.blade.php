@@ -103,20 +103,4 @@
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23d1d5db' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
     }
     
-    /* Dark mode support */
-    .dark-mode .form-select {
-        background-color: var(--dark-bg-secondary);
-        border-color: var(--dark-border);
-        color: var(--dark-text-primary);
-    }
-    
-    .dark-mode .form-select:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(74, 124, 89, 0.2);
-    }
-    
-    .dark-mode .form-select option {
-        background-color: var(--dark-bg-secondary);
-        color: var(--dark-text-primary);
-    }
 </style>

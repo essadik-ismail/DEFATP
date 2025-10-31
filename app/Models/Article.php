@@ -35,11 +35,19 @@ class Article extends Model
         'charbon_bois_ox',
         'prix_de_retrait',
         'prix_vente',
+        'invendu',
+        'dc',
+        'rc',
+        'fourniture_mise_charge',
+        'date_de_resiliation',
+        'date_de_decheance',
         'is_deleted',
     ];
 
     protected $casts = [
         'date_adjudication' => 'date',
+        'date_de_resiliation' => 'date',
+        'date_de_decheance' => 'date',
         'bo_m3' => 'decimal:2',
         'bi_m3' => 'decimal:2',
         'bf_st' => 'decimal:2',
@@ -47,11 +55,16 @@ class Article extends Model
         'fleur_acacia_t' => 'decimal:2',
         'caroube_t' => 'decimal:2',
         'romarin_t' => 'decimal:2',
+        'ps_t' => 'decimal:2',
         'liége_st' => 'decimal:2',
         'charbon_bois_ox' => 'decimal:2',
         'prix_de_retrait' => 'decimal:2',
         'prix_vente' => 'decimal:2',
+        'fourniture_mise_charge' => 'decimal:2',
         'superficie' => 'decimal:2',
+        'invendu' => 'boolean',
+        'dc' => 'boolean',
+        'rc' => 'boolean',
         'is_deleted' => 'boolean',
     ];
 
@@ -198,7 +211,9 @@ class Article extends Model
      */
     public function scopeByForest(Builder $query, int $forestId): Builder
     {
-        return $query->where('foret_id', $forestId);
+        return $query->whereHas('forets', function ($q) use ($forestId) {
+            $q->where('forets.id', $forestId);
+        });
     }
 
     /**
@@ -206,7 +221,9 @@ class Article extends Model
      */
     public function scopeByEssence(Builder $query, int $essenceId): Builder
     {
-        return $query->where('essence_id', $essenceId);
+        return $query->whereHas('essences', function ($q) use ($essenceId) {
+            $q->where('essences.id', $essenceId);
+        });
     }
 
     /**

@@ -132,12 +132,4 @@
             </li>
         </ul>
     </div>
-
-    <!-- Dark Mode Toggle in Sidebar -->
-    <!-- <div class="sidebar-footer">
-        <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Basculer le mode sombre">
-            <i class="fas fa-moon" id="dark-mode-icon"></i>
-            <span>Mode Sombre</span>
-        </button>
-    </div> -->
 </nav>

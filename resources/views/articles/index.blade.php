@@ -7,11 +7,11 @@
     <!-- Header Section -->
     <div class="mb-8">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                 <i class="fas fa-file-alt text-white text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                     Articles Forestiers
                 </h1>
                 <p class="text-gray-600 text-lg mt-2">Gérez et consultez tous les articles forestiers du système</p>
@@ -19,244 +19,16 @@
         </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Articles Overview Card -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-file-alt text-white text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-lg font-bold text-gray-900">
-                        Articles
-                        @if(request()->hasAny(['start_date', 'end_date', 'search', 'type', 'status', 'year']))
-                            <span class="text-xs text-blue-600 font-normal">(filtrés)</span>
-                        @endif
-                    </h3>
-                    <p class="text-gray-600 text-sm">{{ $articles->total() }} total</p>
-                    <div class="flex items-center text-xs text-gray-500 mt-1">
-                        <span class="text-green-600 font-medium">{{ $stats['sold_articles'] }} vendus</span>
-                        <span class="mx-1">•</span>
-                        <span class="text-orange-600">{{ $stats['unsold_articles'] }} invendus</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Financial Overview Card -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-coins text-white text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-lg font-bold text-gray-900">
-                        Revenus
-                        @if(request()->hasAny(['start_date', 'end_date', 'search', 'type', 'status', 'year']))
-                            <span class="text-xs text-blue-600 font-normal">(filtrés)</span>
-                        @endif
-                    </h3>
-                    <p class="text-gray-600 text-sm">{{ number_format($stats['total_revenue'], 0) }} DH</p>
-                    <div class="flex items-center text-xs text-gray-500 mt-1">
-                        <span class="text-blue-600">{{ number_format($stats['total_retrait'], 0) }} DH retrait</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Volume Overview Card -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-cube text-white text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-lg font-bold text-gray-900">
-                        Volume
-                        @if(request()->hasAny(['start_date', 'end_date', 'search', 'type', 'status', 'year']))
-                            <span class="text-xs text-blue-600 font-normal">(filtré)</span>
-                        @endif
-                    </h3>
-                    <p class="text-gray-600 text-sm">{{ number_format($stats['total_volume'], 2) }} m³</p>
-                    <div class="flex items-center text-xs text-gray-500 mt-1">
-                        <span class="text-blue-600">Bois total</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- System Overview Card -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-database text-white text-xl"></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-lg font-bold text-gray-900">Système</h3>
-                    <p class="text-gray-600 text-sm">{{ $stats['total_forets'] }} forêts</p>
-                    <div class="flex items-center text-xs text-gray-500 mt-1">
-                        <span class="text-blue-600">{{ $stats['total_essences'] }} essences</span>
-                        <span class="mx-1">•</span>
-                        <span class="text-green-600">{{ $stats['total_exploitants'] }} exploitants</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Date Filter Section -->
-    <div class="mb-8">
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-calendar-alt text-white text-xl"></i>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Filtre par Période</h2>
-                    <p class="text-gray-600">Sélectionnez une période pour filtrer les articles et statistiques</p>
-                </div>
-            </div>
-            
-            <form method="GET" action="{{ route('articles.index') }}" id="dateFilterForm" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="form-group">
-                        <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-plus text-purple-500 mr-2"></i>
-                            Date de Début
-                        </label>
-                        <input type="date" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="start_date" 
-                               name="start_date" 
-                               value="{{ request('start_date', now()->startOfMonth()->format('Y-m-d')) }}">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-minus text-purple-500 mr-2"></i>
-                            Date de Fin
-                        </label>
-                        <input type="date" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="end_date" 
-                               name="end_date" 
-                               value="{{ request('end_date', now()->format('Y-m-d')) }}">
-                    </div>
-                    
-                    <div class="form-group flex items-end">
-                        <div class="flex gap-3 w-full">
-                            <button type="submit" 
-                                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                                <i class="fas fa-filter"></i>
-                                <span>Filtrer</span>
-                            </button>
-                            <button type="button" 
-                                    onclick="resetDateFilter()"
-                                    class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
-                                    title="Réinitialiser">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                @if(request('start_date') || request('end_date'))
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-                        <div class="flex items-center gap-2 text-blue-700">
-                            <i class="fas fa-info-circle"></i>
-                            <span class="font-semibold">Période sélectionnée :</span>
-                            <span>{{ request('start_date') ? \Carbon\Carbon::parse(request('start_date'))->format('d/m/Y') : 'Début' }}</span>
-                            <span>→</span>
-                            <span>{{ request('end_date') ? \Carbon\Carbon::parse(request('end_date'))->format('d/m/Y') : 'Fin' }}</span>
-                        </div>
-                    </div>
-                @endif
-                
-                <!-- Preserve other filters -->
-                @if(request('search'))
-                    <input type="hidden" name="search" value="{{ request('search') }}">
-                @endif
-                @if(request('type'))
-                    <input type="hidden" name="type" value="{{ request('type') }}">
-                @endif
-                @if(request('status'))
-                    <input type="hidden" name="status" value="{{ request('status') }}">
-                @endif
-                @if(request('year'))
-                    <input type="hidden" name="year" value="{{ request('year') }}">
-                @endif
-                @if(request('per_page'))
-                    <input type="hidden" name="per_page" value="{{ request('per_page') }}">
-                @endif
-            </form>
-        </div>
-    </div>
-
-    <!-- Articles by Type Statistics -->
-    <div class="mb-8">
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-chart-pie text-white text-xl"></i>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">
-                        Répartition par Type
-                        @if(request()->hasAny(['start_date', 'end_date', 'search', 'type', 'status', 'year']))
-                            <span class="text-lg text-blue-600 font-normal">(Filtres actifs)</span>
-                        @endif
-                    </h2>
-                    <p class="text-gray-600">Distribution des articles selon leur type</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-semibold text-blue-900">Appels d'Offre</h3>
-                            <p class="text-2xl font-bold text-blue-600">{{ $stats['articles_by_type']['appel_doffre'] }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-gavel text-blue-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-semibold text-green-900">Adjudications</h3>
-                            <p class="text-2xl font-bold text-green-600">{{ $stats['articles_by_type']['adjudication'] }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-hammer text-green-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-semibold text-purple-900">Marchés Négociés</h3>
-                            <p class="text-2xl font-bold text-purple-600">{{ $stats['articles_by_type']['marche_negocié'] }}</p>
-                        </div>
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-handshake text-purple-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Articles Data Table -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                     <i class="fas fa-table text-white text-xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Liste des Articles</h2>
+                    <h2 class="text-2xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">Liste des Articles</h2>
                     <p class="text-gray-600">Gérez et consultez tous les articles forestiers</p>
                 </div>
             </div>
@@ -610,11 +382,11 @@
     <div class="mb-8">
         <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
             <div class="flex items-center gap-4 mb-6">
-                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                     <i class="fas fa-database text-white text-2xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    <h2 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                         Données des Entités
                     </h2>
                     <p class="text-gray-600 text-lg mt-2">Gérez les données de base du système forestier</p>

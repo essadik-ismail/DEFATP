@@ -7,11 +7,11 @@
     <!-- Header Section -->
     <div class="mb-8">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+            <div class="w-16 h-16 bg-gradient-to-br rounded-2xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                 <i class="fas fa-file-alt text-white text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                     Nouvel Article
                 </h1>
                 <p class="text-gray-600 text-lg mt-2">Créez un nouvel article forestier pour votre système</p>
@@ -58,11 +58,11 @@
     <!-- Create Form -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                 <i class="fas fa-plus text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">Formulaire de création</h2>
+                <h2 class="text-2xl font-bold" style="color: #059669;">Formulaire de création</h2>
                 <p class="text-gray-600">Remplissez les informations pour créer un nouvel article forestier</p>
             </div>
         </div>
@@ -73,10 +73,10 @@
             <!-- Section 1: Informations de Base -->
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                         <i class="fas fa-info-circle text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-blue-900">Section 1: Informations de Base</h3>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Section 1: Informations de Base</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="form-group">
@@ -180,10 +180,10 @@
             <!-- Section 2: Localisation -->
             <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                         <i class="fas fa-map-marker-alt text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-green-900">Section 2: Localisation</h3>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Section 2: Localisation</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="form-group">
@@ -363,10 +363,10 @@
             <!-- Section 3: Détails Techniques -->
             <div class="bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                         <i class="fas fa-cogs text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-purple-900">Section 3: Détails Techniques</h3>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Section 3: Détails Techniques</h3>
                 </div>
                 
                 <!-- Technical Measurements -->
@@ -531,14 +531,17 @@
                 <div class="bg-white rounded-2xl p-6 border border-purple-200">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                                 <i class="fas fa-box text-white text-sm"></i>
                             </div>
-                            <h4 class="text-lg font-bold text-purple-900">Produits</h4>
+                            <h4 class="text-lg font-bold" style="color: #059669;">Produits</h4>
                         </div>
                         <button type="button" 
                                 onclick="addProduct()" 
-                                class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-lg hover:from-purple-700 hover:to-violet-700 transition-all duration-300 text-sm">
+                                class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-300 text-sm"
+                                style="background: linear-gradient(to right, #059669, #047857);"
+                                onmouseover="this.style.background='linear-gradient(to right, #047857, #065f46)'"
+                                onmouseout="this.style.background='linear-gradient(to right, #059669, #047857)'">
                             <i class="fas fa-plus"></i>
                             Ajouter Produit
                         </button>
@@ -554,11 +557,11 @@
             <!-- Section 4: Plan du Situation -->
             <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                         <i class="fas fa-map-marked-alt text-white text-lg"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">Plan du Situation</h3>
+                        <h3 class="text-xl font-bold" style="color: #059669;">Plan du Situation</h3>
                         <p class="text-gray-600">Importez un fichier Excel avec les coordonnées des emplacements</p>
                     </div>
                 </div>
@@ -603,7 +606,10 @@
                 <button 
                     type="submit" 
                     id="submitBtn"
-                    class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    class="inline-flex items-center gap-3 px-6 py-3 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    style="background: linear-gradient(to right, #059669, #047857);"
+                    onmouseover="this.style.background='linear-gradient(to right, #047857, #065f46)'"
+                    onmouseout="this.style.background='linear-gradient(to right, #059669, #047857)'"
                 >
                     <i class="fas fa-save"></i>
                     <span class="font-semibold">Créer l'Article</span>
@@ -638,17 +644,7 @@
         display: none;
     }
     
-    /* Dark mode support */
-    .dark-mode .form-input {
-        background-color: var(--dark-bg-secondary);
-        border-color: var(--dark-border);
-        color: var(--dark-text-primary);
-    }
     
-    .dark-mode .form-input:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-    }
 </style>
 @endpush
 

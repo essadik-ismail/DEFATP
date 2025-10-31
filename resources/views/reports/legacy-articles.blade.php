@@ -8,11 +8,11 @@
     <div class="mb-8">
         <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
             <div class="flex items-center gap-4">
-                <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg" style="background: linear-gradient(to bottom right, #059669, #047857);">
                     <i class="fas fa-archive text-white text-2xl"></i>
                 </div>
                 <div class="flex-1">
-                    <h1 class="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                    <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                         Articles Historiques
                     </h1>
                     <p class="text-gray-600 text-lg mt-2">Analysez les données historiques des articles forestiers</p>
