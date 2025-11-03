@@ -214,20 +214,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/unified-table', [ReportController::class, 'unifiedTable'])->name('unified-table');
     });
 
-    // Simple Tour Test Route
-    Route::get('/simple-tour-test', function () {
-        return view('simple-tour-test');
-    })->name('simple.tour.test');
-
-    // Functionality Tour Demo Route
-    Route::get('/functionality-tour-demo', function () {
-        return view('functionality-tour-demo');
-    })->name('functionality.tour.demo');
-
-    // Select Search Demo Route
-    Route::get('/select-search-demo', function () {
-        return view('select-search-demo');
-    })->name('select.search.demo');
+    
     
     // Test AJAX Route
     Route::post('/test-ajax', function () {

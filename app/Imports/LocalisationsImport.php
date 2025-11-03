@@ -14,8 +14,11 @@ class LocalisationsImport implements ToModel, WithHeadingRow, WithValidation, Sk
 {
     use Importable, SkipsErrors;
 
+    protected $rowCount = 0;
+
     public function model(array $row)
     {
+        $this->rowCount++;
         return new Localisation([
             'CODE' => $row['code'] ?? $row['Code'] ?? null,
         ]);
@@ -41,5 +44,10 @@ class LocalisationsImport implements ToModel, WithHeadingRow, WithValidation, Sk
     {
         // Log the error or handle it as needed
         \Log::error('Localisation import error: ' . $e->getMessage());
+    }
+
+    public function getRowCount(): int
+    {
+        return $this->rowCount;
     }
 }

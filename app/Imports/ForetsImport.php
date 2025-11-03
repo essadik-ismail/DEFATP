@@ -14,8 +14,11 @@ class ForetsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
 {
     use Importable, SkipsErrors;
 
+    protected $rowCount = 0;
+
     public function model(array $row)
     {
+        $this->rowCount++;
         return new Foret([
             'foret' => $row['foret'] ?? $row['Forêt'] ?? null,
             'lat' => $row['lat'] ?? $row['Latitude'] ?? null,
@@ -51,5 +54,10 @@ class ForetsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
     {
         // Log the error or handle it as needed
         \Log::error('Foret import error: ' . $e->getMessage());
+    }
+
+    public function getRowCount(): int
+    {
+        return $this->rowCount;
     }
 }

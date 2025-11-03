@@ -14,8 +14,11 @@ class SituationAdministrativesImport implements ToModel, WithHeadingRow, WithVal
 {
     use Importable, SkipsErrors;
 
+    protected $rowCount = 0;
+
     public function model(array $row)
     {
+        $this->rowCount++;
         return new SituationAdministrative([
             'commune' => $row['commune'] ?? $row['Commune'] ?? null,
             'province' => $row['province'] ?? $row['Province'] ?? null,
@@ -45,5 +48,10 @@ class SituationAdministrativesImport implements ToModel, WithHeadingRow, WithVal
     {
         // Log the error or handle it as needed
         \Log::error('SituationAdministrative import error: ' . $e->getMessage());
+    }
+
+    public function getRowCount(): int
+    {
+        return $this->rowCount;
     }
 }

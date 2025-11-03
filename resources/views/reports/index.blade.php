@@ -239,40 +239,7 @@
             </div>
         </x-card>
 
-        <!-- Unified Reports -->
-        <x-card 
-            title="Rapports Unifiés" 
-            subtitle="Analysez les données combinées des articles actuels et historiques"
-            variant="gradient"
-            color="purple"
-            icon="fas fa-chart-pie"
-            collapsible="true"
-            id="unified-reports"
-        >
-            <div class="mb-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 border border-purple-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-chart-pie text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-purple-900">Analyse combinée</h3>
-                </div>
-                <div class="text-center py-4">
-                    <i class="fas fa-layer-group text-4xl text-purple-500 mb-2"></i>
-                    <p class="text-purple-700 font-medium">Articles actuels + historiques</p>
-                </div>
-            </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-chart-pie"></i>
-                    Analyse combinée
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.unified') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir les rapports unifiés
-                </x-button>
-            </div>
-        </x-card>
+        
         </div>
     </div>
 </div>

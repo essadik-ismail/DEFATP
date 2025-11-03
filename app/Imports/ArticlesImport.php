@@ -17,8 +17,11 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
 {
     use Importable, SkipsErrors;
 
+    protected $rowCount = 0;
+
     public function model(array $row)
     {
+        $this->rowCount++;
 
         // Resolve exploitant id if provided as name
         $exploitantId = $row['exploitant_id'] ?? $row['Exploitant ID'] ?? $row['exploitant'] ?? $row['Exploitant'] ?? null;
@@ -150,5 +153,10 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     {
         // Log the error or handle it as needed
         \Log::error('Article import error: ' . $e->getMessage());
+    }
+
+    public function getRowCount(): int
+    {
+        return $this->rowCount;
     }
 }

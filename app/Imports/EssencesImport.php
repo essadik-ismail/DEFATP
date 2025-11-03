@@ -14,8 +14,11 @@ class EssencesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
 {
     use Importable, SkipsErrors;
 
+    protected $rowCount = 0;
+
     public function model(array $row)
     {
+        $this->rowCount++;
         return new Essence([
             'essence' => $row['essence'] ?? $row['Essence'] ?? null,
         ]);
@@ -41,5 +44,10 @@ class EssencesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
     {
         // Log the error or handle it as needed
         \Log::error('Essence import error: ' . $e->getMessage());
+    }
+
+    public function getRowCount(): int
+    {
+        return $this->rowCount;
     }
 }

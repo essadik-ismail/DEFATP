@@ -14,8 +14,11 @@ class NatureDeCoupesImport implements ToModel, WithHeadingRow, WithValidation, S
 {
     use Importable, SkipsErrors;
 
+    protected $rowCount = 0;
+
     public function model(array $row)
     {
+        $this->rowCount++;
         return new NatureDeCoupe([
             'nature_de_coupe' => $row['nature_de_coupe'] ?? $row['Nature de coupe'] ?? null,
         ]);
@@ -41,5 +44,10 @@ class NatureDeCoupesImport implements ToModel, WithHeadingRow, WithValidation, S
     {
         // Log the error or handle it as needed
         \Log::error('NatureDeCoupe import error: ' . $e->getMessage());
+    }
+
+    public function getRowCount(): int
+    {
+        return $this->rowCount;
     }
 }
