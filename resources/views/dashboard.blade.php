@@ -35,7 +35,7 @@
     </div>
 
     <!-- Date Filter Section -->
-    <div class="mb-8">
+    <!-- <div class="mb-8">
         <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
             <div class="flex items-center gap-4 mb-6">
                 <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
@@ -103,7 +103,7 @@
                 @endif
             </form>
         </div>
-    </div>
+    </div> -->
 
     <!-- Statistics Overview -->
     <div class="mb-8">
