@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Article;
+use App\Models\Exploitant;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -19,10 +20,20 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     public function model(array $row)
     {
 
+        // Resolve exploitant id if provided as name
+        $exploitantId = $row['exploitant_id'] ?? $row['Exploitant ID'] ?? $row['exploitant'] ?? $row['Exploitant'] ?? null;
+        if (!is_null($exploitantId) && !is_numeric($exploitantId)) {
+            $byName = Exploitant::where('nom_complet', trim($exploitantId))->first();
+            $exploitantId = $byName?->id;
+        }
+
         return new Article([
+            'type' => $row['type'] ?? $row['Type'] ?? null,
             'annee' => $row['annee'] ?? $row['Année'] ?? null,
-            'numero' => $row['numero'] ?? $row['Numéro'] ?? null,
-            'date_adjudication' => $row['date_adjudication'] ?? $row['date'] ?? $row['Date'] ?? $row["Date d'adjudication"] ?? null,
+            'numero' => $row['numero'] ?? $row["Numéro"] ?? $row["Numéro d'Article"] ?? null,
+            'date_adjudication' => $row['date_adjudication'] ?? $row['date'] ?? $row['Date'] ?? $row["Date d'adjudication"] ?? $row["Date d'Adjudication"] ?? null,
+            'numero_adjudication' => $row['numero_adjudication'] ?? $row["Numéro d'adjudication"] ?? $row['Numéro Juridique'] ?? null,
+            'exploitant_id' => $exploitantId,
             'invendu' => $this->parseBoolean($row['invendu'] ?? $row['Invendu'] ?? false),
             'prix_de_retrait' => $row['prix_de_retrait'] ?? $row['Prix de retrait'] ?? null,
             'lot' => $row['lot'] ?? $row['Lot'] ?? null,
@@ -48,9 +59,12 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     public function rules(): array
     {
         return [
+            'type' => 'required|string|in:appel_doffre,adjudication',
             'annee' => 'required|integer|min:1900|max:2100',
             'numero' => 'required|string|max:255',
             'date_adjudication' => 'required|date',
+            'numero_adjudication' => 'nullable|string|max:255',
+            'exploitant_id' => 'nullable|integer|exists:exploitants,id',
             'invendu' => 'nullable|boolean',
             'prix_de_retrait' => 'nullable|numeric|min:0',
             'lot' => 'nullable|string|max:255',
@@ -76,6 +90,8 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
     public function customValidationMessages()
     {
         return [
+            'type.required' => 'Le type est requis.',
+            'type.in' => 'Le type doit être appel_doffre ou adjudication.',
             'annee.required' => 'Le champ année est requis.',
             'annee.integer' => 'Le champ année doit être un nombre entier.',
             'annee.min' => 'Le champ année doit être supérieur à 1900.',
@@ -100,6 +116,9 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'fourniture_mise_charge.min' => 'La fourniture mise en charge doit être positive.',
             'date_dr.date' => 'La date DR doit être une date valide.',
             'observations.string' => 'Les observations doivent être une chaîne de caractères.',
+            'numero_adjudication.max' => 'Le numéro juridique ne peut pas dépasser 255 caractères.',
+            'exploitant_id.integer' => "L'exploitant doit être un ID valide.",
+            'exploitant_id.exists' => "L'exploitant spécifié est introuvable.",
         ];
     }
 

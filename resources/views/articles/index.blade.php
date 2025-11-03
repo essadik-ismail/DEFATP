@@ -33,16 +33,6 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <a href="{{ route('reports.unified') }}" 
-                   class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-chart-pie"></i>
-                    <span class="font-semibold">Rapports Unifiés</span>
-                </a>
-                <a href="{{ route('reports.legacy-articles') }}" 
-                   class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-archive"></i>
-                    <span class="font-semibold">Articles Historiques</span>
-                </a>
                 <a href="{{ route('articles.create.simple') }}" 
                    class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                     <i class="fas fa-file-excel"></i>
@@ -263,14 +253,6 @@
                                             <i class="fas fa-edit text-sm"></i>
                                         </a>
                                         
-                                        
-                                        <!-- Export Action -->
-                                        <button type="button" 
-                                                onclick="exportArticle({{ $article->id }})"
-                                                class="inline-flex items-center justify-center w-8 h-8 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-colors duration-200" 
-                                                title="Exporter l'article">
-                                            <i class="fas fa-download text-sm"></i>
-                                        </button>
                                         
                                         <!-- Delete Action -->
                                         <form action="{{ route('articles.destroy', $article) }}" method="POST" class="inline">
