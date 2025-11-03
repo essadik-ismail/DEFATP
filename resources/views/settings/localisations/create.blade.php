@@ -137,14 +137,7 @@
                     <span class="font-semibold">Créer la Localisation</span>
                 </button>
                 
-                <button 
-                    type="button" 
-                    onclick="document.getElementById('importModal').classList.remove('hidden')"
-                    class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                    <i class="fas fa-file-excel"></i>
-                    <span class="font-semibold">Importer Excel</span>
-                </button>
+                
                 
                 <a 
                     href="{{ route('articles.index') }}" 
@@ -157,105 +150,8 @@
         </form>
     </div>
 
-    <!-- Information Section -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 mt-8 border border-blue-200 shadow-xl">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-info-circle text-white text-xl"></i>
-            </div>
-            <div>
-                <h3 class="text-2xl font-bold text-blue-900">À propos des Localisations</h3>
-                <p class="text-blue-700">Informations importantes sur la création de localisations</p>
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-map-marker-alt text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Code, DRANEF et Entité</h4>
-                        <p class="text-gray-600 text-sm">Chaque localisation doit avoir un code, DRANEF et entité uniques</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-database text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Utilisation</h4>
-                        <p class="text-gray-600 text-sm">Les localisations sont utilisées dans les articles et rapports</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
-<!-- Import Modal -->
-<div id="importModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Importer des Localisations</h3>
-                <button onclick="document.getElementById('importModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <form action="{{ route('settings.localisations.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                @csrf
-                
-                <div>
-                    <label for="import_file" class="block text-sm font-medium text-gray-700 mb-2">
-                        Fichier Excel (.xlsx, .xls)
-                    </label>
-                    <input 
-                        type="file" 
-                        name="file" 
-                        id="import_file" 
-                        accept=".xlsx,.xls"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                    >
-                </div>
-                
-                <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
-                    <h4 class="text-sm font-semibold text-blue-800 mb-2">Format attendu :</h4>
-                    <ul class="text-xs text-blue-700 space-y-1">
-                        <li>• Colonne A : Code (obligatoire)</li>
-                        <li>• Colonne B : DRANEF (obligatoire)</li>
-                        <li>• Colonne C : DPANEF (obligatoire)</li>
-                        <li>• Colonne D : Entité (optionnel)</li>
-                        <li>• Première ligne : En-têtes</li>
-                        <li>• Format : .xlsx ou .xls</li>
-                    </ul>
-                </div>
-                
-                <div class="flex items-center justify-end space-x-3 pt-4">
-                    <button 
-                        type="button" 
-                        onclick="document.getElementById('importModal').classList.add('hidden')"
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-                    >
-                        Annuler
-                    </button>
-                    <button 
-                        type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                        <i class="fas fa-upload mr-2"></i>Importer
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 @endsection
 
 @push('styles')
