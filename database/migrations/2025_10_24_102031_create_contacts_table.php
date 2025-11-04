@@ -30,16 +30,16 @@ return new class extends Migration
             $table->string('taxes')->nullable();
             $table->string('total_avenant')->nullable();
 
-            $table->string('bo_m3')->nullable();
-            $table->string('bi_m3')->nullable();
-            $table->string('bf_st')->nullable();
-            $table->string('tanin_t')->nullable();
-            $table->string('fleur_acacia_t')->nullable();
-            $table->string('caroube_t')->nullable();
-            $table->string('romarin_t')->nullable();
-            $table->string('ps_t')->nullable();
-            $table->string('liége_st')->nullable();
-            $table->string('charbon_bois_ox')->nullable();
+            $table->integer('bo_m3')->nullable();
+            $table->integer('bi_m3')->nullable();
+            $table->integer('bf_st')->nullable();
+            $table->integer('tanin_t')->nullable();
+            $table->integer('fleur_acacia_t')->nullable();
+            $table->integer('caroube_t')->nullable();
+            $table->integer('romarin_t')->nullable();
+            $table->integer('ps_t')->nullable();
+            $table->integer('liége_st')->nullable();
+            $table->integer('charbon_bois_ox')->nullable();
 
             // $table->string('attribute13')->nullable();
             // $table->string('attribute14')->nullable();
