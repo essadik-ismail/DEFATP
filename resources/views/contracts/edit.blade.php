@@ -284,7 +284,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="form-group">
                         <label for="bo_m3" class="block text-sm font-semibold text-gray-700 mb-2">BO (m³)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="bo_m3" 
                                name="bo_m3" 
@@ -293,7 +294,8 @@
 
                     <div class="form-group">
                         <label for="bi_m3" class="block text-sm font-semibold text-gray-700 mb-2">BI (m³)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="bi_m3" 
                                name="bi_m3" 
@@ -302,7 +304,8 @@
 
                     <div class="form-group">
                         <label for="bf_st" class="block text-sm font-semibold text-gray-700 mb-2">BF (st)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="bf_st" 
                                name="bf_st" 
@@ -311,7 +314,8 @@
 
                     <div class="form-group">
                         <label for="tanin_t" class="block text-sm font-semibold text-gray-700 mb-2">Tanin (t)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="tanin_t" 
                                name="tanin_t" 
@@ -320,7 +324,8 @@
 
                     <div class="form-group">
                         <label for="fleur_acacia_t" class="block text-sm font-semibold text-gray-700 mb-2">Fleur Acacia (t)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="fleur_acacia_t" 
                                name="fleur_acacia_t" 
@@ -329,7 +334,8 @@
 
                     <div class="form-group">
                         <label for="caroube_t" class="block text-sm font-semibold text-gray-700 mb-2">Caroube (t)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="caroube_t" 
                                name="caroube_t" 
@@ -338,7 +344,8 @@
 
                     <div class="form-group">
                         <label for="romarin_t" class="block text-sm font-semibold text-gray-700 mb-2">Romarin (t)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="romarin_t" 
                                name="romarin_t" 
@@ -347,7 +354,8 @@
 
                     <div class="form-group">
                         <label for="ps_t" class="block text-sm font-semibold text-gray-700 mb-2">PS (t)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="ps_t" 
                                name="ps_t" 
@@ -356,7 +364,8 @@
 
                     <div class="form-group">
                         <label for="liége_st" class="block text-sm font-semibold text-gray-700 mb-2">Liège (st)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="liége_st" 
                                name="liége_st" 
@@ -365,7 +374,8 @@
 
                     <div class="form-group">
                         <label for="charbon_bois_ox" class="block text-sm font-semibold text-gray-700 mb-2">Charbon Bois (ox)</label>
-                        <input type="text" 
+                        <input type="number" 
+                               step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="charbon_bois_ox" 
                                name="charbon_bois_ox" 
