@@ -2157,7 +2157,7 @@
                 </div>
 
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('contracts.index') }}" class="nav-link {{ request()->routeIs('contracts.*') ? 'active' : '' }}">
                         <i class="fas fa-handshake"></i>
                         Contrat de Partenariat
                     </a>

@@ -58,9 +58,9 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="#" data-title="Contract De Partenariat">
+                <a class="nav-link {{ request()->routeIs('contracts.*') ? 'active' : '' }}" href="{{ route('contracts.index') }}" data-title="Contrat de Partenariat">
                     <i class="fas fa-handshake"></i>
-                    <span>Contract De Partenariat</span>
+                    <span>Contrat de Partenariat</span>
                 </a>
             </li>
 

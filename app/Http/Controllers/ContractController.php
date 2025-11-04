@@ -1,0 +1,318 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Contract;
+use App\Models\Localisation;
+use App\Models\SituationAdministrative;
+use App\Models\Espece;
+use App\Models\Exploitant;
+use App\Services\ActivityLogger;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
+
+class ContractController extends Controller
+{
+    public function index(Request $request): View
+    {
+        // Log view action
+        ActivityLogger::log('view', 'Consultation de la liste des contrats', Contract::class);
+        
+        // Get contracts with relationships
+        $contracts = Contract::with(['localisation', 'situationAdministrative', 'espece'])
+            ->when($request->filled('search'), function($query) use ($request) {
+                $query->where(function($q) use ($request) {
+                    $q->where('contarct', 'like', '%' . $request->search . '%')
+                      ->orWhere('annee', 'like', '%' . $request->search . '%')
+                      ->orWhereHas('localisation', function($locQuery) use ($request) {
+                          $locQuery->where('CODE', 'like', '%' . $request->search . '%')
+                                   ->orWhere('DRANEF', 'like', '%' . $request->search . '%');
+                      })
+                      ->orWhereHas('situationAdministrative', function($sitQuery) use ($request) {
+                          $sitQuery->where('commune', 'like', '%' . $request->search . '%')
+                                   ->orWhere('province', 'like', '%' . $request->search . '%');
+                      })
+                      ->orWhereHas('espece', function($espQuery) use ($request) {
+                          $espQuery->where('name', 'like', '%' . $request->search . '%');
+                      });
+                });
+            })
+            ->when($request->filled('year'), function($query) use ($request) {
+                $query->where('annee', $request->year);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 15));
+
+        // Provide especes list for the especes table section
+        $especes = Espece::when($request->filled('espece_search'), function($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->espece_search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(10, ['*'], 'especes_page');
+
+        // Provide avenants list for the avenants table section
+        $avenants = \App\Models\Avenant::with(['coperative'])
+            ->when($request->filled('avenant_search'), function($query) use ($request) {
+                $query->where('annee', 'like', '%' . $request->avenant_search . '%')
+                      ->orWhereHas('coperative', function($coopQuery) use ($request) {
+                          $coopQuery->where('nom_complet', 'like', '%' . $request->avenant_search . '%')
+                                    ->orWhere('raison_sociale', 'like', '%' . $request->avenant_search . '%');
+                      });
+            })
+            ->orderBy('date', 'desc')
+            ->paginate(10, ['*'], 'avenants_page');
+
+        return view('contracts.index', compact('contracts', 'especes', 'avenants'));
+    }
+
+    public function create(): View
+    {
+        $localisations = Localisation::orderBy('CODE')->get();
+        $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
+        $especes = Espece::orderBy('name')->get();
+
+        return view('contracts.create', compact(
+            'localisations',
+            'situationAdministratives',
+            'especes'
+        ));
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'annee' => 'required|integer',
+            'contarct' => 'required|string|max:255',
+            'localisation_id' => 'required|exists:localisations,id',
+            'situation_administrative_id' => 'required|exists:situation_administratives,id',
+            'espece_id' => 'required|exists:especes,id',
+            'superficie' => 'nullable|string',
+            'gardiennage' => 'nullable|string',
+            'elagage' => 'nullable|string',
+            'eclaircie' => 'nullable|string',
+            'rajeunissement_romarin' => 'nullable|string',
+            'valeurs_des_produits' => 'nullable|string',
+            'valeur_des_prestations' => 'nullable|string',
+            'redevances' => 'nullable|string',
+            'taxes' => 'nullable|string',
+            'total_avenant' => 'nullable|string',
+            'bo_m3' => 'nullable|string',
+            'bi_m3' => 'nullable|string',
+            'bf_st' => 'nullable|string',
+            'tanin_t' => 'nullable|string',
+            'fleur_acacia_t' => 'nullable|string',
+            'caroube_t' => 'nullable|string',
+            'romarin_t' => 'nullable|string',
+            'ps_t' => 'nullable|string',
+            'liége_st' => 'nullable|string',
+            'charbon_bois_ox' => 'nullable|string',
+            'attribute13' => 'nullable|string',
+            'attribute14' => 'nullable|string',
+            'attribute15' => 'nullable|string',
+            'attribute16' => 'nullable|string',
+            'attribute17' => 'nullable|string',
+        ]);
+
+        try {
+            $contract = Contract::create($validated);
+
+            ActivityLogger::logCreate(
+                Contract::class,
+                $contract->id,
+                "Contrat {$contract->contarct} ({$contract->annee})",
+                $request
+            );
+
+            return redirect()->route('contracts.index')
+                ->with('success', 'Contrat créé avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création du contrat: ' . $e->getMessage());
+        }
+    }
+
+    public function show(Contract $contract): View
+    {
+        $contract->load(['localisation', 'situationAdministrative', 'espece']);
+        
+        // Load related avenants by year
+        $avenants = \App\Models\Avenant::where('annee', $contract->annee)
+            ->with(['coperative', 'produits'])
+            ->orderBy('date', 'desc')
+            ->get();
+        
+        ActivityLogger::log('view', "Consultation du contrat {$contract->contarct}", Contract::class);
+
+        return view('contracts.show', compact('contract', 'avenants'));
+    }
+
+    public function edit(Contract $contract): View
+    {
+        $localisations = Localisation::orderBy('CODE')->get();
+        $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
+        $especes = Espece::orderBy('name')->get();
+
+        return view('contracts.edit', compact(
+            'contract',
+            'localisations',
+            'situationAdministratives',
+            'especes'
+        ));
+    }
+
+    public function update(Request $request, Contract $contract): RedirectResponse
+    {
+        $validated = $request->validate([
+            'annee' => 'required|integer',
+            'contarct' => 'required|string|max:255',
+            'localisation_id' => 'required|exists:localisations,id',
+            'situation_administrative_id' => 'required|exists:situation_administratives,id',
+            'espece_id' => 'required|exists:especes,id',
+            'superficie' => 'nullable|string',
+            'gardiennage' => 'nullable|string',
+            'elagage' => 'nullable|string',
+            'eclaircie' => 'nullable|string',
+            'rajeunissement_romarin' => 'nullable|string',
+            'valeurs_des_produits' => 'nullable|string',
+            'valeur_des_prestations' => 'nullable|string',
+            'redevances' => 'nullable|string',
+            'taxes' => 'nullable|string',
+            'total_avenant' => 'nullable|string',
+            'bo_m3' => 'nullable|string',
+            'bi_m3' => 'nullable|string',
+            'bf_st' => 'nullable|string',
+            'tanin_t' => 'nullable|string',
+            'fleur_acacia_t' => 'nullable|string',
+            'caroube_t' => 'nullable|string',
+            'romarin_t' => 'nullable|string',
+            'ps_t' => 'nullable|string',
+            'liége_st' => 'nullable|string',
+            'charbon_bois_ox' => 'nullable|string',
+            'attribute13' => 'nullable|string',
+            'attribute14' => 'nullable|string',
+            'attribute15' => 'nullable|string',
+            'attribute16' => 'nullable|string',
+            'attribute17' => 'nullable|string',
+        ]);
+
+        try {
+            $contract->update($validated);
+
+            ActivityLogger::logUpdate(
+                Contract::class,
+                $contract->id,
+                "Contrat {$contract->contarct} ({$contract->annee})",
+                [],
+                $request
+            );
+
+            return redirect()->route('contracts.index')
+                ->with('success', 'Contrat mis à jour avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour du contrat: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy(Contract $contract): RedirectResponse
+    {
+        try {
+            $contractNumber = $contract->contarct;
+            $contractYear = $contract->annee;
+            
+            $contract->delete();
+
+            ActivityLogger::logDelete(
+                Contract::class,
+                $contract->id,
+                "Contrat {$contractNumber} ({$contractYear})"
+            );
+
+            return redirect()->route('contracts.index')
+                ->with('success', 'Contrat supprimé avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la suppression du contrat: ' . $e->getMessage());
+        }
+    }
+
+    // Espece Management Methods
+    public function createEspece(): View
+    {
+        return view('contracts.especes.create');
+    }
+
+    public function storeEspece(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:especes,name,NULL,id,deleted_at,NULL',
+        ]);
+
+        try {
+            $espece = Espece::create($validated);
+
+            ActivityLogger::logCreate(
+                Espece::class,
+                $espece->id,
+                "Espèce {$espece->name}",
+                $request
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'especes'])
+                ->with('success', 'Espèce créée avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de l\'espèce: ' . $e->getMessage());
+        }
+    }
+
+    // Avenant Management Methods
+    public function createAvenant(): View
+    {
+        $exploitants = Exploitant::orderBy('nom_complet')->get();
+        return view('contracts.avenants.create', compact('exploitants'));
+    }
+
+    public function storeAvenant(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'annee' => 'required|integer',
+            'coperative_id' => 'nullable|exists:exploitants,id',
+            'date' => 'required|date',
+            'superficie' => 'nullable|numeric',
+            'gardiennage' => 'nullable|numeric',
+            'prevention_incendies' => 'nullable|numeric',
+            'elagage' => 'nullable|numeric',
+            'eclaircie' => 'nullable|numeric',
+            'rajeunissement_romarin' => 'nullable|numeric',
+            'valeurs_des_produits' => 'nullable|numeric',
+            'valeur_des_prestations' => 'nullable|numeric',
+            'redevances' => 'nullable|numeric',
+            'taxes' => 'nullable|numeric',
+            'total_avenant' => 'nullable|numeric',
+        ]);
+
+        try {
+            $avenant = \App\Models\Avenant::create($validated);
+
+            ActivityLogger::logCreate(
+                \App\Models\Avenant::class,
+                $avenant->id,
+                "Avenant #{$avenant->id} ({$avenant->annee})",
+                $request
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'avenants'])
+                ->with('success', 'Avenant créé avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de l\'avenant: ' . $e->getMessage());
+        }
+    }
+}

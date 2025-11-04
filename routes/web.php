@@ -10,6 +10,7 @@ use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\ContractController;
 
 // Health Check Routes
 Route::get('/health', [HealthController::class, 'index'])->name('health');
@@ -176,6 +177,17 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/import/localisations', [ExcelController::class, 'importLocalisations'])->name('import.localisations');
     });
+
+    // Contracts Routes
+    Route::resource('contracts', ContractController::class);
+    
+    // Contract Especes Routes
+    Route::get('/contracts/especes/create', [ContractController::class, 'createEspece'])->name('contracts.especes.create');
+    Route::post('/contracts/especes', [ContractController::class, 'storeEspece'])->name('contracts.especes.store');
+    
+    // Contract Avenants Routes
+    Route::get('/contracts/avenants/create', [ContractController::class, 'createAvenant'])->name('contracts.avenants.create');
+    Route::post('/contracts/avenants', [ContractController::class, 'storeAvenant'])->name('contracts.avenants.store');
 
     // Articles Routes
     Route::resource('articles', ArticleController::class);
