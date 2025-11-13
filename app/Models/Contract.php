@@ -24,29 +24,40 @@ class Contract extends Model
         'coperative_id',
         'superficie',
         'gardiennage',
+        'prevention_contre_les_incendies',
         'elagage',
         'eclaircie',
         'rajeunissement_romarin',
+        'autre',
+        'bo_m3',
+        'bi_m3',
+        'bf_st',
+        'tanin_t',
+        'laurier_sauce',
+        'myrte',
+        'callune',
+        'thym',
+        'bruyetre',
+        'lichen',
+        'tanin',
+        'romarin',
+        'liege_male',
+        'liege_de_reproduction',
+        'sauge',
+        'lavande',
+        'armoise',
+        'origan',
+        'alfa',
+        'lentisque',
+        'ciste',
+        'fleur_acacia_t',
         'valeurs_des_produits',
         'valeur_des_prestations',
         'redevances',
         'taxes',
         'total_avenant',
-        'bo_m3',
-        'bi_m3',
-        'bf_st',
-        'tanin_t',
-        'fleur_acacia_t',
-        'caroube_t',
-        'romarin_t',
-        'ps_t',
-        'liége_st',
-        'charbon_bois_ox',
-        'attribute13',
-        'attribute14',
-        'attribute15',
-        'attribute16',
-        'attribute17',
+        'resiliation',
+        'date_resiliation',
     ];
 
     /**
@@ -75,6 +86,14 @@ class Contract extends Model
     }
 
     /**
+     * Get the foret for this contract.
+     */
+    public function foret(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Foret::class, 'foret_id');
+    }
+
+    /**
      * Get the coperative for this contract.
      */
     public function coperative(): BelongsTo
@@ -83,10 +102,10 @@ class Contract extends Model
     }
 
     /**
-     * Get avenants related to this contract (by year).
+     * Get avenants related to this contract.
      */
     public function avenants(): HasMany
     {
-        return $this->hasMany(Avenant::class, 'annee', 'annee');
+        return $this->hasMany(Avenant::class, 'contact_id');
     }
 }

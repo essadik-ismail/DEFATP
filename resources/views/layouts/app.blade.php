@@ -2219,6 +2219,29 @@
                         <i class="fas fa-bars text-lg sm:text-xl"></i>
                     </button>
                     
+                    <!-- Navigation buttons (hidden on dashboard) -->
+                    @if(!request()->routeIs('dashboard'))
+                    <div class="flex items-center gap-1 sm:gap-2 mr-2 sm:mr-3 flex-shrink-0">
+                        <button onclick="window.history.back(); return false;" 
+                           class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-300 transform hover:scale-110 shadow-sm hover:shadow-md"
+                           title="Retour en arrière">
+                            <i class="fas fa-arrow-left text-sm sm:text-base"></i>
+                        </button>
+                        
+                        <!-- <button onclick="window.history.forward(); return false;" 
+                           class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-300 transform hover:scale-110 shadow-sm hover:shadow-md"
+                           title="Avancer">
+                            <i class="fas fa-arrow-right text-sm sm:text-base"></i>
+                        </button>
+                        
+                        <button onclick="window.location.reload(); return false;" 
+                           class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-300 transform hover:scale-110 shadow-sm hover:shadow-md"
+                           title="Rafraîchir la page">
+                            <i class="fas fa-sync-alt text-sm sm:text-base"></i>
+                        </button> -->
+                    </div>
+                    @endif
+                    
                     <h2 class="text-base sm:text-lg font-semibold text-gray-900 truncate">@yield('title', 'DEFATP')</h2>
                 </div>
                 

@@ -6,7 +6,7 @@ use App\Models\Contract;
 use App\Models\Localisation;
 use App\Models\SituationAdministrative;
 use App\Models\Espece;
-use App\Models\Exploitant;
+use App\Models\Coperative;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -53,18 +53,22 @@ class ContractController extends Controller
             ->paginate(10, ['*'], 'especes_page');
 
         // Provide avenants list for the avenants table section
-        $avenants = \App\Models\Avenant::with(['coperative'])
+        $avenants = \App\Models\Avenant::with(['coperative', 'contract'])
             ->when($request->filled('avenant_search'), function($query) use ($request) {
                 $query->where('annee', 'like', '%' . $request->avenant_search . '%')
                       ->orWhereHas('coperative', function($coopQuery) use ($request) {
                           $coopQuery->where('nom', 'like', '%' . $request->avenant_search . '%');
+                      })
+                      ->orWhereHas('contract', function($contractQuery) use ($request) {
+                          $contractQuery->where('contarct', 'like', '%' . $request->avenant_search . '%');
                       });
             })
             ->orderBy('date', 'desc')
             ->paginate(10, ['*'], 'avenants_page');
 
         // Provide coperatives list for the coperatives table section
-        $coperatives = \App\Models\Coperative::when($request->filled('coperative_search'), function($query) use ($request) {
+        $coperatives = \App\Models\Coperative::with('vocation')
+            ->when($request->filled('coperative_search'), function($query) use ($request) {
                 $query->where('nom', 'like', '%' . $request->coperative_search . '%');
             })
             ->orderBy('nom')
@@ -78,11 +82,15 @@ class ContractController extends Controller
         $localisations = Localisation::orderBy('CODE')->get();
         $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
         $especes = Espece::orderBy('name')->get();
+        $forets = \App\Models\Foret::orderBy('foret')->get();
+        $coperatives = Coperative::orderBy('nom')->get();
 
         return view('contracts.create', compact(
             'localisations',
             'situationAdministratives',
-            'especes'
+            'especes',
+            'forets',
+            'coperatives'
         ));
     }
 
@@ -90,36 +98,49 @@ class ContractController extends Controller
     {
         $validated = $request->validate([
             'annee' => 'required|integer',
-            'contarct' => 'required|string|max:255',
+            'contarct' => 'required|integer',
             'localisation_id' => 'required|exists:localisations,id',
             'situation_administrative_id' => 'required|exists:situation_administratives,id',
+            'foret_id' => 'required|exists:forets,id',
+            'coperative_id' => 'required|exists:coperatives,id',
             'especes' => 'required|array|min:1',
             'especes.*' => 'exists:especes,id',
-            'superficie' => 'nullable|string',
-            'gardiennage' => 'nullable|string',
-            'elagage' => 'nullable|string',
-            'eclaircie' => 'nullable|string',
-            'rajeunissement_romarin' => 'nullable|string',
-            'valeurs_des_produits' => 'nullable|string',
-            'valeur_des_prestations' => 'nullable|string',
-            'redevances' => 'nullable|string',
-            'taxes' => 'nullable|string',
-            'total_avenant' => 'nullable|string',
-            'bo_m3' => 'nullable|integer',
-            'bi_m3' => 'nullable|integer',
-            'bf_st' => 'nullable|integer',
-            'tanin_t' => 'nullable|integer',
-            'fleur_acacia_t' => 'nullable|integer',
-            'caroube_t' => 'nullable|integer',
-            'romarin_t' => 'nullable|integer',
-            'ps_t' => 'nullable|integer',
-            'liége_st' => 'nullable|integer',
-            'charbon_bois_ox' => 'nullable|integer',
-            'attribute13' => 'nullable|string',
-            'attribute14' => 'nullable|string',
-            'attribute15' => 'nullable|string',
-            'attribute16' => 'nullable|string',
-            'attribute17' => 'nullable|string',
+            'superficie' => 'required|numeric|min:0',
+            'gardiennage' => 'nullable|string|max:255',
+            'prevention_contre_les_incendies' => 'nullable|string|max:255',
+            'elagage' => 'nullable|string|max:255',
+            'eclaircie' => 'nullable|string|max:255',
+            'rajeunissement_romarin' => 'nullable|string|max:255',
+            'autre' => 'nullable|string|max:255',
+            'bo_m3' => 'nullable|integer|min:0',
+            'bi_m3' => 'nullable|integer|min:0',
+            'bf_st' => 'nullable|integer|min:0',
+            'tanin_t' => 'nullable|integer|min:0',
+            'laurier_sauce' => 'nullable|integer|min:0',
+            'myrte' => 'nullable|integer|min:0',
+            'callune' => 'nullable|integer|min:0',
+            'thym' => 'nullable|integer|min:0',
+            'bruyetre' => 'nullable|integer|min:0',
+            'lichen' => 'nullable|integer|min:0',
+            'tanin' => 'nullable|integer|min:0',
+            'romarin' => 'nullable|integer|min:0',
+            'liege_male' => 'nullable|integer|min:0',
+            'liege_de_reproduction' => 'nullable|integer|min:0',
+            'sauge' => 'nullable|integer|min:0',
+            'lavande' => 'nullable|integer|min:0',
+            'armoise' => 'nullable|integer|min:0',
+            'origan' => 'nullable|integer|min:0',
+            'alfa' => 'nullable|integer|min:0',
+            'lentisque' => 'nullable|integer|min:0',
+            'ciste' => 'nullable|integer|min:0',
+            'fleur_acacia_t' => 'nullable|integer|min:0',
+            'valeurs_des_produits' => 'required|string|max:255',
+            'valeur_des_prestations' => 'required|string|max:255',
+            'redevances' => 'required|string|max:255',
+            'taxes' => 'required|string|max:255',
+            'total_avenant' => 'required|string|max:255',
+            'resiliation' => 'nullable|boolean',
+            'date_resiliation' => 'nullable|date',
         ]);
 
         try {
@@ -149,11 +170,11 @@ class ContractController extends Controller
 
     public function show(Contract $contract): View
     {
-        $contract->load(['localisation', 'situationAdministrative', 'especes']);
+        $contract->load(['localisation', 'situationAdministrative', 'especes', 'foret', 'coperative']);
         
-        // Load related avenants by year
-        $avenants = \App\Models\Avenant::where('annee', $contract->annee)
-            ->with(['coperative', 'produits'])
+        // Load related avenants for this contract
+        $avenants = \App\Models\Avenant::where('contact_id', $contract->id)
+            ->with(['coperative', 'produits', 'contract'])
             ->orderBy('date', 'desc')
             ->get();
         
@@ -168,12 +189,16 @@ class ContractController extends Controller
         $localisations = Localisation::orderBy('CODE')->get();
         $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
         $especes = Espece::orderBy('name')->get();
+        $forets = \App\Models\Foret::orderBy('foret')->get();
+        $coperatives = Coperative::orderBy('nom')->get();
 
         return view('contracts.edit', compact(
             'contract',
             'localisations',
             'situationAdministratives',
-            'especes'
+            'especes',
+            'forets',
+            'coperatives'
         ));
     }
 
@@ -181,36 +206,49 @@ class ContractController extends Controller
     {
         $validated = $request->validate([
             'annee' => 'required|integer',
-            'contarct' => 'required|string|max:255',
+            'contarct' => 'required|integer',
             'localisation_id' => 'required|exists:localisations,id',
             'situation_administrative_id' => 'required|exists:situation_administratives,id',
+            'foret_id' => 'required|exists:forets,id',
+            'coperative_id' => 'required|exists:coperatives,id',
             'especes' => 'required|array|min:1',
             'especes.*' => 'exists:especes,id',
-            'superficie' => 'nullable|string',
-            'gardiennage' => 'nullable|string',
-            'elagage' => 'nullable|string',
-            'eclaircie' => 'nullable|string',
-            'rajeunissement_romarin' => 'nullable|string',
-            'valeurs_des_produits' => 'nullable|string',
-            'valeur_des_prestations' => 'nullable|string',
-            'redevances' => 'nullable|string',
-            'taxes' => 'nullable|string',
-            'total_avenant' => 'nullable|string',
-            'bo_m3' => 'nullable|integer',
-            'bi_m3' => 'nullable|integer',
-            'bf_st' => 'nullable|integer',
-            'tanin_t' => 'nullable|integer',
-            'fleur_acacia_t' => 'nullable|integer',
-            'caroube_t' => 'nullable|integer',
-            'romarin_t' => 'nullable|integer',
-            'ps_t' => 'nullable|integer',
-            'liége_st' => 'nullable|integer',
-            'charbon_bois_ox' => 'nullable|integer',
-            'attribute13' => 'nullable|string',
-            'attribute14' => 'nullable|string',
-            'attribute15' => 'nullable|string',
-            'attribute16' => 'nullable|string',
-            'attribute17' => 'nullable|string',
+            'superficie' => 'required|numeric|min:0',
+            'gardiennage' => 'nullable|string|max:255',
+            'prevention_contre_les_incendies' => 'nullable|string|max:255',
+            'elagage' => 'nullable|string|max:255',
+            'eclaircie' => 'nullable|string|max:255',
+            'rajeunissement_romarin' => 'nullable|string|max:255',
+            'autre' => 'nullable|string|max:255',
+            'bo_m3' => 'nullable|integer|min:0',
+            'bi_m3' => 'nullable|integer|min:0',
+            'bf_st' => 'nullable|integer|min:0',
+            'tanin_t' => 'nullable|integer|min:0',
+            'laurier_sauce' => 'nullable|integer|min:0',
+            'myrte' => 'nullable|integer|min:0',
+            'callune' => 'nullable|integer|min:0',
+            'thym' => 'nullable|integer|min:0',
+            'bruyetre' => 'nullable|integer|min:0',
+            'lichen' => 'nullable|integer|min:0',
+            'tanin' => 'nullable|integer|min:0',
+            'romarin' => 'nullable|integer|min:0',
+            'liege_male' => 'nullable|integer|min:0',
+            'liege_de_reproduction' => 'nullable|integer|min:0',
+            'sauge' => 'nullable|integer|min:0',
+            'lavande' => 'nullable|integer|min:0',
+            'armoise' => 'nullable|integer|min:0',
+            'origan' => 'nullable|integer|min:0',
+            'alfa' => 'nullable|integer|min:0',
+            'lentisque' => 'nullable|integer|min:0',
+            'ciste' => 'nullable|integer|min:0',
+            'fleur_acacia_t' => 'nullable|integer|min:0',
+            'valeurs_des_produits' => 'required|string|max:255',
+            'valeur_des_prestations' => 'required|string|max:255',
+            'redevances' => 'required|string|max:255',
+            'taxes' => 'required|string|max:255',
+            'total_avenant' => 'required|string|max:255',
+            'resiliation' => 'nullable|boolean',
+            'date_resiliation' => 'nullable|date',
         ]);
 
         try {
@@ -295,27 +333,55 @@ class ContractController extends Controller
     // Avenant Management Methods
     public function createAvenant(): View
     {
-        $exploitants = Exploitant::orderBy('nom_complet')->get();
-        return view('contracts.avenants.create', compact('exploitants'));
+        $contracts = Contract::with(['localisation', 'situationAdministrative', 'coperative'])
+            ->orderBy('annee', 'desc')
+            ->orderBy('contarct')
+            ->get();
+        $coperatives = Coperative::orderBy('nom')->get();
+        return view('contracts.avenants.create', compact('contracts', 'coperatives'));
     }
 
     public function storeAvenant(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'contact_id' => 'required|exists:contacts,id',
             'annee' => 'required|integer',
-            'coperative_id' => 'nullable|exists:exploitants,id',
+            'avenant' => 'required|string|max:255',
+            'coperative_id' => 'nullable|exists:coperatives,id',
             'date' => 'required|date',
-            'superficie' => 'nullable|numeric',
-            'gardiennage' => 'nullable|numeric',
-            'prevention_incendies' => 'nullable|numeric',
-            'elagage' => 'nullable|numeric',
-            'eclaircie' => 'nullable|numeric',
-            'rajeunissement_romarin' => 'nullable|numeric',
-            'valeurs_des_produits' => 'nullable|numeric',
-            'valeur_des_prestations' => 'nullable|numeric',
-            'redevances' => 'nullable|numeric',
-            'taxes' => 'nullable|numeric',
-            'total_avenant' => 'nullable|numeric',
+            'superficie' => 'nullable|numeric|min:0',
+            'gardiennage' => 'nullable|numeric|min:0',
+            'prevention_incendies' => 'nullable|numeric|min:0',
+            'elagage' => 'nullable|numeric|min:0',
+            'eclaircie' => 'nullable|numeric|min:0',
+            'rajeunissement_romarin' => 'nullable|numeric|min:0',
+            'bo_m3' => 'nullable|integer|min:0',
+            'bi_m3' => 'nullable|integer|min:0',
+            'bf_st' => 'nullable|integer|min:0',
+            'tanin_t' => 'nullable|integer|min:0',
+            'laurier_sauce' => 'nullable|integer|min:0',
+            'myrte' => 'nullable|integer|min:0',
+            'callune' => 'nullable|integer|min:0',
+            'thym' => 'nullable|integer|min:0',
+            'bruyetre' => 'nullable|integer|min:0',
+            'lichen' => 'nullable|integer|min:0',
+            'tanin' => 'nullable|integer|min:0',
+            'romarin' => 'nullable|integer|min:0',
+            'liege_male' => 'nullable|integer|min:0',
+            'liege_de_reproduction' => 'nullable|integer|min:0',
+            'sauge' => 'nullable|integer|min:0',
+            'lavande' => 'nullable|integer|min:0',
+            'armoise' => 'nullable|integer|min:0',
+            'origan' => 'nullable|integer|min:0',
+            'alfa' => 'nullable|integer|min:0',
+            'lentisque' => 'nullable|integer|min:0',
+            'ciste' => 'nullable|integer|min:0',
+            'fleur_acacia_t' => 'nullable|integer|min:0',
+            'valeurs_des_produits' => 'required|numeric|min:0',
+            'valeur_des_prestations' => 'required|numeric|min:0',
+            'redevances' => 'required|numeric|min:0',
+            'taxes' => 'required|numeric|min:0',
+            'total_avenant' => 'required|numeric|min:0',
         ]);
 
         try {
@@ -334,6 +400,72 @@ class ContractController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Erreur lors de la création de l\'avenant: ' . $e->getMessage());
+        }
+    }
+
+    // Coperative Management Methods
+    public function createCoperative(): View
+    {
+        $vocations = \App\Models\Vocation::orderBy('name')->get();
+        return view('contracts.coperatives.create', compact('vocations'));
+    }
+
+    public function storeCoperative(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'vocation_id' => 'nullable|exists:vocations,id',
+            'nombre_membres' => 'nullable|integer|min:0',
+            'nombre_coperatives' => 'nullable|integer|min:0',
+        ]);
+
+        try {
+            $coperative = Coperative::create($validated);
+
+            ActivityLogger::logCreate(
+                Coperative::class,
+                $coperative->id,
+                "Coopérative {$coperative->nom}",
+                $request
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+                ->with('success', 'Coopérative créée avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de la coopérative: ' . $e->getMessage());
+        }
+    }
+
+    // Vocation Management Methods
+    public function createVocation(): View
+    {
+        return view('contracts.vocations.create');
+    }
+
+    public function storeVocation(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:vocations,name,NULL,id,deleted_at,NULL',
+        ]);
+
+        try {
+            $vocation = \App\Models\Vocation::create($validated);
+
+            ActivityLogger::logCreate(
+                \App\Models\Vocation::class,
+                $vocation->id,
+                "Vocation {$vocation->name}",
+                $request
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+                ->with('success', 'Vocation créée avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de la vocation: ' . $e->getMessage());
         }
     }
 }

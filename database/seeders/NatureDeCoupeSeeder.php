@@ -104,4 +104,34 @@ JSON;
             );
         }
     }
+
+    /**
+     * Load nature de coupes from JSON file
+     */
+    private function loadFromJson(string $jsonPath): void
+    {
+        $json = file_get_contents($jsonPath);
+        $data = json_decode($json, true) ?? [];
+
+        if (empty($data)) {
+            $this->command->warn('Nature de Coupe.json file is empty or invalid JSON');
+            return;
+        }
+
+        $this->command->info('Loading nature de coupes from Nature de Coupe.json');
+
+        foreach ($data as $row) {
+            $label = $row['Nature de coupe'] ?? $row['nature_de_coupe'] ?? null;
+            if (!$label) {
+                continue;
+            }
+
+            NatureDeCoupe::firstOrCreate(
+                ['nature_de_coupe' => trim($label)],
+                ['is_deleted' => false]
+            );
+        }
+
+        $this->command->info('Nature de coupes seeded successfully!');
+    }
 }

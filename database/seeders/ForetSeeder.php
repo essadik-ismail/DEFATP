@@ -322,7 +322,44 @@ class ForetSeeder extends Seeder
         ];
 
         foreach ($forets as $foret) {
-            Foret::create($foret);
+            Foret::firstOrCreate(
+                ['foret' => $foret['foret']],
+                $foret
+            );
         }
+    }
+
+    /**
+     * Load forets from JSON file
+     */
+    private function loadFromJson(string $jsonPath): void
+    {
+        $json = file_get_contents($jsonPath);
+        $data = json_decode($json, true) ?? [];
+
+        if (empty($data)) {
+            $this->command->warn('Foret.json file is empty or invalid JSON');
+            return;
+        }
+
+        $this->command->info('Loading ' . count($data) . ' forets from Foret.json');
+
+        foreach ($data as $item) {
+            $foretName = $item['foret'] ?? null;
+            if (!$foretName) {
+                continue;
+            }
+
+            Foret::firstOrCreate(
+                ['foret' => $foretName],
+                [
+                    'lat' => $item['lat'] ?? '0',
+                    'log' => $item['log'] ?? '0',
+                    'is_deleted' => false,
+                ]
+            );
+        }
+
+        $this->command->info('Forets seeded successfully!');
     }
 }

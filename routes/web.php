@@ -188,6 +188,12 @@ Route::middleware('auth')->group(function () {
     // Contract Avenants Routes
     Route::get('/contracts/avenants/create', [ContractController::class, 'createAvenant'])->name('contracts.avenants.create');
     Route::post('/contracts/avenants', [ContractController::class, 'storeAvenant'])->name('contracts.avenants.store');
+    
+    Route::get('/contracts/coperatives/create', [ContractController::class, 'createCoperative'])->name('contracts.coperatives.create');
+    Route::post('/contracts/coperatives', [ContractController::class, 'storeCoperative'])->name('contracts.coperatives.store');
+    
+    Route::get('/contracts/vocations/create', [ContractController::class, 'createVocation'])->name('contracts.vocations.create');
+    Route::post('/contracts/vocations', [ContractController::class, 'storeVocation'])->name('contracts.vocations.store');
 
     // Articles Routes
     Route::resource('articles', ArticleController::class);

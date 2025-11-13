@@ -98,7 +98,7 @@
                         <label for="contarct" class="block text-sm font-semibold text-gray-700 mb-2">
                             Contrat <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" 
+                        <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="contarct" 
                                name="contarct" 
@@ -111,7 +111,7 @@
 
                     <div class="form-group">
                         <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Localisation (DRANEF - DPANEF) <span class="text-red-500">*</span>
+                            Localisation (DRANEF - DPANEF - ENTITE) <span class="text-red-500">*</span>
                         </label>
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                 id="localisation_id" 
@@ -120,7 +120,7 @@
                             <option value="">Sélectionner une localisation</option>
                             @foreach($localisations as $localisation)
                                 <option value="{{ $localisation->id }}" {{ old('localisation_id') == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }}
+                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                 </option>
                             @endforeach
                         </select>
@@ -145,6 +145,46 @@
                             @endforeach
                         </select>
                         @error('situation_administrative_id')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="foret_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Forêt <span class="text-red-500">*</span>
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                id="foret_id" 
+                                name="foret_id" 
+                                required>
+                            <option value="">Sélectionner une forêt</option>
+                            @foreach($forets as $foret)
+                                <option value="{{ $foret->id }}" {{ old('foret_id') == $foret->id ? 'selected' : '' }}>
+                                    {{ $foret->foret }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('foret_id')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="coperative_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Coopérative <span class="text-red-500">*</span>
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                id="coperative_id" 
+                                name="coperative_id" 
+                                required>
+                            <option value="">Sélectionner une coopérative</option>
+                            @foreach($coperatives as $coperative)
+                                <option value="{{ $coperative->id }}" {{ old('coperative_id') == $coperative->id ? 'selected' : '' }}>
+                                    {{ $coperative->nom }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('coperative_id')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
@@ -185,12 +225,17 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="form-group">
-                        <label for="superficie" class="block text-sm font-semibold text-gray-700 mb-2">Superficie</label>
-                        <input type="text" 
+                        <label for="superficie" class="block text-sm font-semibold text-gray-700 mb-2">Superficie <span class="text-red-500">*</span></label>
+                        <input type="number" 
+                               step="0.01"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="superficie" 
                                name="superficie" 
-                               value="{{ old('superficie') }}">
+                               value="{{ old('superficie') }}"
+                               required>
+                        @error('superficie')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
@@ -200,6 +245,15 @@
                                id="gardiennage" 
                                name="gardiennage" 
                                value="{{ old('gardiennage') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prevention_contre_les_incendies" class="block text-sm font-semibold text-gray-700 mb-2">Prévention contre les Incendies</label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="prevention_contre_les_incendies" 
+                               name="prevention_contre_les_incendies" 
+                               value="{{ old('prevention_contre_les_incendies') }}">
                     </div>
 
                     <div class="form-group">
@@ -221,24 +275,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="redevances" class="block text-sm font-semibold text-gray-700 mb-2">Redevances</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="redevances" 
-                               name="redevances" 
-                               value="{{ old('redevances') }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="taxes" class="block text-sm font-semibold text-gray-700 mb-2">Taxes</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="taxes" 
-                               name="taxes" 
-                               value="{{ old('taxes') }}">
-                    </div>
-
-                    <div class="form-group">
                         <label for="rajeunissement_romarin" class="block text-sm font-semibold text-gray-700 mb-2">Rajeunissement Romarin</label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -248,30 +284,88 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="valeurs_des_produits" class="block text-sm font-semibold text-gray-700 mb-2">Valeurs des Produits</label>
+                        <label for="autre" class="block text-sm font-semibold text-gray-700 mb-2">Autre</label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="autre" 
+                               name="autre" 
+                               value="{{ old('autre') }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Valeurs Financières -->
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                        <i class="fas fa-coins text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Valeurs Financières</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="form-group">
+                        <label for="valeurs_des_produits" class="block text-sm font-semibold text-gray-700 mb-2">Valeurs des Produits <span class="text-red-500">*</span></label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="valeurs_des_produits" 
                                name="valeurs_des_produits" 
-                               value="{{ old('valeurs_des_produits') }}">
+                               value="{{ old('valeurs_des_produits') }}"
+                               required>
+                        @error('valeurs_des_produits')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="valeur_des_prestations" class="block text-sm font-semibold text-gray-700 mb-2">Valeur des Prestations</label>
+                        <label for="valeur_des_prestations" class="block text-sm font-semibold text-gray-700 mb-2">Valeur des Prestations <span class="text-red-500">*</span></label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="valeur_des_prestations" 
                                name="valeur_des_prestations" 
-                               value="{{ old('valeur_des_prestations') }}">
+                               value="{{ old('valeur_des_prestations') }}"
+                               required>
+                        @error('valeur_des_prestations')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2">Total Avenant</label>
+                        <label for="redevances" class="block text-sm font-semibold text-gray-700 mb-2">Redevances <span class="text-red-500">*</span></label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="redevances" 
+                               name="redevances" 
+                               value="{{ old('redevances') }}"
+                               required>
+                        @error('redevances')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taxes" class="block text-sm font-semibold text-gray-700 mb-2">Taxes <span class="text-red-500">*</span></label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="taxes" 
+                               name="taxes" 
+                               value="{{ old('taxes') }}"
+                               required>
+                        @error('taxes')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2">Total Avenant <span class="text-red-500">*</span></label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="total_avenant" 
                                name="total_avenant" 
-                               value="{{ old('total_avenant') }}">
+                               value="{{ old('total_avenant') }}"
+                               required>
+                        @error('total_avenant')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -376,13 +470,205 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="charbon_bois_ox" class="block text-sm font-semibold text-gray-700 mb-2">Charbon Bois (ox)</label>
+                        <label for="laurier_sauce" class="block text-sm font-semibold text-gray-700 mb-2">Laurier Sauce (t)</label>
                         <input type="number" 
                                step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="charbon_bois_ox" 
-                               name="charbon_bois_ox" 
-                               value="{{ old('charbon_bois_ox') }}">
+                               id="laurier_sauce" 
+                               name="laurier_sauce" 
+                               value="{{ old('laurier_sauce') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="myrte" class="block text-sm font-semibold text-gray-700 mb-2">Myrte (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="myrte" 
+                               name="myrte" 
+                               value="{{ old('myrte') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="callune" class="block text-sm font-semibold text-gray-700 mb-2">Callune (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="callune" 
+                               name="callune" 
+                               value="{{ old('callune') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="thym" class="block text-sm font-semibold text-gray-700 mb-2">Thym (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="thym" 
+                               name="thym" 
+                               value="{{ old('thym') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bruyetre" class="block text-sm font-semibold text-gray-700 mb-2">Bruyère (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="bruyetre" 
+                               name="bruyetre" 
+                               value="{{ old('bruyetre') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lichen" class="block text-sm font-semibold text-gray-700 mb-2">Lichen (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="lichen" 
+                               name="lichen" 
+                               value="{{ old('lichen') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tanin" class="block text-sm font-semibold text-gray-700 mb-2">Tanin (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="tanin" 
+                               name="tanin" 
+                               value="{{ old('tanin') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="romarin" class="block text-sm font-semibold text-gray-700 mb-2">Romarin (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="romarin" 
+                               name="romarin" 
+                               value="{{ old('romarin') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="liege_male" class="block text-sm font-semibold text-gray-700 mb-2">Liège Mâle (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="liege_male" 
+                               name="liege_male" 
+                               value="{{ old('liege_male') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="liege_de_reproduction" class="block text-sm font-semibold text-gray-700 mb-2">Liège de Reproduction (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="liege_de_reproduction" 
+                               name="liege_de_reproduction" 
+                               value="{{ old('liege_de_reproduction') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sauge" class="block text-sm font-semibold text-gray-700 mb-2">Sauge (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="sauge" 
+                               name="sauge" 
+                               value="{{ old('sauge') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lavande" class="block text-sm font-semibold text-gray-700 mb-2">Lavande (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="lavande" 
+                               name="lavande" 
+                               value="{{ old('lavande') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="armoise" class="block text-sm font-semibold text-gray-700 mb-2">Armoise (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="armoise" 
+                               name="armoise" 
+                               value="{{ old('armoise') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="origan" class="block text-sm font-semibold text-gray-700 mb-2">Origan (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="origan" 
+                               name="origan" 
+                               value="{{ old('origan') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alfa" class="block text-sm font-semibold text-gray-700 mb-2">Alfa (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="alfa" 
+                               name="alfa" 
+                               value="{{ old('alfa') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lentisque" class="block text-sm font-semibold text-gray-700 mb-2">Lentisque (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="lentisque" 
+                               name="lentisque" 
+                               value="{{ old('lentisque') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ciste" class="block text-sm font-semibold text-gray-700 mb-2">Ciste (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="ciste" 
+                               name="ciste" 
+                               value="{{ old('ciste') }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Résiliation -->
+            <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 border border-red-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                        <i class="fas fa-ban text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Résiliation</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="resiliation" class="flex items-center gap-2">
+                            <input type="checkbox" 
+                                   id="resiliation" 
+                                   name="resiliation" 
+                                   value="1"
+                                   {{ old('resiliation') ? 'checked' : '' }}
+                                   class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                            <span class="text-sm font-semibold text-gray-700">Résilié</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date_resiliation" class="block text-sm font-semibold text-gray-700 mb-2">Date de Résiliation</label>
+                        <input type="date" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="date_resiliation" 
+                               name="date_resiliation" 
+                               value="{{ old('date_resiliation') }}">
                     </div>
                 </div>
             </div>

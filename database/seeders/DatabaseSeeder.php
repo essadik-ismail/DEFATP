@@ -23,6 +23,11 @@ class DatabaseSeeder extends Seeder
             SituationAdministrativeSeeder::class,
             ExploitantSeeder::class,
             ArticleSeeder::class,
+            EspeceSeeder::class,
+            VocationSeeder::class,
+            CoperativeSeeder::class,
+            ContractSeeder::class,
+            AvenantSeeder::class,
         ]);
     }
 

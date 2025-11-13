@@ -14,6 +14,7 @@ class Avenant extends Model
     protected $fillable = [
         'annee',
         'avenant',
+        'contact_id',
         'coperative_id',
         'date',
         'superficie',
@@ -22,6 +23,28 @@ class Avenant extends Model
         'elagage',
         'eclaircie',
         'rajeunissement_romarin',
+        'bo_m3',
+        'bi_m3',
+        'bf_st',
+        'tanin_t',
+        'laurier_sauce',
+        'myrte',
+        'callune',
+        'thym',
+        'bruyetre',
+        'lichen',
+        'tanin',
+        'romarin',
+        'liege_male',
+        'liege_de_reproduction',
+        'sauge',
+        'lavande',
+        'armoise',
+        'origan',
+        'alfa',
+        'lentisque',
+        'ciste',
+        'fleur_acacia_t',
         'valeurs_des_produits',
         'valeur_des_prestations',
         'redevances',
@@ -43,6 +66,14 @@ class Avenant extends Model
         'taxes' => 'decimal:2',
         'total_avenant' => 'decimal:2',
     ];
+
+    /**
+     * Get the contract for this avenant.
+     */
+    public function contract(): BelongsTo
+    {
+        return $this->belongsTo(Contract::class, 'contact_id');
+    }
 
     /**
      * Get the coperative for this avenant.

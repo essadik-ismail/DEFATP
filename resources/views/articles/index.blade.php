@@ -1794,75 +1794,89 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 300000); // 5 minutes
     });
     
-    // Modern Tabs Functionality
+    // Tab functionality
     document.addEventListener('DOMContentLoaded', function() {
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanes = document.querySelectorAll('.tab-pane');
-        
+
         tabButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const targetTab = this.getAttribute('data-tab');
                 
                 // Remove active class from all buttons and panes
-                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
                 tabPanes.forEach(pane => {
                     pane.classList.remove('show', 'active');
-                    pane.style.display = 'none';
                 });
                 
-                // Add active class to clicked button
+                // Add active class to clicked button and corresponding pane
                 this.classList.add('active');
-                
-                // Show corresponding tab pane
                 const targetPane = document.getElementById(targetTab);
                 if (targetPane) {
                     targetPane.classList.add('show', 'active');
-                    targetPane.style.display = 'block';
                 }
             });
         });
+
+        // Show the tab from URL parameter or default to first
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        if (tabParam) {
+            const tabButton = document.querySelector(`[data-tab="${tabParam}"]`);
+            if (tabButton) {
+                tabButton.click();
+            }
+        }
     });
 </script>
 
 @push('styles')
 <style>
-    /* Modern Tabs Styling */
     .tab-button {
-        @apply relative flex items-center px-6 py-4 text-sm font-medium text-gray-600 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30 hover:bg-white/80 hover:border-white/50 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-lg transform hover:-translate-y-1;
-        min-width: 200px;
-    }
-    
-    .tab-button.active {
-        @apply text-white bg-gradient-to-r from-blue-600 to-indigo-600 border-blue-500 shadow-xl;
-        transform: translateY(-2px);
-    }
-    
-    .tab-button.active .tab-indicator {
-        @apply absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-white rounded-full;
+        position: relative;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: white;
+        border: 1px solid #e5e7eb;
+        cursor: pointer;
     }
     
     .tab-button:hover {
-        @apply bg-white/80 shadow-lg;
+        border-color: #d1d5db;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        transform: scale(1.05);
     }
     
-    .tab-button span {
-        @apply whitespace-nowrap;
-    }
-    
-    .tab-button .tab-indicator {
-        @apply absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-blue-500 rounded-full transition-all duration-300;
-    }
-    
-    .tab-button:hover .tab-indicator {
-        @apply w-8;
+    .tab-button.active {
+        background: linear-gradient(to right, #f0fdf4, #d1fae5);
+        border-color: #86efac;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     
     .tab-pane {
         display: none;
     }
     
-    .tab-pane.active {
+    .tab-pane.show.active {
         display: block;
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     /* Enhanced Table Styling */

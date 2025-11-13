@@ -123,7 +123,13 @@ class ArticleSeeder extends Seeder
      */
     private function loadJsonFile(string $filename): array
     {
-        $path = base_path($filename);
+        // Try data folder first
+        $path = base_path('data/' . $filename);
+        if (!file_exists($path)) {
+            // Fallback to root
+            $path = base_path($filename);
+        }
+        
         if (!file_exists($path)) {
             $this->command->warn("JSON file not found: {$filename}");
             return [];
@@ -146,7 +152,13 @@ class ArticleSeeder extends Seeder
      */
     private function getArticlesData(): array
     {
-        $path = base_path('Article.json');
+        // Try data folder first
+        $path = base_path('data/Article.json');
+        if (!file_exists($path)) {
+            // Fallback to root
+            $path = base_path('Article.json');
+        }
+        
         if (!file_exists($path)) {
             $this->command->error('Article.json file not found at: ' . $path);
             return [];
@@ -278,7 +290,12 @@ class ArticleSeeder extends Seeder
     private function getArticlesFromFolder(string $folderPath): array
     {
         $all = [];
-        if (!is_dir($folderPath)) {
+        
+        // Try data/articles folder first
+        $dataArticlesPath = base_path('data/articles');
+        if (is_dir($dataArticlesPath)) {
+            $folderPath = $dataArticlesPath;
+        } elseif (!is_dir($folderPath)) {
             $this->command->warn('Articles folder not found: ' . $folderPath);
             return $all;
         }

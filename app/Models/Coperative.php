@@ -11,6 +11,7 @@ class Coperative extends Model
 
     protected $fillable = [
         'nom',
+        'vocation_id',
         'nombre_membres',
         'nombre_coperatives',
         'is_deleted',
@@ -36,5 +37,13 @@ class Coperative extends Model
     public function avenants()
     {
         return $this->hasMany(Avenant::class, 'coperative_id');
+    }
+
+    /**
+     * Get the vocation for this coperative.
+     */
+    public function vocation()
+    {
+        return $this->belongsTo(Vocation::class, 'vocation_id');
     }
 }

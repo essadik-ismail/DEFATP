@@ -12,6 +12,14 @@ class LocalisationSeeder extends Seeder
      */
     public function run(): void
     {
+        $jsonPath = base_path('data/Localisation.json');
+        
+        if (file_exists($jsonPath)) {
+            $this->loadFromJson($jsonPath);
+            return;
+        }
+
+        // Fallback to hardcoded data if JSON doesn't exist
         $localisations = [
             ['CODE' => '01-620', 'DRANEF' => 'TTH', 'DPANEF' => 'Al-Hoceima', 'ENTITE' => 'Ketama'],
             ['CODE' => '01-640', 'DRANEF' => 'TTH', 'DPANEF' => 'Al-Hoceima', 'ENTITE' => 'Targuist'],
@@ -142,7 +150,44 @@ class LocalisationSeeder extends Seeder
         ];
 
         foreach ($localisations as $localisation) {
-            Localisation::create($localisation);
+            Localisation::firstOrCreate(
+                ['CODE' => $localisation['CODE']],
+                $localisation
+            );
         }
+    }
+
+    /**
+     * Load localisations from JSON file
+     */
+    private function loadFromJson(string $jsonPath): void
+    {
+        $json = file_get_contents($jsonPath);
+        $data = json_decode($json, true) ?? [];
+
+        if (empty($data)) {
+            $this->command->warn('Localisation.json file is empty or invalid JSON');
+            return;
+        }
+
+        $this->command->info('Loading ' . count($data) . ' localisations from Localisation.json');
+
+        foreach ($data as $item) {
+            $code = $item['CODE'] ?? null;
+            if (!$code) {
+                continue;
+            }
+
+            Localisation::firstOrCreate(
+                ['CODE' => $code],
+                [
+                    'DRANEF' => $item['DRANEF'] ?? null,
+                    'DPANEF' => $item['DPANEF'] ?? null,
+                    'ENTITE' => $item['ENTITE'] ?? null,
+                ]
+            );
+        }
+
+        $this->command->info('Localisations seeded successfully!');
     }
 } 

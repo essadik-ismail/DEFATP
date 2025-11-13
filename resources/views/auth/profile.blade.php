@@ -234,57 +234,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Account Information -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 mt-8 border border-blue-200 shadow-xl">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-info-circle text-white text-xl"></i>
-            </div>
-            <div>
-                <h3 class="text-2xl font-bold text-blue-900">Informations du Compte</h3>
-                <p class="text-blue-700">Détails et statistiques de votre compte</p>
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-calendar text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Compte créé le</h4>
-                        <p class="text-gray-600 text-sm">{{ $user->created_at->format('d/m/Y H:i') }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-clock text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Dernière connexion</h4>
-                        <p class="text-gray-600 text-sm">{{ $user->updated_at->format('d/m/Y H:i') }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-shield-alt text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Statut</h4>
-                        <p class="text-gray-600 text-sm">Compte actif et sécurisé</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
 
