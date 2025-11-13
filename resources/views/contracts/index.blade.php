@@ -356,6 +356,7 @@
                                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
                                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom de l'Espèce</th>
                                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -375,10 +376,31 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $espece->created_at ? $espece->created_at->format('d/m/Y') : 'N/A' }}
                                                 </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <div class="flex items-center gap-2">
+                                                        <a href="{{ route('contracts.especes.edit', $espece) }}" 
+                                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
+                                                           title="Modifier">
+                                                            <i class="fas fa-edit text-sm"></i>
+                                                        </a>
+                                                        <form action="{{ route('contracts.especes.destroy', $espece) }}" 
+                                                              method="POST" 
+                                                              class="inline"
+                                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette espèce ?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200"
+                                                                    title="Supprimer">
+                                                                <i class="fas fa-trash text-sm"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="3" class="px-6 py-12 text-center text-gray-500">
+                                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
                                                     <div class="flex flex-col items-center">
                                                         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                                             <i class="fas fa-leaf text-2xl text-gray-400"></i>
@@ -464,6 +486,7 @@
                                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Coopérative</th>
                                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Avenant</th>
                                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -510,10 +533,31 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $avenant->created_at ? $avenant->created_at->format('d/m/Y') : 'N/A' }}
                                                 </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <div class="flex items-center gap-2">
+                                                        <a href="{{ route('contracts.avenants.edit', $avenant) }}" 
+                                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
+                                                           title="Modifier">
+                                                            <i class="fas fa-edit text-sm"></i>
+                                                        </a>
+                                                        <form action="{{ route('contracts.avenants.destroy', $avenant) }}" 
+                                                              method="POST" 
+                                                              class="inline"
+                                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet avenant ?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200"
+                                                                    title="Supprimer">
+                                                                <i class="fas fa-trash text-sm"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
                                                     <div class="flex flex-col items-center">
                                                         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                                             <i class="fas fa-file-contract text-2xl text-gray-400"></i>
@@ -605,6 +649,7 @@
                                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre de Membres</th>
                                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre de Coopératives</th>
                                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -640,10 +685,31 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $coperative->created_at ? $coperative->created_at->format('d/m/Y') : 'N/A' }}
                                                 </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <div class="flex items-center gap-2">
+                                                        <a href="{{ route('contracts.coperatives.edit', $coperative) }}" 
+                                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
+                                                           title="Modifier">
+                                                            <i class="fas fa-edit text-sm"></i>
+                                                        </a>
+                                                        <form action="{{ route('contracts.coperatives.destroy', $coperative) }}" 
+                                                              method="POST" 
+                                                              class="inline"
+                                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette coopérative ?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200"
+                                                                    title="Supprimer">
+                                                                <i class="fas fa-trash text-sm"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                                                     <div class="flex flex-col items-center">
                                                         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                                             <i class="fas fa-users-cog text-2xl text-gray-400"></i>

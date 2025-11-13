@@ -356,6 +356,21 @@
                     }
                 });
             });
+
+            // Add search input hint
+            searchInput.addEventListener('focus', function() {
+                if (typeof UXUtils !== 'undefined') {
+                    UXUtils.showToast('Utilisez Ctrl+K pour rechercher rapidement', 'info', 3000);
+                }
+            });
+
+            // Add keyboard shortcut Ctrl+K to focus search
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
         }
     });
 

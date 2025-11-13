@@ -2243,12 +2243,6 @@
                     @endif
                     
                     <h2 class="text-base sm:text-lg font-semibold text-gray-900 truncate">@yield('title', 'DEFATP')</h2>
-                    
-                    <!-- Keyboard shortcut hint -->
-                    <span class="hidden md:inline-flex items-center ml-4 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-200">
-                        <i class="fas fa-keyboard mr-1.5"></i>
-                        Utilisez <kbd class="px-1.5 py-0.5 bg-white border border-gray-300 rounded text-xs font-mono">Ctrl+K</kbd> pour rechercher rapidement
-                    </span>
                 </div>
                 
                 <div class="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">

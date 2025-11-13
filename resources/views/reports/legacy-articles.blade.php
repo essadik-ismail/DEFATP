@@ -331,6 +331,21 @@ document.addEventListener('DOMContentLoaded', function () {
             $('.dt-buttons button').addClass('mr-2');
         }
     });
+
+    // Add search input hint
+    $(document).on('focus', '.dataTables_filter input', function() {
+        if (typeof UXUtils !== 'undefined') {
+            UXUtils.showToast('Utilisez Ctrl+K pour rechercher rapidement', 'info', 3000);
+        }
+    });
+
+    // Add keyboard shortcut Ctrl+K to focus search
+    $(document).on('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k' && !$(e.target).is('input, textarea')) {
+            e.preventDefault();
+            $('.dataTables_filter input').focus();
+        }
+    });
 });
 </script>
 @endpush

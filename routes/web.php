@@ -184,16 +184,30 @@ Route::middleware('auth')->group(function () {
     // Contract Especes Routes
     Route::get('/contracts/especes/create', [ContractController::class, 'createEspece'])->name('contracts.especes.create');
     Route::post('/contracts/especes', [ContractController::class, 'storeEspece'])->name('contracts.especes.store');
+    Route::get('/contracts/especes/{espece}/edit', [ContractController::class, 'editEspece'])->name('contracts.especes.edit');
+    Route::put('/contracts/especes/{espece}', [ContractController::class, 'updateEspece'])->name('contracts.especes.update');
+    Route::delete('/contracts/especes/{espece}', [ContractController::class, 'destroyEspece'])->name('contracts.especes.destroy');
     
     // Contract Avenants Routes
     Route::get('/contracts/avenants/create', [ContractController::class, 'createAvenant'])->name('contracts.avenants.create');
     Route::post('/contracts/avenants', [ContractController::class, 'storeAvenant'])->name('contracts.avenants.store');
+    Route::get('/contracts/avenants/{avenant}/edit', [ContractController::class, 'editAvenant'])->name('contracts.avenants.edit');
+    Route::put('/contracts/avenants/{avenant}', [ContractController::class, 'updateAvenant'])->name('contracts.avenants.update');
+    Route::delete('/contracts/avenants/{avenant}', [ContractController::class, 'destroyAvenant'])->name('contracts.avenants.destroy');
     
+    // Contract Coperatives Routes
     Route::get('/contracts/coperatives/create', [ContractController::class, 'createCoperative'])->name('contracts.coperatives.create');
     Route::post('/contracts/coperatives', [ContractController::class, 'storeCoperative'])->name('contracts.coperatives.store');
+    Route::get('/contracts/coperatives/{coperative}/edit', [ContractController::class, 'editCoperative'])->name('contracts.coperatives.edit');
+    Route::put('/contracts/coperatives/{coperative}', [ContractController::class, 'updateCoperative'])->name('contracts.coperatives.update');
+    Route::delete('/contracts/coperatives/{coperative}', [ContractController::class, 'destroyCoperative'])->name('contracts.coperatives.destroy');
     
+    // Contract Vocations Routes
     Route::get('/contracts/vocations/create', [ContractController::class, 'createVocation'])->name('contracts.vocations.create');
     Route::post('/contracts/vocations', [ContractController::class, 'storeVocation'])->name('contracts.vocations.store');
+    Route::get('/contracts/vocations/{vocation}/edit', [ContractController::class, 'editVocation'])->name('contracts.vocations.edit');
+    Route::put('/contracts/vocations/{vocation}', [ContractController::class, 'updateVocation'])->name('contracts.vocations.update');
+    Route::delete('/contracts/vocations/{vocation}', [ContractController::class, 'destroyVocation'])->name('contracts.vocations.destroy');
 
     // Articles Routes
     Route::resource('articles', ArticleController::class);

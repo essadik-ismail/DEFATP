@@ -468,4 +468,258 @@ class ContractController extends Controller
                 ->with('error', 'Erreur lors de la création de la vocation: ' . $e->getMessage());
         }
     }
+
+    public function editVocation(\App\Models\Vocation $vocation): View
+    {
+        return view('contracts.vocations.edit', compact('vocation'));
+    }
+
+    public function updateVocation(Request $request, \App\Models\Vocation $vocation): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:vocations,name,' . $vocation->id . ',id,deleted_at,NULL',
+        ]);
+
+        try {
+            $vocation->update($validated);
+
+            ActivityLogger::logUpdate(
+                \App\Models\Vocation::class,
+                $vocation->id,
+                "Vocation {$vocation->name}",
+                [],
+                $request
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+                ->with('success', 'Vocation mise à jour avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour de la vocation: ' . $e->getMessage());
+        }
+    }
+
+    public function destroyVocation(\App\Models\Vocation $vocation): RedirectResponse
+    {
+        try {
+            $vocationName = $vocation->name;
+            $vocation->delete();
+
+            ActivityLogger::logDelete(
+                \App\Models\Vocation::class,
+                $vocation->id,
+                "Vocation {$vocationName}"
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+                ->with('success', 'Vocation supprimée avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la suppression de la vocation: ' . $e->getMessage());
+        }
+    }
+
+    // Coperative CRUD Methods
+    public function editCoperative(Coperative $coperative): View
+    {
+        $vocations = \App\Models\Vocation::orderBy('name')->get();
+        return view('contracts.coperatives.edit', compact('coperative', 'vocations'));
+    }
+
+    public function updateCoperative(Request $request, Coperative $coperative): RedirectResponse
+    {
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'vocation_id' => 'nullable|exists:vocations,id',
+            'nombre_membres' => 'nullable|integer|min:0',
+            'nombre_coperatives' => 'nullable|integer|min:0',
+        ]);
+
+        try {
+            $coperative->update($validated);
+
+            ActivityLogger::logUpdate(
+                Coperative::class,
+                $coperative->id,
+                "Coopérative {$coperative->nom}",
+                [],
+                $request
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+                ->with('success', 'Coopérative mise à jour avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour de la coopérative: ' . $e->getMessage());
+        }
+    }
+
+    public function destroyCoperative(Coperative $coperative): RedirectResponse
+    {
+        try {
+            $coperativeName = $coperative->nom;
+            $coperative->delete();
+
+            ActivityLogger::logDelete(
+                Coperative::class,
+                $coperative->id,
+                "Coopérative {$coperativeName}"
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+                ->with('success', 'Coopérative supprimée avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la suppression de la coopérative: ' . $e->getMessage());
+        }
+    }
+
+    // Espece CRUD Methods
+    public function editEspece(Espece $espece): View
+    {
+        return view('contracts.especes.edit', compact('espece'));
+    }
+
+    public function updateEspece(Request $request, Espece $espece): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:especes,name,' . $espece->id . ',id,deleted_at,NULL',
+        ]);
+
+        try {
+            $espece->update($validated);
+
+            ActivityLogger::logUpdate(
+                Espece::class,
+                $espece->id,
+                "Espèce {$espece->name}",
+                [],
+                $request
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'especes'])
+                ->with('success', 'Espèce mise à jour avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour de l\'espèce: ' . $e->getMessage());
+        }
+    }
+
+    public function destroyEspece(Espece $espece): RedirectResponse
+    {
+        try {
+            $especeName = $espece->name;
+            $espece->delete();
+
+            ActivityLogger::logDelete(
+                Espece::class,
+                $espece->id,
+                "Espèce {$especeName}"
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'especes'])
+                ->with('success', 'Espèce supprimée avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la suppression de l\'espèce: ' . $e->getMessage());
+        }
+    }
+
+    // Avenant CRUD Methods
+    public function editAvenant(\App\Models\Avenant $avenant): View
+    {
+        $contracts = Contract::with(['localisation', 'situationAdministrative', 'coperative'])
+            ->orderBy('annee', 'desc')
+            ->orderBy('contarct')
+            ->get();
+        $coperatives = Coperative::orderBy('nom')->get();
+        return view('contracts.avenants.edit', compact('avenant', 'contracts', 'coperatives'));
+    }
+
+    public function updateAvenant(Request $request, \App\Models\Avenant $avenant): RedirectResponse
+    {
+        $validated = $request->validate([
+            'contact_id' => 'required|exists:contacts,id',
+            'annee' => 'required|integer',
+            'avenant' => 'required|string|max:255',
+            'coperative_id' => 'nullable|exists:coperatives,id',
+            'date' => 'required|date',
+            'superficie' => 'nullable|numeric|min:0',
+            'gardiennage' => 'nullable|numeric|min:0',
+            'prevention_incendies' => 'nullable|numeric|min:0',
+            'elagage' => 'nullable|numeric|min:0',
+            'eclaircie' => 'nullable|numeric|min:0',
+            'rajeunissement_romarin' => 'nullable|numeric|min:0',
+            'bo_m3' => 'nullable|integer|min:0',
+            'bi_m3' => 'nullable|integer|min:0',
+            'bf_st' => 'nullable|integer|min:0',
+            'tanin_t' => 'nullable|integer|min:0',
+            'laurier_sauce' => 'nullable|integer|min:0',
+            'myrte' => 'nullable|integer|min:0',
+            'callune' => 'nullable|integer|min:0',
+            'thym' => 'nullable|integer|min:0',
+            'bruyetre' => 'nullable|integer|min:0',
+            'lichen' => 'nullable|integer|min:0',
+            'tanin' => 'nullable|integer|min:0',
+            'romarin' => 'nullable|integer|min:0',
+            'liege_male' => 'nullable|integer|min:0',
+            'liege_de_reproduction' => 'nullable|integer|min:0',
+            'sauge' => 'nullable|integer|min:0',
+            'lavande' => 'nullable|integer|min:0',
+            'armoise' => 'nullable|integer|min:0',
+            'origan' => 'nullable|integer|min:0',
+            'alfa' => 'nullable|integer|min:0',
+            'lentisque' => 'nullable|integer|min:0',
+            'ciste' => 'nullable|integer|min:0',
+            'fleur_acacia_t' => 'nullable|integer|min:0',
+            'valeurs_des_produits' => 'required|numeric|min:0',
+            'valeur_des_prestations' => 'required|numeric|min:0',
+            'redevances' => 'required|numeric|min:0',
+            'taxes' => 'required|numeric|min:0',
+            'total_avenant' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            $avenant->update($validated);
+
+            ActivityLogger::logUpdate(
+                \App\Models\Avenant::class,
+                $avenant->id,
+                "Avenant #{$avenant->id} ({$avenant->annee})",
+                [],
+                $request
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'avenants'])
+                ->with('success', 'Avenant mis à jour avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour de l\'avenant: ' . $e->getMessage());
+        }
+    }
+
+    public function destroyAvenant(\App\Models\Avenant $avenant): RedirectResponse
+    {
+        try {
+            $avenantId = $avenant->id;
+            $avenantYear = $avenant->annee;
+            $avenant->delete();
+
+            ActivityLogger::logDelete(
+                \App\Models\Avenant::class,
+                $avenant->id,
+                "Avenant #{$avenantId} ({$avenantYear})"
+            );
+
+            return redirect()->route('contracts.index', ['tab' => 'avenants'])
+                ->with('success', 'Avenant supprimé avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la suppression de l\'avenant: ' . $e->getMessage());
+        }
+    }
 }

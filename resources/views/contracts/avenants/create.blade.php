@@ -12,9 +12,9 @@
             </div>
             <div>
                 <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Nouvel Avenant
+                    @if(isset($avenant)) Modifier Avenant @else Nouvel Avenant @endif
                 </h1>
-                <p class="text-gray-600 text-lg mt-2">Créez un nouvel avenant de contrat</p>
+                <p class="text-gray-600 text-lg mt-2">@if(isset($avenant)) Modifiez les informations de l'avenant @else Créez un nouvel avenant de contrat @endif</p>
             </div>
         </div>
     </div>
@@ -62,13 +62,16 @@
                 <i class="fas fa-plus text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">Formulaire de création</h2>
-                <p class="text-gray-600">Remplissez les informations pour créer un nouvel avenant</p>
+                <h2 class="text-2xl font-bold text-gray-900">@if(isset($avenant)) Formulaire de modification @else Formulaire de création @endif</h2>
+                <p class="text-gray-600">@if(isset($avenant)) Modifiez les informations de l'avenant @else Remplissez les informations pour créer un nouvel avenant @endif</p>
             </div>
         </div>
 
-        <form action="{{ route('contracts.avenants.store') }}" method="POST" class="space-y-8">
+        <form action="{{ isset($avenant) ? route('contracts.avenants.update', $avenant) : route('contracts.avenants.store') }}" method="POST" class="space-y-8">
             @csrf
+            @if(isset($avenant))
+                @method('PUT')
+            @endif
             
             <!-- Section 1: Informations de Base -->
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
@@ -91,7 +94,7 @@
                         >
                             <option value="">Sélectionner un contrat</option>
                             @foreach($contracts as $contract)
-                                <option value="{{ $contract->id }}" {{ old('contact_id') == $contract->id ? 'selected' : '' }}>
+                                <option value="{{ $contract->id }}" {{ old('contact_id', isset($avenant) ? $avenant->contact_id : null) == $contract->id ? 'selected' : '' }}>
                                     Contrat #{{ $contract->contarct }} ({{ $contract->annee }}) - {{ $contract->localisation->DRANEF ?? 'N/A' }} - {{ $contract->situationAdministrative->commune ?? 'N/A' }}
                                 </option>
                             @endforeach
@@ -109,7 +112,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="annee" 
                                name="annee" 
-                               value="{{ old('annee', date('Y')) }}"
+                               value="{{ old('annee', isset($avenant) ? $avenant->annee : date('Y')) }}"
                                required>
                         @error('annee')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
@@ -124,7 +127,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="date" 
                                name="date" 
-                               value="{{ old('date') }}"
+                               value="{{ old('date', isset($avenant) && $avenant->date ? \Carbon\Carbon::parse($avenant->date)->format('Y-m-d') : '') }}"
                                required>
                         @error('date')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
@@ -139,7 +142,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="avenant" 
                                name="avenant" 
-                               value="{{ old('avenant') }}"
+                               value="{{ old('avenant', isset($avenant) ? $avenant->avenant : '') }}"
                                required>
                         @error('avenant')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
@@ -155,7 +158,7 @@
                                 name="coperative_id">
                             <option value="">Sélectionner une coopérative</option>
                             @foreach($coperatives as $coperative)
-                                <option value="{{ $coperative->id }}" {{ old('coperative_id') == $coperative->id ? 'selected' : '' }}>
+                                <option value="{{ $coperative->id }}" {{ old('coperative_id', isset($avenant) ? $avenant->coperative_id : null) == $coperative->id ? 'selected' : '' }}>
                                     {{ $coperative->nom }}
                                 </option>
                             @endforeach
@@ -183,7 +186,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="superficie" 
                                name="superficie" 
-                               value="{{ old('superficie') }}">
+                               value="{{ old('superficie', isset($avenant) ? $avenant->superficie : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -193,7 +196,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="gardiennage" 
                                name="gardiennage" 
-                               value="{{ old('gardiennage') }}">
+                               value="{{ old('gardiennage', isset($avenant) ? $avenant->gardiennage : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -203,7 +206,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="prevention_incendies" 
                                name="prevention_incendies" 
-                               value="{{ old('prevention_incendies') }}">
+                               value="{{ old('prevention_incendies', isset($avenant) ? $avenant->prevention_incendies : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -213,7 +216,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="elagage" 
                                name="elagage" 
-                               value="{{ old('elagage') }}">
+                               value="{{ old('elagage', isset($avenant) ? $avenant->elagage : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -223,7 +226,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="eclaircie" 
                                name="eclaircie" 
-                               value="{{ old('eclaircie') }}">
+                               value="{{ old('eclaircie', isset($avenant) ? $avenant->eclaircie : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -233,7 +236,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="rajeunissement_romarin" 
                                name="rajeunissement_romarin" 
-                               value="{{ old('rajeunissement_romarin') }}">
+                               value="{{ old('rajeunissement_romarin', isset($avenant) ? $avenant->rajeunissement_romarin : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -243,7 +246,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="valeurs_des_produits" 
                                name="valeurs_des_produits" 
-                               value="{{ old('valeurs_des_produits') }}"
+                               value="{{ old('valeurs_des_produits', isset($avenant) ? $avenant->valeurs_des_produits : '') }}"
                                required>
                         @error('valeurs_des_produits')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
@@ -257,7 +260,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="valeur_des_prestations" 
                                name="valeur_des_prestations" 
-                               value="{{ old('valeur_des_prestations') }}"
+                               value="{{ old('valeur_des_prestations', isset($avenant) ? $avenant->valeur_des_prestations : '') }}"
                                required>
                         @error('valeur_des_prestations')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
@@ -271,7 +274,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="redevances" 
                                name="redevances" 
-                               value="{{ old('redevances') }}"
+                               value="{{ old('redevances', isset($avenant) ? $avenant->redevances : '') }}"
                                required>
                         @error('redevances')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
@@ -285,7 +288,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="taxes" 
                                name="taxes" 
-                               value="{{ old('taxes') }}"
+                               value="{{ old('taxes', isset($avenant) ? $avenant->taxes : '') }}"
                                required>
                         @error('taxes')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
@@ -299,7 +302,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="total_avenant" 
                                name="total_avenant" 
-                               value="{{ old('total_avenant') }}"
+                               value="{{ old('total_avenant', isset($avenant) ? $avenant->total_avenant : '') }}"
                                required>
                         @error('total_avenant')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
@@ -324,7 +327,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="bo_m3" 
                                name="bo_m3" 
-                               value="{{ old('bo_m3') }}">
+                               value="{{ old('bo_m3', isset($avenant) ? $avenant->bo_m3 : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -334,7 +337,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="bi_m3" 
                                name="bi_m3" 
-                               value="{{ old('bi_m3') }}">
+                               value="{{ old('bi_m3', isset($avenant) ? $avenant->bi_m3 : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -344,7 +347,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="bf_st" 
                                name="bf_st" 
-                               value="{{ old('bf_st') }}">
+                               value="{{ old('bf_st', isset($avenant) ? $avenant->bf_st : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -354,7 +357,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="tanin_t" 
                                name="tanin_t" 
-                               value="{{ old('tanin_t') }}">
+                               value="{{ old('tanin_t', isset($avenant) ? $avenant->tanin_t : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -364,7 +367,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="laurier_sauce" 
                                name="laurier_sauce" 
-                               value="{{ old('laurier_sauce') }}">
+                               value="{{ old('laurier_sauce', isset($avenant) ? $avenant->laurier_sauce : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -374,7 +377,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="myrte" 
                                name="myrte" 
-                               value="{{ old('myrte') }}">
+                               value="{{ old('myrte', isset($avenant) ? $avenant->myrte : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -384,7 +387,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="callune" 
                                name="callune" 
-                               value="{{ old('callune') }}">
+                               value="{{ old('callune', isset($avenant) ? $avenant->callune : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -394,7 +397,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="thym" 
                                name="thym" 
-                               value="{{ old('thym') }}">
+                               value="{{ old('thym', isset($avenant) ? $avenant->thym : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -404,7 +407,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="bruyetre" 
                                name="bruyetre" 
-                               value="{{ old('bruyetre') }}">
+                               value="{{ old('bruyetre', isset($avenant) ? $avenant->bruyetre : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -414,7 +417,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="lichen" 
                                name="lichen" 
-                               value="{{ old('lichen') }}">
+                               value="{{ old('lichen', isset($avenant) ? $avenant->lichen : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -424,7 +427,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="tanin" 
                                name="tanin" 
-                               value="{{ old('tanin') }}">
+                               value="{{ old('tanin', isset($avenant) ? $avenant->tanin : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -434,7 +437,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="romarin" 
                                name="romarin" 
-                               value="{{ old('romarin') }}">
+                               value="{{ old('romarin', isset($avenant) ? $avenant->romarin : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -444,7 +447,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="liege_male" 
                                name="liege_male" 
-                               value="{{ old('liege_male') }}">
+                               value="{{ old('liege_male', isset($avenant) ? $avenant->liege_male : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -454,7 +457,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="liege_de_reproduction" 
                                name="liege_de_reproduction" 
-                               value="{{ old('liege_de_reproduction') }}">
+                               value="{{ old('liege_de_reproduction', isset($avenant) ? $avenant->liege_de_reproduction : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -464,7 +467,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="sauge" 
                                name="sauge" 
-                               value="{{ old('sauge') }}">
+                               value="{{ old('sauge', isset($avenant) ? $avenant->sauge : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -474,7 +477,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="lavande" 
                                name="lavande" 
-                               value="{{ old('lavande') }}">
+                               value="{{ old('lavande', isset($avenant) ? $avenant->lavande : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -484,7 +487,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="armoise" 
                                name="armoise" 
-                               value="{{ old('armoise') }}">
+                               value="{{ old('armoise', isset($avenant) ? $avenant->armoise : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -494,7 +497,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="origan" 
                                name="origan" 
-                               value="{{ old('origan') }}">
+                               value="{{ old('origan', isset($avenant) ? $avenant->origan : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -504,7 +507,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="alfa" 
                                name="alfa" 
-                               value="{{ old('alfa') }}">
+                               value="{{ old('alfa', isset($avenant) ? $avenant->alfa : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -514,7 +517,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="lentisque" 
                                name="lentisque" 
-                               value="{{ old('lentisque') }}">
+                               value="{{ old('lentisque', isset($avenant) ? $avenant->lentisque : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -524,7 +527,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="ciste" 
                                name="ciste" 
-                               value="{{ old('ciste') }}">
+                               value="{{ old('ciste', isset($avenant) ? $avenant->ciste : '') }}">
                     </div>
 
                     <div class="form-group">
@@ -534,7 +537,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="fleur_acacia_t" 
                                name="fleur_acacia_t" 
-                               value="{{ old('fleur_acacia_t') }}">
+                               value="{{ old('fleur_acacia_t', isset($avenant) ? $avenant->fleur_acacia_t : '') }}">
                     </div>
                 </div>
             </div>
