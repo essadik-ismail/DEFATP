@@ -15,11 +15,6 @@
                     <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                         Contrats de Partenariat
                     </h1>
-                    <a href="{{ route('dashboard') }}" 
-                       class="inline-flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-300 transform hover:scale-110 shadow-sm hover:shadow-md"
-                       title="Retour au tableau de bord">
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
                 </div>
                 <p class="text-gray-600 text-lg mt-2">Gérez et consultez tous les contrats de partenariat</p>
             </div>

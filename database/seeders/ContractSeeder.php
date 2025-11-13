@@ -111,16 +111,45 @@ class ContractSeeder extends Seeder
     {
         $data = [];
 
-        // Required fields
+        // Required fields - handle format "09/2020" or direct number
         $data['annee'] = isset($item['annee']) ? (int) $item['annee'] : (isset($item['Année']) ? (int) $item['Année'] : date('Y'));
-        $data['contarct'] = isset($item['contarct']) ? (int) $item['contarct'] : (isset($item['Contrat']) ? (int) $item['Contrat'] : null);
+        
+        // Handle contract format "09/2020" (numéro/année)
+        if (isset($item['Contrat']) && is_string($item['Contrat']) && strpos($item['Contrat'], '/') !== false) {
+            $parts = explode('/', $item['Contrat']);
+            $data['contarct'] = (int) trim($parts[0]);
+            // Update annee if provided in contract format
+            if (isset($parts[1])) {
+                $data['annee'] = (int) trim($parts[1]);
+            }
+        } elseif (isset($item['contarct'])) {
+            $data['contarct'] = (int) $item['contarct'];
+        } elseif (isset($item['Contrat'])) {
+            $data['contarct'] = (int) $item['Contrat'];
+        } else {
+            $data['contarct'] = null;
+        }
 
-        // Foreign keys
+        // Foreign keys - Localisation
         if (isset($item['localisation_id'])) {
             $data['localisation_id'] = (int) $item['localisation_id'];
         } elseif (isset($item['localisation'])) {
             $localisation = Localisation::where('CODE', $item['localisation'])->first();
             $data['localisation_id'] = $localisation ? $localisation->id : null;
+        } elseif (isset($item['ZDTF']) && !empty($item['ZDTF'])) {
+            // Try to find by ZDTF code
+            $zdtfValue = $item['ZDTF'];
+            $localisation = Localisation::where('CODE', $zdtfValue)
+                ->orWhere('id', $zdtfValue)
+                ->first();
+            $data['localisation_id'] = $localisation ? $localisation->id : null;
+        }
+        
+        // If still no localisation_id, try to get a default one or skip this contract
+        if (empty($data['localisation_id'])) {
+            // Try to get first available localisation as fallback
+            $defaultLocalisation = Localisation::first();
+            $data['localisation_id'] = $defaultLocalisation ? $defaultLocalisation->id : null;
         }
 
         if (isset($item['situation_administrative_id'])) {
@@ -128,12 +157,36 @@ class ContractSeeder extends Seeder
         } elseif (isset($item['situation_administrative'])) {
             $situation = SituationAdministrative::where('commune', 'like', '%' . $item['situation_administrative'] . '%')->first();
             $data['situation_administrative_id'] = $situation ? $situation->id : null;
+        } elseif (isset($item['Commune']) && !empty($item['Commune'])) {
+            // Try to find by commune code or name
+            $communeValue = $item['Commune'];
+            $situation = SituationAdministrative::where('commune', 'like', '%' . $communeValue . '%')
+                ->orWhere('id', $communeValue)
+                ->first();
+            $data['situation_administrative_id'] = $situation ? $situation->id : null;
+        }
+        
+        // If still no situation_administrative_id, try to get a default one
+        if (empty($data['situation_administrative_id'])) {
+            $defaultSituation = SituationAdministrative::first();
+            $data['situation_administrative_id'] = $defaultSituation ? $defaultSituation->id : null;
         }
 
         if (isset($item['foret_id'])) {
             $data['foret_id'] = (int) $item['foret_id'];
         } elseif (isset($item['foret'])) {
             $foret = Foret::where('foret', $item['foret'])->first();
+            $data['foret_id'] = $foret ? $foret->id : null;
+        } elseif (isset($item['Forêt']) && !empty($item['Forêt'])) {
+            // Handle multiple forets separated by ";"
+            $foretValue = $item['Forêt'];
+            if (strpos($foretValue, ';') !== false) {
+                // Take the first foret if multiple
+                $foretValue = trim(explode(';', $foretValue)[0]);
+            }
+            $foret = Foret::where('id', $foretValue)
+                ->orWhere('foret', 'like', '%' . $foretValue . '%')
+                ->first();
             $data['foret_id'] = $foret ? $foret->id : null;
         }
 
@@ -142,9 +195,16 @@ class ContractSeeder extends Seeder
         } elseif (isset($item['coperative'])) {
             $coperative = Coperative::where('nom', $item['coperative'])->first();
             $data['coperative_id'] = $coperative ? $coperative->id : null;
+        } elseif (isset($item['Coopérative/Groupement']) && !empty($item['Coopérative/Groupement'])) {
+            // Try to find by ID first, then by name
+            $coopValue = $item['Coopérative/Groupement'];
+            $coperative = Coperative::where('id', $coopValue)
+                ->orWhere('nom', 'like', '%' . $coopValue . '%')
+                ->first();
+            $data['coperative_id'] = $coperative ? $coperative->id : null;
         }
 
-        // Especes
+        // Especes - handle multiple values separated by ";"
         $especes = [];
         if (isset($item['especes']) && is_array($item['especes'])) {
             foreach ($item['especes'] as $especeName) {
@@ -154,44 +214,148 @@ class ContractSeeder extends Seeder
                 }
             }
         } elseif (isset($item['espece'])) {
-            $espece = Espece::where('name', $item['espece'])->first();
-            if ($espece) {
-                $especes[] = $espece->id;
+            $especeValue = $item['espece'];
+            // Handle multiple especes separated by ";"
+            if (strpos($especeValue, ';') !== false) {
+                $especeNames = explode(';', $especeValue);
+                foreach ($especeNames as $especeName) {
+                    $especeName = trim($especeName);
+                    $espece = Espece::where('id', $especeName)
+                        ->orWhere('name', 'like', '%' . $especeName . '%')
+                        ->first();
+                    if ($espece) {
+                        $especes[] = $espece->id;
+                    }
+                }
+            } else {
+                $espece = Espece::where('id', $especeValue)
+                    ->orWhere('name', 'like', '%' . $especeValue . '%')
+                    ->first();
+                if ($espece) {
+                    $especes[] = $espece->id;
+                }
+            }
+        } elseif (isset($item['Espèce']) && !empty($item['Espèce'])) {
+            $especeValue = $item['Espèce'];
+            // Handle multiple especes separated by ";"
+            if (strpos($especeValue, ';') !== false) {
+                $especeNames = explode(';', $especeValue);
+                foreach ($especeNames as $especeName) {
+                    $especeName = trim($especeName);
+                    $espece = Espece::where('id', $especeName)
+                        ->orWhere('name', 'like', '%' . $especeName . '%')
+                        ->first();
+                    if ($espece) {
+                        $especes[] = $espece->id;
+                    }
+                }
+            } else {
+                $espece = Espece::where('id', $especeValue)
+                    ->orWhere('name', 'like', '%' . $especeValue . '%')
+                    ->first();
+                if ($espece) {
+                    $especes[] = $espece->id;
+                }
             }
         }
         $data['especes'] = $especes;
 
-        // Numeric fields
-        $numericFields = [
-            'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'laurier_sauce',
-            'myrte', 'callune', 'thym', 'bruyetre', 'lichen', 'tanin', 'romarin',
-            'liege_male', 'liege_de_reproduction', 'sauge', 'lavande', 'armoise',
-            'origan', 'alfa', 'lentisque', 'ciste', 'fleur_acacia_t'
+        // Numeric fields with mapping for different column names
+        $numericFieldMap = [
+            'superficie' => ['superficie', 'Superficie (Ha)', 'Superficie'],
+            'bo_m3' => ['bo_m3', 'BO (m3)', 'BO'],
+            'bi_m3' => ['bi_m3', 'BI (m3)', 'BI'],
+            'bf_st' => ['bf_st', 'BF (St)', 'BF'],
+            'laurier_sauce' => ['laurier_sauce', 'Laurier sauce (T)', 'Laurier sauce'],
+            'myrte' => ['myrte', 'Myrthe (T)', 'Myrthe', 'Myrte (T)', 'Myrte'],
+            'callune' => ['callune', 'Callune (T)', 'Callune'],
+            'thym' => ['thym', 'Thym (T)', 'Thym'],
+            'bruyetre' => ['bruyetre', 'Bruyère (T)', 'Bruyère'],
+            'lichen' => ['lichen', 'Lichen (T)', 'Lichen'],
+            'romarin' => ['romarin', 'Romarin (T/campagne)', 'Romarin (T)', 'Romarin'],
+            'liege_male' => ['liege_male', 'Liège male (St)', 'Liège male'],
+            'liege_de_reproduction' => ['liege_de_reproduction', 'Liège de reproduction (St)', 'Liège de reproduction'],
+            'sauge' => ['sauge', 'Sauge (T)', 'Sauge'],
+            'lavande' => ['lavande', 'Lavande (T)', 'Lavande'],
+            'armoise' => ['armoise', 'Armoise (T)', 'Armoise'],
+            'origan' => ['origan', 'Origan (T)', 'Origan'],
+            'alfa' => ['alfa', 'Alfa (T)', 'Alfa'],
+            'lentisque' => ['lentisque', 'Lentisque (T)', 'Lentisque'],
+            'ciste' => ['ciste', 'Ciste (T)', 'Ciste'],
+            'fleur_acacia_t' => ['fleur_acacia_t', 'Fleur d\'acacia (Q)', 'Fleurs d\'acacia (Q)', 'Fleur d\'acacia']
         ];
 
-        foreach ($numericFields as $field) {
-            if (isset($item[$field])) {
-                $data[$field] = is_numeric($item[$field]) ? $item[$field] : null;
+        foreach ($numericFieldMap as $field => $possibleNames) {
+            $value = null;
+            foreach ($possibleNames as $name) {
+                if (isset($item[$name])) {
+                    $value = $item[$name];
+                    break;
+                }
+            }
+            if ($value !== null && $value !== '') {
+                // Handle comma as decimal separator
+                if (is_string($value)) {
+                    $value = str_replace(',', '.', $value);
+                }
+                if (is_numeric($value)) {
+                    $data[$field] = (float) $value;
+                }
             }
         }
 
-        // String fields
-        $stringFields = [
-            'gardiennage', 'prevention_contre_les_incendies', 'elagage',
-            'eclaircie', 'rajeunissement_romarin', 'autre',
-            'valeurs_des_produits', 'valeur_des_prestations', 'redevances',
-            'taxes', 'total_avenant'
+        // String/decimal fields with mapping
+        $stringFieldMap = [
+            'gardiennage' => ['gardiennage', 'Gardiennage (jt)', 'Gardiennage'],
+            'prevention_contre_les_incendies' => ['prevention_contre_les_incendies', 'Prévention contre les incendies (jt)', 'Prévention contre les incendies', 'Prévention incendies (jt)'],
+            'elagage' => ['elagage', 'Elagage'],
+            'eclaircie' => ['eclaircie', 'Eclaircie'],
+            'rajeunissement_romarin' => ['rajeunissement_romarin', 'Rajeunissement de romarin', 'Rajeunissement romarin'],
+            'autre' => ['autre', 'autre', 'Autres'],
+            'valeurs_des_produits' => ['valeurs_des_produits', 'Valeur des produits (Dh)', 'Valeurs des Produits (Dh)'],
+            'valeur_des_prestations' => ['valeur_des_prestations', 'Valeurs des prestation (Dh)', 'Valeur des prestations (Dh)', 'Valeurs des prestations (Dh)'],
+            'redevances' => ['redevances', 'Redevances (Dh)', 'Redevances'],
+            'taxes' => ['taxes', 'taxes (Dh)', 'Taxes (Dh)', 'Taxes'],
+            'total_avenant' => ['total_avenant', 'Total contrat (Dh)', 'Total Avenant (Dh)', 'Total contrat']
         ];
 
-        foreach ($stringFields as $field) {
-            if (isset($item[$field])) {
-                $data[$field] = (string) $item[$field];
+        foreach ($stringFieldMap as $field => $possibleNames) {
+            $value = null;
+            foreach ($possibleNames as $name) {
+                if (isset($item[$name])) {
+                    $value = $item[$name];
+                    break;
+                }
+            }
+            if ($value !== null && $value !== '') {
+                // Convert to numeric if it's a number, otherwise keep as string
+                if (is_numeric($value)) {
+                    $data[$field] = (float) $value;
+                } else {
+                    $data[$field] = (string) $value;
+                }
             }
         }
 
         // Boolean fields
         if (isset($item['resiliation'])) {
-            $data['resiliation'] = (bool) $item['resiliation'];
+            $resiliationValue = $item['resiliation'];
+            if (is_bool($resiliationValue)) {
+                $data['resiliation'] = $resiliationValue;
+            } elseif (is_string($resiliationValue)) {
+                $data['resiliation'] = strtolower($resiliationValue) === 'true' || $resiliationValue === '1';
+            } else {
+                $data['resiliation'] = (bool) $resiliationValue;
+            }
+        } elseif (isset($item['Résiliation'])) {
+            $resiliationValue = $item['Résiliation'];
+            if (is_bool($resiliationValue)) {
+                $data['resiliation'] = $resiliationValue;
+            } elseif (is_string($resiliationValue)) {
+                $data['resiliation'] = strtolower($resiliationValue) === 'true' || $resiliationValue === '1';
+            } else {
+                $data['resiliation'] = (bool) $resiliationValue;
+            }
         }
 
         // Date fields

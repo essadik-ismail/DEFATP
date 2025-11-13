@@ -155,20 +155,6 @@
                     <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                 </select>
             </div>
-            <div class="flex gap-3">
-                <button type="button" 
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-300"
-                        onclick="refreshTable()">
-                    <i class="fas fa-sync-alt"></i>
-                    <span>Actualiser</span>
-                </button>
-                <button type="button" 
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300"
-                        onclick="exportAllArticles()">
-                    <i class="fas fa-download"></i>
-                    <span>Exporter Tout</span>
-                </button>
-            </div>
         </div>
             
         <!-- Data Table -->

@@ -14,7 +14,6 @@ class LegacyArticlesSeeder extends Seeder
      */
     public function run(): void
     {
-        $articlesPath = base_path('articles');
         $jsonFiles = [
             'HIST-V15.json',
             'HIST-V16.json', 
@@ -29,14 +28,20 @@ class LegacyArticlesSeeder extends Seeder
         $totalRecords = 0;
 
         foreach ($jsonFiles as $fileName) {
-            $filePath = $articlesPath . '/' . $fileName;
+            // Try data/articles/ first, then fallback to articles/
+            $filePath = base_path('data/articles/' . $fileName);
             
             if (!File::exists($filePath)) {
-                $this->command->warn("File not found: {$fileName}");
+                // Fallback to old location
+                $filePath = base_path('articles/data/articles/' . $fileName);
+            }
+            
+            if (!File::exists($filePath)) {
+                $this->command->warn("File not found: data/articles/{$fileName}");
                 continue;
             }
 
-            $this->command->info("Processing file: {$fileName}");
+            $this->command->info("Processing file: data/articles/{$fileName}");
             
             $jsonContent = File::get($filePath);
             $data = json_decode($jsonContent, true);
@@ -71,7 +76,7 @@ class LegacyArticlesSeeder extends Seeder
                         'acheteur' => $article['ACHETEUR'] ?? null,
                         'ppdh' => isset($article['PPDH']) ? (float) $article['PPDH'] : null,
                         'dr' => $article['DR'] ?? null,
-                        'source_file' => $fileName,
+                        'source_file' => 'data/articles/' . $fileName,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -81,7 +86,7 @@ class LegacyArticlesSeeder extends Seeder
                 $totalRecords += count($insertData);
             }
 
-            $this->command->info("Imported " . count($articles) . " records from {$fileName}");
+            $this->command->info("Imported " . count($articles) . " records from data/articles/{$fileName}");
         }
 
         $this->command->info("Total records imported: {$totalRecords}");
