@@ -21,7 +21,7 @@ class ContractController extends Controller
         ActivityLogger::log('view', 'Consultation de la liste des contrats', Contract::class);
         
         // Get contracts with relationships
-        $contracts = Contract::with(['localisation', 'situationAdministrative', 'espece'])
+        $contracts = Contract::with(['localisation', 'situationAdministrative', 'especes'])
             ->when($request->filled('search'), function($query) use ($request) {
                 $query->where(function($q) use ($request) {
                     $q->where('contarct', 'like', '%' . $request->search . '%')
@@ -34,7 +34,7 @@ class ContractController extends Controller
                           $sitQuery->where('commune', 'like', '%' . $request->search . '%')
                                    ->orWhere('province', 'like', '%' . $request->search . '%');
                       })
-                      ->orWhereHas('espece', function($espQuery) use ($request) {
+                      ->orWhereHas('especes', function($espQuery) use ($request) {
                           $espQuery->where('name', 'like', '%' . $request->search . '%');
                       });
                 });
@@ -57,14 +57,20 @@ class ContractController extends Controller
             ->when($request->filled('avenant_search'), function($query) use ($request) {
                 $query->where('annee', 'like', '%' . $request->avenant_search . '%')
                       ->orWhereHas('coperative', function($coopQuery) use ($request) {
-                          $coopQuery->where('nom_complet', 'like', '%' . $request->avenant_search . '%')
-                                    ->orWhere('raison_sociale', 'like', '%' . $request->avenant_search . '%');
+                          $coopQuery->where('nom', 'like', '%' . $request->avenant_search . '%');
                       });
             })
             ->orderBy('date', 'desc')
             ->paginate(10, ['*'], 'avenants_page');
 
-        return view('contracts.index', compact('contracts', 'especes', 'avenants'));
+        // Provide coperatives list for the coperatives table section
+        $coperatives = \App\Models\Coperative::when($request->filled('coperative_search'), function($query) use ($request) {
+                $query->where('nom', 'like', '%' . $request->coperative_search . '%');
+            })
+            ->orderBy('nom')
+            ->paginate(10, ['*'], 'coperatives_page');
+
+        return view('contracts.index', compact('contracts', 'especes', 'avenants', 'coperatives'));
     }
 
     public function create(): View
@@ -87,7 +93,8 @@ class ContractController extends Controller
             'contarct' => 'required|string|max:255',
             'localisation_id' => 'required|exists:localisations,id',
             'situation_administrative_id' => 'required|exists:situation_administratives,id',
-            'espece_id' => 'required|exists:especes,id',
+            'especes' => 'required|array|min:1',
+            'especes.*' => 'exists:especes,id',
             'superficie' => 'nullable|string',
             'gardiennage' => 'nullable|string',
             'elagage' => 'nullable|string',
@@ -116,7 +123,13 @@ class ContractController extends Controller
         ]);
 
         try {
+            $especes = $validated['especes'];
+            unset($validated['especes']);
+            
             $contract = Contract::create($validated);
+            
+            // Attach especes to the contract
+            $contract->especes()->attach($especes);
 
             ActivityLogger::logCreate(
                 Contract::class,
@@ -136,7 +149,7 @@ class ContractController extends Controller
 
     public function show(Contract $contract): View
     {
-        $contract->load(['localisation', 'situationAdministrative', 'espece']);
+        $contract->load(['localisation', 'situationAdministrative', 'especes']);
         
         // Load related avenants by year
         $avenants = \App\Models\Avenant::where('annee', $contract->annee)
@@ -151,6 +164,7 @@ class ContractController extends Controller
 
     public function edit(Contract $contract): View
     {
+        $contract->load('especes');
         $localisations = Localisation::orderBy('CODE')->get();
         $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
         $especes = Espece::orderBy('name')->get();
@@ -170,7 +184,8 @@ class ContractController extends Controller
             'contarct' => 'required|string|max:255',
             'localisation_id' => 'required|exists:localisations,id',
             'situation_administrative_id' => 'required|exists:situation_administratives,id',
-            'espece_id' => 'required|exists:especes,id',
+            'especes' => 'required|array|min:1',
+            'especes.*' => 'exists:especes,id',
             'superficie' => 'nullable|string',
             'gardiennage' => 'nullable|string',
             'elagage' => 'nullable|string',
@@ -199,7 +214,13 @@ class ContractController extends Controller
         ]);
 
         try {
+            $especes = $validated['especes'];
+            unset($validated['especes']);
+            
             $contract->update($validated);
+            
+            // Sync especes to the contract (replace existing with new ones)
+            $contract->especes()->sync($especes);
 
             ActivityLogger::logUpdate(
                 Contract::class,

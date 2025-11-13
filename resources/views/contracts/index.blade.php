@@ -164,8 +164,17 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($contract->espece)
-                                        <span class="text-sm text-gray-900">{{ $contract->espece->name ?? '-' }}</span>
+                                    @if($contract->especes && $contract->especes->count() > 0)
+                                        <div class="flex flex-wrap gap-1">
+                                            @foreach($contract->especes->take(2) as $espece)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                    {{ $espece->name }}
+                                                </span>
+                                            @endforeach
+                                            @if($contract->especes->count() > 2)
+                                                <span class="text-xs text-gray-500">+{{ $contract->especes->count() - 2 }}</span>
+                                            @endif
+                                        </div>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
@@ -460,7 +469,7 @@
                                                     @if($avenant->coperative)
                                                         <div class="flex items-center gap-2">
                                                             <i class="fas fa-building text-indigo-500"></i>
-                                                            <span>{{ $avenant->coperative->nom_complet ?? $avenant->coperative->raison_sociale ?? 'N/A' }}</span>
+                                                            <span>{{ $avenant->coperative->nom ?? 'N/A' }}</span>
                                                         </div>
                                                     @else
                                                         <span class="text-gray-500">-</span>

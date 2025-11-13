@@ -28,7 +28,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <x-card 
             title="Total Activités" 
             subtitle="Toutes les activités enregistrées"
@@ -84,7 +84,7 @@
                 <div class="text-sm text-gray-600 mt-1">Activités mensuelles</div>
             </div>
         </x-card>
-    </div>
+    </div> -->
 
     <!-- Search and Filters -->
     <x-card 

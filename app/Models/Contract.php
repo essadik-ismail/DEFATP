@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,7 +20,8 @@ class Contract extends Model
         'contarct',
         'localisation_id',
         'situation_administrative_id',
-        'espece_id',
+        'foret_id',
+        'coperative_id',
         'superficie',
         'gardiennage',
         'elagage',
@@ -64,11 +66,20 @@ class Contract extends Model
     }
 
     /**
-     * Get the espece for this contract.
+     * Get the especes for this contract (many-to-many relationship).
      */
-    public function espece(): BelongsTo
+    public function especes(): BelongsToMany
     {
-        return $this->belongsTo(Espece::class, 'espece_id');
+        return $this->belongsToMany(Espece::class, 'contact_espece', 'contact_id', 'espece_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the coperative for this contract.
+     */
+    public function coperative(): BelongsTo
+    {
+        return $this->belongsTo(Coperative::class, 'coperative_id');
     }
 
     /**

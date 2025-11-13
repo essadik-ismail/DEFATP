@@ -13,6 +13,7 @@ class Avenant extends Model
 
     protected $fillable = [
         'annee',
+        'avenant',
         'coperative_id',
         'date',
         'superficie',
@@ -44,11 +45,11 @@ class Avenant extends Model
     ];
 
     /**
-     * Get the coperative (exploitant) for this avenant.
+     * Get the coperative for this avenant.
      */
     public function coperative(): BelongsTo
     {
-        return $this->belongsTo(Exploitant::class, 'coperative_id');
+        return $this->belongsTo(Coperative::class, 'coperative_id');
     }
 
     /**

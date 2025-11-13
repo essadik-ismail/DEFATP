@@ -168,75 +168,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($previewData as $article)
-                    <tr class="hover:bg-gray-50 transition-colors duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ $article->dref ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->foret ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->province ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            @if($article->date && strlen(trim($article->date)) >= 6)
-                                @php
-                                    $dateStr = trim($article->date);
-                                    $formattedDate = 'N/A';
-                                    
-                                    // Try different date formats
-                                    try {
-                                        if (preg_match('/^\d{6}$/', $dateStr)) {
-                                            // Format: YYMMDD
-                                            $formattedDate = \Carbon\Carbon::createFromFormat('ymd', $dateStr)->format('d/m/Y');
-                                        } elseif (preg_match('/^\d{8}$/', $dateStr)) {
-                                            // Format: YYYYMMDD
-                                            $formattedDate = \Carbon\Carbon::createFromFormat('Ymd', $dateStr)->format('d/m/Y');
-                                        } elseif (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateStr)) {
-                                            // Format: DD/MM/YYYY
-                                            $formattedDate = \Carbon\Carbon::createFromFormat('d/m/Y', $dateStr)->format('d/m/Y');
-                                        } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateStr)) {
-                                            // Format: YYYY-MM-DD
-                                            $formattedDate = \Carbon\Carbon::createFromFormat('Y-m-d', $dateStr)->format('d/m/Y');
-                                        } else {
-                                            // If none match, just show the raw value
-                                            $formattedDate = $dateStr;
-                                        }
-                                    } catch (\Exception $e) {
-                                        // If all parsing fails, show the raw value
-                                        $formattedDate = $dateStr;
-                                    }
-                                @endphp
-                                {{ $formattedDate }}
-                            @else
-                                N/A
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->essence ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->surface ? number_format($article->surface, 2) : 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            @php
-                                $totalVolume = ($article->bom3 ?? 0) + ($article->bim3 ?? 0) + ($article->bfst ?? 0) + 
-                                             ($article->lcst ?? 0) + ($article->ett ?? 0) + ($article->pst ?? 0);
-                            @endphp
-                            {{ $totalVolume > 0 ? number_format($totalVolume, 2) : 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ $article->ppdh ? number_format($article->ppdh, 2) : 'N/A' }}
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
-                            Aucun article historique trouvé.
-                        </td>
-                    </tr>
-                    @endforelse
+                    <!-- DataTables will populate this via AJAX -->
                 </tbody>
             </table>
         </div>
@@ -249,6 +181,8 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 
+<!-- jQuery (required for DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <!-- DataTables JS -->
 <script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
@@ -339,9 +273,24 @@ document.addEventListener('DOMContentLoaded', function () {
         @json($stats['by_dref']->pluck('total'))
     );
 
-    // Initialize DataTable for preview
+    // Initialize DataTable for preview (server-side)
     $('#legacyArticlesPreviewTable').DataTable({
-        responsive: true,
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('reports.legacy-articles-table') }}"
+        },
+        columns: [
+            { data: 0, name: 'dref', orderable: true, searchable: true },
+            { data: 1, name: 'foret', orderable: true, searchable: true },
+            { data: 2, name: 'province', orderable: true, searchable: true },
+            { data: 3, name: 'date', orderable: true, searchable: false },
+            { data: 4, name: 'essence', orderable: true, searchable: true },
+            { data: 6, name: 'surface', orderable: true, searchable: false },
+            { data: 12, name: 'volume', orderable: false, searchable: false }, // Total volume (index 12)
+            { data: 11, name: 'ppdh', orderable: true, searchable: false }
+        ],
+        order: [[3, 'desc']],
         pageLength: 10,
         lengthMenu: [[5, 10, 25, 50], [5, 10, 25, 50]],
         language: {
@@ -375,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 type: 'date'
             }
         ],
-        order: [[3, 'desc']], // Sort by date descending by default
+        responsive: true,
         initComplete: function() {
             // Add custom styling to buttons
             $('.dt-buttons').addClass('mb-4');

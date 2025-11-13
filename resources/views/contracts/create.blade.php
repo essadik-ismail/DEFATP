@@ -87,7 +87,7 @@
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="annee" 
                                name="annee" 
-                               value="{{ old('annee') }}"
+                               value="{{ old('annee') ?? date('Y') }}"
                                required>
                         @error('annee')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
@@ -111,7 +111,7 @@
 
                     <div class="form-group">
                         <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Localisation <span class="text-red-500">*</span>
+                            Localisation (DRANEF - DPANEF) <span class="text-red-500">*</span>
                         </label>
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                 id="localisation_id" 
@@ -120,7 +120,7 @@
                             <option value="">Sélectionner une localisation</option>
                             @foreach($localisations as $localisation)
                                 <option value="{{ $localisation->id }}" {{ old('localisation_id') == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }}
+                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }}
                                 </option>
                             @endforeach
                         </select>
@@ -131,7 +131,7 @@
 
                     <div class="form-group">
                         <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Situation Administrative <span class="text-red-500">*</span>
+                            Situation Administrative (commune - province) <span class="text-red-500">*</span>
                         </label>
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                 id="situation_administrative_id" 
@@ -150,21 +150,25 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="espece_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Espèce <span class="text-red-500">*</span>
+                        <label for="especes" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Espèces <span class="text-red-500">*</span>
                         </label>
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                id="espece_id" 
-                                name="espece_id" 
+                                id="especes" 
+                                name="especes[]" 
+                                multiple
                                 required>
-                            <option value="">Sélectionner une espèce</option>
                             @foreach($especes as $espece)
-                                <option value="{{ $espece->id }}" {{ old('espece_id') == $espece->id ? 'selected' : '' }}>
+                                <option value="{{ $espece->id }}" {{ in_array($espece->id, old('especes', [])) ? 'selected' : '' }}>
                                     {{ $espece->name }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('espece_id')
+                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs espèces</p>
+                        @error('especes')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                        @error('especes.*')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>

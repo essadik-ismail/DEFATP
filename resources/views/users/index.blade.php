@@ -35,65 +35,6 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <x-card 
-            title="Total Utilisateurs" 
-            subtitle="{{ $users->total() }} utilisateurs enregistrés"
-            variant="gradient"
-            color="blue"
-            icon="fas fa-users"
-            padding="compact"
-        >
-            <div class="text-center">
-                <div class="text-3xl font-bold text-blue-600">{{ $users->total() }}</div>
-                <div class="text-sm text-gray-600 mt-1">Utilisateurs actifs</div>
-            </div>
-        </x-card>
-
-        <x-card 
-            title="Utilisateurs Actifs" 
-            subtitle="{{ $users->where('is_deleted', false)->count() }} utilisateurs actifs"
-            variant="colored"
-            color="green"
-            icon="fas fa-user-check"
-            padding="compact"
-        >
-            <div class="text-center">
-                <div class="text-3xl font-bold text-green-600">{{ $users->where('is_deleted', false)->count() }}</div>
-                <div class="text-sm text-gray-600 mt-1">Actuellement actifs</div>
-            </div>
-        </x-card>
-
-        <x-card 
-            title="Rôles Créés" 
-            subtitle="{{ $roles->count() }} rôles définis"
-            variant="gradient"
-            color="purple"
-            icon="fas fa-shield-alt"
-            padding="compact"
-        >
-            <div class="text-center">
-                <div class="text-3xl font-bold text-purple-600">{{ $roles->count() }}</div>
-                <div class="text-sm text-gray-600 mt-1">Rôles disponibles</div>
-            </div>
-        </x-card>
-
-        <x-card 
-            title="Nouveaux (30j)" 
-            subtitle="{{ $users->where('created_at', '>=', now()->subDays(30))->count() }} nouveaux utilisateurs"
-            variant="colored"
-            color="blue"
-            icon="fas fa-calendar"
-            padding="compact"
-        >
-            <div class="text-center">
-                <div class="text-3xl font-bold text-blue-600">{{ $users->where('created_at', '>=', now()->subDays(30))->count() }}</div>
-                <div class="text-sm text-gray-600 mt-1">Derniers 30 jours</div>
-            </div>
-        </x-card>
-    </div>
-
     <!-- Search and Filters -->
     <x-card 
         title="Recherche et Filtres" 
@@ -102,96 +43,79 @@
         color="blue"
         icon="fas fa-search"
         padding="normal"
+        class="mb-6"
     >
-        <form method="GET" action="{{ route('users.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fas fa-search text-blue-500 mr-2"></i>
-                    Recherche
-                </label>
-                <input 
-                    type="text" 
-                    id="search" 
-                    name="search" 
-                    value="{{ request('search') }}" 
-                    placeholder="Nom, email ou PPR..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-            </div>
-            <div>
-                <label for="role" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="filterRole" class="block text-sm font-medium text-gray-700 mb-2">
                     <i class="fas fa-shield-alt text-blue-500 mr-2"></i>
                     Rôle
                 </label>
                 <select 
-                    id="role" 
-                    name="role"
+                    id="filterRole" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
                     <option value="">Tous les rôles</option>
                     @foreach($roles as $role)
-                        <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
-                            {{ $role->name }}
-                        </option>
+                        <option value="{{ $role->name }}">{{ $role->name }}</option>
                     @endforeach
                 </select>
             </div>
             <div>
-                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="filterStatus" class="block text-sm font-medium text-gray-700 mb-2">
                     <i class="fas fa-toggle-on text-blue-500 mr-2"></i>
                     Statut
                 </label>
                 <select 
-                    id="status" 
-                    name="status"
+                    id="filterStatus" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
                     <option value="">Tous les statuts</option>
-                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actif</option>
-                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
+                    <option value="active">Actif</option>
+                    <option value="inactive">Inactif</option>
                 </select>
             </div>
             <div class="flex items-end">
                 <button 
-                    type="submit" 
-                    class="w-full px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center gap-2"
+                    type="button" 
+                    id="resetFilters"
+                    class="w-full px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center justify-center gap-2"
                 >
-                    <i class="fas fa-search"></i>
-                    Filtrer
+                    <i class="fas fa-redo"></i>
+                    Réinitialiser
                 </button>
             </div>
-        </form>
+        </div>
     </x-card>
 
     <!-- Users Table -->
     <x-card 
         title="Liste des Utilisateurs" 
-        subtitle="{{ $users->total() }} utilisateurs trouvés"
+        subtitle="Gestion complète des utilisateurs"
         variant="gradient"
         color="blue"
         icon="fas fa-table"
         padding="normal"
     >
-        @php
-            $headers = ['ID', 'Nom', 'Email', 'PPR', 'Rôles', 'Statut', 'Date de création', 'Actions'];
-            $rows = [];
-        @endphp
-        @foreach($users as $user)
-            @php
-                $rows[] = [
-                    '<span class="badge bg-secondary">' . e($user->id) . '</span>',
-                    view('components.users.partials.name-cell', compact('user'))->render(),
-                    '<span class="text-muted">' . e($user->email) . '</span>',
-                    '<span class="badge bg-info">' . e($user->ppr) . '</span>',
-                    view('components.users.partials.roles-cell', compact('user'))->render(),
-                    view('components.users.partials.status-cell', compact('user'))->render(),
-                    '<small class="text-muted">' . e($user->created_at->format('d/m/Y H:i')) . '</small>',
-                    view('components.users.partials.actions-cell', compact('user'))->render(),
-                ];
-            @endphp
-        @endforeach
-
-        <x-data-table :headers="$headers" :rows="$rows" :pagination="$users->appends(request()->query())->links()" />
+        <div class="table-responsive">
+            <table id="usersTable" class="table table-striped table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>PPR</th>
+                        <th>Rôles</th>
+                        <th>Statut</th>
+                        <th>Date de création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- DataTables will populate this via AJAX -->
+                </tbody>
+            </table>
+        </div>
     </x-card>
 </div>
 
@@ -215,8 +139,105 @@
 </div>
 @endsection
 
+@push('styles')
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+<style>
+    #usersTable_wrapper .dataTables_filter {
+        margin-bottom: 1rem;
+    }
+    
+    #usersTable_wrapper .dataTables_length {
+        margin-bottom: 1rem;
+    }
+    
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+    
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+        font-size: 0.875rem;
+    }
+</style>
+@endpush
+
 @push('scripts')
+<!-- jQuery (required for DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
 <script>
+$(document).ready(function() {
+    let table = $('#usersTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('users.index') }}",
+            data: function(d) {
+                d.role = $('#filterRole').val();
+                d.status = $('#filterStatus').val();
+            }
+        },
+        columns: [
+            { data: 0, name: 'id', orderable: true, searchable: false },
+            { data: 1, name: 'name', orderable: true, searchable: true },
+            { data: 2, name: 'email', orderable: true, searchable: true },
+            { data: 3, name: 'ppr', orderable: true, searchable: true },
+            { data: 4, name: 'roles', orderable: false, searchable: false },
+            { data: 5, name: 'is_deleted', orderable: true, searchable: false },
+            { data: 6, name: 'created_at', orderable: true, searchable: false },
+            { data: 7, name: 'actions', orderable: false, searchable: false }
+        ],
+        order: [[6, 'desc']],
+        pageLength: 15,
+        lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+        },
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'excel',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                className: 'btn btn-success btn-sm'
+            },
+            {
+                extend: 'pdf',
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                className: 'btn btn-danger btn-sm'
+            },
+            {
+                extend: 'print',
+                text: '<i class="fas fa-print"></i> Imprimer',
+                className: 'btn btn-info btn-sm'
+            }
+        ],
+        responsive: true
+    });
+
+    // Apply filters when changed
+    $('#filterRole, #filterStatus').on('change', function() {
+        table.ajax.reload();
+    });
+
+    // Reset filters
+    $('#resetFilters').on('click', function() {
+        $('#filterRole').val('');
+        $('#filterStatus').val('');
+        table.ajax.reload();
+    });
+});
+
 function toggleUserStatus(userId, newStatus) {
     const modal = new bootstrap.Modal(document.getElementById('toggleStatusModal'));
     const confirmBtn = document.getElementById('confirmToggleStatus');
@@ -232,7 +253,8 @@ function toggleUserStatus(userId, newStatus) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                $('#usersTable').DataTable().ajax.reload(null, false);
+                modal.hide();
             } else {
                 alert('Erreur lors du changement de statut');
             }
@@ -241,76 +263,9 @@ function toggleUserStatus(userId, newStatus) {
             console.error('Error:', error);
             alert('Erreur lors du changement de statut');
         });
-        
-        modal.hide();
     };
     
     modal.show();
 }
-
-// Table scroll indicator
-document.addEventListener('DOMContentLoaded', function() {
-    const table = document.querySelector('.table-responsive');
-    const indicator = document.querySelector('.table-scroll-indicator');
-    
-    if (table && indicator) {
-        table.addEventListener('scroll', function() {
-            const scrollLeft = table.scrollLeft;
-            const maxScrollLeft = table.scrollWidth - table.clientWidth;
-            const scrollPercentage = (scrollLeft / maxScrollLeft) * 100;
-            
-            indicator.style.width = scrollPercentage + '%';
-            indicator.style.opacity = scrollLeft > 0 ? '1' : '0';
-        });
-    }
-});
 </script>
-@endpush
-
-@push('styles')
-<style>
-.table-scroll-indicator {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #007bff, #28a745);
-    transition: width 0.3s ease, opacity 0.3s ease;
-    opacity: 0;
-    z-index: 1000;
-}
-
-.table-responsive {
-    border-radius: 0.5rem;
-    overflow: auto;
-}
-
-.table th {
-    position: sticky;
-    top: 0;
-    background: white;
-    z-index: 10;
-    border-top: none;
-}
-
-.table th:first-child {
-    border-left: none;
-}
-
-.table th:last-child {
-    border-right: none;
-}
-
-.badge {
-    font-size: 0.75rem;
-}
-
-.btn-group .btn {
-    border-radius: 0.375rem;
-}
-
-.btn-group .btn:not(:last-child) {
-    margin-right: 0.25rem;
-}
-</style>
 @endpush

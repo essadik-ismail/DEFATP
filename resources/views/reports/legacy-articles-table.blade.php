@@ -373,93 +373,10 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($articles as $article)
-                    <tr class="hover:bg-gray-50 transition-colors duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ $article->dref ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->foret ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->province ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            @if($article->date && strlen(trim($article->date)) >= 6)
-                                @php
-                                    $dateStr = trim($article->date);
-                                    $formattedDate = 'N/A';
-                                    
-                                    // Try different date formats
-                                    try {
-                                        if (preg_match('/^\d{6}$/', $dateStr)) {
-                                            // Format: YYMMDD
-                                            $formattedDate = \Carbon\Carbon::createFromFormat('ymd', $dateStr)->format('d/m/Y');
-                                        } elseif (preg_match('/^\d{8}$/', $dateStr)) {
-                                            // Format: YYYYMMDD
-                                            $formattedDate = \Carbon\Carbon::createFromFormat('Ymd', $dateStr)->format('d/m/Y');
-                                        } elseif (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateStr)) {
-                                            // Format: DD/MM/YYYY
-                                            $formattedDate = \Carbon\Carbon::createFromFormat('d/m/Y', $dateStr)->format('d/m/Y');
-                                        } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateStr)) {
-                                            // Format: YYYY-MM-DD
-                                            $formattedDate = \Carbon\Carbon::createFromFormat('Y-m-d', $dateStr)->format('d/m/Y');
-                                        } else {
-                                            // If none match, just show the raw value
-                                            $formattedDate = $dateStr;
-                                        }
-                                    } catch (\Exception $e) {
-                                        // If all parsing fails, show the raw value
-                                        $formattedDate = $dateStr;
-                                    }
-                                @endphp
-                                {{ $formattedDate }}
-                            @else
-                                N/A
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->essence ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->intervent ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->surface ? number_format($article->surface, 2) : 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->bom3 ? number_format($article->bom3, 2) : 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->bim3 ? number_format($article->bim3, 2) : 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->bfst ? number_format($article->bfst, 2) : 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $article->acheteur ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {{ $article->ppdh ? number_format($article->ppdh, 2) : 'N/A' }}
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="12" class="px-6 py-4 text-center text-sm text-gray-500">
-                            Aucun article historique trouvé.
-                        </td>
-                    </tr>
-                    @endforelse
+                    <!-- DataTables will populate this via AJAX -->
                 </tbody>
             </table>
         </div>
-
-        <!-- Pagination -->
-        @if($articles->hasPages())
-        <div class="mt-6">
-            {{ $articles->links() }}
-        </div>
-        @endif
     </div>
 </div>
 @endsection
@@ -479,11 +396,49 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
+<!-- jQuery (required for DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize DataTable
-    $('#legacyArticlesTable').DataTable({
-        responsive: true,
+$(document).ready(function() {
+    let table = $('#legacyArticlesTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('reports.legacy-articles-table') }}",
+            data: function(d) {
+                // Pass filter form values safely
+                d.province = $('#province').length ? $('#province').val() : '';
+                d.essence = $('#essence').length ? $('#essence').val() : '';
+                d.foret = $('#foret').length ? $('#foret').val() : '';
+                d.year = $('#year').length ? $('#year').val() : '';
+                d.dref = $('#dref').length ? $('#dref').val() : '';
+                d.min_volume = $('#min_volume').length ? $('#min_volume').val() : '';
+                d.max_volume = $('#max_volume').length ? $('#max_volume').val() : '';
+                d.min_price = $('#min_price').length ? $('#min_price').val() : '';
+                d.max_price = $('#max_price').length ? $('#max_price').val() : '';
+                d.min_surface = $('#min_surface').length ? $('#min_surface').val() : '';
+                d.max_surface = $('#max_surface').length ? $('#max_surface').val() : '';
+            },
+            error: function(xhr, error, thrown) {
+                console.error('DataTables error:', error);
+                console.error('Response:', xhr.responseText);
+            }
+        },
+        columns: [
+            { data: 0, name: 'dref', orderable: true, searchable: true },
+            { data: 1, name: 'foret', orderable: true, searchable: true },
+            { data: 2, name: 'province', orderable: true, searchable: true },
+            { data: 3, name: 'date', orderable: true, searchable: false },
+            { data: 4, name: 'essence', orderable: true, searchable: true },
+            { data: 5, name: 'intervent', orderable: true, searchable: true },
+            { data: 6, name: 'surface', orderable: true, searchable: false },
+            { data: 7, name: 'bom3', orderable: true, searchable: false },
+            { data: 8, name: 'bim3', orderable: true, searchable: false },
+            { data: 9, name: 'bfst', orderable: true, searchable: false },
+            { data: 10, name: 'acheteur', orderable: true, searchable: true },
+            { data: 11, name: 'ppdh', orderable: true, searchable: false }
+        ],
+        order: [[3, 'desc']],
         pageLength: 25,
         lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tous"]],
         language: {
@@ -517,11 +472,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 type: 'date'
             }
         ],
-        order: [[3, 'desc']], // Sort by date descending by default
+        responsive: true,
         initComplete: function() {
             // Add custom styling to buttons
             $('.dt-buttons').addClass('mb-4');
             $('.dt-buttons button').addClass('mr-2');
+        }
+    });
+
+    // Reload table when filters change
+    $('#filterForm').on('submit', function(e) {
+        e.preventDefault();
+        table.ajax.reload();
+    });
+
+    // Reload table when filter inputs change (only if elements exist)
+    const filterSelectors = '#province, #essence, #foret, #year, #dref, #min_volume, #max_volume, #min_price, #max_price, #min_surface, #max_surface';
+    $(document).on('change', filterSelectors, function() {
+        if (table) {
+            table.ajax.reload();
         }
     });
 });

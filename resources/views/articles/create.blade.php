@@ -88,6 +88,7 @@
                             <option value="">Sélectionner un type</option>
                             <option value="appel_doffre" {{ old('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'Offre</option>
                             <option value="adjudication" {{ old('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
+                            <option value="marche_negocié" {{ old('type') == 'marche_negocié' ? 'selected' : '' }}>Marche Negocié</option>
                         </select>
                         @error('type')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
@@ -100,7 +101,7 @@
                         <label for="numero_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">
                             Numéro Juridique
                         </label>
-                        <input type="text" 
+                        <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="numero_adjudication" name="numero_adjudication" 
                                value="{{ old('numero_adjudication') }}" 
@@ -163,7 +164,7 @@
                         <label for="numero" class="block text-sm font-semibold text-gray-700 mb-2">
                             Numéro d'Article <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" 
+                        <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="numero" name="numero" value="{{ old('numero') }}" 
                                placeholder="Ex: ART001" required>
@@ -188,7 +189,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="form-group">
                         <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Localisations <span class="text-red-500">*</span>
+                            Localisations (DRANEF - DPANEF - ENTITE) <span class="text-red-500">*</span>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
                         <select multiple required
@@ -196,7 +197,7 @@
                                 id="localisation_ids" name="localisation_ids[]">
                             @foreach($localisations as $localisation)
                                 <option value="{{ $localisation->id }}" {{ collect(old('localisation_ids', []))->contains($localisation->id) ? 'selected' : '' }}>
-                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
+                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                 </option>
                             @endforeach
                         </select>
@@ -209,7 +210,7 @@
                     </div>
                     <div class="form-group">
                         <label for="situation_administrative_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Situation Administrative <span class="text-red-500">*</span>
+                            Situation Administrative (commune - province) <span class="text-red-500">*</span>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'situation_administrative_ids')">
                         <select multiple required
@@ -327,7 +328,7 @@
                             </div>
                         @enderror
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="lat" class="block text-sm font-semibold text-gray-700 mb-2">
                             Latitude
                         </label>
@@ -356,7 +357,7 @@
                                 {{ $message }}
                             </div>
                         @enderror
-                    </div>
+                    </div> -->
                 </div>
             </div>
 

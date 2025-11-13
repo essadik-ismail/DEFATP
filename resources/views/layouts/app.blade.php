@@ -2156,11 +2156,21 @@
                     </a>
                 </div>
 
-                <div class="nav-item">
+                <div class="nav-item {{ request()->routeIs('contracts.*') ? 'has-submenu' : '' }}">
                     <a href="{{ route('contracts.index') }}" class="nav-link {{ request()->routeIs('contracts.*') ? 'active' : '' }}">
                         <i class="fas fa-handshake"></i>
                         Contrat de Partenariat
                     </a>
+                    <!-- <div class="submenu">
+                        <a href="{{ route('contracts.avenants.create') }}" class="submenu-item {{ request()->routeIs('contracts.avenants.*') ? 'active' : '' }}">
+                            <i class="fas fa-file-contract"></i>
+                            Avenant
+                        </a>
+                        <a href="{{ route('contracts.index') }}" class="submenu-item {{ request()->routeIs('contracts.index') && request()->has('tab') && request()->get('tab') == 'cooperatives' ? 'active' : '' }}">
+                            <i class="fas fa-users-cog"></i>
+                            Coopérative
+                        </a>
+                    </div> -->
                 </div>
 
                 <div class="nav-item">

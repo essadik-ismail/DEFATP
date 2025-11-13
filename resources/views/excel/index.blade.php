@@ -375,60 +375,6 @@
         </div>
     </div>
 
-    <!-- Instructions Section -->
-    <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-3xl p-8 mt-8 border border-amber-200 shadow-xl">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-lightbulb text-white text-xl"></i>
-            </div>
-            <div>
-                <h3 class="text-2xl font-bold text-amber-900">Instructions d'utilisation</h3>
-                <p class="text-amber-700">Conseils pour un import/export optimal</p>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-4">
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-download text-white text-sm"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-1">Export</h4>
-                        <p class="text-gray-600 text-sm">Cliquez sur les liens d'export pour télécharger les données au format Excel.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-upload text-white text-sm"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-1">Import</h4>
-                        <p class="text-gray-600 text-sm">Sélectionnez un fichier Excel (.xlsx, .xls, .csv) et cliquez sur importer.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="space-y-4">
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-file-alt text-white text-sm"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-1">Format des fichiers</h4>
-                        <p class="text-gray-600 text-sm">Les fichiers doivent contenir des en-têtes correspondant aux noms des colonnes.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                        <i class="fas fa-archive text-white text-sm"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-1">Import multiple</h4>
-                        <p class="text-gray-600 text-sm">Pour l'import multiple, nommez vos fichiers avec le nom de la table (ex: articles.xlsx, essences.xlsx).</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
 

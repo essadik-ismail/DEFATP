@@ -151,21 +151,28 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="espece_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Espèce <span class="text-red-500">*</span>
+                        <label for="especes" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Espèces <span class="text-red-500">*</span>
                         </label>
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                id="espece_id" 
-                                name="espece_id" 
+                                id="especes" 
+                                name="especes[]" 
+                                multiple
                                 required>
-                            <option value="">Sélectionner une espèce</option>
+                            @php
+                                $selectedEspeces = old('especes', $contract->especes->pluck('id')->toArray());
+                            @endphp
                             @foreach($especes as $espece)
-                                <option value="{{ $espece->id }}" {{ old('espece_id', $contract->espece_id) == $espece->id ? 'selected' : '' }}>
+                                <option value="{{ $espece->id }}" {{ in_array($espece->id, $selectedEspeces) ? 'selected' : '' }}>
                                     {{ $espece->name }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('espece_id')
+                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs espèces</p>
+                        @error('especes')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                        @error('especes.*')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>

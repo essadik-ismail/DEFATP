@@ -272,13 +272,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedProducts = Array.from(document.querySelectorAll('.product-selector-chart2:checked'))
             .map(cb => cb.value);
         
+        // Ensure we have products selected
+        if (selectedProducts.length === 0) {
+            console.warn('No products selected for chart 2');
+            return;
+        }
+        
         let datasets = [];
-        let labels = [];
+        let labels = years || [];
         
         if (selectedProvince) {
             // Show data for specific province
             const provData = provinceData[selectedProvince];
-            if (provData) {
+            if (provData && provData.data) {
                 labels = years;
                 datasets = selectedProducts.map((field, index) => {
                     const data = years.map(year => 
@@ -292,23 +298,56 @@ document.addEventListener('DOMContentLoaded', function () {
                         borderWidth: 1
                     };
                 });
+            } else {
+                // No data for this province, show empty chart
+                labels = years;
+                datasets = selectedProducts.map((field, index) => {
+                    return {
+                        label: field.replace(/_/g, ' ').toUpperCase(),
+                        data: years.map(() => 0),
+                        backgroundColor: colors[index % colors.length] + '80',
+                        borderColor: colors[index % colors.length],
+                        borderWidth: 1
+                    };
+                });
             }
         } else {
-            // Show aggregated data for all provinces
-            labels = years;
+            // Show aggregated data for all provinces - use yearlyData which already contains aggregated data
+            labels = years || [];
             datasets = selectedProducts.map((field, index) => {
-                const data = years.map(year => {
+                const data = (years || []).map(year => {
+                    // Use yearlyData which already contains aggregated data for all provinces
+                    if (yearlyData && yearlyData[year] && yearlyData[year][field] !== undefined) {
+                        return parseFloat(yearlyData[year][field]) || 0;
+                    }
+                    // Fallback: aggregate from provinceData if yearlyData is not available
                     let total = 0;
-                    Object.values(provinceData).forEach(provData => {
-                        if (provData.data[year]) {
-                            total += provData.data[year][field] || 0;
-                        }
-                    });
+                    if (provinceData && typeof provinceData === 'object') {
+                        Object.values(provinceData).forEach(provData => {
+                            if (provData && provData.data && provData.data[year]) {
+                                total += parseFloat(provData.data[year][field]) || 0;
+                            }
+                        });
+                    }
                     return total;
                 });
                 return {
                     label: field.replace(/_/g, ' ').toUpperCase(),
                     data: data,
+                    backgroundColor: colors[index % colors.length] + '80',
+                    borderColor: colors[index % colors.length],
+                    borderWidth: 1
+                };
+            });
+        }
+        
+        // Ensure we have valid data before creating chart
+        if (!labels || labels.length === 0) {
+            labels = ['Aucune donnée'];
+            datasets = selectedProducts.map((field, index) => {
+                return {
+                    label: field.replace(/_/g, ' ').toUpperCase(),
+                    data: [0],
                     backgroundColor: colors[index % colors.length] + '80',
                     borderColor: colors[index % colors.length],
                     borderWidth: 1

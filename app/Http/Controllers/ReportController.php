@@ -16,6 +16,7 @@ use App\Http\Requests\ArticlesByForetRequest;
 use App\Http\Requests\ArticlesByEssenceRequest;
 use App\Http\Requests\ArticlesByExploitantRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -615,25 +616,95 @@ class ReportController extends Controller
         return view('reports.legacy-articles', compact('stats', 'previewData'));
     }
 
-    public function legacyArticlesTable(Request $request): View
+    public function legacyArticlesTable(Request $request): View|JsonResponse
     {
         // Log report generation
         ActivityLogger::log('view', 'Consultation du tableau des articles historiques', LegacyArticle::class);
         
-        $query = LegacyArticle::query();
-        
-        // Apply filters
-        if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('dref', 'like', '%' . $request->search . '%')
-                  ->orWhere('foret', 'like', '%' . $request->search . '%')
-                  ->orWhere('province', 'like', '%' . $request->search . '%')
-                  ->orWhere('essence', 'like', '%' . $request->search . '%')
-                  ->orWhere('acheteur', 'like', '%' . $request->search . '%')
-                  ->orWhere('intervent', 'like', '%' . $request->search . '%');
-            });
+        // If this is an AJAX request for DataTables
+        if ($request->ajax()) {
+            return $this->getLegacyArticlesData($request);
         }
         
+        // Get filter options for the view
+        $provinces = LegacyArticle::select('province')->distinct()->whereNotNull('province')->orderBy('province')->pluck('province');
+        $essences = LegacyArticle::select('essence')->distinct()->whereNotNull('essence')->orderBy('essence')->pluck('essence');
+        $forets = LegacyArticle::select('foret')->distinct()->whereNotNull('foret')->orderBy('foret')->pluck('foret');
+        $drefs = LegacyArticle::select('dref')->distinct()->whereNotNull('dref')->orderBy('dref')->pluck('dref');
+        $years = LegacyArticle::selectRaw('SUBSTRING(date, 1, 2) as year')
+            ->distinct()
+            ->whereNotNull('date')
+            ->where('date', '!=', '')
+            ->orderBy('year')
+            ->get()
+            ->map(function ($item) {
+                return '20' . $item->year;
+            });
+        
+        // Get initial stats (will be updated via AJAX)
+        $stats = [
+            'total_records' => LegacyArticle::count(),
+            'total_revenue' => LegacyArticle::sum('ppdh') ?? 0,
+            'total_volume' => LegacyArticle::sum('bom3') ?? 0,
+            'total_surface' => LegacyArticle::sum('surface') ?? 0,
+            'avg_price' => LegacyArticle::avg('ppdh') ?? 0,
+            'avg_volume' => LegacyArticle::avg('bom3') ?? 0,
+        ];
+
+        return view('reports.legacy-articles-table', compact('provinces', 'essences', 'forets', 'drefs', 'years', 'stats'));
+    }
+
+    /**
+     * Get legacy articles data for DataTables (AJAX)
+     */
+    private function getLegacyArticlesData(Request $request): JsonResponse
+    {
+        $query = LegacyArticle::query();
+
+        // Get DataTables parameters
+        $draw = $request->get('draw', 1);
+        $start = $request->get('start', 0);
+        $length = $request->get('length', 10);
+        
+        // Safely get search value
+        $search = $request->get('search', []);
+        $searchValue = is_array($search) && isset($search['value']) ? $search['value'] : '';
+        
+        // Safely get order parameters
+        $order = $request->get('order', []);
+        $orderColumn = (is_array($order) && isset($order[0]['column'])) ? $order[0]['column'] : 3;
+        $orderDir = (is_array($order) && isset($order[0]['dir'])) ? $order[0]['dir'] : 'desc';
+
+        // Column mapping for DataTables
+        $columnMap = [
+            0 => 'dref',
+            1 => 'foret',
+            2 => 'province',
+            3 => 'date',
+            4 => 'essence',
+            5 => 'intervent',
+            6 => 'surface',
+            7 => 'bom3',
+            8 => 'bim3',
+            9 => 'bfst',
+            10 => 'acheteur',
+            11 => 'ppdh',
+        ];
+        $orderColumnName = $columnMap[$orderColumn] ?? 'date';
+
+        // Search functionality
+        if (!empty($searchValue)) {
+            $query->where(function($q) use ($searchValue) {
+                $q->where('dref', 'like', "%{$searchValue}%")
+                  ->orWhere('foret', 'like', "%{$searchValue}%")
+                  ->orWhere('province', 'like', "%{$searchValue}%")
+                  ->orWhere('essence', 'like', "%{$searchValue}%")
+                  ->orWhere('acheteur', 'like', "%{$searchValue}%")
+                  ->orWhere('intervent', 'like', "%{$searchValue}%");
+            });
+        }
+
+        // Apply filters from form
         if ($request->filled('province')) {
             $query->where('province', $request->province);
         }
@@ -647,7 +718,14 @@ class ReportController extends Controller
         }
         
         if ($request->filled('year')) {
-            $query->where('date', 'like', $request->year . '%');
+            $year = $request->year;
+            // Handle year format: if it's "2024", extract "24", if it's already "24", use as is
+            if (strlen($year) == 4) {
+                $yearSuffix = substr($year, 2, 2);
+            } else {
+                $yearSuffix = $year;
+            }
+            $query->where('date', 'like', $yearSuffix . '%');
         }
         
         if ($request->filled('dref')) {
@@ -677,46 +755,65 @@ class ReportController extends Controller
         if ($request->filled('max_surface')) {
             $query->where('surface', '<=', $request->max_surface);
         }
-        
-        // Sorting
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-        
-        if (in_array($sortBy, ['dref', 'foret', 'province', 'essence', 'bom3', 'ppdh', 'surface', 'date'])) {
-            $query->orderBy($sortBy, $sortOrder);
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-        
-        $articles = $query->paginate($request->get('per_page', 20));
-        
-        // Calculate statistics for the filtered results
-        $allFilteredArticles = (clone $query)->get();
-        $stats = [
-            'total_records' => $allFilteredArticles->count(),
-            'total_revenue' => $allFilteredArticles->sum('ppdh') ?? 0,
-            'total_volume' => $allFilteredArticles->sum('bom3') ?? 0,
-            'total_surface' => $allFilteredArticles->sum('surface') ?? 0,
-            'avg_price' => $allFilteredArticles->avg('ppdh') ?? 0,
-            'avg_volume' => $allFilteredArticles->avg('bom3') ?? 0,
-        ];
-        
-        // Get filter options
-        $provinces = LegacyArticle::select('province')->distinct()->whereNotNull('province')->orderBy('province')->pluck('province');
-        $essences = LegacyArticle::select('essence')->distinct()->whereNotNull('essence')->orderBy('essence')->pluck('essence');
-        $forets = LegacyArticle::select('foret')->distinct()->whereNotNull('foret')->orderBy('foret')->pluck('foret');
-        $drefs = LegacyArticle::select('dref')->distinct()->whereNotNull('dref')->orderBy('dref')->pluck('dref');
-        $years = LegacyArticle::selectRaw('SUBSTRING(date, 1, 2) as year')
-            ->distinct()
-            ->whereNotNull('date')
-            ->where('date', '!=', '')
-            ->orderBy('year')
-            ->get()
-            ->map(function ($item) {
-                return '20' . $item->year;
-            });
 
-        return view('reports.legacy-articles-table', compact('articles', 'provinces', 'essences', 'forets', 'drefs', 'years', 'stats'));
+        // Get total records before filtering
+        $totalRecords = LegacyArticle::count();
+        $filteredRecords = $query->count();
+
+        // Apply ordering and pagination
+        $articles = $query->orderBy($orderColumnName, $orderDir)
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        // Format data for DataTables
+        $data = [];
+        foreach ($articles as $article) {
+            // Format date
+            $formattedDate = 'N/A';
+            if ($article->date && strlen(trim($article->date)) >= 6) {
+                $dateStr = trim($article->date);
+                try {
+                    if (preg_match('/^\d{6}$/', $dateStr)) {
+                        $formattedDate = \Carbon\Carbon::createFromFormat('ymd', $dateStr)->format('d/m/Y');
+                    } elseif (preg_match('/^\d{8}$/', $dateStr)) {
+                        $formattedDate = \Carbon\Carbon::createFromFormat('Ymd', $dateStr)->format('d/m/Y');
+                    } else {
+                        $formattedDate = $dateStr;
+                    }
+                } catch (\Exception $e) {
+                    $formattedDate = $dateStr;
+                }
+            }
+
+            // Calculate total volume
+            $totalVolume = ($article->bom3 ?? 0) + ($article->bim3 ?? 0) + ($article->bfst ?? 0) + 
+                          ($article->lcst ?? 0) + ($article->ett ?? 0) + ($article->pst ?? 0);
+            $formattedVolume = $totalVolume > 0 ? number_format($totalVolume, 2) : 'N/A';
+
+            $data[] = [
+                e($article->dref ?? 'N/A'),
+                e($article->foret ?? 'N/A'),
+                e($article->province ?? 'N/A'),
+                $formattedDate,
+                e($article->essence ?? 'N/A'),
+                e($article->intervent ?? 'N/A'),
+                $article->surface ? number_format($article->surface, 2) : 'N/A',
+                $article->bom3 ? number_format($article->bom3, 2) : 'N/A',
+                $article->bim3 ? number_format($article->bim3, 2) : 'N/A',
+                $article->bfst ? number_format($article->bfst, 2) : 'N/A',
+                e($article->acheteur ?? 'N/A'),
+                $article->ppdh ? number_format($article->ppdh, 2) : 'N/A',
+                $formattedVolume, // Total volume for preview table
+            ];
+        }
+
+        return response()->json([
+            'draw' => intval($draw),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data,
+        ]);
     }
 
     public function legacyArticlesByYear(Request $request): View

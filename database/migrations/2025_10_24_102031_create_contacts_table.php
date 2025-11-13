@@ -14,38 +14,52 @@ return new class extends Migration
         Schema::create('contacts', function (Blueprint $table) {
             $table->id();
             $table->integer('annee');
-            $table->string('contarct'); // Note: keeping original typo as per schema
+            $table->integer('contarct'); // Note: keeping original typo as per schema
             $table->foreignId('localisation_id')->constrained('localisations')->onDelete('cascade');
             $table->foreignId('situation_administrative_id')->constrained('situation_administratives')->onDelete('cascade');
-            $table->foreignId('espece_id')->constrained('especes')->onDelete('cascade');
+            $table->foreignId('foret_id')->constrained()->onDelete('cascade');
+            $table->foreignId('coperative_id')->constrained('coperatives')->onDelete('cascade');
 
-            $table->string('superficie')->nullable();
+            $table->decimal('superficie', 10, 2);
             $table->string('gardiennage')->nullable();
+            $table->string('prevention_contre_les_incendies')->nullable();
             $table->string('elagage')->nullable();
             $table->string('eclaircie')->nullable();
             $table->string('rajeunissement_romarin')->nullable();
-            $table->string('valeurs_des_produits')->nullable();
-            $table->string('valeur_des_prestations')->nullable();
-            $table->string('redevances')->nullable();
-            $table->string('taxes')->nullable();
-            $table->string('total_avenant')->nullable();
+            $table->string('autre')->nullable();
 
             $table->integer('bo_m3')->nullable();
             $table->integer('bi_m3')->nullable();
             $table->integer('bf_st')->nullable();
             $table->integer('tanin_t')->nullable();
+            $table->integer('laurier_sauce')->nullable();
+            $table->integer('myrte')->nullable();
+            $table->integer('callune')->nullable();
+            $table->integer('thym')->nullable();
+            $table->integer('bruyetre')->nullable();
+            $table->integer('lichen')->nullable();
+            $table->integer('tanin')->nullable();
+            $table->integer('romarin')->nullable();
+            $table->integer('liege_male')->nullable();
+            $table->integer('liege_de_reproduction')->nullable();
+            $table->integer('sauge')->nullable();
+            $table->integer('lavande')->nullable();
+            $table->integer('armoise')->nullable();
+            $table->integer('origan')->nullable();
+            $table->integer('alfa')->nullable();
+            $table->integer('lentisque')->nullable();
+            $table->integer('ciste')->nullable();
             $table->integer('fleur_acacia_t')->nullable();
-            $table->integer('caroube_t')->nullable();
-            $table->integer('romarin_t')->nullable();
-            $table->integer('ps_t')->nullable();
-            $table->integer('liége_st')->nullable();
-            $table->integer('charbon_bois_ox')->nullable();
 
-            // $table->string('attribute13')->nullable();
-            // $table->string('attribute14')->nullable();
-            // $table->string('attribute15')->nullable();
-            // $table->string('attribute16')->nullable();
-            // $table->string('attribute17')->nullable();
+            $table->string('valeurs_des_produits');
+            $table->string('valeur_des_prestations');
+            $table->string('redevances');
+            $table->string('taxes');
+            $table->string('total_avenant');
+
+            $table->boolean('resiliation')->default(false);
+            $table->date('date_resiliation')->nullable();
+            
             $table->timestamps();
             $table->softDeletes();
         });

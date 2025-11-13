@@ -19,17 +19,51 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
+    {
+        // If this is an AJAX request for DataTables
+        if ($request->ajax()) {
+            return $this->getUsersData($request);
+        }
+
+        $roles = Role::all();
+        return view('users.index', compact('roles'));
+    }
+
+    /**
+     * Get users data for DataTables (AJAX)
+     */
+    private function getUsersData(Request $request): JsonResponse
     {
         $query = User::with('roles');
 
+        // Get DataTables parameters
+        $draw = $request->get('draw');
+        $start = $request->get('start', 0);
+        $length = $request->get('length', 10);
+        $searchValue = $request->get('search')['value'] ?? '';
+        $orderColumn = $request->get('order')[0]['column'] ?? 0;
+        $orderDir = $request->get('order')[0]['dir'] ?? 'desc';
+
+        // Column mapping for DataTables (0=id, 1=name, 2=email, 3=ppr, 4=roles, 5=is_deleted, 6=created_at, 7=actions)
+        $columnMap = [
+            0 => 'id',
+            1 => 'name',
+            2 => 'email',
+            3 => 'ppr',
+            4 => 'created_at', // roles cannot be ordered, default to created_at
+            5 => 'is_deleted',
+            6 => 'created_at',
+            7 => 'created_at', // actions cannot be ordered, default to created_at
+        ];
+        $orderColumnName = $columnMap[$orderColumn] ?? 'created_at';
+
         // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('ppr', 'like', "%{$search}%");
+        if (!empty($searchValue)) {
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('name', 'like', "%{$searchValue}%")
+                  ->orWhere('email', 'like', "%{$searchValue}%")
+                  ->orWhere('ppr', 'like', "%{$searchValue}%");
             });
         }
 
@@ -40,10 +74,65 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(15);
-        $roles = Role::all();
+        // Filter by status
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->where('is_deleted', false);
+            } elseif ($request->status === 'inactive') {
+                $query->where('is_deleted', true);
+            }
+        }
 
-        return view('users.index', compact('users', 'roles'));
+        // Get total records before filtering
+        $totalRecords = User::count();
+        $filteredRecords = $query->count();
+
+        // Apply ordering and pagination
+        $users = $query->orderBy($orderColumnName, $orderDir)
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        // Format data for DataTables
+        $data = [];
+        foreach ($users as $user) {
+            $roles = $user->roles->pluck('name')->map(function($role) {
+                return '<span class="badge bg-primary me-1">' . e($role) . '</span>';
+            })->implode('');
+
+            $status = $user->is_deleted 
+                ? '<span class="badge bg-danger">Inactif</span>'
+                : '<span class="badge bg-success">Actif</span>';
+
+            $actions = view('users.partials.actions', compact('user'))->render();
+
+            $data[] = [
+                $user->id,
+                '<div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center">
+                            <span class="text-primary fw-semibold">' . strtoupper(substr($user->name, 0, 1)) . '</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-2">
+                        <div class="fw-semibold">' . e($user->name) . '</div>
+                    </div>
+                </div>',
+                e($user->email),
+                '<span class="badge bg-info">' . e($user->ppr) . '</span>',
+                $roles ?: '<span class="text-muted">Aucun rôle</span>',
+                $status,
+                $user->created_at->format('d/m/Y H:i'),
+                $actions,
+            ];
+        }
+
+        return response()->json([
+            'draw' => intval($draw),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $data,
+        ]);
     }
 
     /**

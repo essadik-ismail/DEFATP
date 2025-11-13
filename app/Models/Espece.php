@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Espece extends Model
 {
@@ -15,10 +15,11 @@ class Espece extends Model
     ];
 
     /**
-     * Get the contracts for this espece.
+     * Get the contracts for this espece (many-to-many relationship).
      */
-    public function contracts(): HasMany
+    public function contracts(): BelongsToMany
     {
-        return $this->hasMany(Contract::class, 'espece_id');
+        return $this->belongsToMany(Contract::class, 'contact_espece', 'espece_id', 'contact_id')
+            ->withTimestamps();
     }
 }
