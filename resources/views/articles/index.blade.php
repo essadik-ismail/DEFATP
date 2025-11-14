@@ -87,14 +87,17 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-check-circle text-orange-500 mr-1"></i>Statut
+                        <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt text-indigo-500 mr-1"></i>Localisation
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400" 
-                                name="status" id="status">
-                            <option value="">Tous les statuts</option>
-                            <option value="sold" {{ request('status') == 'sold' ? 'selected' : '' }}>Vendus</option>
-                            <option value="unsold" {{ request('status') == 'unsold' ? 'selected' : '' }}>Invendus</option>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
+                                name="localisation_id" id="localisation_id">
+                            <option value="">Toutes les localisations</option>
+                            @foreach($allLocalisations ?? [] as $localisation)
+                                <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
+                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                     
@@ -109,6 +112,37 @@
                                 <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
                             @endfor
                         </select>
+                    </div>
+                </div>
+                
+                <!-- Date Range Filter -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="form-group">
+                        <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-plus text-blue-500 mr-1"></i>
+                            Date de début
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                        </label>
+                        <input type="date" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="start_date" 
+                               name="start_date" 
+                               value="{{ request('start_date') }}"
+                               placeholder="jj/mm/aaaa">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-minus text-blue-500 mr-1"></i>
+                            Date de fin
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 31/12/2024)"></i>
+                        </label>
+                        <input type="date" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="end_date" 
+                               name="end_date" 
+                               value="{{ request('end_date') }}"
+                               placeholder="jj/mm/aaaa">
                     </div>
                 </div>
                 
@@ -128,7 +162,7 @@
                         </button>
                     </div>
                     
-                    @if(request()->hasAny(['search', 'type', 'status', 'year']))
+                    @if(request()->hasAny(['search', 'type', 'localisation_id', 'year', 'start_date', 'end_date']))
                         <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm">
                             <i class="fas fa-info-circle mr-1"></i>
                             Filtres actifs

@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Essence;
+use App\Models\Foret;
+use App\Models\Localisation;
+use App\Models\SituationAdministrative;
+use App\Models\NatureDeCoupe;
+use App\Models\Exploitant;
+use App\Models\Espece;
+use App\Models\Avenant;
+use App\Models\Coperative;
+use App\Models\Vocation;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class EntityDataController extends Controller
+{
+    /**
+     * Display unified entity data management page
+     */
+    public function index(Request $request): View
+    {
+        // Articles entities
+        $essences = Essence::where('is_deleted', false)
+            ->when($request->filled('essence_search'), function($query) use ($request) {
+                $query->where('essence', 'like', '%' . $request->essence_search . '%');
+            })
+            ->orderBy('essence')
+            ->paginate(10, ['*'], 'essences_page');
+
+        $forets = Foret::where('is_deleted', false)
+            ->when($request->filled('foret_search'), function($query) use ($request) {
+                $query->where('foret', 'like', '%' . $request->foret_search . '%');
+            })
+            ->orderBy('foret')
+            ->paginate(10, ['*'], 'forets_page');
+
+        $localisations = Localisation::where('is_deleted', false)
+            ->when($request->filled('localisation_search'), function($query) use ($request) {
+                $query->where('CODE', 'like', '%' . $request->localisation_search . '%')
+                      ->orWhere('DRANEF', 'like', '%' . $request->localisation_search . '%')
+                      ->orWhere('ENTITE', 'like', '%' . $request->localisation_search . '%');
+            })
+            ->orderBy('CODE')
+            ->paginate(10, ['*'], 'localisations_page');
+
+        $situationsAdministratives = SituationAdministrative::all();
+
+        $natureDeCoupes = NatureDeCoupe::where('is_deleted', false)
+            ->when($request->filled('nature_search'), function($query) use ($request) {
+                $query->where('nature_de_coupe', 'like', '%' . $request->nature_search . '%');
+            })
+            ->orderBy('nature_de_coupe')
+            ->paginate(10, ['*'], 'natures_page');
+
+        $exploitants = Exploitant::where('is_deleted', false)
+            ->when($request->filled('exploitant_search'), function($query) use ($request) {
+                $query->where('nom_complet', 'like', '%' . $request->exploitant_search . '%');
+            })
+            ->orderBy('nom_complet')
+            ->paginate(10, ['*'], 'exploitants_page');
+
+        // Contracts entities
+        $especes = Espece::when($request->filled('espece_search'), function($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->espece_search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(10, ['*'], 'especes_page');
+
+        $avenants = Avenant::with(['coperative', 'contract'])
+            ->when($request->filled('avenant_search'), function($query) use ($request) {
+                $query->where('annee', 'like', '%' . $request->avenant_search . '%')
+                      ->orWhereHas('coperative', function($coopQuery) use ($request) {
+                          $coopQuery->where('nom', 'like', '%' . $request->avenant_search . '%');
+                      })
+                      ->orWhereHas('contract', function($contractQuery) use ($request) {
+                          $contractQuery->where('contarct', 'like', '%' . $request->avenant_search . '%');
+                      });
+            })
+            ->orderBy('date', 'desc')
+            ->paginate(10, ['*'], 'avenants_page');
+
+        $coperatives = Coperative::with('vocation')
+            ->when($request->filled('coperative_search'), function($query) use ($request) {
+                $query->where('nom', 'like', '%' . $request->coperative_search . '%');
+            })
+            ->orderBy('nom')
+            ->paginate(10, ['*'], 'coperatives_page');
+
+        $vocations = Vocation::when($request->filled('vocation_search'), function($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->vocation_search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(10, ['*'], 'vocations_page');
+
+        return view('entity-data.index', compact(
+            'essences',
+            'forets',
+            'localisations',
+            'situationsAdministratives',
+            'natureDeCoupes',
+            'exploitants',
+            'especes',
+            'avenants',
+            'coperatives',
+            'vocations'
+        ));
+    }
+}

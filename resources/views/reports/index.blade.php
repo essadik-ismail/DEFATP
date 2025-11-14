@@ -20,7 +20,7 @@
         </div>
 
         <!-- Date Range Filter -->
-        <div class="mb-8">
+        <!-- <div class="mb-8">
             <x-card 
                 title="Filtres de Date" 
                 subtitle="Sélectionnez une période pour filtrer les rapports"
@@ -95,151 +95,45 @@
                     </div>
                 @endif
             </x-card>
-        </div>
+        </div> -->
 
         <!-- Reports Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        <!-- Product Quantities Charts -->
-        <x-card 
-            title="Graphiques des Quantités de Produits" 
-            subtitle="Analysez les quantités de produits par année et par localisation avec des graphiques interactifs"
-            variant="gradient"
-            color="green"
-            icon="fas fa-chart-bar"
-            collapsible="true"
-            id="product-quantities-charts"
-        >
-            <div class="mb-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-chart-bar text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-green-900">Analyse des quantités</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Product Quantities Charts -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.product-quantities-charts') }}'">
+                <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
-                <div class="text-sm text-green-700">
-                    <p class="mb-2"><i class="fas fa-chart-line mr-2"></i>Graphique 1: Quantités par année</p>
-                    <p><i class="fas fa-map-marker-alt mr-2"></i>Graphique 2: Quantités par localisation</p>
-                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Graphiques des Quantités</h3>
+                <p class="text-gray-600">Analysez les quantités de produits par année et par localisation avec des graphiques interactifs</p>
             </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-chart-bar"></i>
-                    Graphiques interactifs
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.product-quantities-charts') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir les graphiques
-                </x-button>
-            </div>
-        </x-card>
 
-        <!-- Legacy Quantities Charts -->
-        <x-card 
-            title="Graphiques des Quantités de Produits (Legacy)" 
-            subtitle="Analysez les quantités de produits par année et par province pour les articles historiques"
-            variant="gradient"
-            color="orange"
-            icon="fas fa-chart-bar"
-            collapsible="true"
-            id="legacy-quantities-charts"
-        >
-            <div class="mb-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-4 border border-orange-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-chart-bar text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-orange-900">Analyse des quantités (Legacy)</h3>
+            <!-- Legacy Quantities Charts -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.legacy-quantities-charts') }}'">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
-                <div class="text-sm text-orange-700">
-                    <p class="mb-2"><i class="fas fa-chart-line mr-2"></i>Graphique 1: Quantités par année</p>
-                    <p><i class="fas fa-map-marker-alt mr-2"></i>Graphique 2: Quantités par province</p>
-                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Graphiques Legacy</h3>
+                <p class="text-gray-600">Analysez les quantités de produits par année et par province pour les articles historiques</p>
             </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-chart-bar"></i>
-                    Articles historiques uniquement
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.legacy-quantities-charts') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir les graphiques
-                </x-button>
-            </div>
-        </x-card>
 
-        <!-- Article Quantities Charts -->
-        <x-card 
-            title="Graphiques des Quantités de Produits (Articles)" 
-            subtitle="Analysez les quantités de produits par année et par localisation pour les articles actuels"
-            variant="gradient"
-            color="blue"
-            icon="fas fa-chart-bar"
-            collapsible="true"
-            id="article-quantities-charts"
-        >
-            <div class="mb-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-4 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-chart-bar text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-blue-900">Analyse des quantités (Articles)</h3>
+            <!-- Article Quantities Charts -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.article-quantities-charts') }}'">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
-                <div class="text-sm text-blue-700">
-                    <p class="mb-2"><i class="fas fa-chart-line mr-2"></i>Graphique 1: Quantités par année</p>
-                    <p><i class="fas fa-map-marker-alt mr-2"></i>Graphique 2: Quantités par localisation</p>
-                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Graphiques Articles</h3>
+                <p class="text-gray-600">Analysez les quantités de produits par année et par localisation pour les articles actuels</p>
             </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-chart-bar"></i>
-                    Articles actuels uniquement
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.article-quantities-charts') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir les graphiques
-                </x-button>
-            </div>
-        </x-card>
 
-        <!-- Legacy Articles -->
-        <x-card 
-            title="Articles Historiques" 
-            subtitle="Consultez et analysez les données historiques des articles forestiers"
-            variant="gradient"
-            color="amber"
-            icon="fas fa-archive"
-            collapsible="true"
-            id="legacy-articles"
-        >
-            <div class="mb-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-archive text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-amber-900">Données historiques</h3>
+            <!-- Legacy Articles -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.legacy-articles') }}'">
+                <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-archive text-white text-2xl"></i>
                 </div>
-                <div class="text-center py-4">
-                    <i class="fas fa-database text-4xl text-amber-500 mb-2"></i>
-                    <p class="text-amber-700 font-medium">Articles historiques disponibles</p>
-                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Articles Historiques</h3>
+                <p class="text-gray-600">Consultez et analysez les données historiques des articles forestiers</p>
             </div>
-            <div class="card-stats">
-                <span class="stat-item">
-                    <i class="fas fa-archive"></i>
-                    Données historiques
-                </span>
-            </div>
-            <div class="card-actions">
-                <x-button href="{{ route('reports.legacy-articles') }}" variant="primary" icon="fas fa-arrow-right">
-                    Voir les articles historiques
-                </x-button>
-            </div>
-        </x-card>
-
-        
         </div>
     </div>
 </div>

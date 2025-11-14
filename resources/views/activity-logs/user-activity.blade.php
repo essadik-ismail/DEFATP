@@ -88,14 +88,22 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label for="date_from" class="form-label">Date de début</label>
+                    <label for="date_from" class="form-label">
+                        Date de début
+                        <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                    </label>
                     <input type="date" class="form-control" id="date_from" name="date_from" 
-                           value="{{ request('date_from') }}">
+                           value="{{ request('date_from') }}"
+                           placeholder="jj/mm/aaaa">
                 </div>
                 <div class="col-md-3">
-                    <label for="date_to" class="form-label">Date de fin</label>
+                    <label for="date_to" class="form-label">
+                        Date de fin
+                        <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 31/12/2024)"></i>
+                    </label>
                     <input type="date" class="form-control" id="date_to" name="date_to" 
-                           value="{{ request('date_to') }}">
+                           value="{{ request('date_to') }}"
+                           placeholder="jj/mm/aaaa">
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary me-2">

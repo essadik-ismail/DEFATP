@@ -26,6 +26,88 @@
         </div>
     </div>
 
+    <!-- Date Range Filter -->
+    <div class="mb-8">
+        <x-card 
+            title="Filtres de Date" 
+            subtitle="Sélectionnez une période pour filtrer les rapports"
+            variant="colored"
+            color="blue"
+            icon="fas fa-calendar-alt"
+            padding="compact"
+        >
+            <form method="GET" action="{{ route('reports.legacy-articles') }}" class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex-1">
+                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar-plus text-blue-500 mr-2"></i>
+                        Date de début
+                        <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="start_date" 
+                        name="start_date" 
+                        value="{{ request('start_date') }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder="jj/mm/aaaa"
+                    >
+                </div>
+                
+                <div class="flex-1">
+                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar-minus text-blue-500 mr-2"></i>
+                        Date de fin
+                        <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 31/12/2024)"></i>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="end_date" 
+                        name="end_date" 
+                        value="{{ request('end_date') }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder="jj/mm/aaaa"
+                    >
+                </div>
+                
+                <div class="flex gap-2">
+                    <button 
+                        type="submit" 
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+                    >
+                        <i class="fas fa-filter"></i>
+                        Filtrer
+                    </button>
+                    
+                    <a 
+                        href="{{ route('reports.legacy-articles') }}" 
+                        class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center gap-2"
+                    >
+                        <i class="fas fa-times"></i>
+                        Effacer
+                    </a>
+                </div>
+            </form>
+            
+            @if(request('start_date') || request('end_date'))
+                <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex items-center gap-2 text-blue-800">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="font-medium">Période sélectionnée :</span>
+                        <span>
+                            @if(request('start_date') && request('end_date'))
+                                Du {{ \Carbon\Carbon::parse(request('start_date'))->format('d/m/Y') }} au {{ \Carbon\Carbon::parse(request('end_date'))->format('d/m/Y') }}
+                            @elseif(request('start_date'))
+                                À partir du {{ \Carbon\Carbon::parse(request('start_date'))->format('d/m/Y') }}
+                            @elseif(request('end_date'))
+                                Jusqu'au {{ \Carbon\Carbon::parse(request('end_date'))->format('d/m/Y') }}
+                            @endif
+                        </span>
+                    </div>
+                </div>
+            @endif
+        </x-card>
+    </div>
+
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Total Records Card -->
@@ -278,7 +360,15 @@ document.addEventListener('DOMContentLoaded', function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: "{{ route('reports.legacy-articles-table') }}"
+            url: "{{ route('reports.legacy-articles-table') }}",
+            data: function(d) {
+                @if(request('start_date'))
+                    d.start_date = "{{ request('start_date') }}";
+                @endif
+                @if(request('end_date'))
+                    d.end_date = "{{ request('end_date') }}";
+                @endif
+            }
         },
         columns: [
             { data: 0, name: 'dref', orderable: true, searchable: true },

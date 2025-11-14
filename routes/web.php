@@ -93,6 +93,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/exploitants/import', [SettingsController::class, 'importExploitants'])->name('exploitants.import');
     
     // Settings Routes
+    // Unified Entity Data Management
+    Route::get('/entity-data', [App\Http\Controllers\EntityDataController::class, 'index'])->name('entity-data.index');
+
     Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/', [SettingsController::class, 'index'])->name('index');
     

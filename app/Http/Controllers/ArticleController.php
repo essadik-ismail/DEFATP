@@ -30,19 +30,14 @@ class ArticleController extends Controller
         // Log view action
         ActivityLogger::log('view', 'Consultation de la liste des articles', Article::class);
         
-        // Get date filters from request
+        // Get date filters from request (for date_adjudication)
         $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : null;
         $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : null;
         
-        // Build base query with date filtering
+        // Build base query
         $articlesQuery = Article::where('is_deleted', false)
             ->with(['exploitant', 'products', 'locations', 'forets', 'essences', 'situationsAdministratives', 'naturesDeCoupe', 'localisations']);
             
-        // Apply date filtering if provided
-        if ($startDate && $endDate) {
-            $articlesQuery->whereBetween('created_at', [$startDate, $endDate]);
-        }
-        
         // Get articles with enhanced pagination and filtering
         $articles = $articlesQuery
             ->when($request->filled('search'), function($query) use ($request) {
@@ -57,12 +52,19 @@ class ArticleController extends Controller
                       });
                 });
             })
-            ->when($request->filled('status'), function($query) use ($request) {
-                if ($request->status === 'sold') {
-                    $query->where('invendu', false);
-                } elseif ($request->status === 'unsold') {
-                    $query->where('invendu', true);
+            ->when($startDate || $endDate, function($query) use ($startDate, $endDate) {
+                if ($startDate && $endDate) {
+                    $query->whereBetween('date_adjudication', [$startDate, $endDate]);
+                } elseif ($startDate) {
+                    $query->where('date_adjudication', '>=', $startDate);
+                } elseif ($endDate) {
+                    $query->where('date_adjudication', '<=', $endDate);
                 }
+            })
+            ->when($request->filled('localisation_id'), function($query) use ($request) {
+                $query->whereHas('localisations', function($q) use ($request) {
+                    $q->where('localisations.id', $request->localisation_id);
+                });
             })
             ->when($request->filled('year'), function($query) use ($request) {
                 $query->where('annee', $request->year);
@@ -80,20 +82,10 @@ class ArticleController extends Controller
             ->orderBy('nom_complet')
             ->paginate(10, ['*'], 'exploitants_page');
 
-        // Calculate comprehensive statistics with date filtering
-        $statsQuery = Article::where('is_deleted', false);
-        if ($startDate && $endDate) {
-            $statsQuery->whereBetween('created_at', [$startDate, $endDate]);
-        }
-        
         // Calculate statistics based on the same filtered query as the articles
         $filteredQuery = Article::where('is_deleted', false);
         
         // Apply the same filters as the main query
-        if ($startDate && $endDate) {
-            $filteredQuery->whereBetween('created_at', [$startDate, $endDate]);
-        }
-        
         if ($request->filled('search')) {
             $filteredQuery->where(function($q) use ($request) {
                 $q->where('numero', 'like', '%' . $request->search . '%')
@@ -107,12 +99,20 @@ class ArticleController extends Controller
             });
         }
         
-        if ($request->filled('status')) {
-            if ($request->status === 'sold') {
-                $filteredQuery->where('invendu', false);
-            } elseif ($request->status === 'unsold') {
-                $filteredQuery->where('invendu', true);
+        if ($startDate || $endDate) {
+            if ($startDate && $endDate) {
+                $filteredQuery->whereBetween('date_adjudication', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $filteredQuery->where('date_adjudication', '>=', $startDate);
+            } elseif ($endDate) {
+                $filteredQuery->where('date_adjudication', '<=', $endDate);
             }
+        }
+        
+        if ($request->filled('localisation_id')) {
+            $filteredQuery->whereHas('localisations', function($q) use ($request) {
+                $q->where('localisations.id', $request->localisation_id);
+            });
         }
         
         if ($request->filled('year')) {
@@ -172,6 +172,11 @@ class ArticleController extends Controller
             ->orderBy('CODE')
             ->paginate(10, ['*'], 'localisations_page');
 
+        // Get all localisations for filter dropdown
+        $allLocalisations = Localisation::where('is_deleted', false)
+            ->orderBy('CODE')
+            ->get();
+
         // Provide natures de coupe list for the natures table section
         $natureDeCoupes = NatureDeCoupe::where('is_deleted', false)
             ->when($request->filled('nature_search'), function($query) use ($request) {
@@ -187,6 +192,7 @@ class ArticleController extends Controller
             'essences',
             'forets',
             'localisations',
+            'allLocalisations',
             'natureDeCoupes'
         ));
     }
@@ -312,8 +318,14 @@ class ArticleController extends Controller
         }
     }
 
-    public function show(Article $article): View
+    public function show(Request $request, Article $article): View
     {
+        // If this is a POST request (shouldn't happen, but handle gracefully)
+        if ($request->isMethod('post')) {
+            return redirect()->route('articles.show', $article)
+                ->with('warning', 'Méthode POST non supportée. Utilisez PUT/PATCH pour modifier un article.');
+        }
+
         // Log article view
         ActivityLogger::logView(
             Article::class,

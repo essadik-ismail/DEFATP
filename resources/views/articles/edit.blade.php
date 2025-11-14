@@ -122,11 +122,14 @@
                     <div class="form-group">
                         <label for="date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">
                             Date d'Adjudication <span class="text-red-500">*</span>
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
                         </label>
                         <input type="date" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="date_adjudication" name="date_adjudication" 
-                               value="{{ old('date_adjudication', $article->date_adjudication) }}" required>
+                               value="{{ old('date_adjudication', $article->date_adjudication) }}" 
+                               placeholder="jj/mm/aaaa"
+                               required>
                         @error('date_adjudication')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
@@ -709,18 +712,22 @@
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-calendar-times text-orange-500 mr-2"></i>Date de résiliation
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
                         </label>
                         <input type="date" name="date_de_resiliation" value="{{ old('date_de_resiliation', $article->date_de_resiliation) }}" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                               placeholder="jj/mm/aaaa">
                     </div>
 
                     <!-- Date de déchéance -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-calendar-exclamation text-orange-500 mr-2"></i>Date de déchéance
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
                         </label>
                         <input type="date" name="date_de_decheance" value="{{ old('date_de_decheance', $article->date_de_decheance) }}" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                               placeholder="jj/mm/aaaa">
                     </div>
 
                     <!-- Exploitant -->

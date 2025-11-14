@@ -133,11 +133,14 @@
                     <div class="form-group">
                         <label for="date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">
                             Date d'Adjudication <span class="text-red-500">*</span>
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
                         </label>
                         <input type="date" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="date_adjudication" name="date_adjudication" 
-                               value="{{ old('date_adjudication') }}" required>
+                               value="{{ old('date_adjudication') }}" 
+                               placeholder="jj/mm/aaaa"
+                               required>
                         @error('date_adjudication')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>

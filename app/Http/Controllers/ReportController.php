@@ -550,23 +550,44 @@ class ReportController extends Controller
         return view('reports.articles-by-validation-status', compact('articles', 'status', 'stats'));
     }
 
-    public function legacyArticles(): View
+    public function legacyArticles(Request $request): View
     {
         // Log report generation
         ActivityLogger::log('view', 'Génération du rapport des articles historiques', LegacyArticle::class);
         
+        // Build base query with date filtering
+        $query = LegacyArticle::query();
+        
+        // Apply date filters if provided
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            $query->where(function($q) use ($request) {
+                if ($request->filled('start_date')) {
+                    $startDate = \Carbon\Carbon::parse($request->start_date);
+                    $startDateFormatted = $startDate->format('ymd'); // Convert to YYMMDD format
+                    $q->where('date', '>=', $startDateFormatted);
+                }
+                
+                if ($request->filled('end_date')) {
+                    $endDate = \Carbon\Carbon::parse($request->end_date);
+                    $endDateFormatted = $endDate->format('ymd'); // Convert to YYMMDD format
+                    $q->where('date', '<=', $endDateFormatted);
+                }
+            });
+        }
+        
         // Get basic statistics
-        $totalLegacyArticles = LegacyArticle::count();
-        $totalProvinces = LegacyArticle::distinct('province')->count();
-        $totalEssences = LegacyArticle::distinct('essence')->count();
-        $totalForets = LegacyArticle::distinct('foret')->count();
+        $totalLegacyArticles = (clone $query)->count();
+        $totalProvinces = (clone $query)->distinct('province')->count();
+        $totalEssences = (clone $query)->distinct('essence')->count();
+        $totalForets = (clone $query)->distinct('foret')->count();
         
         // Calculate total revenue and volume
-        $totalRevenue = LegacyArticle::sum('ppdh') ?? 0;
-        $totalVolume = LegacyArticle::sum('bom3') ?? 0;
+        $totalRevenue = (clone $query)->sum('ppdh') ?? 0;
+        $totalVolume = (clone $query)->sum('bom3') ?? 0;
         
         // Get statistics by province
-        $byProvince = LegacyArticle::selectRaw('province, COUNT(*) as total')
+        $byProvince = (clone $query)
+            ->selectRaw('province, COUNT(*) as total')
             ->whereNotNull('province')
             ->groupBy('province')
             ->orderByDesc('total')
@@ -574,7 +595,8 @@ class ReportController extends Controller
             ->get();
             
         // Get statistics by essence
-        $byEssence = LegacyArticle::selectRaw('essence, COUNT(*) as total')
+        $byEssence = (clone $query)
+            ->selectRaw('essence, COUNT(*) as total')
             ->whereNotNull('essence')
             ->groupBy('essence')
             ->orderByDesc('total')
@@ -582,7 +604,8 @@ class ReportController extends Controller
             ->get();
             
         // Get statistics by year
-        $byYear = LegacyArticle::selectRaw('SUBSTRING(date, 1, 2) as year, COUNT(*) as total')
+        $byYear = (clone $query)
+            ->selectRaw('SUBSTRING(date, 1, 2) as year, COUNT(*) as total')
             ->whereNotNull('date')
             ->where('date', '!=', '')
             ->groupBy('year')
@@ -590,7 +613,8 @@ class ReportController extends Controller
             ->get();
             
         // Get statistics by DREF
-        $byDref = LegacyArticle::selectRaw('dref, COUNT(*) as total')
+        $byDref = (clone $query)
+            ->selectRaw('dref, COUNT(*) as total')
             ->whereNotNull('dref')
             ->groupBy('dref')
             ->orderByDesc('total')
@@ -598,7 +622,7 @@ class ReportController extends Controller
             ->get();
 
         // Get preview data for the table
-        $previewData = LegacyArticle::orderBy('created_at', 'desc')->limit(10)->get();
+        $previewData = (clone $query)->orderBy('created_at', 'desc')->limit(10)->get();
 
         $stats = [
             'total_records' => $totalLegacyArticles,
@@ -701,6 +725,23 @@ class ReportController extends Controller
                   ->orWhere('essence', 'like', "%{$searchValue}%")
                   ->orWhere('acheteur', 'like', "%{$searchValue}%")
                   ->orWhere('intervent', 'like', "%{$searchValue}%");
+            });
+        }
+
+        // Apply date filters
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            $query->where(function($q) use ($request) {
+                if ($request->filled('start_date')) {
+                    $startDate = \Carbon\Carbon::parse($request->start_date);
+                    $startDateFormatted = $startDate->format('ymd'); // Convert to YYMMDD format
+                    $q->where('date', '>=', $startDateFormatted);
+                }
+                
+                if ($request->filled('end_date')) {
+                    $endDate = \Carbon\Carbon::parse($request->end_date);
+                    $endDateFormatted = $endDate->format('ymd'); // Convert to YYMMDD format
+                    $q->where('date', '<=', $endDateFormatted);
+                }
             });
         }
 

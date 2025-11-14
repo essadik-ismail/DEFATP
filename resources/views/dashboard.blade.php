@@ -8,7 +8,7 @@
     <x-welcome-guide :show="true" />
     
     <!-- Welcome Card -->
-    <div class="mb-8">
+    <!-- <div class="mb-8">
         <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center border border-white/20">
             <div class="mb-6">
                 <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto">
@@ -19,20 +19,8 @@
                 Bienvenue sur DEFATP
             </h1>
             <p class="text-xl text-gray-600 mb-8">Votre plateforme de gestion forestière intelligente</p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="{{ route('articles.create') }}" 
-                   class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-plus"></i>
-                    <span class="font-semibold">Nouvel Article</span>
-                </a>
-                <a href="{{ route('articles.index') }}" 
-                   class="inline-flex items-center gap-3 px-6 py-3 bg-white/80 text-gray-700 rounded-xl hover:bg-white transition-all duration-300 transform hover:scale-105 shadow-lg border border-gray-200">
-                    <i class="fas fa-list"></i>
-                    <span class="font-semibold">Voir les Articles</span>
-                </a>
-            </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Date Filter Section -->
     <!-- <div class="mb-8">
@@ -53,24 +41,28 @@
                         <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-calendar-plus text-purple-500 mr-2"></i>
                             Date de Début
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
                         </label>
                         <input type="date" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
                                id="start_date" 
                                name="start_date" 
-                               value="{{ request('start_date', now()->startOfMonth()->format('Y-m-d')) }}">
+                               value="{{ request('start_date', now()->startOfMonth()->format('Y-m-d')) }}"
+                               placeholder="jj/mm/aaaa">
                     </div>
                     
                     <div class="form-group">
                         <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="fas fa-calendar-minus text-purple-500 mr-2"></i>
                             Date de Fin
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 31/12/2024)"></i>
                         </label>
                         <input type="date" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
                                id="end_date" 
                                name="end_date" 
-                               value="{{ request('end_date', now()->format('Y-m-d')) }}">
+                               value="{{ request('end_date', now()->format('Y-m-d')) }}"
+                               placeholder="jj/mm/aaaa">
                     </div>
                     
                     <div class="form-group flex items-end">
@@ -104,94 +96,6 @@
             </form>
         </div>
     </div> -->
-
-    <!-- Statistics Overview -->
-    <div class="mb-8">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                <i class="fas fa-chart-bar text-white text-xl"></i>
-            </div>
-            <h2 class="text-3xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
-                Vue d'Ensemble
-                @if(request('start_date') || request('end_date'))
-                    <span class="text-lg text-gray-600 font-normal">(Période filtrée)</span>
-                @endif
-            </h2>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Articles Overview -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-file-alt text-white text-xl"></i>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold text-gray-900">{{ $stats['totalArticles'] ?? 0 }}</div>
-                        <div class="text-sm text-gray-600">Total Articles</div>
-                    </div>
-                </div>
-                <div class="flex items-center text-sm">
-                    <span class="text-green-600 font-medium">{{ $stats['validatedArticles'] ?? 0 }} validés</span>
-                    <span class="mx-2">•</span>
-                    <span class="text-orange-600">{{ $stats['pendingArticles'] ?? 0 }} en attente</span>
-                </div>
-            </div>
-
-            <!-- Financial Overview -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-coins text-white text-xl"></i>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold text-gray-900">{{ number_format($stats['totalRevenue'] ?? 0, 0) }} DH</div>
-                        <div class="text-sm text-gray-600">Chiffre d'Affaires</div>
-                    </div>
-                </div>
-                <div class="flex items-center text-sm">
-                    <span class="text-green-600 font-medium">{{ $stats['soldArticles'] ?? 0 }} vendus</span>
-                    <span class="mx-2">•</span>
-                    <span class="text-blue-600">{{ $stats['totalVolume'] ?? 0 }} m³</span>
-                </div>
-            </div>
-
-            <!-- Forest Overview -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-tree text-white text-xl"></i>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold text-gray-900">{{ $stats['totalForests'] ?? 0 }}</div>
-                        <div class="text-sm text-gray-600">Forêts Gérées</div>
-                    </div>
-                </div>
-                <div class="flex items-center text-sm">
-                    <span class="text-green-600 font-medium">{{ $stats['totalEssences'] ?? 0 }} essences</span>
-                    <span class="mx-2">•</span>
-                    <span class="text-blue-600">{{ $stats['totalLocalisations'] ?? 0 }} zones</span>
-                </div>
-            </div>
-
-            <!-- Operators Overview -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-users text-white text-xl"></i>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold text-gray-900">{{ $stats['totalExploitants'] ?? 0 }}</div>
-                        <div class="text-sm text-gray-600">Exploitants</div>
-                    </div>
-                </div>
-                <div class="flex items-center text-sm">
-                    <span class="text-green-600 font-medium">{{ $stats['activeExploitants'] ?? 0 }} actifs</span>
-                    <span class="mx-2">•</span>
-                    <span class="text-blue-600">{{ $stats['totalUsers'] ?? 0 }} utilisateurs</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Quick Actions -->
     <div class="mb-8">
@@ -250,75 +154,6 @@
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Rechercher</h3>
                 <p class="text-gray-600">Trouvez rapidement vos articles avec des filtres avancés</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Tips -->
-    <div class="mb-8">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                <i class="fas fa-lightbulb text-white text-xl"></i>
-            </div>
-            <h2 class="text-3xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
-                Conseils Rapides
-            </h2>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-lightbulb text-white"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="font-semibold text-gray-900 mb-2">Utilisez les Filtres</h3>
-                        <p class="text-gray-600">Les filtres vous aident à trouver rapidement les articles selon différents critères : forêt, essence, date, etc.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-download text-white"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="font-semibold text-gray-900 mb-2">Exportez vos Données</h3>
-                        <p class="text-gray-600">Utilisez la fonction d'export Excel pour sauvegarder et analyser vos données hors ligne.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-chart-line text-white"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="font-semibold text-gray-900 mb-2">Suivez vos Statistiques</h3>
-                        <p class="text-gray-600">Consultez régulièrement les rapports pour suivre l'évolution de vos activités forestières.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-save text-white"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="font-semibold text-gray-900 mb-2">Sauvegardez Régulièrement</h3>
-                        <p class="text-gray-600">N'oubliez pas de sauvegarder vos données et de valider vos articles avant la vente.</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

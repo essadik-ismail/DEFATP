@@ -663,12 +663,16 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="date_resiliation" class="block text-sm font-semibold text-gray-700 mb-2">Date de Résiliation</label>
+                        <label for="date_resiliation" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Date de Résiliation
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                        </label>
                         <input type="date" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="date_resiliation" 
                                name="date_resiliation" 
-                               value="{{ old('date_resiliation') }}">
+                               value="{{ old('date_resiliation') }}"
+                               placeholder="jj/mm/aaaa">
                     </div>
                 </div>
             </div>
