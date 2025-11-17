@@ -158,6 +158,7 @@
                             <span>Forêts <span class="text-red-500">*</span></span>
                             <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs forêts"></i>
                         </label>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'forets')">
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                 id="forets" 
                                 name="forets[]" 
@@ -204,6 +205,7 @@
                             <span>Espèces <span class="text-red-500">*</span></span>
                             <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs espèces"></i>
                         </label>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'especes')">
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                 id="especes" 
                                 name="especes[]" 
@@ -869,5 +871,17 @@ function removePrestation(button) {
     const prestationRow = button.closest('.prestation-row');
     prestationRow.remove();
 }
+
+// Generic select filter
+window.filterSelectOptions = function(inputEl, selectId) {
+    const filter = inputEl.value.toLowerCase();
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    Array.from(select.options).forEach(function(opt) {
+        const text = (opt.text || '').toLowerCase();
+        const match = text.indexOf(filter) !== -1;
+        opt.style.display = match ? '' : 'none';
+    });
+};
 </script>
 @endpush

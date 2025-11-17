@@ -663,33 +663,7 @@ $(document).ready(function() {
                 previous: 'Précédent'
             }
         },
-        dom: '<"flex flex-wrap items-center justify-between mb-4"<"flex items-center gap-4"l<"ml-4"f>><"flex items-center gap-2"B>>rtip',
-        buttons: [
-            {
-                extend: 'excel',
-                text: '<i class="fas fa-file-excel"></i> Excel',
-                className: 'bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
-                }
-            },
-            {
-                extend: 'pdf',
-                text: '<i class="fas fa-file-pdf"></i> PDF',
-                className: 'bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
-                }
-            },
-            {
-                extend: 'print',
-                text: '<i class="fas fa-print"></i> Imprimer',
-                className: 'bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm',
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
-                }
-            }
-        ],
+        dom: '<"flex flex-wrap items-center justify-between mb-4"<"flex items-center gap-4"l<"ml-4"f>>>rtip',
         columnDefs: [
             {
                 targets: [5, 6, 7], // Surface, Volume, Prix columns

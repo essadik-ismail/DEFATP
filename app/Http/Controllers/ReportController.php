@@ -559,6 +559,19 @@ class ReportController extends Controller
         // Build base query with date filtering
         $query = LegacyArticle::query();
         
+        // Apply global search if provided
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $searchTerm = '%' . $request->search . '%';
+                $q->where('dref', 'like', $searchTerm)
+                  ->orWhere('foret', 'like', $searchTerm)
+                  ->orWhere('province', 'like', $searchTerm)
+                  ->orWhere('essence', 'like', $searchTerm)
+                  ->orWhere('acheteur', 'like', $searchTerm)
+                  ->orWhere('intervent', 'like', $searchTerm);
+            });
+        }
+        
         // Apply date filters if provided
         if ($request->filled('start_date') || $request->filled('end_date')) {
             $query->where(function($q) use ($request) {

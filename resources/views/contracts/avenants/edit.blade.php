@@ -522,7 +522,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="lentisque" class="block text-sm font-semibold text-gray-700 mb-2">Lentisque (t)</label>
+                        <label for="lentisque" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Lentisque (t)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Lentisque en tonnes"></i>
+                        </label>
                         <input type="number" 
                                step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -532,7 +535,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="ciste" class="block text-sm font-semibold text-gray-700 mb-2">Ciste (t)</label>
+                        <label for="ciste" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Ciste (t)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Ciste en tonnes"></i>
+                        </label>
                         <input type="number" 
                                step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -542,7 +548,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="fleur_acacia_t" class="block text-sm font-semibold text-gray-700 mb-2">Fleur Acacia (t)</label>
+                        <label for="fleur_acacia_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Fleur Acacia (t)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Fleur d'acacia en tonnes"></i>
+                        </label>
                         <input type="number" 
                                step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -683,7 +692,10 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="form-group">
-                        <label for="valeurs_des_produits" class="block text-sm font-semibold text-gray-700 mb-2">Valeurs des Produits <span class="text-red-500">*</span></label>
+                        <label for="valeurs_des_produits" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Valeurs des Produits <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Valeur totale des produits"></i>
+                        </label>
                         <input type="number" 
                                step="0.01"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -697,7 +709,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="valeur_des_prestations" class="block text-sm font-semibold text-gray-700 mb-2">Valeur des Prestations <span class="text-red-500">*</span></label>
+                        <label for="valeur_des_prestations" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Valeur des Prestations <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Valeur totale des prestations"></i>
+                        </label>
                         <input type="number" 
                                step="0.01"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -711,7 +726,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="redevances" class="block text-sm font-semibold text-gray-700 mb-2">Redevances <span class="text-red-500">*</span></label>
+                        <label for="redevances" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Redevances <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant des redevances"></i>
+                        </label>
                         <input type="number" 
                                step="0.01"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -725,7 +743,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="taxes" class="block text-sm font-semibold text-gray-700 mb-2">Taxes <span class="text-red-500">*</span></label>
+                        <label for="taxes" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Taxes <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant des taxes"></i>
+                        </label>
                         <input type="number" 
                                step="0.01"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -739,7 +760,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2">Total Avenant <span class="text-red-500">*</span></label>
+                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Total Avenant <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Total de l'avenant"></i>
+                        </label>
                         <input type="number" 
                                step="0.01"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
