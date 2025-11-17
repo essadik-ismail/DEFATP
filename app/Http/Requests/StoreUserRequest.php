@@ -26,6 +26,7 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'ppr' => ['required', 'string', 'max:255', Rule::unique('users', 'ppr')],
+            'role' => ['nullable', 'string', Rule::in(['dg', 'dc', 'departement', 'administrateur', 'dranef', 'dpanef', 'entite'])],
             'image' => ['nullable', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8'],
             'roles' => ['nullable', 'array'],

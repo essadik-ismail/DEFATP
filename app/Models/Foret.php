@@ -41,4 +41,13 @@ class Foret extends Model
         return $this->belongsToMany(Article::class, 'article_foret', 'foret_id', 'article_id')
             ->withTimestamps();
     }
+
+    /**
+     * Many-to-many: contracts linked via pivot table.
+     */
+    public function contracts(): BelongsToMany
+    {
+        return $this->belongsToMany(Contract::class, 'contact_foret', 'foret_id', 'contact_id')
+            ->withTimestamps();
+    }
 }

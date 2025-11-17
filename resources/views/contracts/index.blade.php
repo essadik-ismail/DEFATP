@@ -69,18 +69,25 @@
 
         <!-- Search and Filter Section -->
         <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200 mb-6">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-search text-white"></i>
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-filter text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Recherche et Filtres</h3>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900">Recherche et Filtres</h3>
+                <!-- <button type="button" id="toggleFilters" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+                    <i class="fas fa-chevron-down" id="toggleIcon"></i>
+                    <span>Afficher/Masquer</span>
+                </button> -->
             </div>
             
             <form method="GET" action="{{ route('contracts.index') }}" id="filterForm">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                <!-- Basic Filters Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4" id="basicFilters">
                     <div class="form-group">
                         <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-search text-blue-500 mr-1"></i>Recherche
+                            <i class="fas fa-search text-blue-500 mr-1"></i>Recherche globale
                         </label>
                         <div class="relative">
                             <input type="text" 
@@ -102,26 +109,135 @@
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
                                 name="year" id="year">
                             <option value="">Toutes les années</option>
-                            @for($year = now()->year; $year >= 2020; $year--)
+                            @foreach($availableYears as $year)
                                 <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
-                            @endfor
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt text-green-500 mr-1"></i>Localisation
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                name="localisation_id" id="localisation_id">
+                            <option value="">Toutes les localisations</option>
+                            @foreach($localisations as $localisation)
+                                <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
+                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
                 
-                <div class="flex items-center justify-between">
+                <!-- Advanced Filters Row (Collapsible) -->
+                <div id="advancedFilters" class="hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                        <div class="form-group">
+                            <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-building text-indigo-500 mr-1"></i>Situation Administrative
+                            </label>
+                            <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
+                                    name="situation_administrative_id" id="situation_administrative_id">
+                                <option value="">Toutes les situations</option>
+                                @foreach($situations as $situation)
+                                    <option value="{{ $situation->id }}" {{ request('situation_administrative_id') == $situation->id ? 'selected' : '' }}>
+                                        {{ $situation->commune }} - {{ $situation->province }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="espece_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-leaf text-emerald-500 mr-1"></i>Espèce
+                            </label>
+                            <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 hover:border-gray-400" 
+                                    name="espece_id" id="espece_id">
+                                <option value="">Toutes les espèces</option>
+                                @foreach($especesList as $espece)
+                                    <option value="{{ $espece->id }}" {{ request('espece_id') == $espece->id ? 'selected' : '' }}>
+                                        {{ $espece->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="foret_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-tree text-green-500 mr-1"></i>Forêt
+                            </label>
+                            <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                    name="foret_id" id="foret_id">
+                                <option value="">Toutes les forêts</option>
+                                @foreach($forets as $foret)
+                                    <option value="{{ $foret->id }}" {{ request('foret_id') == $foret->id ? 'selected' : '' }}>
+                                        {{ $foret->foret }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="coperative_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-users-cog text-cyan-500 mr-1"></i>Coopérative
+                            </label>
+                            <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 hover:border-gray-400" 
+                                    name="coperative_id" id="coperative_id">
+                                <option value="">Toutes les coopératives</option>
+                                @foreach($coperativesList as $coperative)
+                                    <option value="{{ $coperative->id }}" {{ request('coperative_id') == $coperative->id ? 'selected' : '' }}>
+                                        {{ $coperative->nom }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar-plus text-orange-500 mr-1"></i>Date de début
+                            </label>
+                            <input type="date" 
+                                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400" 
+                                   name="start_date" 
+                                   id="start_date" 
+                                   value="{{ request('start_date') }}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar-minus text-red-500 mr-1"></i>Date de fin
+                            </label>
+                            <input type="date" 
+                                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 hover:border-gray-400" 
+                                   name="end_date" 
+                                   id="end_date" 
+                                   value="{{ request('end_date') }}">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                     <div class="flex gap-3">
                         <button type="submit" 
                                 class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                             <i class="fas fa-filter"></i>
-                            <span>Filtrer</span>
+                            <span>Appliquer les filtres</span>
                         </button>
                         <a href="{{ route('contracts.index') }}" 
                            class="inline-flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                            <i class="fas fa-times"></i>
-                            <span>Effacer</span>
+                            <i class="fas fa-redo"></i>
+                            <span>Réinitialiser</span>
                         </a>
                     </div>
+                    
+                    <!-- @if(request()->hasAny(['search', 'year', 'localisation_id', 'situation_administrative_id', 'espece_id', 'foret_id', 'coperative_id', 'start_date', 'end_date']))
+                        <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Filtres actifs</span>
+                        </div>
+                    @endif -->
                 </div>
             </form>
         </div>
@@ -249,500 +365,6 @@
         @endif
     </div>
 
-    <!-- Entity Data Management Section -->
-    <div class="mb-8">
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                    <i class="fas fa-database text-white text-2xl"></i>
-                </div>
-                <div>
-                    <h2 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
-                        Données des Entités
-                    </h2>
-                    <p class="text-gray-600 text-lg mt-2">Gérez les données de base du système de contrats</p>
-                </div>
-            </div>
-            
-            <!-- Modern Tabs Section -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden">
-                <div class="bg-gradient-to-r from-slate-50/80 to-gray-50/80 backdrop-blur-sm border-b border-white/20 p-2">
-                    <div class="flex flex-wrap gap-2">
-                        <button class="tab-button active group" data-tab="especes">
-                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                                <i class="fas fa-leaf text-white text-sm"></i>
-                            </div>
-                            <div class="text-left">
-                                <span class="block font-semibold">Espèces</span>
-                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Gestion des espèces</span>
-                            </div>
-                            <div class="tab-indicator"></div>
-                        </button>
-                        <button class="tab-button group" data-tab="avenants">
-                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                                <i class="fas fa-file-contract text-white text-sm"></i>
-                            </div>
-                            <div class="text-left">
-                                <span class="block font-semibold">Avenants</span>
-                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Amendements</span>
-                            </div>
-                            <div class="tab-indicator"></div>
-                        </button>
-                        <button class="tab-button group" data-tab="coperatives">
-                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                                <i class="fas fa-users-cog text-white text-sm"></i>
-                            </div>
-                            <div class="text-left">
-                                <span class="block font-semibold">Coopératives</span>
-                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Gestion des coopératives</span>
-                            </div>
-                            <div class="tab-indicator"></div>
-                        </button>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="tab-content" id="entitiesTabContent">
-                        <!-- Espèces Tab -->
-                        <div class="tab-pane fade show active" id="especes" role="tabpanel">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-leaf text-white text-lg"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-xl font-bold text-gray-900">Liste des Espèces</h3>
-                                        <p class="text-gray-600">Gérez les espèces forestières</p>
-                                    </div>
-                                </div>
-                                <a href="{{ route('contracts.especes.create') }}" 
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Nouvelle Espèce</span>
-                                </a>
-                            </div>
-                            
-                            <!-- Search Box -->
-                            <div class="mb-6">
-                                <form method="GET" action="{{ route('contracts.index') }}" class="flex gap-3">
-                                    <input type="hidden" name="tab" value="especes">
-                                    <div class="flex-1 relative">
-                                        <input type="text" 
-                                               name="espece_search" 
-                                               class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                               placeholder="Rechercher une espèce..." 
-                                               value="{{ request('espece_search') }}">
-                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                            <i class="fas fa-search"></i>
-                                        </div>
-                                    </div>
-                                    <button type="submit" 
-                                            class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    @if(request('espece_search'))
-                                        <a href="{{ route('contracts.index') }}" 
-                                           class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                                            <i class="fas fa-times"></i>
-                                        </a>
-                                    @endif
-                                </form>
-                            </div>
-                            
-                            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
-                                            <tr>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom de l'Espèce</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            @forelse($especes as $espece)
-                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {{ $espece->id }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    <div class="flex items-center gap-3">
-                                                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                                            <i class="fas fa-leaf text-green-600 text-sm"></i>
-                                                        </div>
-                                                        <span class="font-medium">{{ $espece->name }}</span>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $espece->created_at ? $espece->created_at->format('d/m/Y') : 'N/A' }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="flex items-center gap-2">
-                                                        <a href="{{ route('contracts.especes.edit', $espece) }}" 
-                                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
-                                                           title="Modifier">
-                                                            <i class="fas fa-edit text-sm"></i>
-                                                        </a>
-                                                        <form action="{{ route('contracts.especes.destroy', $espece) }}" 
-                                                              method="POST" 
-                                                              class="inline"
-                                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette espèce ?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" 
-                                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200"
-                                                                    title="Supprimer">
-                                                                <i class="fas fa-trash text-sm"></i>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @empty
-                                            <tr>
-                                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                                                    <div class="flex flex-col items-center">
-                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                                            <i class="fas fa-leaf text-2xl text-gray-400"></i>
-                                                        </div>
-                                                        <p class="text-lg font-medium">Aucune espèce trouvée</p>
-                                                        <p class="text-sm">Commencez par ajouter une nouvelle espèce</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            
-                            @if($especes->hasPages())
-                                <div class="mt-6 flex items-center justify-between">
-                                    <div class="text-sm text-gray-700">
-                                        Affichage de {{ $especes->firstItem() }} à {{ $especes->lastItem() }} sur {{ $especes->total() }} résultats
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        {{ $especes->appends(request()->query())->links() }}
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- Avenants Tab -->
-                        <div class="tab-pane fade" id="avenants" role="tabpanel">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-file-contract text-white text-lg"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-xl font-bold text-gray-900">Liste des Avenants</h3>
-                                        <p class="text-gray-600">Gérez les avenants de contrat</p>
-                                    </div>
-                                </div>
-                                <a href="{{ route('contracts.avenants.create') }}" 
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Nouvel Avenant</span>
-                                </a>
-                            </div>
-                            
-                            <!-- Search Box -->
-                            <div class="mb-6">
-                                <form method="GET" action="{{ route('contracts.index') }}" class="flex gap-3">
-                                    <input type="hidden" name="tab" value="avenants">
-                                    <div class="flex-1 relative">
-                                        <input type="text" 
-                                               name="avenant_search" 
-                                               class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
-                                               placeholder="Rechercher un avenant (année, coopérative)..." 
-                                               value="{{ request('avenant_search') }}">
-                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                            <i class="fas fa-search"></i>
-                                        </div>
-                                    </div>
-                                    <button type="submit" 
-                                            class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    @if(request('avenant_search'))
-                                        <a href="{{ route('contracts.index') }}" 
-                                           class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                                            <i class="fas fa-times"></i>
-                                        </a>
-                                    @endif
-                                </form>
-                            </div>
-                            
-                            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
-                                            <tr>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contrat</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Année</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Coopérative</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Avenant</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            @forelse($avenants as $avenant)
-                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {{ $avenant->id }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    @if($avenant->contract)
-                                                        <div class="flex items-center gap-2">
-                                                            <i class="fas fa-file-contract text-green-500"></i>
-                                                            <span class="font-medium">Contrat #{{ $avenant->contract->contarct }} ({{ $avenant->contract->annee }})</span>
-                                                        </div>
-                                                    @else
-                                                        <span class="text-gray-400">-</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    <span class="badge bg-primary">{{ $avenant->annee }}</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {{ $avenant->date ? $avenant->date->format('d/m/Y') : 'N/A' }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    @if($avenant->coperative)
-                                                        <div class="flex items-center gap-2">
-                                                            <i class="fas fa-building text-indigo-500"></i>
-                                                            <span>{{ $avenant->coperative->nom ?? 'N/A' }}</span>
-                                                        </div>
-                                                    @else
-                                                        <span class="text-gray-500">-</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    @if($avenant->total_avenant)
-                                                        <span class="badge bg-success">
-                                                            {{ number_format($avenant->total_avenant, 2) }} DH
-                                                        </span>
-                                                    @else
-                                                        <span class="text-gray-500">-</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $avenant->created_at ? $avenant->created_at->format('d/m/Y') : 'N/A' }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="flex items-center gap-2">
-                                                        <a href="{{ route('contracts.avenants.edit', $avenant) }}" 
-                                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
-                                                           title="Modifier">
-                                                            <i class="fas fa-edit text-sm"></i>
-                                                        </a>
-                                                        <form action="{{ route('contracts.avenants.destroy', $avenant) }}" 
-                                                              method="POST" 
-                                                              class="inline"
-                                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet avenant ?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" 
-                                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200"
-                                                                    title="Supprimer">
-                                                                <i class="fas fa-trash text-sm"></i>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @empty
-                                            <tr>
-                                                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                                                    <div class="flex flex-col items-center">
-                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                                            <i class="fas fa-file-contract text-2xl text-gray-400"></i>
-                                                        </div>
-                                                        <p class="text-lg font-medium">Aucun avenant trouvé</p>
-                                                        <p class="text-sm">Commencez par ajouter un nouvel avenant</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            
-                            @if($avenants->hasPages())
-                                <div class="mt-6 flex items-center justify-between">
-                                    <div class="text-sm text-gray-700">
-                                        Affichage de {{ $avenants->firstItem() }} à {{ $avenants->lastItem() }} sur {{ $avenants->total() }} résultats
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        {{ $avenants->appends(request()->query())->links() }}
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- Coopératives Tab -->
-                        <div class="tab-pane fade" id="coperatives" role="tabpanel">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-users-cog text-white text-lg"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-xl font-bold text-gray-900">Liste des Coopératives</h3>
-                                        <p class="text-gray-600">Gérez les coopératives</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <a href="{{ route('contracts.coperatives.create') }}" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                                        <i class="fas fa-plus"></i>
-                                        <span>Nouvelle Coopérative</span>
-                                    </a>
-                                    <a href="{{ route('contracts.vocations.create') }}" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                                        <i class="fas fa-plus"></i>
-                                        <span>Nouvelle Vocation</span>
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <!-- Search Box -->
-                            <div class="mb-6">
-                                <form method="GET" action="{{ route('contracts.index') }}" class="flex gap-3">
-                                    <input type="hidden" name="tab" value="coperatives">
-                                    <div class="flex-1 relative">
-                                        <input type="text" 
-                                               name="coperative_search" 
-                                               class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                               placeholder="Rechercher une coopérative..." 
-                                               value="{{ request('coperative_search') }}">
-                                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                            <i class="fas fa-search"></i>
-                                        </div>
-                                    </div>
-                                    <button type="submit" 
-                                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    @if(request('coperative_search'))
-                                        <a href="{{ route('contracts.index') }}" 
-                                           class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                                            <i class="fas fa-times"></i>
-                                        </a>
-                                    @endif
-                                </form>
-                            </div>
-                            
-                            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
-                                            <tr>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vocation</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre de Membres</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre de Coopératives</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
-                                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            @forelse($coperatives as $coperative)
-                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {{ $coperative->id }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    <div class="flex items-center gap-3">
-                                                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                            <i class="fas fa-users-cog text-blue-600 text-sm"></i>
-                                                        </div>
-                                                        <span class="font-medium">{{ $coperative->nom ?? 'N/A' }}</span>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    @if($coperative->vocation)
-                                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                            <i class="fas fa-briefcase mr-1"></i>
-                                                            {{ $coperative->vocation->name }}
-                                                        </span>
-                                                    @else
-                                                        <span class="text-gray-400">-</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    <span class="badge bg-info">{{ $coperative->nombre_membres ?? 0 }}</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    <span class="badge bg-primary">{{ $coperative->nombre_coperatives ?? 0 }}</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $coperative->created_at ? $coperative->created_at->format('d/m/Y') : 'N/A' }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="flex items-center gap-2">
-                                                        <a href="{{ route('contracts.coperatives.edit', $coperative) }}" 
-                                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
-                                                           title="Modifier">
-                                                            <i class="fas fa-edit text-sm"></i>
-                                                        </a>
-                                                        <form action="{{ route('contracts.coperatives.destroy', $coperative) }}" 
-                                                              method="POST" 
-                                                              class="inline"
-                                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette coopérative ?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" 
-                                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200"
-                                                                    title="Supprimer">
-                                                                <i class="fas fa-trash text-sm"></i>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @empty
-                                            <tr>
-                                                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                                    <div class="flex flex-col items-center">
-                                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                                            <i class="fas fa-users-cog text-2xl text-gray-400"></i>
-                                                        </div>
-                                                        <p class="text-lg font-medium">Aucune coopérative trouvée</p>
-                                                        <p class="text-sm">Commencez par ajouter une nouvelle coopérative</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            
-                            @if($coperatives->hasPages())
-                                <div class="mt-6 flex items-center justify-between">
-                                    <div class="text-sm text-gray-700">
-                                        Affichage de {{ $coperatives->firstItem() }} à {{ $coperatives->lastItem() }} sur {{ $coperatives->total() }} résultats
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        {{ $coperatives->appends(request()->query())->links() }}
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
     // Tab functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -778,6 +400,24 @@
             if (tabButton) {
                 tabButton.click();
             }
+        }
+
+        // Toggle filters functionality
+        const toggleFiltersBtn = document.getElementById('toggleFilters');
+        const advancedFilters = document.getElementById('advancedFilters');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (toggleFiltersBtn && advancedFilters && toggleIcon) {
+            toggleFiltersBtn.addEventListener('click', function() {
+                advancedFilters.classList.toggle('hidden');
+                if (advancedFilters.classList.contains('hidden')) {
+                    toggleIcon.classList.remove('fa-chevron-up');
+                    toggleIcon.classList.add('fa-chevron-down');
+                } else {
+                    toggleIcon.classList.remove('fa-chevron-down');
+                    toggleIcon.classList.add('fa-chevron-up');
+                }
+            });
         }
     });
 </script>

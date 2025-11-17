@@ -150,21 +150,25 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="foret_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Forêt <span class="text-red-500">*</span>
+                        <label for="forets" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Forêts <span class="text-red-500">*</span>
                         </label>
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                id="foret_id" 
-                                name="foret_id" 
+                                id="forets" 
+                                name="forets[]" 
+                                multiple
                                 required>
-                            <option value="">Sélectionner une forêt</option>
                             @foreach($forets as $foret)
-                                <option value="{{ $foret->id }}" {{ old('foret_id') == $foret->id ? 'selected' : '' }}>
+                                <option value="{{ $foret->id }}" {{ in_array($foret->id, old('forets', [])) ? 'selected' : '' }}>
                                     {{ $foret->foret }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('foret_id')
+                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs forêts</p>
+                        @error('forets')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                        @error('forets.*')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
@@ -212,18 +216,7 @@
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
-            </div>
 
-            <!-- Section 2: Informations Complémentaires -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                        <i class="fas fa-info-circle text-white"></i>
-                    </div>
-                    <h3 class="text-xl font-bold" style="color: #059669;">Informations Complémentaires</h3>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="form-group">
                         <label for="superficie" class="block text-sm font-semibold text-gray-700 mb-2">Superficie <span class="text-red-500">*</span></label>
                         <input type="number" 
@@ -237,6 +230,18 @@
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Informations Complémentaires -->
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                        <i class="fas fa-info-circle text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Prestations</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                     <div class="form-group">
                         <label for="gardiennage" class="block text-sm font-semibold text-gray-700 mb-2">Gardiennage</label>
@@ -282,15 +287,31 @@
                                name="rajeunissement_romarin" 
                                value="{{ old('rajeunissement_romarin') }}">
                     </div>
+                </div>
+            </div>
 
-                    <div class="form-group">
-                        <label for="autre" class="block text-sm font-semibold text-gray-700 mb-2">Autre</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="autre" 
-                               name="autre" 
-                               value="{{ old('autre') }}">
+            <!-- Prestations Section -->
+            <div class="bg-white rounded-2xl p-6 border border-blue-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
+                            <i class="fas fa-tasks text-white text-sm"></i>
+                        </div>
+                        <h4 class="text-lg font-bold" style="color: #3b82f6;">Prestations</h4>
                     </div>
+                    <button type="button" 
+                            onclick="addPrestation()" 
+                            class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-300 text-sm"
+                            style="background: linear-gradient(to right, #3b82f6, #2563eb);"
+                            onmouseover="this.style.background='linear-gradient(to right, #2563eb, #1d4ed8)'"
+                            onmouseout="this.style.background='linear-gradient(to right, #3b82f6, #2563eb)'">
+                        <i class="fas fa-plus"></i>
+                        Ajouter Prestation
+                    </button>
+                </div>
+                
+                <div id="prestations-container">
+                    <!-- Prestations will be added dynamically here -->
                 </div>
             </div>
 
@@ -356,7 +377,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2">Total Avenant <span class="text-red-500">*</span></label>
+                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2">Total contract <span class="text-red-500">*</span></label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="total_avenant" 
@@ -641,6 +662,31 @@
                 </div>
             </div>
 
+            <!-- Products Section -->
+            <div class="bg-white rounded-2xl p-6 border border-purple-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                            <i class="fas fa-box text-white text-sm"></i>
+                        </div>
+                        <h4 class="text-lg font-bold" style="color: #059669;">Produits</h4>
+                    </div>
+                    <button type="button" 
+                            onclick="addProduct()" 
+                            class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-300 text-sm"
+                            style="background: linear-gradient(to right, #059669, #047857);"
+                            onmouseover="this.style.background='linear-gradient(to right, #047857, #065f46)'"
+                            onmouseout="this.style.background='linear-gradient(to right, #059669, #047857)'">
+                        <i class="fas fa-plus"></i>
+                        Ajouter Produit
+                    </button>
+                </div>
+                
+                <div id="products-container">
+                    <!-- Products will be added dynamically here -->
+                </div>
+            </div>
+
             <!-- Section 4: Résiliation -->
             <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 border border-red-200">
                 <div class="flex items-center gap-3 mb-6">
@@ -694,3 +740,94 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+let productCount = 0;
+let prestationCount = 0;
+
+// Add new product row
+function addProduct() {
+    productCount++;
+    const container = document.getElementById('products-container');
+    
+    const productRow = document.createElement('div');
+    productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    productRow.innerHTML = `
+        <div class="flex-1">
+            <input type="text" 
+                   name="products[${productCount}][name]" 
+                   placeholder="Nom du produit" 
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="w-32">
+            <input type="number" 
+                   name="products[${productCount}][quantity]" 
+                   placeholder="Quantité" 
+                   min="1" 
+                   value="1"
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" 
+                    onclick="removeProduct(this)" 
+                    class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(productRow);
+}
+
+// Remove product row
+function removeProduct(button) {
+    const productRow = button.closest('.product-row');
+    productRow.remove();
+}
+
+// Add new prestation row
+function addPrestation() {
+    prestationCount++;
+    const container = document.getElementById('prestations-container');
+    
+    const prestationRow = document.createElement('div');
+    prestationRow.className = 'prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    prestationRow.innerHTML = `
+        <div class="flex-1">
+            <input type="text" 
+                   name="prestations[${prestationCount}][name]" 
+                   placeholder="Nom de la prestation" 
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="w-32">
+            <input type="number" 
+                   name="prestations[${prestationCount}][quantity]" 
+                   placeholder="Quantité" 
+                   min="1" 
+                   value="1"
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" 
+                    onclick="removePrestation(this)" 
+                    class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(prestationRow);
+}
+
+// Remove prestation row
+function removePrestation(button) {
+    const prestationRow = button.closest('.prestation-row');
+    prestationRow.remove();
+}
+</script>
+@endpush

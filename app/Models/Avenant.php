@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Avenant extends Model
@@ -84,11 +85,19 @@ class Avenant extends Model
     }
 
     /**
-     * Get the products for this avenant.
+     * Get the products for this avenant (hasMany relationship).
      */
-    public function produits(): BelongsToMany
+    public function products(): HasMany
     {
-        return $this->belongsToMany(Product::class, 'avenant_produit', 'avenant_id', 'produit_id')
-            ->withTimestamps();
+        return $this->hasMany(Product::class, 'avenant_id');
     }
+
+    /**
+     * Get the prestations for this avenant (hasMany relationship).
+     */
+    public function prestations(): HasMany
+    {
+        return $this->hasMany(Prestation::class, 'avenant_id');
+    }
+
 }

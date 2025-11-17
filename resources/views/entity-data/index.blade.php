@@ -14,7 +14,7 @@
                 <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                     Données des Entités
                 </h1>
-                <p class="text-gray-600 text-lg mt-2">Gérez toutes les données de base du système (Articles et Contrats)</p>
+                <p class="text-gray-600 text-lg mt-2">Gérez toutes les données de base du système (Articles)</p>
             </div>
         </div>
     </div>
@@ -77,16 +77,6 @@
                             </div>
                             <div class="tab-indicator"></div>
                         </button>
-                        <button class="tab-button group" data-tab="exploitants">
-                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                                <i class="fas fa-user-tie text-white text-sm"></i>
-                            </div>
-                            <div class="text-left">
-                                <span class="block font-semibold">Exploitants</span>
-                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Articles</span>
-                            </div>
-                            <div class="tab-indicator"></div>
-                        </button>
                         <!-- Contracts Entities Tabs -->
                         <button class="tab-button group" data-tab="especes">
                             <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
@@ -94,26 +84,6 @@
                             </div>
                             <div class="text-left">
                                 <span class="block font-semibold">Espèces</span>
-                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Contrats</span>
-                            </div>
-                            <div class="tab-indicator"></div>
-                        </button>
-                        <button class="tab-button group" data-tab="avenants">
-                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                                <i class="fas fa-file-contract text-white text-sm"></i>
-                            </div>
-                            <div class="text-left">
-                                <span class="block font-semibold">Avenants</span>
-                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Contrats</span>
-                            </div>
-                            <div class="tab-indicator"></div>
-                        </button>
-                        <button class="tab-button group" data-tab="coperatives">
-                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                                <i class="fas fa-users-cog text-white text-sm"></i>
-                            </div>
-                            <div class="text-left">
-                                <span class="block font-semibold">Coopératives</span>
                                 <span class="text-xs text-gray-500 group-hover:text-gray-700">Contrats</span>
                             </div>
                             <div class="tab-indicator"></div>
@@ -137,10 +107,7 @@
                         @include('entity-data.partials.localisations-tab')
                         @include('entity-data.partials.situations-tab')
                         @include('entity-data.partials.natures-coupe-tab')
-                        @include('entity-data.partials.exploitants-tab')
                         @include('entity-data.partials.especes-tab')
-                        @include('entity-data.partials.avenants-tab')
-                        @include('entity-data.partials.coperatives-tab')
                         @include('entity-data.partials.vocations-tab')
                     </div>
                 </div>

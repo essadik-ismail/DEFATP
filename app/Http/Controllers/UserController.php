@@ -10,70 +10,40 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Spatie\Permission\Models\Role;
-use App\Services\ActivityLogger;
 use Illuminate\Http\JsonResponse;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use App\Services\ActivityLogger;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View|JsonResponse
+    public function index(Request $request): View
     {
-        // If this is an AJAX request for DataTables
-        if ($request->ajax()) {
-            return $this->getUsersData($request);
-        }
-
-        $roles = Role::all();
-        return view('users.index', compact('roles'));
-    }
-
-    /**
-     * Get users data for DataTables (AJAX)
-     */
-    private function getUsersData(Request $request): JsonResponse
-    {
+        // Log users view
+        ActivityLogger::log('view', 'Consultation de la liste des utilisateurs', User::class);
+        
         $query = User::with('roles');
-
-        // Get DataTables parameters
-        $draw = $request->get('draw');
-        $start = $request->get('start', 0);
-        $length = $request->get('length', 10);
-        $searchValue = $request->get('search')['value'] ?? '';
-        $orderColumn = $request->get('order')[0]['column'] ?? 0;
-        $orderDir = $request->get('order')[0]['dir'] ?? 'desc';
-
-        // Column mapping for DataTables (0=id, 1=name, 2=email, 3=ppr, 4=roles, 5=is_deleted, 6=created_at, 7=actions)
-        $columnMap = [
-            0 => 'id',
-            1 => 'name',
-            2 => 'email',
-            3 => 'ppr',
-            4 => 'created_at', // roles cannot be ordered, default to created_at
-            5 => 'is_deleted',
-            6 => 'created_at',
-            7 => 'created_at', // actions cannot be ordered, default to created_at
-        ];
-        $orderColumnName = $columnMap[$orderColumn] ?? 'created_at';
-
+        
         // Search functionality
-        if (!empty($searchValue)) {
-            $query->where(function ($q) use ($searchValue) {
-                $q->where('name', 'like', "%{$searchValue}%")
-                  ->orWhere('email', 'like', "%{$searchValue}%")
-                  ->orWhere('ppr', 'like', "%{$searchValue}%");
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('ppr', 'like', "%{$search}%");
             });
         }
-
+        
         // Filter by role
         if ($request->filled('role')) {
-            $query->whereHas('roles', function ($q) use ($request) {
+            $query->whereHas('roles', function($q) use ($request) {
                 $q->where('name', $request->role);
             });
         }
-
+        
         // Filter by status
         if ($request->filled('status')) {
             if ($request->status === 'active') {
@@ -82,57 +52,35 @@ class UserController extends Controller
                 $query->where('is_deleted', true);
             }
         }
-
-        // Get total records before filtering
-        $totalRecords = User::count();
-        $filteredRecords = $query->count();
-
-        // Apply ordering and pagination
-        $users = $query->orderBy($orderColumnName, $orderDir)
-            ->skip($start)
-            ->take($length)
-            ->get();
-
-        // Format data for DataTables
-        $data = [];
-        foreach ($users as $user) {
-            $roles = $user->roles->pluck('name')->map(function($role) {
-                return '<span class="badge bg-primary me-1">' . e($role) . '</span>';
-            })->implode('');
-
-            $status = $user->is_deleted 
-                ? '<span class="badge bg-danger">Inactif</span>'
-                : '<span class="badge bg-success">Actif</span>';
-
-            $actions = view('users.partials.actions', compact('user'))->render();
-
-            $data[] = [
-                $user->id,
-                '<div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="avatar-sm bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center">
-                            <span class="text-primary fw-semibold">' . strtoupper(substr($user->name, 0, 1)) . '</span>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-2">
-                        <div class="fw-semibold">' . e($user->name) . '</div>
-                    </div>
-                </div>',
-                e($user->email),
-                '<span class="badge bg-info">' . e($user->ppr) . '</span>',
-                $roles ?: '<span class="text-muted">Aucun rôle</span>',
-                $status,
-                $user->created_at->format('d/m/Y H:i'),
-                $actions,
-            ];
+        
+        // Sorting
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        
+        $allowedSortFields = ['id', 'name', 'email', 'ppr', 'is_deleted', 'created_at'];
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
         }
-
-        return response()->json([
-            'draw' => intval($draw),
-            'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $filteredRecords,
-            'data' => $data,
-        ]);
+        
+        // Pagination
+        $perPage = $request->get('per_page', 15);
+        $allowedPerPage = [10, 15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 15;
+        }
+        
+        $users = $query->paginate($perPage);
+        
+        // Calculate statistics
+        $stats = [
+            'total' => User::count(),
+            'active' => User::where('is_deleted', false)->count(),
+            'inactive' => User::where('is_deleted', true)->count(),
+        ];
+        
+        $roles = Role::all();
+        
+        return view('users.index', compact('users', 'roles', 'stats'));
     }
 
     /**
@@ -229,6 +177,10 @@ class UserController extends Controller
     public function show(User $user): View
     {
         $user->load('roles.permissions');
+        $allRoles = Role::orderBy('name')->get();
+        $allPermissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
+            return explode('.', $permission->name)[0] ?? 'other';
+        });
         
         // Log the activity
         ActivityLogger::logView(
@@ -238,7 +190,7 @@ class UserController extends Controller
             request()
         );
         
-        return view('users.show', compact('user'));
+        return view('users.show', compact('user', 'allRoles', 'allPermissions'));
     }
 
     /**
@@ -336,6 +288,43 @@ class UserController extends Controller
             'message' => "Statut de l'utilisateur changé avec succès.",
             'new_status' => $newStatus
         ]);
+    }
+
+    /**
+     * Assign roles and permissions to a user.
+     */
+    public function assignRolesPermissions(Request $request, User $user): RedirectResponse
+    {
+        $request->validate([
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,name',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,name',
+        ]);
+        
+        // Sync roles
+        if ($request->has('roles')) {
+            $user->syncRoles($request->roles);
+            ActivityLogger::log('update', "Rôles assignés à l'utilisateur {$user->name}", User::class, $user->id, $request);
+        } else {
+            $user->roles()->detach();
+            ActivityLogger::log('update', "Tous les rôles retirés de l'utilisateur {$user->name}", User::class, $user->id, $request);
+        }
+        
+        // Sync direct permissions
+        if ($request->has('permissions')) {
+            $user->syncPermissions($request->permissions);
+            ActivityLogger::log('update', "Permissions assignées à l'utilisateur {$user->name}", User::class, $user->id, $request);
+        } else {
+            $user->permissions()->detach();
+            ActivityLogger::log('update', "Toutes les permissions directes retirées de l'utilisateur {$user->name}", User::class, $user->id, $request);
+        }
+        
+        // Clear permission cache
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        
+        return redirect()->route('users.show', $user)
+            ->with('success', 'Rôles et permissions mis à jour avec succès.');
     }
 
     /**

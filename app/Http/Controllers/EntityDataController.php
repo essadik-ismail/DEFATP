@@ -9,7 +9,6 @@ use App\Models\SituationAdministrative;
 use App\Models\NatureDeCoupe;
 use App\Models\Exploitant;
 use App\Models\Espece;
-use App\Models\Avenant;
 use App\Models\Coperative;
 use App\Models\Vocation;
 use Illuminate\Http\Request;
@@ -39,9 +38,11 @@ class EntityDataController extends Controller
 
         $localisations = Localisation::where('is_deleted', false)
             ->when($request->filled('localisation_search'), function($query) use ($request) {
-                $query->where('CODE', 'like', '%' . $request->localisation_search . '%')
+                $query->where(function($q) use ($request) {
+                    $q->where('CODE', 'like', '%' . $request->localisation_search . '%')
                       ->orWhere('DRANEF', 'like', '%' . $request->localisation_search . '%')
                       ->orWhere('ENTITE', 'like', '%' . $request->localisation_search . '%');
+                });
             })
             ->orderBy('CODE')
             ->paginate(10, ['*'], 'localisations_page');
@@ -69,19 +70,6 @@ class EntityDataController extends Controller
             ->orderBy('name')
             ->paginate(10, ['*'], 'especes_page');
 
-        $avenants = Avenant::with(['coperative', 'contract'])
-            ->when($request->filled('avenant_search'), function($query) use ($request) {
-                $query->where('annee', 'like', '%' . $request->avenant_search . '%')
-                      ->orWhereHas('coperative', function($coopQuery) use ($request) {
-                          $coopQuery->where('nom', 'like', '%' . $request->avenant_search . '%');
-                      })
-                      ->orWhereHas('contract', function($contractQuery) use ($request) {
-                          $contractQuery->where('contarct', 'like', '%' . $request->avenant_search . '%');
-                      });
-            })
-            ->orderBy('date', 'desc')
-            ->paginate(10, ['*'], 'avenants_page');
-
         $coperatives = Coperative::with('vocation')
             ->when($request->filled('coperative_search'), function($query) use ($request) {
                 $query->where('nom', 'like', '%' . $request->coperative_search . '%');
@@ -103,7 +91,6 @@ class EntityDataController extends Controller
             'natureDeCoupes',
             'exploitants',
             'especes',
-            'avenants',
             'coperatives',
             'vocations'
         ));

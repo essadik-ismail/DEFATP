@@ -131,10 +131,15 @@
 
             <!-- Roles and Permissions -->
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 font-weight-bold text-warning">
                         <i class="fas fa-shield-alt me-2"></i>Rôles et Permissions
                     </h6>
+                    @can('users.edit')
+                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#assignRolesPermissionsModal">
+                        <i class="fas fa-edit me-2"></i>Modifier
+                    </button>
+                    @endcan
                 </div>
                 <div class="card-body">
                     @if($user->roles->count() > 0)
@@ -171,6 +176,22 @@
                         <div class="text-center py-4">
                             <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
                             <p class="text-muted">Aucun rôle assigné à cet utilisateur</p>
+                        </div>
+                    @endif
+                    
+                    @php
+                        $directPermissions = $user->getDirectPermissions();
+                    @endphp
+                    @if($directPermissions->count() > 0)
+                        <div class="mt-4 pt-4 border-top">
+                            <h6 class="mb-3">
+                                <i class="fas fa-key me-2"></i>Permissions Directes
+                            </h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($directPermissions as $permission)
+                                    <span class="badge bg-info">{{ $permission->name }}</span>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -355,6 +376,99 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                 <button type="button" class="btn btn-primary" id="confirmToggleStatus">Confirmer</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Roles and Permissions Modal -->
+<div class="modal fade" id="assignRolesPermissionsModal" tabindex="-1" aria-labelledby="assignRolesPermissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="{{ route('users.assign-roles-permissions', $user) }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignRolesPermissionsModalLabel">
+                        <i class="fas fa-shield-alt me-2"></i>Assigner Rôles et Permissions
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Roles Section -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">
+                            <i class="fas fa-user-tag me-2 text-warning"></i>Rôles
+                        </h6>
+                        <div class="form-group">
+                            <select class="form-select" id="roles" name="roles[]" multiple size="5">
+                                @foreach($allRoles as $role)
+                                    <option value="{{ $role->name }}" 
+                                        {{ $user->hasRole($role->name) ? 'selected' : '' }}>
+                                        {{ $role->name }} 
+                                        <small class="text-muted">({{ $role->permissions->count() }} permissions)</small>
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="form-text text-muted">Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs rôles</small>
+                        </div>
+                    </div>
+
+                    <!-- Permissions Section -->
+                    <div>
+                        <h6 class="mb-3">
+                            <i class="fas fa-key me-2 text-info"></i>Permissions Directes
+                        </h6>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Les permissions directes sont en plus des permissions des rôles assignés.
+                        </div>
+                        
+                        <div class="accordion" id="permissionsAccordion">
+                            @foreach($allPermissions as $module => $permissions)
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading{{ $loop->index }}">
+                                        <button class="accordion-button {{ $loop->first ? '' : 'collapsed' }}" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#collapse{{ $loop->index }}" 
+                                                aria-expanded="{{ $loop->first ? 'true' : 'false' }}" 
+                                                aria-controls="collapse{{ $loop->index }}">
+                                            <strong>{{ ucfirst(str_replace('-', ' ', $module)) }}</strong>
+                                            <span class="badge bg-secondary ms-2">{{ $permissions->count() }}</span>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ $loop->index }}" 
+                                         class="accordion-collapse collapse {{ $loop->first ? 'show' : '' }}" 
+                                         aria-labelledby="heading{{ $loop->index }}" 
+                                         data-bs-parent="#permissionsAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row">
+                                                @foreach($permissions as $permission)
+                                                    <div class="col-md-6 mb-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" 
+                                                                   name="permissions[]" 
+                                                                   value="{{ $permission->name }}" 
+                                                                   id="permission_{{ $permission->id }}"
+                                                                   {{ $user->hasDirectPermission($permission->name) ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="permission_{{ $permission->id }}">
+                                                                {{ $permission->name }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save me-2"></i>Enregistrer
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

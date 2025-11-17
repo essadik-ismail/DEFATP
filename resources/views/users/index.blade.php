@@ -35,88 +35,303 @@
         </div>
     </div>
 
-    <!-- Search and Filters -->
-    <x-card 
-        title="Recherche et Filtres" 
-        subtitle="Filtrez et recherchez parmi les utilisateurs"
-        variant="colored"
-        color="blue"
-        icon="fas fa-search"
-        padding="normal"
-        class="mb-6"
-    >
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label for="filterRole" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fas fa-shield-alt text-blue-500 mr-2"></i>
-                    Rôle
-                </label>
-                <select 
-                    id="filterRole" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-                    <option value="">Tous les rôles</option>
-                    @foreach($roles as $role)
-                        <option value="{{ $role->name }}">{{ $role->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="filterStatus" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fas fa-toggle-on text-blue-500 mr-2"></i>
-                    Statut
-                </label>
-                <select 
-                    id="filterStatus" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-                    <option value="">Tous les statuts</option>
-                    <option value="active">Actif</option>
-                    <option value="inactive">Inactif</option>
-                </select>
-            </div>
-            <div class="flex items-end">
-                <button 
-                    type="button" 
-                    id="resetFilters"
-                    class="w-full px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center justify-center gap-2"
-                >
-                    <i class="fas fa-redo"></i>
-                    Réinitialiser
-                </button>
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium mb-1">Total Utilisateurs</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-blue-600 text-xl"></i>
+                </div>
             </div>
         </div>
-    </x-card>
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium mb-1">Actifs</p>
+                    <p class="text-3xl font-bold text-green-600">{{ $stats['active'] }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium mb-1">Inactifs</p>
+                    <p class="text-3xl font-bold text-red-600">{{ $stats['inactive'] }}</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-ban text-red-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200 mb-6">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center">
+                <i class="fas fa-search text-white"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900">Recherche et Filtres</h3>
+        </div>
+        <form method="GET" action="{{ route('users.index') }}" id="filterForm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="form-group">
+                    <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Rechercher
+                    </label>
+                    <div class="relative">
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               name="search" 
+                               id="search" 
+                               placeholder="Rechercher par nom, email, PPR..." 
+                               value="{{ request('search') }}"
+                               onkeyup="debounceFilter()">
+                        <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="role" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Rôle
+                    </label>
+                    <select 
+                        name="role" 
+                        id="role" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                        onchange="submitFilter()"
+                    >
+                        <option value="">Tous les rôles</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
+                                {{ $role->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Statut
+                    </label>
+                    <div class="flex gap-2">
+                        <select 
+                            name="status" 
+                            id="status" 
+                            class="form-input flex-1 px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                            onchange="submitFilter()"
+                        >
+                            <option value="">Tous les statuts</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actif</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactif</option>
+                        </select>
+                        <button type="button" 
+                                class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
+                                onclick="clearFilters()" 
+                                title="Effacer les filtres">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hidden fields to preserve pagination -->
+            @if(request('per_page'))
+                <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+            @endif
+        </form>
+    </div>
 
     <!-- Users Table -->
-    <x-card 
-        title="Liste des Utilisateurs" 
-        subtitle="Gestion complète des utilisateurs"
-        variant="gradient"
-        color="blue"
-        icon="fas fa-table"
-        padding="normal"
-    >
-        <div class="table-responsive">
-            <table id="usersTable" class="table table-striped table-hover" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nom</th>
-                        <th>Email</th>
-                        <th>PPR</th>
-                        <th>Rôles</th>
-                        <th>Statut</th>
-                        <th>Date de création</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- DataTables will populate this via AJAX -->
-                </tbody>
-            </table>
+    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-table text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Liste des Utilisateurs</h2>
+                    <p class="text-gray-600">Gestion complète des utilisateurs</p>
+                </div>
+            </div>
         </div>
-    </x-card>
+        
+        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">PPR</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rôle Org.</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rôles</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Statut</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de création</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @forelse($users as $user)
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-blue-600 font-semibold text-xs">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                                        </div>
+                                        <span class="font-medium">{{ $user->name }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->email }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ $user->ppr ?? 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($user->role)
+                                        @php
+                                            $roleLabels = [
+                                                'dg' => 'DG',
+                                                'dc' => 'DC',
+                                                'departement' => 'Département',
+                                                'administrateur' => 'Administrateur',
+                                                'draned' => 'DRANED',
+                                                'dpanef' => 'DPANEF',
+                                                'entite' => 'Entité'
+                                            ];
+                                        @endphp
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            {{ $roleLabels[$user->role] ?? $user->role }}
+                                        </span>
+                                    @else
+                                        <span class="text-gray-400">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($user->roles && $user->roles->count() > 0)
+                                        <div class="flex flex-wrap gap-1">
+                                            @foreach($user->roles as $role)
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                    {{ $role->name }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400">Aucun rôle</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($user->is_deleted)
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            Inactif
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Actif
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $user->created_at ? $user->created_at->format('d/m/Y H:i') : 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center gap-1">
+                                        <!-- View Action -->
+                                        <a href="{{ route('users.show', $user) }}" 
+                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors duration-200" 
+                                           title="Voir les détails">
+                                            <i class="fas fa-eye text-sm"></i>
+                                        </a>
+                                        
+                                        <!-- Edit Action -->
+                                        <a href="{{ route('users.edit', $user) }}" 
+                                           class="inline-flex items-center justify-center w-8 h-8 bg-orange-100 hover:bg-orange-200 text-orange-600 rounded-lg transition-colors duration-200" 
+                                           title="Modifier l'utilisateur">
+                                            <i class="fas fa-edit text-sm"></i>
+                                        </a>
+                                        
+                                        <!-- Toggle Status Action -->
+                                        <button type="button"
+                                                onclick="toggleUserStatus({{ $user->id }}, {{ $user->is_deleted ? 'false' : 'true' }})"
+                                                class="inline-flex items-center justify-center w-8 h-8 {{ $user->is_deleted ? 'bg-green-100 hover:bg-green-200 text-green-600' : 'bg-yellow-100 hover:bg-yellow-200 text-yellow-600' }} rounded-lg transition-colors duration-200" 
+                                                title="{{ $user->is_deleted ? 'Activer' : 'Désactiver' }}">
+                                            <i class="fas fa-{{ $user->is_deleted ? 'check' : 'ban' }} text-sm"></i>
+                                        </button>
+                                        
+                                        <!-- Delete Action -->
+                                        <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')"
+                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200" 
+                                                    title="Supprimer l'utilisateur">
+                                                <i class="fas fa-trash text-sm"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center py-8">
+                                    <div class="text-muted">
+                                        <i class="fas fa-users text-4xl mb-2 d-block"></i>
+                                        <p class="h5 mb-2">Aucun utilisateur trouvé</p>
+                                        <p class="text-muted mb-3">Commencez par créer votre premier utilisateur</p>
+                                        <a href="{{ route('users.create') }}" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Créer le Premier Utilisateur
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            
+            @if($users->hasPages())
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Affichage de {{ $users->firstItem() ?? 0 }} à {{ $users->lastItem() ?? 0 }} 
+                            sur {{ $users->total() }} utilisateurs
+                            @if(request()->hasAny(['search', 'role', 'status']))
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-2">
+                                    <i class="fas fa-filter mr-1"></i>Filtrés
+                                </span>
+                            @endif
+                        </div>
+                        <div class="pagination-controls">
+                            {{ $users->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="perPageSelect" class="text-sm text-gray-600">Par page:</label>
+                            <select class="form-input px-3 py-1 border border-gray-300 rounded-lg text-sm" 
+                                    id="perPageSelect" onchange="changePerPage(this.value)">
+                                <option value="10" {{ request('per_page', 15) == 10 ? 'selected' : '' }}>10</option>
+                                <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
+                                <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
 </div>
 
 <!-- Toggle Status Modal -->
@@ -139,148 +354,67 @@
 </div>
 @endsection
 
-@push('styles')
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
-<style>
-    #usersTable_wrapper .dataTables_filter {
-        margin-bottom: 1rem;
-    }
-    
-    #usersTable_wrapper .dataTables_length {
-        margin-bottom: 1rem;
-    }
-    
-    .table th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-    }
-    
-    .avatar-sm {
-        width: 32px;
-        height: 32px;
-        font-size: 0.875rem;
-    }
-</style>
-@endpush
-
 @push('scripts')
-<!-- jQuery (required for DataTables) -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- DataTables JS -->
-<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-
 <script>
-$(document).ready(function() {
-    let table = $('#usersTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: "{{ route('users.index') }}",
-            data: function(d) {
-                d.role = $('#filterRole').val();
-                d.status = $('#filterStatus').val();
-            }
-        },
-        columns: [
-            { data: 0, name: 'id', orderable: true, searchable: false },
-            { data: 1, name: 'name', orderable: true, searchable: true },
-            { data: 2, name: 'email', orderable: true, searchable: true },
-            { data: 3, name: 'ppr', orderable: true, searchable: true },
-            { data: 4, name: 'roles', orderable: false, searchable: false },
-            { data: 5, name: 'is_deleted', orderable: true, searchable: false },
-            { data: 6, name: 'created_at', orderable: true, searchable: false },
-            { data: 7, name: 'actions', orderable: false, searchable: false }
-        ],
-        order: [[6, 'desc']],
-        pageLength: 15,
-        lengthMenu: [[10, 15, 25, 50, 100], [10, 15, 25, 50, 100]],
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
-        },
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'excel',
-                text: '<i class="fas fa-file-excel"></i> Excel',
-                className: 'btn btn-success btn-sm'
-            },
-            {
-                extend: 'pdf',
-                text: '<i class="fas fa-file-pdf"></i> PDF',
-                className: 'btn btn-danger btn-sm'
-            },
-            {
-                extend: 'print',
-                text: '<i class="fas fa-print"></i> Imprimer',
-                className: 'btn btn-info btn-sm'
-            }
-        ],
-        responsive: true
-    });
+    // Debounced search function
+    let searchTimeout;
+    function debounceFilter() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            submitFilter();
+        }, 500);
+    }
 
-    // Apply filters when changed
-    $('#filterRole, #filterStatus').on('change', function() {
-        table.ajax.reload();
-    });
+    // Submit filter form
+    function submitFilter() {
+        document.getElementById('filterForm').submit();
+    }
 
-    // Reset filters
-    $('#resetFilters').on('click', function() {
-        $('#filterRole').val('');
-        $('#filterStatus').val('');
-        table.ajax.reload();
-    });
+    // Clear all filters
+    function clearFilters() {
+        document.getElementById('search').value = '';
+        document.getElementById('role').value = '';
+        document.getElementById('status').value = '';
+        submitFilter();
+    }
 
-    // Add search input hint
-    $(document).on('focus', '.dataTables_filter input', function() {
-        if (typeof UXUtils !== 'undefined') {
-            UXUtils.showToast('Utilisez Ctrl+K pour rechercher rapidement', 'info', 3000);
-        }
-    });
+    // Per page selector functionality
+    function changePerPage(perPage) {
+        const url = new URL(window.location);
+        url.searchParams.set('per_page', perPage);
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+    }
 
-    // Add keyboard shortcut Ctrl+K to focus search
-    $(document).on('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k' && !$(e.target).is('input, textarea')) {
-            e.preventDefault();
-            $('.dataTables_filter input').focus();
-        }
-    });
-});
-
-function toggleUserStatus(userId, newStatus) {
-    const modal = new bootstrap.Modal(document.getElementById('toggleStatusModal'));
-    const confirmBtn = document.getElementById('confirmToggleStatus');
-    
-    confirmBtn.onclick = function() {
-        fetch(`/admin/users/${userId}/toggle-status`, {
-            method: 'PATCH',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                $('#usersTable').DataTable().ajax.reload(null, false);
-                modal.hide();
-            } else {
+    // Toggle user status
+    function toggleUserStatus(userId, newStatus) {
+        const modal = new bootstrap.Modal(document.getElementById('toggleStatusModal'));
+        const confirmBtn = document.getElementById('confirmToggleStatus');
+        
+        confirmBtn.onclick = function() {
+            fetch(`/admin/users/${userId}/toggle-status`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                    modal.hide();
+                } else {
+                    alert('Erreur lors du changement de statut');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 alert('Erreur lors du changement de statut');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Erreur lors du changement de statut');
-        });
-    };
-    
-    modal.show();
-}
+            });
+        };
+        
+        modal.show();
+    }
 </script>
 @endpush

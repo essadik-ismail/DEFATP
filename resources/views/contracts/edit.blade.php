@@ -151,6 +151,53 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="forets" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Forêts <span class="text-red-500">*</span>
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                id="forets" 
+                                name="forets[]" 
+                                multiple
+                                required>
+                            @php
+                                $selectedForets = old('forets', $contract->forets->pluck('id')->toArray());
+                            @endphp
+                            @foreach($forets as $foret)
+                                <option value="{{ $foret->id }}" {{ in_array($foret->id, $selectedForets) ? 'selected' : '' }}>
+                                    {{ $foret->foret }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs forêts</p>
+                        @error('forets')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                        @error('forets.*')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="coperative_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Coopérative <span class="text-red-500">*</span>
+                        </label>
+                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                id="coperative_id" 
+                                name="coperative_id" 
+                                required>
+                            <option value="">Sélectionner une coopérative</option>
+                            @foreach($coperatives as $coperative)
+                                <option value="{{ $coperative->id }}" {{ old('coperative_id', $contract->coperative_id) == $coperative->id ? 'selected' : '' }}>
+                                    {{ $coperative->nom }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('coperative_id')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="especes" class="block text-sm font-semibold text-gray-700 mb-2">
                             Espèces <span class="text-red-500">*</span>
                         </label>
@@ -176,27 +223,32 @@
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="form-group">
+                        <label for="superficie" class="block text-sm font-semibold text-gray-700 mb-2">Superficie <span class="text-red-500">*</span></label>
+                        <input type="number" 
+                               step="0.01"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="superficie" 
+                               name="superficie" 
+                               value="{{ old('superficie', $contract->superficie) }}"
+                               required>
+                        @error('superficie')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
 
-            <!-- Section 2: Informations Complémentaires -->
+            <!-- Section 2: Prestations -->
             <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                         <i class="fas fa-info-circle text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold" style="color: #059669;">Informations Complémentaires</h3>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Prestations</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="form-group">
-                        <label for="superficie" class="block text-sm font-semibold text-gray-700 mb-2">Superficie</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="superficie" 
-                               name="superficie" 
-                               value="{{ old('superficie', $contract->superficie) }}">
-                    </div>
-
                     <div class="form-group">
                         <label for="gardiennage" class="block text-sm font-semibold text-gray-700 mb-2">Gardiennage</label>
                         <input type="text" 
@@ -204,6 +256,15 @@
                                id="gardiennage" 
                                name="gardiennage" 
                                value="{{ old('gardiennage', $contract->gardiennage) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prevention_contre_les_incendies" class="block text-sm font-semibold text-gray-700 mb-2">Prévention contre les Incendies</label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="prevention_contre_les_incendies" 
+                               name="prevention_contre_les_incendies" 
+                               value="{{ old('prevention_contre_les_incendies', $contract->prevention_contre_les_incendies) }}">
                     </div>
 
                     <div class="form-group">
@@ -225,24 +286,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="redevances" class="block text-sm font-semibold text-gray-700 mb-2">Redevances</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="redevances" 
-                               name="redevances" 
-                               value="{{ old('redevances', $contract->redevances) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="taxes" class="block text-sm font-semibold text-gray-700 mb-2">Taxes</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="taxes" 
-                               name="taxes" 
-                               value="{{ old('taxes', $contract->taxes) }}">
-                    </div>
-
-                    <div class="form-group">
                         <label for="rajeunissement_romarin" class="block text-sm font-semibold text-gray-700 mb-2">Rajeunissement Romarin</label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -250,32 +293,135 @@
                                name="rajeunissement_romarin" 
                                value="{{ old('rajeunissement_romarin', $contract->rajeunissement_romarin) }}">
                     </div>
+                </div>
+            </div>
 
+            <!-- Prestations Section -->
+            <div class="bg-white rounded-2xl p-6 border border-blue-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
+                            <i class="fas fa-tasks text-white text-sm"></i>
+                        </div>
+                        <h4 class="text-lg font-bold" style="color: #3b82f6;">Prestations</h4>
+                    </div>
+                    <button type="button" 
+                            onclick="addPrestation()" 
+                            class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-300 text-sm"
+                            style="background: linear-gradient(to right, #3b82f6, #2563eb);"
+                            onmouseover="this.style.background='linear-gradient(to right, #2563eb, #1d4ed8)'"
+                            onmouseout="this.style.background='linear-gradient(to right, #3b82f6, #2563eb)'">
+                        <i class="fas fa-plus"></i>
+                        Ajouter Prestation
+                    </button>
+                </div>
+                
+                <div id="prestations-container">
+                    @if($contract->prestations && $contract->prestations->count() > 0)
+                        @foreach($contract->prestations as $index => $prestation)
+                            <div class="prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <div class="flex-1">
+                                    <input type="text" 
+                                           name="prestations[{{ $index }}][name]" 
+                                           placeholder="Nom de la prestation" 
+                                           value="{{ old("prestations.{$index}.name", $prestation->name) }}"
+                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                                           required>
+                                </div>
+                                <div class="w-32">
+                                    <input type="number" 
+                                           name="prestations[{{ $index }}][quantity]" 
+                                           placeholder="Quantité" 
+                                           min="1" 
+                                           value="{{ old("prestations.{$index}.quantity", $prestation->quantity) }}"
+                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                                           required>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" 
+                                            onclick="removePrestation(this)" 
+                                            class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+
+            <!-- Section 3: Valeurs Financières -->
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                        <i class="fas fa-coins text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Valeurs Financières</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="form-group">
-                        <label for="valeurs_des_produits" class="block text-sm font-semibold text-gray-700 mb-2">Valeurs des Produits</label>
+                        <label for="valeurs_des_produits" class="block text-sm font-semibold text-gray-700 mb-2">Valeurs des Produits <span class="text-red-500">*</span></label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="valeurs_des_produits" 
                                name="valeurs_des_produits" 
-                               value="{{ old('valeurs_des_produits', $contract->valeurs_des_produits) }}">
+                               value="{{ old('valeurs_des_produits', $contract->valeurs_des_produits) }}"
+                               required>
+                        @error('valeurs_des_produits')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="valeur_des_prestations" class="block text-sm font-semibold text-gray-700 mb-2">Valeur des Prestations</label>
+                        <label for="valeur_des_prestations" class="block text-sm font-semibold text-gray-700 mb-2">Valeur des Prestations <span class="text-red-500">*</span></label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="valeur_des_prestations" 
                                name="valeur_des_prestations" 
-                               value="{{ old('valeur_des_prestations', $contract->valeur_des_prestations) }}">
+                               value="{{ old('valeur_des_prestations', $contract->valeur_des_prestations) }}"
+                               required>
+                        @error('valeur_des_prestations')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2">Total Avenant</label>
+                        <label for="redevances" class="block text-sm font-semibold text-gray-700 mb-2">Redevances <span class="text-red-500">*</span></label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="redevances" 
+                               name="redevances" 
+                               value="{{ old('redevances', $contract->redevances) }}"
+                               required>
+                        @error('redevances')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taxes" class="block text-sm font-semibold text-gray-700 mb-2">Taxes <span class="text-red-500">*</span></label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="taxes" 
+                               name="taxes" 
+                               value="{{ old('taxes', $contract->taxes) }}"
+                               required>
+                        @error('taxes')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2">Total contract <span class="text-red-500">*</span></label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="total_avenant" 
                                name="total_avenant" 
-                               value="{{ old('total_avenant', $contract->total_avenant) }}">
+                               value="{{ old('total_avenant', $contract->total_avenant) }}"
+                               required>
+                        @error('total_avenant')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -380,13 +526,263 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="charbon_bois_ox" class="block text-sm font-semibold text-gray-700 mb-2">Charbon Bois (ox)</label>
+                        <label for="laurier_sauce" class="block text-sm font-semibold text-gray-700 mb-2">Laurier Sauce (t)</label>
                         <input type="number" 
                                step="1"
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="charbon_bois_ox" 
-                               name="charbon_bois_ox" 
-                               value="{{ old('charbon_bois_ox', $contract->charbon_bois_ox) }}">
+                               id="laurier_sauce" 
+                               name="laurier_sauce" 
+                               value="{{ old('laurier_sauce', $contract->laurier_sauce) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="myrte" class="block text-sm font-semibold text-gray-700 mb-2">Myrte (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="myrte" 
+                               name="myrte" 
+                               value="{{ old('myrte', $contract->myrte) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="callune" class="block text-sm font-semibold text-gray-700 mb-2">Callune (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="callune" 
+                               name="callune" 
+                               value="{{ old('callune', $contract->callune) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="thym" class="block text-sm font-semibold text-gray-700 mb-2">Thym (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="thym" 
+                               name="thym" 
+                               value="{{ old('thym', $contract->thym) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bruyetre" class="block text-sm font-semibold text-gray-700 mb-2">Bruyère (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="bruyetre" 
+                               name="bruyetre" 
+                               value="{{ old('bruyetre', $contract->bruyetre) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lichen" class="block text-sm font-semibold text-gray-700 mb-2">Lichen (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="lichen" 
+                               name="lichen" 
+                               value="{{ old('lichen', $contract->lichen) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tanin" class="block text-sm font-semibold text-gray-700 mb-2">Tanin (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="tanin" 
+                               name="tanin" 
+                               value="{{ old('tanin', $contract->tanin) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="romarin" class="block text-sm font-semibold text-gray-700 mb-2">Romarin (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="romarin" 
+                               name="romarin" 
+                               value="{{ old('romarin', $contract->romarin) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="liege_male" class="block text-sm font-semibold text-gray-700 mb-2">Liège Mâle (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="liege_male" 
+                               name="liege_male" 
+                               value="{{ old('liege_male', $contract->liege_male) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="liege_de_reproduction" class="block text-sm font-semibold text-gray-700 mb-2">Liège de Reproduction (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="liege_de_reproduction" 
+                               name="liege_de_reproduction" 
+                               value="{{ old('liege_de_reproduction', $contract->liege_de_reproduction) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sauge" class="block text-sm font-semibold text-gray-700 mb-2">Sauge (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="sauge" 
+                               name="sauge" 
+                               value="{{ old('sauge', $contract->sauge) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lavande" class="block text-sm font-semibold text-gray-700 mb-2">Lavande (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="lavande" 
+                               name="lavande" 
+                               value="{{ old('lavande', $contract->lavande) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="armoise" class="block text-sm font-semibold text-gray-700 mb-2">Armoise (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="armoise" 
+                               name="armoise" 
+                               value="{{ old('armoise', $contract->armoise) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="origan" class="block text-sm font-semibold text-gray-700 mb-2">Origan (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="origan" 
+                               name="origan" 
+                               value="{{ old('origan', $contract->origan) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alfa" class="block text-sm font-semibold text-gray-700 mb-2">Alfa (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="alfa" 
+                               name="alfa" 
+                               value="{{ old('alfa', $contract->alfa) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lentisque" class="block text-sm font-semibold text-gray-700 mb-2">Lentisque (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="lentisque" 
+                               name="lentisque" 
+                               value="{{ old('lentisque', $contract->lentisque) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ciste" class="block text-sm font-semibold text-gray-700 mb-2">Ciste (t)</label>
+                        <input type="number" 
+                               step="1"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="ciste" 
+                               name="ciste" 
+                               value="{{ old('ciste', $contract->ciste) }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div class="bg-white rounded-2xl p-6 border border-purple-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                            <i class="fas fa-box text-white text-sm"></i>
+                        </div>
+                        <h4 class="text-lg font-bold" style="color: #059669;">Produits</h4>
+                    </div>
+                    <button type="button" 
+                            onclick="addProduct()" 
+                            class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-300 text-sm"
+                            style="background: linear-gradient(to right, #059669, #047857);"
+                            onmouseover="this.style.background='linear-gradient(to right, #047857, #065f46)'"
+                            onmouseout="this.style.background='linear-gradient(to right, #059669, #047857)'">
+                        <i class="fas fa-plus"></i>
+                        Ajouter Produit
+                    </button>
+                </div>
+                
+                <div id="products-container">
+                    @if($contract->products && $contract->products->count() > 0)
+                        @foreach($contract->products as $index => $product)
+                            <div class="product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <div class="flex-1">
+                                    <input type="text" 
+                                           name="products[{{ $index }}][name]" 
+                                           placeholder="Nom du produit" 
+                                           value="{{ old("products.{$index}.name", $product->name) }}"
+                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                                           required>
+                                </div>
+                                <div class="w-32">
+                                    <input type="number" 
+                                           name="products[{{ $index }}][quantity]" 
+                                           placeholder="Quantité" 
+                                           min="1" 
+                                           value="{{ old("products.{$index}.quantity", $product->quantity) }}"
+                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                                           required>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" 
+                                            onclick="removeProduct(this)" 
+                                            class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+
+            <!-- Section 4: Résiliation -->
+            <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 border border-red-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                        <i class="fas fa-ban text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Résiliation</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="resiliation" class="flex items-center gap-2">
+                            <input type="checkbox" 
+                                   id="resiliation" 
+                                   name="resiliation" 
+                                   value="1"
+                                   {{ old('resiliation', $contract->resiliation) ? 'checked' : '' }}
+                                   class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                            <span class="text-sm font-semibold text-gray-700">Résilié</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date_resiliation" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Date de Résiliation
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                        </label>
+                        <input type="date" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="date_resiliation" 
+                               name="date_resiliation" 
+                               value="{{ old('date_resiliation', $contract->date_resiliation ? \Carbon\Carbon::parse($contract->date_resiliation)->format('Y-m-d') : '') }}"
+                               placeholder="jj/mm/aaaa">
                     </div>
                 </div>
             </div>
@@ -408,3 +804,94 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+let productCount = {{ $contract->products ? $contract->products->count() : 0 }};
+let prestationCount = {{ $contract->prestations ? $contract->prestations->count() : 0 }};
+
+// Add new product row
+function addProduct() {
+    productCount++;
+    const container = document.getElementById('products-container');
+    
+    const productRow = document.createElement('div');
+    productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    productRow.innerHTML = `
+        <div class="flex-1">
+            <input type="text" 
+                   name="products[${productCount}][name]" 
+                   placeholder="Nom du produit" 
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="w-32">
+            <input type="number" 
+                   name="products[${productCount}][quantity]" 
+                   placeholder="Quantité" 
+                   min="1" 
+                   value="1"
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" 
+                    onclick="removeProduct(this)" 
+                    class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(productRow);
+}
+
+// Remove product row
+function removeProduct(button) {
+    const productRow = button.closest('.product-row');
+    productRow.remove();
+}
+
+// Add new prestation row
+function addPrestation() {
+    prestationCount++;
+    const container = document.getElementById('prestations-container');
+    
+    const prestationRow = document.createElement('div');
+    prestationRow.className = 'prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    prestationRow.innerHTML = `
+        <div class="flex-1">
+            <input type="text" 
+                   name="prestations[${prestationCount}][name]" 
+                   placeholder="Nom de la prestation" 
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="w-32">
+            <input type="number" 
+                   name="prestations[${prestationCount}][quantity]" 
+                   placeholder="Quantité" 
+                   min="1" 
+                   value="1"
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" 
+                    onclick="removePrestation(this)" 
+                    class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(prestationRow);
+}
+
+// Remove prestation row
+function removePrestation(button) {
+    const prestationRow = button.closest('.prestation-row');
+    prestationRow.remove();
+}
+</script>
+@endpush

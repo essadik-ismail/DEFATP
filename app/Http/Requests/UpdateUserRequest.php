@@ -26,6 +26,7 @@ class UpdateUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->user)],
             'ppr' => ['required', 'string', 'max:255', Rule::unique('users', 'ppr')->ignore($this->user)],
+            'role' => ['nullable', 'string', Rule::in(['dg', 'dc', 'departement', 'administrateur', 'dranef', 'dpanef', 'entite'])],
             'image' => ['nullable', 'string', 'max:255'],
             'password' => ['nullable', 'string', 'min:8'],
             'roles' => ['nullable', 'array'],

@@ -94,7 +94,7 @@
                         >
                             <option value="">Sélectionner un contrat</option>
                             @foreach($contracts as $contract)
-                                <option value="{{ $contract->id }}" {{ old('contact_id', isset($avenant) ? $avenant->contact_id : null) == $contract->id ? 'selected' : '' }}>
+                                <option value="{{ $contract->id }}" {{ old('contact_id', isset($avenant) ? $avenant->contact_id : (isset($selectedContract) && $selectedContract && $selectedContract->id == $contract->id ? $contract->id : null)) == $contract->id ? 'selected' : '' }}>
                                     Contrat #{{ $contract->contarct }} ({{ $contract->annee }}) - {{ $contract->localisation->DRANEF ?? 'N/A' }} - {{ $contract->situationAdministrative->commune ?? 'N/A' }}
                                 </option>
                             @endforeach
@@ -544,6 +544,114 @@
                 </div>
             </div>
 
+            <!-- Products Section -->
+            <div class="bg-white rounded-2xl p-6 border border-purple-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                            <i class="fas fa-box text-white text-sm"></i>
+                        </div>
+                        <h4 class="text-lg font-bold" style="color: #059669;">Produits</h4>
+                    </div>
+                    <button type="button" 
+                            onclick="addProduct()" 
+                            class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-300 text-sm"
+                            style="background: linear-gradient(to right, #059669, #047857);"
+                            onmouseover="this.style.background='linear-gradient(to right, #047857, #065f46)'"
+                            onmouseout="this.style.background='linear-gradient(to right, #059669, #047857)'">
+                        <i class="fas fa-plus"></i>
+                        Ajouter Produit
+                    </button>
+                </div>
+                
+                <div id="products-container">
+                    @if(isset($avenant) && $avenant->products && $avenant->products->count() > 0)
+                        @foreach($avenant->products as $index => $product)
+                            <div class="product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <div class="flex-1">
+                                    <input type="text" 
+                                           name="products[{{ $index }}][name]" 
+                                           placeholder="Nom du produit" 
+                                           value="{{ old("products.{$index}.name", $product->name) }}"
+                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                                           required>
+                                </div>
+                                <div class="w-32">
+                                    <input type="number" 
+                                           name="products[{{ $index }}][quantity]" 
+                                           placeholder="Quantité" 
+                                           min="1" 
+                                           value="{{ old("products.{$index}.quantity", $product->quantity) }}"
+                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                                           required>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" 
+                                            onclick="removeProduct(this)" 
+                                            class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+
+            <!-- Prestations Section -->
+            <div class="bg-white rounded-2xl p-6 border border-blue-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
+                            <i class="fas fa-tasks text-white text-sm"></i>
+                        </div>
+                        <h4 class="text-lg font-bold" style="color: #3b82f6;">Prestations</h4>
+                    </div>
+                    <button type="button" 
+                            onclick="addPrestation()" 
+                            class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-300 text-sm"
+                            style="background: linear-gradient(to right, #3b82f6, #2563eb);"
+                            onmouseover="this.style.background='linear-gradient(to right, #2563eb, #1d4ed8)'"
+                            onmouseout="this.style.background='linear-gradient(to right, #3b82f6, #2563eb)'">
+                        <i class="fas fa-plus"></i>
+                        Ajouter Prestation
+                    </button>
+                </div>
+                
+                <div id="prestations-container">
+                    @if(isset($avenant) && $avenant->prestations && $avenant->prestations->count() > 0)
+                        @foreach($avenant->prestations as $index => $prestation)
+                            <div class="prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <div class="flex-1">
+                                    <input type="text" 
+                                           name="prestations[{{ $index }}][name]" 
+                                           placeholder="Nom de la prestation" 
+                                           value="{{ old("prestations.{$index}.name", $prestation->name) }}"
+                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                                           required>
+                                </div>
+                                <div class="w-32">
+                                    <input type="number" 
+                                           name="prestations[{{ $index }}][quantity]" 
+                                           placeholder="Quantité" 
+                                           min="1" 
+                                           value="{{ old("prestations.{$index}.quantity", $prestation->quantity) }}"
+                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                                           required>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" 
+                                            onclick="removePrestation(this)" 
+                                            class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+
             <!-- Actions -->
             <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
                 <a href="{{ route('contracts.index', ['tab' => 'avenants']) }}" 
@@ -562,6 +670,93 @@
 </div>
 
 <script>
+let productCount = {{ isset($avenant) && $avenant->products ? $avenant->products->count() : 0 }};
+let prestationCount = {{ isset($avenant) && $avenant->prestations ? $avenant->prestations->count() : 0 }};
+
+// Add new product row
+function addProduct() {
+    productCount++;
+    const container = document.getElementById('products-container');
+    
+    const productRow = document.createElement('div');
+    productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    productRow.innerHTML = `
+        <div class="flex-1">
+            <input type="text" 
+                   name="products[${productCount}][name]" 
+                   placeholder="Nom du produit" 
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="w-32">
+            <input type="number" 
+                   name="products[${productCount}][quantity]" 
+                   placeholder="Quantité" 
+                   min="1" 
+                   value="1"
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" 
+                    onclick="removeProduct(this)" 
+                    class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(productRow);
+}
+
+// Remove product row
+function removeProduct(button) {
+    const productRow = button.closest('.product-row');
+    productRow.remove();
+}
+
+// Add new prestation row
+function addPrestation() {
+    prestationCount++;
+    const container = document.getElementById('prestations-container');
+    
+    const prestationRow = document.createElement('div');
+    prestationRow.className = 'prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    prestationRow.innerHTML = `
+        <div class="flex-1">
+            <input type="text" 
+                   name="prestations[${prestationCount}][name]" 
+                   placeholder="Nom de la prestation" 
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="w-32">
+            <input type="number" 
+                   name="prestations[${prestationCount}][quantity]" 
+                   placeholder="Quantité" 
+                   min="1" 
+                   value="1"
+                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                   required>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" 
+                    onclick="removePrestation(this)" 
+                    class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(prestationRow);
+}
+
+// Remove prestation row
+function removePrestation(button) {
+    const prestationRow = button.closest('.prestation-row');
+    prestationRow.remove();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const contactSelect = document.getElementById('contact_id');
     const anneeInput = document.getElementById('annee');

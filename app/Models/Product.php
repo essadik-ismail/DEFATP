@@ -12,6 +12,8 @@ class Product extends Model
         'name',
         'quantity',
         'article_id',
+        'contract_id',
+        'avenant_id',
         'is_deleted',
     ];
 
@@ -39,6 +41,22 @@ class Product extends Model
     public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class);
+    }
+
+    /**
+     * Get the contract that owns this product.
+     */
+    public function contract(): BelongsTo
+    {
+        return $this->belongsTo(Contract::class);
+    }
+
+    /**
+     * Get the avenant that owns this product.
+     */
+    public function avenant(): BelongsTo
+    {
+        return $this->belongsTo(Avenant::class);
     }
 
     /**

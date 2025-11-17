@@ -2150,6 +2150,13 @@
                 </div>
 
                 <div class="nav-item">
+                    <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i>
+                        Rapports
+                    </a>
+                </div>
+
+                <div class="nav-item">
                     <a href="{{ route('articles.index') }}" class="nav-link {{ request()->routeIs('articles.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         Exploitation régulière
@@ -2181,13 +2188,31 @@
                 </div>
 
                 <div class="nav-item">
-                    <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                        <i class="fas fa-chart-line"></i>
-                        Rapports
+                    <a href="{{ route('coperatives.index') }}" class="nav-link {{ request()->routeIs('coperatives.*') ? 'active' : '' }}">
+                        <i class="fas fa-users-cog"></i>
+                        Coopératives
+                    </a>
+                </div>
+                <!-- <div class="nav-item">
+                    <a href="{{ route('odfs.index') }}" class="nav-link {{ request()->routeIs('odfs.*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i>
+                        ODFs
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('pdfcs.index') }}" class="nav-link {{ request()->routeIs('pdfcs.*') ? 'active' : '' }}">
+                        <i class="fas fa-project-diagram"></i>
+                        PDFCs
+                    </a>
+                </div> -->
+                <div class="nav-item">
+                    <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') ? 'active' : '' }}">
+                        <i class="fas fa-database"></i>
+                        Données des Entités
                     </a>
                 </div>
 
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         Utilisateurs
@@ -2199,7 +2224,7 @@
                         <i class="fas fa-history"></i>
                         Journal d'Activités
                     </a>
-                </div>
+                </div> -->
 
                
 
@@ -2275,6 +2300,21 @@
                             <a href="{{ route('auth.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-user mr-2"></i>Mon Profil
                             </a>
+                            
+                            @can('users.view')
+                            <a href="{{ route('users.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-users mr-2"></i>Utilisateurs
+                            </a>
+                            @endcan
+                            
+                            @can('activity-logs.view')
+                            <a href="{{ route('activity-logs.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-history mr-2"></i>Journal d'Activités
+                            </a>
+                            @endcan
+                            
+                            <div class="border-t border-gray-200 my-1"></div>
+                            
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">

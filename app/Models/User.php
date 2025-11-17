@@ -31,6 +31,7 @@ class User extends Authenticatable
         'name',
         'email',
         'ppr',
+        'role',
         'image',
         'email_verified_at',
         'password',

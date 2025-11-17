@@ -20,7 +20,6 @@ class Contract extends Model
         'contarct',
         'localisation_id',
         'situation_administrative_id',
-        'foret_id',
         'coperative_id',
         'superficie',
         'gardiennage',
@@ -28,7 +27,6 @@ class Contract extends Model
         'elagage',
         'eclaircie',
         'rajeunissement_romarin',
-        'autre',
         'bo_m3',
         'bi_m3',
         'bf_st',
@@ -86,7 +84,17 @@ class Contract extends Model
     }
 
     /**
-     * Get the foret for this contract.
+     * Get the forets for this contract (many-to-many relationship).
+     */
+    public function forets(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Foret::class, 'contact_foret', 'contact_id', 'foret_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the foret for this contract (backward compatibility - returns first foret).
+     * @deprecated Use forets() instead
      */
     public function foret(): BelongsTo
     {
@@ -107,5 +115,21 @@ class Contract extends Model
     public function avenants(): HasMany
     {
         return $this->hasMany(Avenant::class, 'contact_id');
+    }
+
+    /**
+     * Get the products for this contract.
+     */
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class, 'contract_id');
+    }
+
+    /**
+     * Get the prestations for this contract.
+     */
+    public function prestations(): HasMany
+    {
+        return $this->hasMany(Prestation::class, 'contract_id');
     }
 }

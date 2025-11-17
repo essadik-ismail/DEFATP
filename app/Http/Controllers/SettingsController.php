@@ -21,6 +21,8 @@ use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\Exploitant;
 use App\Models\Localisation;
+use App\Models\Coperative;
+use App\Models\Vocation;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -1309,5 +1311,120 @@ class SettingsController extends Controller
         }
     }
 
+    // Coperatives Management
+    public function coperatives(Request $request): View
+    {
+        // Log coperatives view
+        ActivityLogger::log('view', 'Consultation de la liste des coopératives', Coperative::class);
+        
+        // Get date filters from request
+        $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : null;
+        $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : null;
+        
+        $query = Coperative::with('vocation');
+        
+        // Apply date filtering if provided
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nom', 'like', "%{$search}%")
+                  ->orWhereHas('vocation', function($vQuery) use ($search) {
+                      $vQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Vocation filter
+        if ($request->filled('vocation_id')) {
+            $query->where('vocation_id', $request->get('vocation_id'));
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            switch ($request->get('status')) {
+                case 'active':
+                    $query->where('is_deleted', false);
+                    break;
+                case 'deleted':
+                    $query->where('is_deleted', true);
+                    break;
+                case 'recent':
+                    $query->where('created_at', '>=', now()->subDays(30));
+                    break;
+            }
+        }
+
+        // Sorting
+        $sortField = $request->get('sort', 'nom');
+        $sortDirection = $request->get('direction', 'asc');
+        
+        $allowedSortFields = ['id', 'nom', 'nombre_membres', 'nombre_coperatives', 'created_at', 'updated_at'];
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        }
+
+        // Pagination
+        $perPage = $request->get('per_page', 15);
+        $allowedPerPage = [10, 15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 15;
+        }
+
+        $coperatives = $query->paginate($perPage);
+
+        // Calculate statistics based on the same filtered query
+        $filteredQuery = Coperative::query();
+        
+        // Apply the same filters as the main query
+        if ($startDate && $endDate) {
+            $filteredQuery->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $filteredQuery->where(function($q) use ($search) {
+                $q->where('nom', 'like', "%{$search}%")
+                  ->orWhereHas('vocation', function($vQuery) use ($search) {
+                      $vQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        if ($request->filled('vocation_id')) {
+            $filteredQuery->where('vocation_id', $request->get('vocation_id'));
+        }
+        
+        if ($request->filled('status')) {
+            switch ($request->get('status')) {
+                case 'active':
+                    $filteredQuery->where('is_deleted', false);
+                    break;
+                case 'deleted':
+                    $filteredQuery->where('is_deleted', true);
+                    break;
+                case 'recent':
+                    $filteredQuery->where('created_at', '>=', now()->subDays(30));
+                    break;
+            }
+        }
+
+        // Get statistics for the current filtered results
+        $stats = [
+            'total' => $coperatives->total(),
+            'active' => (clone $filteredQuery)->where('is_deleted', false)->count(),
+            'deleted' => (clone $filteredQuery)->where('is_deleted', true)->count(),
+            'recent' => (clone $filteredQuery)->where('created_at', '>=', now()->subDays(30))->count(),
+            'with_vocation' => (clone $filteredQuery)->whereNotNull('vocation_id')->count(),
+        ];
+
+        $vocations = Vocation::orderBy('name')->get();
+
+        return view('settings.coperatives.index', compact('coperatives', 'stats', 'vocations'));
+    }
 
 } 

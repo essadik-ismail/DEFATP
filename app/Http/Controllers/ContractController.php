@@ -7,6 +7,7 @@ use App\Models\Localisation;
 use App\Models\SituationAdministrative;
 use App\Models\Espece;
 use App\Models\Coperative;
+use App\Models\Product;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -21,7 +22,7 @@ class ContractController extends Controller
         ActivityLogger::log('view', 'Consultation de la liste des contrats', Contract::class);
         
         // Get contracts with relationships
-        $contracts = Contract::with(['localisation', 'situationAdministrative', 'especes'])
+        $contracts = Contract::with(['localisation', 'situationAdministrative', 'especes', 'forets', 'coperative'])
             ->when($request->filled('search'), function($query) use ($request) {
                 $query->where(function($q) use ($request) {
                     $q->where('contarct', 'like', '%' . $request->search . '%')
@@ -36,11 +37,42 @@ class ContractController extends Controller
                       })
                       ->orWhereHas('especes', function($espQuery) use ($request) {
                           $espQuery->where('name', 'like', '%' . $request->search . '%');
+                      })
+                      ->orWhereHas('forets', function($foretQuery) use ($request) {
+                          $foretQuery->where('foret', 'like', '%' . $request->search . '%');
+                      })
+                      ->orWhereHas('coperative', function($coopQuery) use ($request) {
+                          $coopQuery->where('nom', 'like', '%' . $request->search . '%');
                       });
                 });
             })
             ->when($request->filled('year'), function($query) use ($request) {
                 $query->where('annee', $request->year);
+            })
+            ->when($request->filled('localisation_id'), function($query) use ($request) {
+                $query->where('localisation_id', $request->localisation_id);
+            })
+            ->when($request->filled('situation_administrative_id'), function($query) use ($request) {
+                $query->where('situation_administrative_id', $request->situation_administrative_id);
+            })
+            ->when($request->filled('espece_id'), function($query) use ($request) {
+                $query->whereHas('especes', function($q) use ($request) {
+                    $q->where('especes.id', $request->espece_id);
+                });
+            })
+            ->when($request->filled('foret_id'), function($query) use ($request) {
+                $query->whereHas('forets', function($q) use ($request) {
+                    $q->where('forets.id', $request->foret_id);
+                });
+            })
+            ->when($request->filled('coperative_id'), function($query) use ($request) {
+                $query->where('coperative_id', $request->coperative_id);
+            })
+            ->when($request->filled('start_date'), function($query) use ($request) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            })
+            ->when($request->filled('end_date'), function($query) use ($request) {
+                $query->whereDate('created_at', '<=', $request->end_date);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page', 15));
@@ -74,7 +106,21 @@ class ContractController extends Controller
             ->orderBy('nom')
             ->paginate(10, ['*'], 'coperatives_page');
 
-        return view('contracts.index', compact('contracts', 'especes', 'avenants', 'coperatives'));
+        // Get filter options
+        $localisations = Localisation::orderBy('CODE')->get();
+        $situations = SituationAdministrative::orderBy('commune')->get();
+        $especesList = Espece::orderBy('name')->get();
+        $forets = \App\Models\Foret::orderBy('foret')->get();
+        $coperativesList = \App\Models\Coperative::orderBy('nom')->get();
+        
+        // Get available years for filter
+        $availableYears = Contract::select('annee')
+            ->distinct()
+            ->whereNotNull('annee')
+            ->orderBy('annee', 'desc')
+            ->pluck('annee');
+
+        return view('contracts.index', compact('contracts', 'especes', 'avenants', 'coperatives', 'localisations', 'situations', 'especesList', 'forets', 'coperativesList', 'availableYears'));
     }
 
     public function create(): View
@@ -101,7 +147,8 @@ class ContractController extends Controller
             'contarct' => 'required|integer',
             'localisation_id' => 'required|exists:localisations,id',
             'situation_administrative_id' => 'required|exists:situation_administratives,id',
-            'foret_id' => 'required|exists:forets,id',
+            'forets' => 'required|array|min:1',
+            'forets.*' => 'exists:forets,id',
             'coperative_id' => 'required|exists:coperatives,id',
             'especes' => 'required|array|min:1',
             'especes.*' => 'exists:especes,id',
@@ -111,7 +158,6 @@ class ContractController extends Controller
             'elagage' => 'nullable|string|max:255',
             'eclaircie' => 'nullable|string|max:255',
             'rajeunissement_romarin' => 'nullable|string|max:255',
-            'autre' => 'nullable|string|max:255',
             'bo_m3' => 'nullable|integer|min:0',
             'bi_m3' => 'nullable|integer|min:0',
             'bf_st' => 'nullable|integer|min:0',
@@ -147,10 +193,41 @@ class ContractController extends Controller
             $especes = $validated['especes'];
             unset($validated['especes']);
             
+            $forets = $validated['forets'];
+            unset($validated['forets']);
+            
             $contract = Contract::create($validated);
             
             // Attach especes to the contract
             $contract->especes()->attach($especes);
+            
+            // Attach forets to the contract
+            $contract->forets()->attach($forets);
+
+            // Handle products if provided
+            if ($request->has('products') && is_array($request->products)) {
+                foreach ($request->products as $product) {
+                    if (!empty($product['name'])) {
+                        $contract->products()->create([
+                            'name' => $product['name'],
+                            'quantity' => $product['quantity'] ?? 1,
+                            'is_deleted' => false
+                        ]);
+                    }
+                }
+            }
+
+            // Handle prestations if provided
+            if ($request->has('prestations') && is_array($request->prestations)) {
+                foreach ($request->prestations as $prestation) {
+                    if (!empty($prestation['name'])) {
+                        $contract->prestations()->create([
+                            'name' => $prestation['name'],
+                            'quantity' => $prestation['quantity'] ?? 1,
+                        ]);
+                    }
+                }
+            }
 
             ActivityLogger::logCreate(
                 Contract::class,
@@ -170,11 +247,11 @@ class ContractController extends Controller
 
     public function show(Contract $contract): View
     {
-        $contract->load(['localisation', 'situationAdministrative', 'especes', 'foret', 'coperative']);
+        $contract->load(['localisation', 'situationAdministrative', 'especes', 'forets', 'coperative', 'products', 'prestations']);
         
         // Load related avenants for this contract
         $avenants = \App\Models\Avenant::where('contact_id', $contract->id)
-            ->with(['coperative', 'produits', 'contract'])
+            ->with(['coperative', 'contract', 'products', 'prestations'])
             ->orderBy('date', 'desc')
             ->get();
         
@@ -185,7 +262,7 @@ class ContractController extends Controller
 
     public function edit(Contract $contract): View
     {
-        $contract->load('especes');
+        $contract->load(['especes', 'forets', 'products', 'prestations']);
         $localisations = Localisation::orderBy('CODE')->get();
         $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
         $especes = Espece::orderBy('name')->get();
@@ -209,7 +286,8 @@ class ContractController extends Controller
             'contarct' => 'required|integer',
             'localisation_id' => 'required|exists:localisations,id',
             'situation_administrative_id' => 'required|exists:situation_administratives,id',
-            'foret_id' => 'required|exists:forets,id',
+            'forets' => 'required|array|min:1',
+            'forets.*' => 'exists:forets,id',
             'coperative_id' => 'required|exists:coperatives,id',
             'especes' => 'required|array|min:1',
             'especes.*' => 'exists:especes,id',
@@ -219,7 +297,6 @@ class ContractController extends Controller
             'elagage' => 'nullable|string|max:255',
             'eclaircie' => 'nullable|string|max:255',
             'rajeunissement_romarin' => 'nullable|string|max:255',
-            'autre' => 'nullable|string|max:255',
             'bo_m3' => 'nullable|integer|min:0',
             'bi_m3' => 'nullable|integer|min:0',
             'bf_st' => 'nullable|integer|min:0',
@@ -255,10 +332,49 @@ class ContractController extends Controller
             $especes = $validated['especes'];
             unset($validated['especes']);
             
+            $forets = $validated['forets'];
+            unset($validated['forets']);
+            
             $contract->update($validated);
             
             // Sync especes to the contract (replace existing with new ones)
             $contract->especes()->sync($especes);
+            
+            // Sync forets to the contract (replace existing with new ones)
+            $contract->forets()->sync($forets);
+
+            // Handle products update
+            if ($request->has('products') && is_array($request->products)) {
+                // Delete existing products
+                $contract->products()->delete();
+                
+                // Create new products
+                foreach ($request->products as $product) {
+                    if (!empty($product['name'])) {
+                        $contract->products()->create([
+                            'name' => $product['name'],
+                            'quantity' => $product['quantity'] ?? 1,
+                            'is_deleted' => false
+                        ]);
+                    }
+                }
+            }
+
+            // Handle prestations update
+            if ($request->has('prestations') && is_array($request->prestations)) {
+                // Delete existing prestations
+                $contract->prestations()->delete();
+                
+                // Create new prestations
+                foreach ($request->prestations as $prestation) {
+                    if (!empty($prestation['name'])) {
+                        $contract->prestations()->create([
+                            'name' => $prestation['name'],
+                            'quantity' => $prestation['quantity'] ?? 1,
+                        ]);
+                    }
+                }
+            }
 
             ActivityLogger::logUpdate(
                 Contract::class,
@@ -331,14 +447,21 @@ class ContractController extends Controller
     }
 
     // Avenant Management Methods
-    public function createAvenant(): View
+    public function createAvenant(Request $request): View
     {
         $contracts = Contract::with(['localisation', 'situationAdministrative', 'coperative'])
             ->orderBy('annee', 'desc')
             ->orderBy('contarct')
             ->get();
         $coperatives = Coperative::orderBy('nom')->get();
-        return view('contracts.avenants.create', compact('contracts', 'coperatives'));
+        
+        // Get preselected contract if provided
+        $selectedContract = null;
+        if ($request->has('contract_id')) {
+            $selectedContract = Contract::find($request->contract_id);
+        }
+        
+        return view('contracts.avenants.create', compact('contracts', 'coperatives', 'selectedContract'));
     }
 
     public function storeAvenant(Request $request): RedirectResponse
@@ -387,6 +510,31 @@ class ContractController extends Controller
         try {
             $avenant = \App\Models\Avenant::create($validated);
 
+            // Handle products if provided
+            if ($request->has('products') && is_array($request->products)) {
+                foreach ($request->products as $product) {
+                    if (!empty($product['name'])) {
+                        $avenant->products()->create([
+                            'name' => $product['name'],
+                            'quantity' => $product['quantity'] ?? 1,
+                            'is_deleted' => false
+                        ]);
+                    }
+                }
+            }
+
+            // Handle prestations if provided
+            if ($request->has('prestations') && is_array($request->prestations)) {
+                foreach ($request->prestations as $prestation) {
+                    if (!empty($prestation['name'])) {
+                        $avenant->prestations()->create([
+                            'name' => $prestation['name'],
+                            'quantity' => $prestation['quantity'] ?? 1,
+                        ]);
+                    }
+                }
+            }
+
             ActivityLogger::logCreate(
                 \App\Models\Avenant::class,
                 $avenant->id,
@@ -429,7 +577,7 @@ class ContractController extends Controller
                 $request
             );
 
-            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+            return redirect()->route('coperatives.index')
                 ->with('success', 'Coopérative créée avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -547,7 +695,7 @@ class ContractController extends Controller
                 $request
             );
 
-            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+            return redirect()->route('coperatives.index')
                 ->with('success', 'Coopérative mise à jour avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -568,7 +716,7 @@ class ContractController extends Controller
                 "Coopérative {$coperativeName}"
             );
 
-            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+            return redirect()->route('coperatives.index')
                 ->with('success', 'Coopérative supprimée avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -636,6 +784,7 @@ class ContractController extends Controller
             ->orderBy('contarct')
             ->get();
         $coperatives = Coperative::orderBy('nom')->get();
+        $avenant->load(['products', 'prestations']);
         return view('contracts.avenants.edit', compact('avenant', 'contracts', 'coperatives'));
     }
 
@@ -684,6 +833,39 @@ class ContractController extends Controller
 
         try {
             $avenant->update($validated);
+
+            // Handle products update
+            if ($request->has('products') && is_array($request->products)) {
+                // Delete existing products
+                $avenant->products()->delete();
+                
+                // Create new products
+                foreach ($request->products as $product) {
+                    if (!empty($product['name'])) {
+                        $avenant->products()->create([
+                            'name' => $product['name'],
+                            'quantity' => $product['quantity'] ?? 1,
+                            'is_deleted' => false
+                        ]);
+                    }
+                }
+            }
+
+            // Handle prestations update
+            if ($request->has('prestations') && is_array($request->prestations)) {
+                // Delete existing prestations
+                $avenant->prestations()->delete();
+                
+                // Create new prestations
+                foreach ($request->prestations as $prestation) {
+                    if (!empty($prestation['name'])) {
+                        $avenant->prestations()->create([
+                            'name' => $prestation['name'],
+                            'quantity' => $prestation['quantity'] ?? 1,
+                        ]);
+                    }
+                }
+            }
 
             ActivityLogger::logUpdate(
                 \App\Models\Avenant::class,

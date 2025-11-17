@@ -126,14 +126,24 @@
                 <p class="text-gray-600">Analysez les quantités de produits par année et par localisation pour les articles actuels</p>
             </div>
 
-            <!-- Legacy Articles -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.legacy-articles') }}'">
-                <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-archive text-white text-2xl"></i>
+            <!-- Contracts Report -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.contracts') }}'">
+                <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-handshake text-white text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Articles Historiques</h3>
-                <p class="text-gray-600">Consultez et analysez les données historiques des articles forestiers</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Contrats</h3>
+                <p class="text-gray-600">Analysez les contrats de partenariat avec statistiques détaillées par année, localisation et situation</p>
             </div>
+
+            <!-- Exploitants Report -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.exploitants') }}'">
+                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-tie text-white text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Exploitants</h3>
+                <p class="text-gray-600">Analysez les exploitants avec statistiques par catégorie, activité, localisation et qualification</p>
+            </div>
+
         </div>
     </div>
 </div>

@@ -11,6 +11,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\ContractController;
+use App\Http\Controllers\OdfController;
+use App\Http\Controllers\PdfcController;
+use App\Http\Controllers\PhaseController;
+use App\Http\Controllers\EtapeController;
 
 // Health Check Routes
 Route::get('/health', [HealthController::class, 'index'])->name('health');
@@ -27,17 +31,17 @@ Route::middleware('guest')->group(function () {
 Route::get('/verify-exploitant/{exploitant}', [SettingsController::class, 'verifyExploitant'])->name('verify-exploitant');
 
 // Notification routes
-Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {
+Route::prefix('notifications')->name('notifications.')->middleware(['auth', 'permission:notifications.view'])->group(function () {
     Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('index');
     Route::get('/get', [App\Http\Controllers\NotificationController::class, 'getNotifications'])->name('get');
     Route::patch('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
     Route::patch('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-    Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
-    Route::delete('/delete-read', [App\Http\Controllers\NotificationController::class, 'deleteRead'])->name('delete-read');
+    Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy'])->middleware('permission:notifications.delete')->name('destroy');
+    Route::delete('/delete-read', [App\Http\Controllers\NotificationController::class, 'deleteRead'])->middleware('permission:notifications.delete')->name('delete-read');
     Route::get('/settings', [App\Http\Controllers\NotificationController::class, 'settings'])->name('settings');
-    Route::put('/settings', [App\Http\Controllers\NotificationController::class, 'updateSettings'])->name('update-settings');
+    Route::put('/settings', [App\Http\Controllers\NotificationController::class, 'updateSettings'])->middleware('permission:notifications.update')->name('update-settings');
     Route::get('/statistics', [App\Http\Controllers\NotificationController::class, 'statistics'])->name('statistics');
-    Route::post('/send-test', [App\Http\Controllers\NotificationController::class, 'sendTest'])->name('send-test');
+    Route::post('/send-test', [App\Http\Controllers\NotificationController::class, 'sendTest'])->middleware('permission:notifications.create')->name('send-test');
 });
 
 Route::middleware('auth')->group(function () {
@@ -65,6 +69,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/{user}', [UserController::class, 'update'])->middleware('permission:users.edit')->name('update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->middleware('permission:users.delete')->name('destroy');
         Route::patch('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->middleware('permission:users.edit')->name('toggle-status');
+        Route::post('/{user}/assign-roles-permissions', [UserController::class, 'assignRolesPermissions'])->middleware('permission:users.edit')->name('assign-roles-permissions');
         Route::get('/export', [UserController::class, 'export'])->middleware('permission:users.view')->name('export');
     });
 
@@ -78,156 +83,240 @@ Route::middleware('auth')->group(function () {
         Route::get('/statistics', [ActivityLogController::class, 'getStatistics'])->name('statistics');
     });
 
-    // Dashboard
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/exploitants', [SettingsController::class, 'exploitants'])->name('exploitants.index');
-    Route::get('/exploitants/create', [SettingsController::class, 'createExploitant'])->name('exploitants.create');
-    Route::post('/exploitants', [SettingsController::class, 'storeExploitant'])->name('exploitants.store');
-    Route::get('/exploitants/{exploitant}', [SettingsController::class, 'showExploitant'])->name('exploitants.show');
-    Route::get('/exploitants/{exploitant}/carte-professionnelle', [SettingsController::class, 'carteProfessionnelle'])->name('exploitants.carte-professionnelle');
-    Route::get('/exploitants/{exploitant}/edit', [SettingsController::class, 'editExploitant'])->name('exploitants.edit');
-    Route::put('/exploitants/{exploitant}', [SettingsController::class, 'updateExploitant'])->name('exploitants.update');
-    Route::delete('/exploitants/{exploitant}', [SettingsController::class, 'destroyExploitant'])->name('exploitants.destroy');
-    Route::get('/exploitants/export', [SettingsController::class, 'exportExploitants'])->name('exploitants.export');
-    Route::post('/exploitants/import', [SettingsController::class, 'importExploitants'])->name('exploitants.import');
+    // Dashboard
+    Route::get('/', [DashboardController::class, 'index'])->middleware('permission:dashboard.view')->name('dashboard');
+
+    Route::prefix('exploitants')->name('exploitants.')->middleware('permission:exploitants.view')->group(function () {
+        Route::get('/', [SettingsController::class, 'exploitants'])->name('index');
+        Route::get('/create', [SettingsController::class, 'createExploitant'])->middleware('permission:exploitants.create')->name('create');
+        Route::post('/', [SettingsController::class, 'storeExploitant'])->middleware('permission:exploitants.create')->name('store');
+        Route::get('/{exploitant}', [SettingsController::class, 'showExploitant'])->name('show');
+        Route::get('/{exploitant}/carte-professionnelle', [SettingsController::class, 'carteProfessionnelle'])->name('carte-professionnelle');
+        Route::get('/{exploitant}/edit', [SettingsController::class, 'editExploitant'])->middleware('permission:exploitants.update')->name('edit');
+        Route::put('/{exploitant}', [SettingsController::class, 'updateExploitant'])->middleware('permission:exploitants.update')->name('update');
+        Route::delete('/{exploitant}', [SettingsController::class, 'destroyExploitant'])->middleware('permission:exploitants.delete')->name('destroy');
+        Route::get('/export', [SettingsController::class, 'exportExploitants'])->middleware('permission:exploitants.export')->name('export');
+        Route::post('/import', [SettingsController::class, 'importExploitants'])->middleware('permission:exploitants.import')->name('import');
+    });
+    
+    Route::prefix('coperatives')->name('coperatives.')->middleware('permission:coperatives.view')->group(function () {
+        Route::get('/', [SettingsController::class, 'coperatives'])->name('index');
+    });
+    
+    // ODF Routes
+    Route::prefix('odfs')->name('odfs.')->middleware('permission:odfs.view')->group(function () {
+        Route::get('/', [OdfController::class, 'index'])->name('index');
+        Route::get('/create', [OdfController::class, 'create'])->middleware('permission:odfs.create')->name('create');
+        Route::post('/', [OdfController::class, 'store'])->middleware('permission:odfs.create')->name('store');
+        Route::get('/{odf}', [OdfController::class, 'show'])->name('show');
+        Route::get('/{odf}/edit', [OdfController::class, 'edit'])->middleware('permission:odfs.update')->name('edit');
+        Route::put('/{odf}', [OdfController::class, 'update'])->middleware('permission:odfs.update')->name('update');
+        Route::delete('/{odf}', [OdfController::class, 'destroy'])->middleware('permission:odfs.delete')->name('destroy');
+    });
+    
+    // PDFC Routes
+    Route::prefix('pdfcs')->name('pdfcs.')->middleware('permission:pdfcs.view')->group(function () {
+        Route::get('/', [PdfcController::class, 'index'])->name('index');
+        Route::get('/create', [PdfcController::class, 'create'])->middleware('permission:pdfcs.create')->name('create');
+        Route::post('/', [PdfcController::class, 'store'])->middleware('permission:pdfcs.create')->name('store');
+        Route::get('/{pdfc}', [PdfcController::class, 'show'])->name('show');
+        Route::get('/{pdfc}/edit', [PdfcController::class, 'edit'])->middleware('permission:pdfcs.update')->name('edit');
+        Route::put('/{pdfc}', [PdfcController::class, 'update'])->middleware('permission:pdfcs.update')->name('update');
+        Route::post('/{pdfc}/transition-state', [PdfcController::class, 'transitionState'])->middleware('permission:pdfcs.update')->name('transition-state');
+        Route::delete('/{pdfc}', [PdfcController::class, 'destroy'])->middleware('permission:pdfcs.delete')->name('destroy');
+        
+        // Phase Routes
+        Route::prefix('{pdfc}/phases')->name('phases.')->middleware('permission:pdfcs.update')->group(function () {
+            Route::get('/create', [PhaseController::class, 'create'])->name('create');
+            Route::post('/', [PhaseController::class, 'store'])->name('store');
+            Route::get('/{phase}/edit', [PhaseController::class, 'edit'])->name('edit');
+            Route::put('/{phase}', [PhaseController::class, 'update'])->name('update');
+            Route::delete('/{phase}', [PhaseController::class, 'destroy'])->name('destroy');
+            Route::post('/{phase}/validate', [PhaseController::class, 'validatePhase'])->name('validate');
+        });
+        
+        // Etape Routes
+        Route::prefix('{pdfc}/phases/{phase}/etapes')->name('etapes.')->middleware('permission:pdfcs.update')->group(function () {
+            Route::get('/create', [EtapeController::class, 'create'])->name('create');
+            Route::post('/', [EtapeController::class, 'store'])->name('store');
+            Route::get('/{etape}/edit', [EtapeController::class, 'edit'])->name('edit');
+            Route::put('/{etape}', [EtapeController::class, 'update'])->name('update');
+            Route::delete('/{etape}', [EtapeController::class, 'destroy'])->name('destroy');
+            Route::post('/{etape}/validate', [EtapeController::class, 'validateEtape'])->name('validate');
+            Route::post('/{etape}/reject', [EtapeController::class, 'rejectEtape'])->name('reject');
+        });
+    });
     
     // Settings Routes
     // Unified Entity Data Management
-    Route::get('/entity-data', [App\Http\Controllers\EntityDataController::class, 'index'])->name('entity-data.index');
+    Route::get('/entity-data', [App\Http\Controllers\EntityDataController::class, 'index'])->middleware('permission:entity-data.view')->name('entity-data.index');
 
-    Route::prefix('settings')->name('settings.')->group(function () {
-    Route::get('/', [SettingsController::class, 'index'])->name('index');
-    
-
-    
-    // Essences
-    Route::get('/essences', [SettingsController::class, 'essences'])->name('essences');
-    Route::get('/essences/create', [SettingsController::class, 'createEssence'])->name('essences.create');
-    Route::post('/essences', [SettingsController::class, 'storeEssence'])->name('essences.store');
-    Route::get('/essences/{essence}/edit', [SettingsController::class, 'editEssence'])->name('essences.edit');
-    Route::put('/essences/{essence}', [SettingsController::class, 'updateEssence'])->name('essences.update');
-    Route::delete('/essences/{essence}', [SettingsController::class, 'destroyEssence'])->name('essences.destroy');
-    Route::get('/essences/export', [SettingsController::class, 'exportEssences'])->name('essences.export');
-    Route::post('/essences/import', [SettingsController::class, 'importEssences'])->name('essences.import');
-    
-    // Forêts
-    Route::get('/forets', [SettingsController::class, 'forets'])->name('forets');
-    Route::get('/forets/map', [SettingsController::class, 'foretsMap'])->name('forets.map');
-    Route::get('/forets/create', [SettingsController::class, 'createForet'])->name('forets.create');
-    Route::post('/forets', [SettingsController::class, 'storeForet'])->name('forets.store');
-    Route::get('/forets/{foret}/edit', [SettingsController::class, 'editForet'])->name('forets.edit');
-    Route::put('/forets/{foret}', [SettingsController::class, 'updateForet'])->name('forets.update');
-    Route::delete('/forets/{foret}', [SettingsController::class, 'destroyForet'])->name('forets.destroy');
-    Route::get('/forets/export', [SettingsController::class, 'exportForets'])->name('forets.export');
-    Route::post('/forets/import', [SettingsController::class, 'importForets'])->name('forets.import');
-    
-    // Nature de Coupes
-    Route::get('/nature-de-coupes', [SettingsController::class, 'natureDeCoupes'])->name('nature-de-coupes');
-    Route::get('/nature-de-coupes/create', [SettingsController::class, 'createNatureDeCoupe'])->name('nature-de-coupes.create');
-    Route::post('/nature-de-coupes', [SettingsController::class, 'storeNatureDeCoupe'])->name('nature-de-coupes.store');
-    Route::get('/nature-de-coupes/{natureDeCoupe}/edit', [SettingsController::class, 'editNatureDeCoupe'])->name('nature-de-coupes.edit');
-    Route::put('/nature-de-coupes/{natureDeCoupe}', [SettingsController::class, 'updateNatureDeCoupe'])->name('nature-de-coupes.update');
-    Route::delete('/nature-de-coupes/{natureDeCoupe}', [SettingsController::class, 'destroyNatureDeCoupe'])->name('nature-de-coupes.destroy');
-    Route::get('/nature-de-coupes/export', [SettingsController::class, 'exportNatureDeCoupes'])->name('nature-de-coupes.export');
-    Route::post('/nature-de-coupes/import', [SettingsController::class, 'importNatureDeCoupes'])->name('nature-de-coupes.import');
-    
-    // Situations Administratives
-    Route::get('/situation-administratives', [SettingsController::class, 'situationAdministratives'])->name('situation-administratives');
-    Route::get('/situation-administratives/create', [SettingsController::class, 'createSituationAdministrative'])->name('situation-administratives.create');
-    Route::post('/situation-administratives', [SettingsController::class, 'storeSituationAdministrative'])->name('situation-administratives.store');
-    Route::get('/situation-administratives/{situationAdministrative}/edit', [SettingsController::class, 'editSituationAdministrative'])->name('situation-administratives.edit');
-    Route::put('/situation-administratives/{situationAdministrative}', [SettingsController::class, 'updateSituationAdministrative'])->name('situation-administratives.update');
-    Route::delete('/situation-administratives/{situationAdministrative}', [SettingsController::class, 'destroySituationAdministrative'])->name('situation-administratives.destroy');
-    Route::get('/situation-administratives/export', [SettingsController::class, 'exportSituationAdministratives'])->name('situation-administratives.export');
-    Route::post('/situation-administratives/import', [SettingsController::class, 'importSituationAdministratives'])->name('situation-administratives.import');
-    
-    // Localisations
-    Route::get('/localisations', [SettingsController::class, 'localisations'])->name('localisations');
-    Route::get('/localisations/create', [SettingsController::class, 'createLocalisation'])->name('localisations.create');
-    Route::post('/localisations', [SettingsController::class, 'storeLocalisation'])->name('localisations.store');
-    Route::get('/localisations/{localisation}/edit', [SettingsController::class, 'editLocalisation'])->name('localisations.edit');
-    Route::put('/localisations/{localisation}', [SettingsController::class, 'updateLocalisation'])->name('localisations.update');
-    Route::delete('/localisations/{localisation}', [SettingsController::class, 'destroyLocalisation'])->name('localisations.destroy');
-    Route::get('/localisations/export', [SettingsController::class, 'exportLocalisations'])->name('localisations.export');
-    Route::post('/localisations/import', [SettingsController::class, 'importLocalisations'])->name('localisations.import');
-    
-});
+    Route::prefix('settings')->name('settings.')->middleware('permission:settings.view')->group(function () {
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        
+        // Essences
+        Route::prefix('essences')->name('essences.')->middleware('permission:essences.view')->group(function () {
+            Route::get('/', [SettingsController::class, 'essences'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createEssence'])->middleware('permission:essences.create')->name('create');
+            Route::post('/', [SettingsController::class, 'storeEssence'])->middleware('permission:essences.create')->name('store');
+            Route::get('/{essence}/edit', [SettingsController::class, 'editEssence'])->middleware('permission:essences.update')->name('edit');
+            Route::put('/{essence}', [SettingsController::class, 'updateEssence'])->middleware('permission:essences.update')->name('update');
+            Route::delete('/{essence}', [SettingsController::class, 'destroyEssence'])->middleware('permission:essences.delete')->name('destroy');
+            Route::get('/export', [SettingsController::class, 'exportEssences'])->middleware('permission:essences.export')->name('export');
+            Route::post('/import', [SettingsController::class, 'importEssences'])->middleware('permission:essences.import')->name('import');
+        });
+        
+        // Forêts
+        Route::prefix('forets')->name('forets.')->middleware('permission:forets.view')->group(function () {
+            Route::get('/', [SettingsController::class, 'forets'])->name('index');
+            Route::get('/map', [SettingsController::class, 'foretsMap'])->name('map');
+            Route::get('/create', [SettingsController::class, 'createForet'])->middleware('permission:forets.create')->name('create');
+            Route::post('/', [SettingsController::class, 'storeForet'])->middleware('permission:forets.create')->name('store');
+            Route::get('/{foret}/edit', [SettingsController::class, 'editForet'])->middleware('permission:forets.update')->name('edit');
+            Route::put('/{foret}', [SettingsController::class, 'updateForet'])->middleware('permission:forets.update')->name('update');
+            Route::delete('/{foret}', [SettingsController::class, 'destroyForet'])->middleware('permission:forets.delete')->name('destroy');
+            Route::get('/export', [SettingsController::class, 'exportForets'])->middleware('permission:forets.export')->name('export');
+            Route::post('/import', [SettingsController::class, 'importForets'])->middleware('permission:forets.import')->name('import');
+        });
+        
+        // Nature de Coupes
+        Route::prefix('nature-de-coupes')->name('nature-de-coupes.')->middleware('permission:nature-de-coupes.view')->group(function () {
+            Route::get('/', [SettingsController::class, 'natureDeCoupes'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createNatureDeCoupe'])->middleware('permission:nature-de-coupes.create')->name('create');
+            Route::post('/', [SettingsController::class, 'storeNatureDeCoupe'])->middleware('permission:nature-de-coupes.create')->name('store');
+            Route::get('/{natureDeCoupe}/edit', [SettingsController::class, 'editNatureDeCoupe'])->middleware('permission:nature-de-coupes.update')->name('edit');
+            Route::put('/{natureDeCoupe}', [SettingsController::class, 'updateNatureDeCoupe'])->middleware('permission:nature-de-coupes.update')->name('update');
+            Route::delete('/{natureDeCoupe}', [SettingsController::class, 'destroyNatureDeCoupe'])->middleware('permission:nature-de-coupes.delete')->name('destroy');
+            Route::get('/export', [SettingsController::class, 'exportNatureDeCoupes'])->middleware('permission:nature-de-coupes.export')->name('export');
+            Route::post('/import', [SettingsController::class, 'importNatureDeCoupes'])->middleware('permission:nature-de-coupes.import')->name('import');
+        });
+        
+        // Situations Administratives
+        Route::prefix('situation-administratives')->name('situation-administratives.')->middleware('permission:situation-administratives.view')->group(function () {
+            Route::get('/', [SettingsController::class, 'situationAdministratives'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createSituationAdministrative'])->middleware('permission:situation-administratives.create')->name('create');
+            Route::post('/', [SettingsController::class, 'storeSituationAdministrative'])->middleware('permission:situation-administratives.create')->name('store');
+            Route::get('/{situationAdministrative}/edit', [SettingsController::class, 'editSituationAdministrative'])->middleware('permission:situation-administratives.update')->name('edit');
+            Route::put('/{situationAdministrative}', [SettingsController::class, 'updateSituationAdministrative'])->middleware('permission:situation-administratives.update')->name('update');
+            Route::delete('/{situationAdministrative}', [SettingsController::class, 'destroySituationAdministrative'])->middleware('permission:situation-administratives.delete')->name('destroy');
+            Route::get('/export', [SettingsController::class, 'exportSituationAdministratives'])->middleware('permission:situation-administratives.export')->name('export');
+            Route::post('/import', [SettingsController::class, 'importSituationAdministratives'])->middleware('permission:situation-administratives.import')->name('import');
+        });
+        
+        // Localisations
+        Route::prefix('localisations')->name('localisations.')->middleware('permission:localisations.view')->group(function () {
+            Route::get('/', [SettingsController::class, 'localisations'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createLocalisation'])->middleware('permission:localisations.create')->name('create');
+            Route::post('/', [SettingsController::class, 'storeLocalisation'])->middleware('permission:localisations.create')->name('store');
+            Route::get('/{localisation}/edit', [SettingsController::class, 'editLocalisation'])->middleware('permission:localisations.update')->name('edit');
+            Route::put('/{localisation}', [SettingsController::class, 'updateLocalisation'])->middleware('permission:localisations.update')->name('update');
+            Route::delete('/{localisation}', [SettingsController::class, 'destroyLocalisation'])->middleware('permission:localisations.delete')->name('destroy');
+            Route::get('/export', [SettingsController::class, 'exportLocalisations'])->middleware('permission:localisations.export')->name('export');
+            Route::post('/import', [SettingsController::class, 'importLocalisations'])->middleware('permission:localisations.import')->name('import');
+        });
+    });
 
     // Excel Import/Export Routes
-    Route::prefix('excel')->name('excel.')->group(function () {
+    Route::prefix('excel')->name('excel.')->middleware('permission:excel.view')->group(function () {
         Route::get('/', [ExcelController::class, 'index'])->name('index');
-        Route::get('/export-all', [ExcelController::class, 'exportAll'])->name('export-all');
-        Route::post('/import-all', [ExcelController::class, 'importAll'])->name('import-all');
+        Route::get('/export-all', [ExcelController::class, 'exportAll'])->middleware('permission:excel.export')->name('export-all');
+        Route::post('/import-all', [ExcelController::class, 'importAll'])->middleware('permission:excel.import')->name('import-all');
         
         // Individual exports
-        Route::get('/export/articles', [ExcelController::class, 'exportArticles'])->name('export.articles');
-        Route::get('/export/essences', [ExcelController::class, 'exportEssences'])->name('export.essences');
-        Route::get('/export/forets', [ExcelController::class, 'exportForets'])->name('export.forets');
-        Route::get('/export/nature-de-coupes', [ExcelController::class, 'exportNatureDeCoupes'])->name('export.nature-de-coupes');
-        Route::get('/export/situation-administratives', [ExcelController::class, 'exportSituationAdministratives'])->name('export.situation-administratives');
-        Route::get('/export/exploitants', [ExcelController::class, 'exportExploitants'])->name('export.exploitants');
-
-        Route::get('/export/localisations', [ExcelController::class, 'exportLocalisations'])->name('export.localisations');
+        Route::get('/export/articles', [ExcelController::class, 'exportArticles'])->middleware('permission:excel.export')->name('export.articles');
+        Route::get('/export/essences', [ExcelController::class, 'exportEssences'])->middleware('permission:excel.export')->name('export.essences');
+        Route::get('/export/forets', [ExcelController::class, 'exportForets'])->middleware('permission:excel.export')->name('export.forets');
+        Route::get('/export/nature-de-coupes', [ExcelController::class, 'exportNatureDeCoupes'])->middleware('permission:excel.export')->name('export.nature-de-coupes');
+        Route::get('/export/situation-administratives', [ExcelController::class, 'exportSituationAdministratives'])->middleware('permission:excel.export')->name('export.situation-administratives');
+        Route::get('/export/exploitants', [ExcelController::class, 'exportExploitants'])->middleware('permission:excel.export')->name('export.exploitants');
+        Route::get('/export/localisations', [ExcelController::class, 'exportLocalisations'])->middleware('permission:excel.export')->name('export.localisations');
         
         // Individual imports
-        Route::post('/import/articles', [ExcelController::class, 'importArticles'])->name('import.articles');
-        Route::post('/import/essences', [ExcelController::class, 'importEssences'])->name('import.essences');
-        Route::post('/import/forets', [ExcelController::class, 'importForets'])->name('import.forets');
-        Route::post('/import/nature-de-coupes', [ExcelController::class, 'importNatureDeCoupes'])->name('import.nature-de-coupes');
-        Route::post('/import/situation-administratives', [ExcelController::class, 'importSituationAdministratives'])->name('import.situation-administratives');
-        Route::post('/import/exploitants', [ExcelController::class, 'importExploitants'])->name('import.exploitants');
-
-        Route::post('/import/localisations', [ExcelController::class, 'importLocalisations'])->name('import.localisations');
+        Route::post('/import/articles', [ExcelController::class, 'importArticles'])->middleware('permission:excel.import')->name('import.articles');
+        Route::post('/import/essences', [ExcelController::class, 'importEssences'])->middleware('permission:excel.import')->name('import.essences');
+        Route::post('/import/forets', [ExcelController::class, 'importForets'])->middleware('permission:excel.import')->name('import.forets');
+        Route::post('/import/nature-de-coupes', [ExcelController::class, 'importNatureDeCoupes'])->middleware('permission:excel.import')->name('import.nature-de-coupes');
+        Route::post('/import/situation-administratives', [ExcelController::class, 'importSituationAdministratives'])->middleware('permission:excel.import')->name('import.situation-administratives');
+        Route::post('/import/exploitants', [ExcelController::class, 'importExploitants'])->middleware('permission:excel.import')->name('import.exploitants');
+        Route::post('/import/localisations', [ExcelController::class, 'importLocalisations'])->middleware('permission:excel.import')->name('import.localisations');
     });
 
     // Contracts Routes
-    Route::resource('contracts', ContractController::class);
-    
-    // Contract Especes Routes
-    Route::get('/contracts/especes/create', [ContractController::class, 'createEspece'])->name('contracts.especes.create');
-    Route::post('/contracts/especes', [ContractController::class, 'storeEspece'])->name('contracts.especes.store');
-    Route::get('/contracts/especes/{espece}/edit', [ContractController::class, 'editEspece'])->name('contracts.especes.edit');
-    Route::put('/contracts/especes/{espece}', [ContractController::class, 'updateEspece'])->name('contracts.especes.update');
-    Route::delete('/contracts/especes/{espece}', [ContractController::class, 'destroyEspece'])->name('contracts.especes.destroy');
-    
-    // Contract Avenants Routes
-    Route::get('/contracts/avenants/create', [ContractController::class, 'createAvenant'])->name('contracts.avenants.create');
-    Route::post('/contracts/avenants', [ContractController::class, 'storeAvenant'])->name('contracts.avenants.store');
-    Route::get('/contracts/avenants/{avenant}/edit', [ContractController::class, 'editAvenant'])->name('contracts.avenants.edit');
-    Route::put('/contracts/avenants/{avenant}', [ContractController::class, 'updateAvenant'])->name('contracts.avenants.update');
-    Route::delete('/contracts/avenants/{avenant}', [ContractController::class, 'destroyAvenant'])->name('contracts.avenants.destroy');
-    
-    // Contract Coperatives Routes
-    Route::get('/contracts/coperatives/create', [ContractController::class, 'createCoperative'])->name('contracts.coperatives.create');
-    Route::post('/contracts/coperatives', [ContractController::class, 'storeCoperative'])->name('contracts.coperatives.store');
-    Route::get('/contracts/coperatives/{coperative}/edit', [ContractController::class, 'editCoperative'])->name('contracts.coperatives.edit');
-    Route::put('/contracts/coperatives/{coperative}', [ContractController::class, 'updateCoperative'])->name('contracts.coperatives.update');
-    Route::delete('/contracts/coperatives/{coperative}', [ContractController::class, 'destroyCoperative'])->name('contracts.coperatives.destroy');
-    
-    // Contract Vocations Routes
-    Route::get('/contracts/vocations/create', [ContractController::class, 'createVocation'])->name('contracts.vocations.create');
-    Route::post('/contracts/vocations', [ContractController::class, 'storeVocation'])->name('contracts.vocations.store');
-    Route::get('/contracts/vocations/{vocation}/edit', [ContractController::class, 'editVocation'])->name('contracts.vocations.edit');
-    Route::put('/contracts/vocations/{vocation}', [ContractController::class, 'updateVocation'])->name('contracts.vocations.update');
-    Route::delete('/contracts/vocations/{vocation}', [ContractController::class, 'destroyVocation'])->name('contracts.vocations.destroy');
+    Route::prefix('contracts')->name('contracts.')->middleware('permission:contracts.view')->group(function () {
+        Route::get('/', [ContractController::class, 'index'])->name('index');
+        Route::get('/create', [ContractController::class, 'create'])->middleware('permission:contracts.create')->name('create');
+        Route::post('/', [ContractController::class, 'store'])->middleware('permission:contracts.create')->name('store');
+        Route::get('/{contract}', [ContractController::class, 'show'])->name('show');
+        Route::get('/{contract}/edit', [ContractController::class, 'edit'])->middleware('permission:contracts.update')->name('edit');
+        Route::put('/{contract}', [ContractController::class, 'update'])->middleware('permission:contracts.update')->name('update');
+        Route::delete('/{contract}', [ContractController::class, 'destroy'])->middleware('permission:contracts.delete')->name('destroy');
+        
+        // Contract Especes Routes
+        Route::prefix('especes')->name('especes.')->middleware('permission:especes.view')->group(function () {
+            Route::get('/create', [ContractController::class, 'createEspece'])->middleware('permission:especes.create')->name('create');
+            Route::post('/', [ContractController::class, 'storeEspece'])->middleware('permission:especes.create')->name('store');
+            Route::get('/{espece}/edit', [ContractController::class, 'editEspece'])->middleware('permission:especes.update')->name('edit');
+            Route::put('/{espece}', [ContractController::class, 'updateEspece'])->middleware('permission:especes.update')->name('update');
+            Route::delete('/{espece}', [ContractController::class, 'destroyEspece'])->middleware('permission:especes.delete')->name('destroy');
+        });
+        
+        // Contract Avenants Routes
+        Route::prefix('avenants')->name('avenants.')->middleware('permission:avenants.view')->group(function () {
+            Route::get('/create', [ContractController::class, 'createAvenant'])->middleware('permission:avenants.create')->name('create');
+            Route::post('/', [ContractController::class, 'storeAvenant'])->middleware('permission:avenants.create')->name('store');
+            Route::get('/{avenant}/edit', [ContractController::class, 'editAvenant'])->middleware('permission:avenants.update')->name('edit');
+            Route::put('/{avenant}', [ContractController::class, 'updateAvenant'])->middleware('permission:avenants.update')->name('update');
+            Route::delete('/{avenant}', [ContractController::class, 'destroyAvenant'])->middleware('permission:avenants.delete')->name('destroy');
+        });
+        
+        // Contract Coperatives Routes
+        Route::prefix('coperatives')->name('coperatives.')->middleware('permission:coperatives.view')->group(function () {
+            Route::get('/create', [ContractController::class, 'createCoperative'])->middleware('permission:coperatives.create')->name('create');
+            Route::post('/', [ContractController::class, 'storeCoperative'])->middleware('permission:coperatives.create')->name('store');
+            Route::get('/{coperative}/edit', [ContractController::class, 'editCoperative'])->middleware('permission:coperatives.update')->name('edit');
+            Route::put('/{coperative}', [ContractController::class, 'updateCoperative'])->middleware('permission:coperatives.update')->name('update');
+            Route::delete('/{coperative}', [ContractController::class, 'destroyCoperative'])->middleware('permission:coperatives.delete')->name('destroy');
+        });
+        
+        // Contract Vocations Routes
+        Route::prefix('vocations')->name('vocations.')->middleware('permission:vocations.view')->group(function () {
+            Route::get('/create', [ContractController::class, 'createVocation'])->middleware('permission:vocations.create')->name('create');
+            Route::post('/', [ContractController::class, 'storeVocation'])->middleware('permission:vocations.create')->name('store');
+            Route::get('/{vocation}/edit', [ContractController::class, 'editVocation'])->middleware('permission:vocations.update')->name('edit');
+            Route::put('/{vocation}', [ContractController::class, 'updateVocation'])->middleware('permission:vocations.update')->name('update');
+            Route::delete('/{vocation}', [ContractController::class, 'destroyVocation'])->middleware('permission:vocations.delete')->name('destroy');
+        });
+    });
 
     // Articles Routes
-    Route::resource('articles', ArticleController::class);
-    Route::get('/articles/export', [ArticleController::class, 'export'])->name('articles.export');
-    Route::post('/articles/import', [ArticleController::class, 'import'])->name('articles.import');
-    Route::post('/articles/{article}/import-locations', [ArticleController::class, 'importLocations'])->name('articles.import-locations');
-    
-    // Simple Article Creation Routes
-    Route::get('/articles/create/simple', [ArticleController::class, 'createSimple'])->name('articles.create.simple');
-    Route::post('/articles/store/simple', [ArticleController::class, 'storeSimple'])->name('articles.store.simple');
-    Route::get('/articles/template/download', [ArticleController::class, 'downloadTemplate'])->name('articles.template.download');
+    Route::prefix('articles')->name('articles.')->middleware('permission:articles.view')->group(function () {
+        Route::get('/', [ArticleController::class, 'index'])->name('index');
+        Route::get('/create', [ArticleController::class, 'create'])->middleware('permission:articles.create')->name('create');
+        Route::post('/', [ArticleController::class, 'store'])->middleware('permission:articles.create')->name('store');
+        Route::get('/export', [ArticleController::class, 'export'])->middleware('permission:articles.export')->name('export');
+        Route::post('/import', [ArticleController::class, 'import'])->middleware('permission:articles.import')->name('import');
+        
+        // Simple Article Creation Routes
+        Route::get('/create/simple', [ArticleController::class, 'createSimple'])->middleware('permission:articles.create')->name('create.simple');
+        Route::post('/store/simple', [ArticleController::class, 'storeSimple'])->middleware('permission:articles.create')->name('store.simple');
+        Route::get('/template/download', [ArticleController::class, 'downloadTemplate'])->name('template.download');
+        
+        // Legacy Articles Route (must be before /{article} route)
+        Route::get('/legacy-articles', [\App\Http\Controllers\ReportController::class, 'legacyArticles'])->name('legacy-articles');
+        
+        Route::get('/{article}', [ArticleController::class, 'show'])->name('show');
+        Route::get('/{article}/edit', [ArticleController::class, 'edit'])->middleware('permission:articles.update')->name('edit');
+        Route::put('/{article}', [ArticleController::class, 'update'])->middleware('permission:articles.update')->name('update');
+        Route::delete('/{article}', [ArticleController::class, 'destroy'])->middleware('permission:articles.delete')->name('destroy');
+        Route::post('/{article}/import-locations', [ArticleController::class, 'importLocations'])->middleware('permission:articles.import')->name('import-locations');
+    });
 
     // Reports Routes
-    Route::prefix('reports')->name('reports.')->group(function () {
+    Route::prefix('reports')->name('reports.')->middleware('permission:reports.view')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/summary', [ReportController::class, 'summary'])->name('summary');
-        Route::get('/summary/export', [ReportController::class, 'exportSummary'])->name('summary.export');
+        Route::get('/summary/export', [ReportController::class, 'exportSummary'])->middleware('permission:reports.export')->name('summary.export');
         Route::get('/articles-by-year', [ReportController::class, 'articlesByYear'])->name('articles-by-year');
         Route::get('/articles-by-foret', [ReportController::class, 'articlesByForet'])->name('articles-by-foret');
         Route::get('/articles-by-essence', [ReportController::class, 'articlesByEssence'])->name('articles-by-essence');
@@ -247,16 +336,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/article-quantities-charts', [ReportController::class, 'articleQuantitiesCharts'])->name('article-quantities-charts');
         Route::get('/unified', [ReportController::class, 'unifiedReports'])->name('unified');
         Route::get('/unified-table', [ReportController::class, 'unifiedTable'])->name('unified-table');
+        Route::get('/contracts', [ReportController::class, 'contractsReport'])->name('contracts');
+        Route::get('/exploitants', [ReportController::class, 'exploitantsReport'])->name('exploitants');
     });
 
-    
-    
-    // Test AJAX Route
-    Route::post('/test-ajax', function () {
-        return response()->json([
-            'success' => true,
-            'message' => 'AJAX test successful',
-            'timestamp' => now()
-        ]);
-    })->name('test.ajax');
 });

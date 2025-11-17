@@ -32,11 +32,47 @@
                     <i class="fas fa-home me-3"></i>
                     Tableau de Bord
                 </a>
+
+                <a href="{{ route('reports.index') }}" 
+                   class="mobile-nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    <i class="fas fa-chart-bar me-3"></i>
+                    Rapports
+                </a>
                 
                 <a href="{{ route('articles.index') }}" 
                    class="mobile-nav-item {{ request()->routeIs('articles.*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt me-3"></i>
                     Articles
+                </a>
+                
+                <a href="{{ route('exploitants.index') }}" 
+                   class="mobile-nav-item {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
+                    <i class="fas fa-file-alt me-3"></i>
+                    Exploitants
+                </a>
+                
+                <a href="{{ route('coperatives.index') }}" 
+                   class="mobile-nav-item {{ request()->routeIs('coperatives.*') ? 'active' : '' }}">
+                    <i class="fas fa-users-cog me-3"></i>
+                    Coopératives
+                </a>
+                
+                <a href="{{ route('odfs.index') }}" 
+                   class="mobile-nav-item {{ request()->routeIs('odfs.*') ? 'active' : '' }}">
+                    <i class="fas fa-users me-3"></i>
+                    ODFs
+                </a>
+                
+                <a href="{{ route('pdfcs.index') }}" 
+                   class="mobile-nav-item {{ request()->routeIs('pdfcs.*') ? 'active' : '' }}">
+                    <i class="fas fa-project-diagram me-3"></i>
+                    PDFCs
+                </a>
+                
+                <a href="{{ route('entity-data.index') }}" 
+                   class="mobile-nav-item {{ request()->routeIs('entity-data.*') ? 'active' : '' }}">
+                    <i class="fas fa-database me-3"></i>
+                    Données des Entités
                 </a>
                 
                 <a href="{{ route('settings.index') }}" 
@@ -45,11 +81,6 @@
                     Paramètres
                 </a>
                 
-                <a href="{{ route('reports.index') }}" 
-                   class="mobile-nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-                    <i class="fas fa-chart-bar me-3"></i>
-                    Rapports
-                </a>
                 
                 <a href="{{ route('excel.index') }}" 
                    class="mobile-nav-item {{ request()->routeIs('excel.*') ? 'active' : '' }}">
@@ -62,6 +93,7 @@
                     <i class="fas fa-users me-3"></i>
                     Utilisateurs
                 </a>
+                
                 
                 <div class="border-t border-gray-200 pt-4 mt-4">
                     <a href="{{ route('auth.profile') }}" 

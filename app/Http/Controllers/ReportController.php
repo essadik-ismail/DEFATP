@@ -10,6 +10,7 @@ use App\Models\SituationAdministrative;
 use App\Models\Exploitant;
 use App\Models\Localisation;
 use App\Models\LegacyArticle;
+use App\Models\Contract;
 use App\Services\ActivityLogger;
 use App\Http\Requests\ArticlesByYearRequest;
 use App\Http\Requests\ArticlesByForetRequest;
@@ -605,9 +606,14 @@ class ReportController extends Controller
             
         // Get statistics by year
         $byYear = (clone $query)
-            ->selectRaw('SUBSTRING(date, 1, 2) as year, COUNT(*) as total')
+            ->selectRaw('CASE 
+                WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
+                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                ELSE NULL
+            END as year, COUNT(*) as total')
             ->whereNotNull('date')
             ->where('date', '!=', '')
+            ->whereRaw('LENGTH(date) >= 6')
             ->groupBy('year')
             ->orderBy('year')
             ->get();
@@ -621,8 +627,119 @@ class ReportController extends Controller
             ->limit(10)
             ->get();
 
-        // Get preview data for the table
-        $previewData = (clone $query)->orderBy('created_at', 'desc')->limit(10)->get();
+        // Get quantities by year (Bo m3, Bi m3, Bf st, Liége st)
+        $quantitiesByYear = (clone $query)
+            ->selectRaw('CASE 
+                WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
+                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                ELSE NULL
+            END as year, 
+                        SUM(COALESCE(bom3, 0)) as bom3,
+                        SUM(COALESCE(bim3, 0)) as bim3,
+                        SUM(COALESCE(bfst, 0)) as bfst,
+                        SUM(COALESCE(lcst, 0)) as lcst')
+            ->whereNotNull('date')
+            ->where('date', '!=', '')
+            ->whereRaw('LENGTH(date) >= 6')
+            ->groupBy('year')
+            ->orderBy('year')
+            ->get();
+
+        // Get quantities by province
+        $quantitiesByProvince = (clone $query)
+            ->selectRaw('province, 
+                        SUM(COALESCE(bom3, 0)) as bom3,
+                        SUM(COALESCE(bim3, 0)) as bim3,
+                        SUM(COALESCE(bfst, 0)) as bfst,
+                        SUM(COALESCE(lcst, 0)) as lcst')
+            ->whereNotNull('province')
+            ->groupBy('province')
+            ->orderByDesc('bom3')
+            ->limit(10)
+            ->get();
+
+        // Get quantities by essence
+        $quantitiesByEssence = (clone $query)
+            ->selectRaw('essence, 
+                        SUM(COALESCE(bom3, 0)) as bom3,
+                        SUM(COALESCE(bim3, 0)) as bim3,
+                        SUM(COALESCE(bfst, 0)) as bfst,
+                        SUM(COALESCE(lcst, 0)) as lcst')
+            ->whereNotNull('essence')
+            ->groupBy('essence')
+            ->orderByDesc('bom3')
+            ->limit(10)
+            ->get();
+
+        // Get quantities by DREF
+        $quantitiesByDref = (clone $query)
+            ->selectRaw('dref, 
+                        SUM(COALESCE(bom3, 0)) as bom3,
+                        SUM(COALESCE(bim3, 0)) as bim3,
+                        SUM(COALESCE(bfst, 0)) as bfst,
+                        SUM(COALESCE(lcst, 0)) as lcst')
+            ->whereNotNull('dref')
+            ->groupBy('dref')
+            ->orderByDesc('bom3')
+            ->limit(10)
+            ->get();
+
+        // Get all data for the table (limited to reasonable amount for client-side processing)
+        $tableData = (clone $query)->orderBy('created_at', 'desc')->limit(1000)->get()->map(function($article) {
+            // Format date
+            $formattedDate = 'N/A';
+            if ($article->date && strlen(trim($article->date)) >= 6) {
+                $dateStr = trim($article->date);
+                try {
+                    if (preg_match('/^\d{6}$/', $dateStr)) {
+                        $formattedDate = \Carbon\Carbon::createFromFormat('ymd', $dateStr)->format('d/m/Y');
+                    } elseif (preg_match('/^\d{8}$/', $dateStr)) {
+                        $formattedDate = \Carbon\Carbon::createFromFormat('Ymd', $dateStr)->format('d/m/Y');
+                    } else {
+                        $formattedDate = $dateStr;
+                    }
+                } catch (\Exception $e) {
+                    $formattedDate = $dateStr;
+                }
+            }
+
+            // Calculate total volume
+            $totalVolume = ($article->bom3 ?? 0) + ($article->bim3 ?? 0) + ($article->bfst ?? 0) + 
+                          ($article->lcst ?? 0) + ($article->ett ?? 0) + ($article->pst ?? 0);
+            $formattedVolume = $totalVolume > 0 ? number_format($totalVolume, 2) : 'N/A';
+
+            return [
+                'dref' => $article->dref ?? 'N/A',
+                'foret' => $article->foret ?? 'N/A',
+                'province' => $article->province ?? 'N/A',
+                'date' => $formattedDate,
+                'essence' => $article->essence ?? 'N/A',
+                'surface' => $article->surface ? number_format($article->surface, 2) : 'N/A',
+                'volume' => $formattedVolume,
+                'ppdh' => $article->ppdh ? number_format($article->ppdh, 2) : 'N/A',
+            ];
+        });
+
+        // Get filter options for the view
+        $provinces = LegacyArticle::select('province')->distinct()->whereNotNull('province')->orderBy('province')->pluck('province');
+        $essences = LegacyArticle::select('essence')->distinct()->whereNotNull('essence')->orderBy('essence')->pluck('essence');
+        $drefs = LegacyArticle::select('dref')->distinct()->whereNotNull('dref')->orderBy('dref')->pluck('dref');
+        $years = LegacyArticle::selectRaw('CASE 
+                WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
+                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                ELSE NULL
+            END as year')
+            ->distinct()
+            ->whereNotNull('date')
+            ->where('date', '!=', '')
+            ->whereRaw('LENGTH(date) >= 6')
+            ->orderBy('year')
+            ->get()
+            ->pluck('year')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
 
         $stats = [
             'total_records' => $totalLegacyArticles,
@@ -635,9 +752,13 @@ class ReportController extends Controller
             'by_province' => $byProvince,
             'by_essence' => $byEssence,
             'by_dref' => $byDref,
+            'quantities_by_year' => $quantitiesByYear,
+            'quantities_by_province' => $quantitiesByProvince,
+            'quantities_by_essence' => $quantitiesByEssence,
+            'quantities_by_dref' => $quantitiesByDref,
         ];
 
-        return view('reports.legacy-articles', compact('stats', 'previewData'));
+        return view('reports.legacy-articles', compact('stats', 'tableData', 'provinces', 'essences', 'drefs', 'years'));
     }
 
     public function legacyArticlesTable(Request $request): View|JsonResponse
@@ -655,15 +776,22 @@ class ReportController extends Controller
         $essences = LegacyArticle::select('essence')->distinct()->whereNotNull('essence')->orderBy('essence')->pluck('essence');
         $forets = LegacyArticle::select('foret')->distinct()->whereNotNull('foret')->orderBy('foret')->pluck('foret');
         $drefs = LegacyArticle::select('dref')->distinct()->whereNotNull('dref')->orderBy('dref')->pluck('dref');
-        $years = LegacyArticle::selectRaw('SUBSTRING(date, 1, 2) as year')
+        $years = LegacyArticle::selectRaw('CASE 
+                WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
+                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                ELSE NULL
+            END as year')
             ->distinct()
             ->whereNotNull('date')
             ->where('date', '!=', '')
+            ->whereRaw('LENGTH(date) >= 6')
             ->orderBy('year')
             ->get()
-            ->map(function ($item) {
-                return '20' . $item->year;
-            });
+            ->pluck('year')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
         
         // Get initial stats (will be updated via AJAX)
         $stats = [
@@ -873,15 +1001,22 @@ class ReportController extends Controller
         $articles = $query->orderBy('date', 'desc')->paginate(20);
         
         // Get available years for filter
-        $years = LegacyArticle::selectRaw('SUBSTRING(date, 1, 2) as year')
+        $years = LegacyArticle::selectRaw('CASE 
+                WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
+                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                ELSE NULL
+            END as year')
             ->distinct()
             ->whereNotNull('date')
             ->where('date', '!=', '')
+            ->whereRaw('LENGTH(date) >= 6')
             ->orderBy('year')
             ->get()
-            ->map(function ($item) {
-                return '20' . $item->year;
-            });
+            ->pluck('year')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
         
         // Calculate stats
         $allArticles = $query->get();
@@ -996,14 +1131,19 @@ class ReportController extends Controller
             ->orderBy('annee')
             ->get();
             
-        $legacyArticlesByYear = LegacyArticle::selectRaw('SUBSTRING(date, 1, 2) as year, SUM(bom3) as volume')
+        $legacyArticlesByYear = LegacyArticle::selectRaw('CASE 
+                WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
+                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                ELSE NULL
+            END as year, SUM(bom3) as volume')
             ->whereNotNull('date')
             ->where('date', '!=', '')
+            ->whereRaw('LENGTH(date) >= 6')
             ->groupBy('year')
             ->orderBy('year')
             ->get()
             ->map(function ($item) {
-                $item->annee = '20' . $item->year;
+                $item->annee = $item->year;
                 return $item;
             });
 
@@ -1650,15 +1790,22 @@ class ReportController extends Controller
         // Get filter options
         $years = collect();
         $currentYears = Article::select('annee')->distinct()->orderBy('annee', 'desc')->pluck('annee');
-        $legacyYears = LegacyArticle::selectRaw('SUBSTRING(date, 1, 2) as year')
+        $legacyYears = LegacyArticle::selectRaw('CASE 
+                WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
+                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                ELSE NULL
+            END as year')
             ->distinct()
             ->whereNotNull('date')
             ->where('date', '!=', '')
+            ->whereRaw('LENGTH(date) >= 6')
             ->orderBy('year')
             ->get()
-            ->map(function ($item) {
-                return '20' . $item->year;
-            });
+            ->pluck('year')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
         
         $years = $currentYears->merge($legacyYears)->unique()->sort()->values();
         
@@ -1694,5 +1841,229 @@ class ReportController extends Controller
             'essences',
             'stats'
         ));
+    }
+
+    /**
+     * Display contracts report
+     */
+    public function contractsReport(Request $request): View
+    {
+        // Log report generation
+        ActivityLogger::log('view', 'Génération du rapport des contrats', Contract::class);
+        
+        // Build base query
+        $query = Contract::with(['localisation', 'situationAdministrative', 'especes', 'forets', 'coperative']);
+        
+        // Apply filters
+        if ($request->filled('year')) {
+            $query->where('annee', $request->year);
+        }
+        
+        if ($request->filled('localisation_id')) {
+            $query->where('localisation_id', $request->localisation_id);
+        }
+        
+        if ($request->filled('situation_administrative_id')) {
+            $query->where('situation_administrative_id', $request->situation_administrative_id);
+        }
+        
+        if ($request->filled('espece_id')) {
+            $query->whereHas('especes', function($q) use ($request) {
+                $q->where('especes.id', $request->espece_id);
+            });
+        }
+        
+        if ($request->filled('foret_id')) {
+            $query->whereHas('forets', function($q) use ($request) {
+                $q->where('forets.id', $request->foret_id);
+            });
+        }
+        
+        if ($request->filled('coperative_id')) {
+            $query->where('coperative_id', $request->coperative_id);
+        }
+        
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        
+        // Get statistics
+        $totalContracts = (clone $query)->count();
+        $totalValue = (clone $query)->sum('total_avenant') ?? 0;
+        $totalSuperficie = (clone $query)->sum('superficie') ?? 0;
+        
+        // Statistics by year
+        $byYear = (clone $query)
+            ->selectRaw('annee, COUNT(*) as total, SUM(COALESCE(total_avenant, 0)) as total_value, SUM(COALESCE(superficie, 0)) as total_superficie')
+            ->whereNotNull('annee')
+            ->groupBy('annee')
+            ->orderBy('annee', 'desc')
+            ->get();
+        
+        // Statistics by localisation
+        $byLocalisation = (clone $query)
+            ->join('localisations', 'contacts.localisation_id', '=', 'localisations.id')
+            ->selectRaw('localisations.DRANEF as label, COUNT(*) as total, SUM(COALESCE(contacts.total_avenant, 0)) as total_value')
+            ->whereNotNull('localisations.DRANEF')
+            ->groupBy('localisations.id', 'localisations.DRANEF')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+        
+        // Statistics by situation administrative
+        $bySituation = (clone $query)
+            ->join('situation_administratives', 'contacts.situation_administrative_id', '=', 'situation_administratives.id')
+            ->selectRaw('situation_administratives.province as label, COUNT(*) as total, SUM(COALESCE(contacts.total_avenant, 0)) as total_value')
+            ->whereNotNull('situation_administratives.province')
+            ->groupBy('situation_administratives.id', 'situation_administratives.province')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+        
+        // Statistics by espece
+        $byEspece = (clone $query)
+            ->join('contact_espece', 'contacts.id', '=', 'contact_espece.contact_id')
+            ->join('especes', 'contact_espece.espece_id', '=', 'especes.id')
+            ->selectRaw('especes.name as label, COUNT(DISTINCT contacts.id) as total')
+            ->groupBy('especes.id', 'especes.name')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+        
+        // Get contracts with pagination
+        $contracts = $query->orderBy('created_at', 'desc')->paginate(20);
+        
+        // Get filter options
+        $localisations = Localisation::orderBy('CODE')->get();
+        $situations = SituationAdministrative::orderBy('commune')->get();
+        $especes = \App\Models\Espece::orderBy('name')->get();
+        $forets = Foret::orderBy('foret')->get();
+        $coperatives = \App\Models\Coperative::orderBy('nom')->get();
+        $availableYears = Contract::select('annee')
+            ->distinct()
+            ->whereNotNull('annee')
+            ->orderBy('annee', 'desc')
+            ->pluck('annee');
+        
+        $stats = [
+            'total_contracts' => $totalContracts,
+            'total_value' => $totalValue,
+            'total_superficie' => $totalSuperficie,
+            'by_year' => $byYear,
+            'by_localisation' => $byLocalisation,
+            'by_situation' => $bySituation,
+            'by_espece' => $byEspece,
+        ];
+        
+        return view('reports.contracts', compact('contracts', 'stats', 'localisations', 'situations', 'especes', 'forets', 'coperatives', 'availableYears'));
+    }
+
+    /**
+     * Display exploitants report
+     */
+    public function exploitantsReport(Request $request): View
+    {
+        // Log report generation
+        ActivityLogger::log('view', 'Génération du rapport des exploitants', Exploitant::class);
+        
+        // Build base query
+        $query = Exploitant::with('localisation');
+        
+        // Apply filters
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('nom_complet', 'like', '%' . $request->search . '%')
+                  ->orWhere('raison_sociale', 'like', '%' . $request->search . '%')
+                  ->orWhere('n_cin', 'like', '%' . $request->search . '%')
+                  ->orWhere('numero', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        if ($request->filled('categorie')) {
+            $query->where('categorie', $request->categorie);
+        }
+        
+        if ($request->filled('activite')) {
+            $query->where('activite', $request->activite);
+        }
+        
+        if ($request->filled('localisation_id')) {
+            $query->where('localisation_id', $request->localisation_id);
+        }
+        
+        if ($request->filled('exclusion')) {
+            $query->where('exclusion', $request->exclusion == '1');
+        }
+        
+        if ($request->filled('qualification_rc')) {
+            $query->where('qualification_rc', $request->qualification_rc);
+        }
+        
+        // Get statistics
+        $totalExploitants = (clone $query)->count();
+        $totalCompanies = (clone $query)->where('categorie', 'societe')->count();
+        $totalIndividuals = (clone $query)->where('categorie', 'personne_physique')->count();
+        $totalActive = (clone $query)->where('exclusion', false)->count();
+        $totalExcluded = (clone $query)->where('exclusion', true)->count();
+        
+        // Statistics by categorie
+        $byCategorie = (clone $query)
+            ->selectRaw('categorie, COUNT(*) as total')
+            ->whereNotNull('categorie')
+            ->groupBy('categorie')
+            ->get();
+        
+        // Statistics by activite
+        $byActivite = (clone $query)
+            ->selectRaw('activite, COUNT(*) as total')
+            ->whereNotNull('activite')
+            ->groupBy('activite')
+            ->orderByDesc('total')
+            ->get();
+        
+        // Statistics by localisation
+        $byLocalisation = (clone $query)
+            ->join('localisations', 'exploitants.localisation_id', '=', 'localisations.id')
+            ->selectRaw('localisations.DRANEF as label, COUNT(*) as total')
+            ->whereNotNull('localisations.DRANEF')
+            ->groupBy('localisations.id', 'localisations.DRANEF')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+        
+        // Statistics by qualification
+        $byQualification = (clone $query)
+            ->selectRaw('qualification_rc, COUNT(*) as total')
+            ->whereNotNull('qualification_rc')
+            ->groupBy('qualification_rc')
+            ->orderByDesc('total')
+            ->get();
+        
+        // Get exploitants with pagination
+        $exploitants = $query->orderBy('created_at', 'desc')->paginate(20);
+        
+        // Get filter options
+        $localisations = Localisation::orderBy('CODE')->get();
+        $categories = ['societe', 'personne_physique'];
+        $activites = Exploitant::select('activite')->distinct()->whereNotNull('activite')->orderBy('activite')->pluck('activite');
+        $qualifications = Exploitant::select('qualification_rc')->distinct()->whereNotNull('qualification_rc')->orderBy('qualification_rc')->pluck('qualification_rc');
+        
+        $stats = [
+            'total_exploitants' => $totalExploitants,
+            'total_companies' => $totalCompanies,
+            'total_individuals' => $totalIndividuals,
+            'total_active' => $totalActive,
+            'total_excluded' => $totalExcluded,
+            'by_categorie' => $byCategorie,
+            'by_activite' => $byActivite,
+            'by_localisation' => $byLocalisation,
+            'by_qualification' => $byQualification,
+        ];
+        
+        return view('reports.exploitants', compact('exploitants', 'stats', 'localisations', 'categories', 'activites', 'qualifications'));
     }
 } 

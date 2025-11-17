@@ -123,10 +123,10 @@ class ForetSeeder extends Seeder
             ['foret' => 'Khenifra', 'lat' => '33.04925611', 'log' => '-5.661909238'],
             ['foret' => 'Aghbal', 'lat' => '33.05620264', 'log' => '-5.496581867'],
             ['foret' => 'Ajdir', 'lat' => '32.97840152', 'log' => '-5.340979636'],
-            ['foret' => '00_Khenifra', 'lat' => '32.81683779', 'log' => '-5.692982896'],
+            ['foret' => 'Khenifra', 'lat' => '32.81683779', 'log' => '-5.692982896'],
             ['foret' => 'Ait Issaq Nord', 'lat' => '32.80890623', 'log' => '-5.805285581'],
             ['foret' => 'Ait Issaq Nord', 'lat' => '32.71026553', 'log' => '-5.677469461'],
-            ['foret' => '00_Kebbab', 'lat' => '32.72415858', 'log' => '-5.489913203'],
+            ['foret' => 'Kebbab', 'lat' => '32.72415858', 'log' => '-5.489913203'],
             ['foret' => 'Aghbala', 'lat' => '32.31848134', 'log' => '-5.710812795'],
             ['foret' => 'Ait Oum El Bakht', 'lat' => '32.58383872', 'log' => '-5.802506973'],
             ['foret' => 'Ait Ouirra', 'lat' => '32.52548788', 'log' => '-5.936019248'],
@@ -162,7 +162,7 @@ class ForetSeeder extends Seeder
             ['foret' => 'Entifa', 'lat' => '32.00763546', 'log' => '-6.917027928'],
             ['foret' => 'Zaouia Ahancal', 'lat' => '31.88089378', 'log' => '-5.984868947'],
             ['foret' => 'Ait Bouguemez', 'lat' => '31.73428423', 'log' => '-6.488222388'],
-            ['foret' => '00_Lakhdar', 'lat' => '31.76630542', 'log' => '-6.828482368'],
+            ['foret' => 'Lakhdar', 'lat' => '31.76630542', 'log' => '-6.828482368'],
             ['foret' => 'Azilal', 'lat' => '31.76804161', 'log' => '-7.000364913'],
             ['foret' => 'Ouarkziz', 'lat' => '0', 'log' => '0'],
             ['foret' => 'Tizimi', 'lat' => '0', 'log' => '0'],
@@ -179,7 +179,7 @@ class ForetSeeder extends Seeder
     private function createForestsBatch6()
     {
         $forets = [
-            ['foret' => '00_Lakhdar', 'lat' => '31.59095049', 'log' => '-6.568227886'],
+            ['foret' => 'Lakhdar', 'lat' => '31.59095049', 'log' => '-6.568227886'],
             ['foret' => 'Rhmet', 'lat' => '31.57879719', 'log' => '-6.698441935'],
             ['foret' => 'Ait Tamlil', 'lat' => '31.44858313', 'log' => '-6.891158736'],
             ['foret' => 'Rhejdama', 'lat' => '31.51629444', 'log' => '-7.219298138'],
@@ -220,10 +220,10 @@ class ForetSeeder extends Seeder
             ['foret' => 'Tiguimijjou', 'lat' => '31.62359236', 'log' => '-9.572451733'],
             ['foret' => 'Sidi Moussa', 'lat' => '31.55905588', 'log' => '-9.496199745'],
             ['foret' => 'Ayed', 'lat' => '31.5425877', 'log' => '-9.511488144'],
-            ['foret' => '00_Arbayâ', 'lat' => '31.49265999', 'log' => '-9.47313841'],
+            ['foret' => 'Arbayâ', 'lat' => '31.49265999', 'log' => '-9.47313841'],
             ['foret' => 'Aouintiri', 'lat' => '31.54138445', 'log' => '-9.374918097'],
             ['foret' => 'Ain Tafetacht', 'lat' => '31.47854225', 'log' => '-9.361998024'],
-            ['foret' => '00_Ain Tafetacht', 'lat' => '31.5464818', 'log' => '-9.214446499'],
+            ['foret' => 'Ain Tafetacht', 'lat' => '31.5464818', 'log' => '-9.214446499'],
             ['foret' => 'Adamna', 'lat' => '31.48593227', 'log' => '-9.620311564'],
             ['foret' => 'Ait Sraidi', 'lat' => '31.47086422', 'log' => '-9.655231633'],
             ['foret' => 'Bouzamma', 'lat' => '31.44686805', 'log' => '-9.672397181'],
@@ -244,7 +244,7 @@ class ForetSeeder extends Seeder
             ['foret' => 'Ain Auodir', 'lat' => '31.39217815', 'log' => '-9.477076108'],
             ['foret' => 'Ouled Amira', 'lat' => '31.46920405', 'log' => '-9.459198035'],
             ['foret' => 'Rhezaoua', 'lat' => '31.33097755', 'log' => '-9.737504205'],
-            ['foret' => '00_Iberjaguane', 'lat' => '31.38957387', 'log' => '-9.693231429'],
+            ['foret' => 'Iberjaguane', 'lat' => '31.38957387', 'log' => '-9.693231429'],
             ['foret' => 'Neknafa', 'lat' => '31.29451761', 'log' => '-9.628124405'],
             ['foret' => 'Idmine', 'lat' => '31.32837327', 'log' => '-9.694533573'],
             ['foret' => 'Tidzi', 'lat' => '31.28670477', 'log' => '-9.772661998'],
@@ -258,7 +258,7 @@ class ForetSeeder extends Seeder
             ['foret' => 'Tamaroute', 'lat' => '31.24490606', 'log' => '-9.473169684'],
             ['foret' => 'Issig nakoucht', 'lat' => '31.19517495', 'log' => '-9.447806245'],
             ['foret' => 'Jabal Ihchach', 'lat' => '31.198029', 'log' => '-9.3676963'],
-            ['foret' => '00_Tasserssirt', 'lat' => '31.04958498', 'log' => '-9.780474845'],
+            ['foret' => 'Tasserssirt', 'lat' => '31.04958498', 'log' => '-9.780474845'],
         ];
 
         foreach ($forets as $foret) {
