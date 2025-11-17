@@ -1934,6 +1934,59 @@ class ReportController extends Controller
             ->limit(10)
             ->get();
         
+        // Statistics by foret
+        $byForetQuery = Contract::query();
+        
+        // Apply the same filters to the foret query
+        if ($request->filled('year')) {
+            $byForetQuery->where('annee', $request->year);
+        }
+        if ($request->filled('localisation_id')) {
+            $byForetQuery->where('localisation_id', $request->localisation_id);
+        }
+        if ($request->filled('situation_administrative_id')) {
+            $byForetQuery->where('situation_administrative_id', $request->situation_administrative_id);
+        }
+        if ($request->filled('espece_id')) {
+            $byForetQuery->whereHas('especes', function($q) use ($request) {
+                $q->where('especes.id', $request->espece_id);
+            });
+        }
+        if ($request->filled('foret_id')) {
+            $byForetQuery->whereHas('forets', function($q) use ($request) {
+                $q->where('forets.id', $request->foret_id);
+            });
+        }
+        if ($request->filled('coperative_id')) {
+            $byForetQuery->where('coperative_id', $request->coperative_id);
+        }
+        if ($request->filled('start_date')) {
+            $byForetQuery->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $byForetQuery->whereDate('created_at', '<=', $request->end_date);
+        }
+        
+        $byForet = $byForetQuery
+            ->join('contact_foret', 'contacts.id', '=', 'contact_foret.contact_id')
+            ->join('forets', 'contact_foret.foret_id', '=', 'forets.id')
+            ->selectRaw('forets.foret as label, COUNT(DISTINCT contacts.id) as total')
+            ->whereNotNull('forets.foret')
+            ->groupBy('forets.id', 'forets.foret')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+        
+        // Statistics by coperative
+        $byCoperative = (clone $query)
+            ->join('coperatives', 'contacts.coperative_id', '=', 'coperatives.id')
+            ->selectRaw('coperatives.nom as label, COUNT(*) as total')
+            ->whereNotNull('coperatives.nom')
+            ->groupBy('coperatives.id', 'coperatives.nom')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+        
         // Get contracts with pagination
         $contracts = $query->orderBy('created_at', 'desc')->paginate(20);
         
@@ -1957,6 +2010,8 @@ class ReportController extends Controller
             'by_localisation' => $byLocalisation,
             'by_situation' => $bySituation,
             'by_espece' => $byEspece,
+            'by_foret' => $byForet,
+            'by_coperative' => $byCoperative,
         ];
         
         return view('reports.contracts', compact('contracts', 'stats', 'localisations', 'situations', 'especes', 'forets', 'coperatives', 'availableYears'));
@@ -1973,34 +2028,13 @@ class ReportController extends Controller
         // Build base query
         $query = Exploitant::with('localisation');
         
-        // Apply filters
-        if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('nom_complet', 'like', '%' . $request->search . '%')
-                  ->orWhere('raison_sociale', 'like', '%' . $request->search . '%')
-                  ->orWhere('n_cin', 'like', '%' . $request->search . '%')
-                  ->orWhere('numero', 'like', '%' . $request->search . '%');
-            });
+        // Apply filters - only date filters
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
         }
         
-        if ($request->filled('categorie')) {
-            $query->where('categorie', $request->categorie);
-        }
-        
-        if ($request->filled('activite')) {
-            $query->where('activite', $request->activite);
-        }
-        
-        if ($request->filled('localisation_id')) {
-            $query->where('localisation_id', $request->localisation_id);
-        }
-        
-        if ($request->filled('exclusion')) {
-            $query->where('exclusion', $request->exclusion == '1');
-        }
-        
-        if ($request->filled('qualification_rc')) {
-            $query->where('qualification_rc', $request->qualification_rc);
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
         }
         
         // Get statistics
@@ -2025,10 +2059,22 @@ class ReportController extends Controller
             ->orderByDesc('total')
             ->get();
         
-        // Statistics by localisation
-        $byLocalisation = (clone $query)
+        // Statistics by localisation - use withoutGlobalScopes to avoid ambiguous column
+        $byLocalisationQuery = Exploitant::withoutGlobalScopes();
+        
+        // Apply the same date filters
+        if ($request->filled('start_date')) {
+            $byLocalisationQuery->whereDate('exploitants.created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $byLocalisationQuery->whereDate('exploitants.created_at', '<=', $request->end_date);
+        }
+        
+        $byLocalisation = $byLocalisationQuery
             ->join('localisations', 'exploitants.localisation_id', '=', 'localisations.id')
             ->selectRaw('localisations.DRANEF as label, COUNT(*) as total')
+            ->where('exploitants.is_deleted', false)
+            ->where('localisations.is_deleted', false)
             ->whereNotNull('localisations.DRANEF')
             ->groupBy('localisations.id', 'localisations.DRANEF')
             ->orderByDesc('total')

@@ -104,8 +104,8 @@
                 <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Graphiques des Quantités</h3>
-                <p class="text-gray-600">Analysez les quantités de produits par année et par localisation avec des graphiques interactifs</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles</h3>
+                <p class="text-gray-600">Rapport des Articles</p>
             </div>
 
             <!-- Legacy Quantities Charts -->
@@ -113,8 +113,8 @@
                 <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Graphiques Legacy</h3>
-                <p class="text-gray-600">Analysez les quantités de produits par année et par province pour les articles historiques</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles Historiques</h3>
+                <p class="text-gray-600">Rapport des Articles Historiques</p>
             </div>
 
             <!-- Article Quantities Charts -->
@@ -122,8 +122,8 @@
                 <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Graphiques Articles</h3>
-                <p class="text-gray-600">Analysez les quantités de produits par année et par localisation pour les articles actuels</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles</h3>
+                <p class="text-gray-600">Rapport des Articles</p>
             </div>
 
             <!-- Contracts Report -->

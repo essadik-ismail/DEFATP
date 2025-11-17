@@ -67,79 +67,49 @@
             </div>
         </div>
 
-        <!-- Search and Filter Section -->
-        <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200 mb-6">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-filter text-white"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900">Recherche et Filtres</h3>
-                </div>
-                <!-- <button type="button" id="toggleFilters" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
-                    <i class="fas fa-chevron-down" id="toggleIcon"></i>
-                    <span>Afficher/Masquer</span>
-                </button> -->
-            </div>
-            
-            <form method="GET" action="{{ route('contracts.index') }}" id="filterForm">
-                <!-- Basic Filters Row -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4" id="basicFilters">
-                    <div class="form-group">
-                        <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-search text-blue-500 mr-1"></i>Recherche globale
-                        </label>
-                        <div class="relative">
-                            <input type="text" 
-                                   class="form-input w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                   name="search" 
-                                   id="search" 
-                                   value="{{ request('search') }}"
-                                   placeholder="Numéro, année, localisation...">
-                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                <i class="fas fa-search"></i>
-                            </div>
+        <!-- Filters Section -->
+        <div class="mb-8">
+            <x-card 
+                title="Filtres" 
+                subtitle="Filtrez les contrats selon vos critères"
+                variant="colored"
+                color="blue"
+                icon="fas fa-filter"
+                padding="compact"
+            >
+                <form method="GET" action="{{ route('contracts.index') }}" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label for="year" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar text-purple-500 mr-1"></i>Année
+                            </label>
+                            <select name="year" id="year" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Toutes les années</option>
+                                @foreach($availableYears as $year)
+                                    <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="year" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar text-purple-500 mr-1"></i>Année
-                        </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                                name="year" id="year">
-                            <option value="">Toutes les années</option>
-                            @foreach($availableYears as $year)
-                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-map-marker-alt text-green-500 mr-1"></i>Localisation
-                        </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                name="localisation_id" id="localisation_id">
-                            <option value="">Toutes les localisations</option>
-                            @foreach($localisations as $localisation)
-                                <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- Advanced Filters Row (Collapsible) -->
-                <div id="advancedFilters" class="hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                        <div class="form-group">
-                            <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                        
+                        <div>
+                            <label for="localisation_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt text-green-500 mr-1"></i>Localisation
+                            </label>
+                            <select name="localisation_id" id="localisation_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Toutes les localisations</option>
+                                @foreach($localisations as $localisation)
+                                    <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
+                                        {{ $localisation->CODE }} - {{ $localisation->DRANEF }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="situation_administrative_id" class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-building text-indigo-500 mr-1"></i>Situation Administrative
                             </label>
-                            <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
-                                    name="situation_administrative_id" id="situation_administrative_id">
+                            <select name="situation_administrative_id" id="situation_administrative_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Toutes les situations</option>
                                 @foreach($situations as $situation)
                                     <option value="{{ $situation->id }}" {{ request('situation_administrative_id') == $situation->id ? 'selected' : '' }}>
@@ -149,12 +119,11 @@
                             </select>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="espece_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <div>
+                            <label for="espece_id" class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-leaf text-emerald-500 mr-1"></i>Espèce
                             </label>
-                            <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 hover:border-gray-400" 
-                                    name="espece_id" id="espece_id">
+                            <select name="espece_id" id="espece_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Toutes les espèces</option>
                                 @foreach($especesList as $espece)
                                     <option value="{{ $espece->id }}" {{ request('espece_id') == $espece->id ? 'selected' : '' }}>
@@ -164,12 +133,11 @@
                             </select>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="foret_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <div>
+                            <label for="foret_id" class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-tree text-green-500 mr-1"></i>Forêt
                             </label>
-                            <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                    name="foret_id" id="foret_id">
+                            <select name="foret_id" id="foret_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Toutes les forêts</option>
                                 @foreach($forets as $foret)
                                     <option value="{{ $foret->id }}" {{ request('foret_id') == $foret->id ? 'selected' : '' }}>
@@ -179,12 +147,11 @@
                             </select>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="coperative_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <div>
+                            <label for="coperative_id" class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="fas fa-users-cog text-cyan-500 mr-1"></i>Coopérative
                             </label>
-                            <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 hover:border-gray-400" 
-                                    name="coperative_id" id="coperative_id">
+                            <select name="coperative_id" id="coperative_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Toutes les coopératives</option>
                                 @foreach($coperativesList as $coperative)
                                     <option value="{{ $coperative->id }}" {{ request('coperative_id') == $coperative->id ? 'selected' : '' }}>
@@ -193,53 +160,22 @@
                                 @endforeach
                             </select>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-calendar-plus text-orange-500 mr-1"></i>Date de début
-                            </label>
-                            <input type="date" 
-                                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400" 
-                                   name="start_date" 
-                                   id="start_date" 
-                                   value="{{ request('start_date') }}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-calendar-minus text-red-500 mr-1"></i>Date de fin
-                            </label>
-                            <input type="date" 
-                                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 hover:border-gray-400" 
-                                   name="end_date" 
-                                   id="end_date" 
-                                   value="{{ request('end_date') }}">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div class="flex gap-3">
-                        <button type="submit" 
-                                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                            <i class="fas fa-filter"></i>
-                            <span>Appliquer les filtres</span>
-                        </button>
-                        <a href="{{ route('contracts.index') }}" 
-                           class="inline-flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                            <i class="fas fa-redo"></i>
-                            <span>Réinitialiser</span>
-                        </a>
                     </div>
                     
-                    <!-- @if(request()->hasAny(['search', 'year', 'localisation_id', 'situation_administrative_id', 'espece_id', 'foret_id', 'coperative_id', 'start_date', 'end_date']))
-                        <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2">
-                            <i class="fas fa-info-circle"></i>
-                            <span>Filtres actifs</span>
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                        <div class="flex gap-3">
+                            <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300">
+                                <i class="fas fa-filter"></i>
+                                <span>Appliquer les filtres</span>
+                            </button>
+                            <a href="{{ route('contracts.index') }}" class="inline-flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
+                                <i class="fas fa-redo"></i>
+                                <span>Réinitialiser</span>
+                            </a>
                         </div>
-                    @endif -->
-                </div>
-            </form>
+                    </div>
+                </form>
+            </x-card>
         </div>
             
         <!-- Data Table -->
@@ -402,23 +338,6 @@
             }
         }
 
-        // Toggle filters functionality
-        const toggleFiltersBtn = document.getElementById('toggleFilters');
-        const advancedFilters = document.getElementById('advancedFilters');
-        const toggleIcon = document.getElementById('toggleIcon');
-        
-        if (toggleFiltersBtn && advancedFilters && toggleIcon) {
-            toggleFiltersBtn.addEventListener('click', function() {
-                advancedFilters.classList.toggle('hidden');
-                if (advancedFilters.classList.contains('hidden')) {
-                    toggleIcon.classList.remove('fa-chevron-up');
-                    toggleIcon.classList.add('fa-chevron-down');
-                } else {
-                    toggleIcon.classList.remove('fa-chevron-down');
-                    toggleIcon.classList.add('fa-chevron-up');
-                }
-            });
-        }
     });
 </script>
 

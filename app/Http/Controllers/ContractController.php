@@ -49,6 +49,12 @@ class ContractController extends Controller
             ->when($request->filled('year'), function($query) use ($request) {
                 $query->where('annee', $request->year);
             })
+            ->when($request->filled('start_date'), function($query) use ($request) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            })
+            ->when($request->filled('end_date'), function($query) use ($request) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            })
             ->when($request->filled('localisation_id'), function($query) use ($request) {
                 $query->where('localisation_id', $request->localisation_id);
             })
