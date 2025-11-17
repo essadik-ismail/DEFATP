@@ -104,8 +104,8 @@
                 <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles</h3>
-                <p class="text-gray-600">Rapport des Articles</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles Général</h3>
+                <p class="text-gray-600">Générez un rapport complet des articles avec statistiques détaillées</p>
             </div>
 
             <!-- Legacy Quantities Charts -->
@@ -114,7 +114,7 @@
                     <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles Historiques</h3>
-                <p class="text-gray-600">Rapport des Articles Historiques</p>
+                <p class="text-gray-600">Consultez les rapports des articles historiques avec analyses approfondies</p>
             </div>
 
             <!-- Article Quantities Charts -->
@@ -123,7 +123,7 @@
                     <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles</h3>
-                <p class="text-gray-600">Rapport des Articles</p>
+                <p class="text-gray-600">Analysez les articles actuels avec graphiques et statistiques détaillées</p>
             </div>
 
             <!-- Contracts Report -->
