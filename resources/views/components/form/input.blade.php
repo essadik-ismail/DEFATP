@@ -7,6 +7,8 @@
     'required' => false,
     'icon' => null,
     'help' => null,
+    'helpText' => null,
+    'showHelpIcon' => true,
     'disabled' => false,
     'readonly' => false,
     'min' => null,
@@ -27,10 +29,15 @@
 
 <div class="form-group">
     @if($label)
-        <label for="{{ $name }}" class="form-label">
-            {{ $label }}
+        <label for="{{ $name }}" class="form-label flex items-center gap-2">
+            <span>{{ $label }}</span>
             @if($required)
                 <span class="text-red-500">*</span>
+            @endif
+            @if($showHelpIcon && ($helpText || $help))
+                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" 
+                   title="{{ $helpText ?? $help }}"
+                   data-tooltip="{{ $helpText ?? $help }}"></i>
             @endif
         </label>
     @endif

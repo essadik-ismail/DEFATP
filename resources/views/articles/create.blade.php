@@ -80,8 +80,9 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="form-group">
-                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Type <span class="text-red-500">*</span>
+                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Type <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez le type d'article (Appel d'Offre, Adjudication, Marche Negocié)"></i>
                         </label>
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                 id="type" name="type" required onchange="toggleNumeroAdjudication()">
@@ -98,8 +99,9 @@
                         @enderror
                     </div>
                     <div class="form-group" id="numero_adjudication_group" style="display: none;">
-                        <label for="numero_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Numéro Juridique
+                        <label for="numero_adjudication" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Numéro Juridique</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro juridique de l'adjudication"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -114,8 +116,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="annee" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Année <span class="text-red-500">*</span>
+                        <label for="annee" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Année <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Année de l'article"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -131,9 +134,9 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                     <div class="form-group">
-                        <label for="date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Date d'Adjudication <span class="text-red-500">*</span>
-                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                        <label for="date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Date d'Adjudication <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
                         </label>
                         <input type="date" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -149,8 +152,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="lot" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Lot
+                        <label for="lot" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Lot</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro de lot"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -164,8 +168,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="numero" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Numéro d'Article <span class="text-red-500">*</span>
+                        <label for="numero" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Numéro d'Article <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro unique de l'article"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
@@ -191,8 +196,9 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="form-group">
-                        <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Localisations (DRANEF - DPANEF - ENTITE) <span class="text-red-500">*</span>
+                        <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Localisations (DRANEF - DPANEF - ENTITE) <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs localisations"></i>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
                         <select multiple required
@@ -212,8 +218,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="situation_administrative_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Situation Administrative (commune - province) <span class="text-red-500">*</span>
+                        <label for="situation_administrative_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Situation Administrative (commune - province) <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs situations administratives"></i>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'situation_administrative_ids')">
                         <select multiple required
@@ -235,8 +242,9 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div class="form-group">
-                        <label for="foret_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Forêts <span class="text-red-500">*</span>
+                        <label for="foret_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Forêts <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs forêts"></i>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'foret_ids')">
                         <select multiple required
@@ -256,8 +264,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="essence_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Essences <span class="text-red-500">*</span>
+                        <label for="essence_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Essences <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs essences"></i>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'essence_ids')">
                         <select multiple required
@@ -279,8 +288,9 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div class="form-group">
-                        <label for="nature_de_coupe_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Natures de Coupe <span class="text-red-500">*</span>
+                        <label for="nature_de_coupe_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Natures de Coupe <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs natures de coupe"></i>
                         </label>
                         <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'nature_de_coupe_ids')">
                         <select multiple required
@@ -300,8 +310,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="nature_juridique" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Nature Juridique
+                        <label for="nature_juridique" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Nature Juridique</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nature juridique de l'article"></i>
                         </label>
                         <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
@@ -317,8 +328,9 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     <div class="form-group">
-                        <label for="parcelle" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Parcelle
+                        <label for="parcelle" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Parcelle</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro de parcelle"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
@@ -376,8 +388,9 @@
                 <!-- Technical Measurements -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="form-group">
-                        <label for="superficie" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Superficie
+                        <label for="superficie" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Superficie</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Superficie en hectares"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -391,8 +404,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="bo_m3" class="block text-sm font-semibold text-gray-700 mb-2">
-                            BO (m³)
+                        <label for="bo_m3" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>BO (m³)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bois d'œuvre en mètres cubes"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -406,8 +420,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="bi_m3" class="block text-sm font-semibold text-gray-700 mb-2">
-                            BI (m³)
+                        <label for="bi_m3" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>BI (m³)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bois d'industrie en mètres cubes"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -421,8 +436,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="bf_st" class="block text-sm font-semibold text-gray-700 mb-2">
-                            BF/ST
+                        <label for="bf_st" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>BF/ST</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bois de feu/stère"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -440,8 +456,9 @@
                 <!-- Product Quantities -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     <div class="form-group">
-                        <label for="tanin_t" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Tanin (T)
+                        <label for="tanin_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Tanin (T)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Tanin en tonnes"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -455,8 +472,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="fleur_acacia_t" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Fleur Acacia (T)
+                        <label for="fleur_acacia_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Fleur Acacia (T)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Fleur d'acacia en tonnes"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -470,8 +488,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="caroube_t" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Caroube (T)
+                        <label for="caroube_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Caroube (T)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Caroube en tonnes"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -485,8 +504,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="romarin_t" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Romarin (T)
+                        <label for="romarin_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Romarin (T)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Romarin en tonnes"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -500,8 +520,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="liége_st" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Liège (ST)
+                        <label for="liége_st" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Liège (ST)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Liège en stères"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -515,8 +536,9 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="charbon_bois_ox" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Charbon Bois (OX)
+                        <label for="charbon_bois_ox" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Charbon Bois (OX)</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Charbon de bois en OX"></i>
                         </label>
                         <input type="number" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -572,8 +594,9 @@
 
                 <div class="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-white/40">
                     <div class="mb-4">
-                        <label for="locations_file" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Fichier Excel des Emplacements
+                        <label for="locations_file" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Fichier Excel des Emplacements</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Fichier Excel contenant les coordonnées des emplacements (colonnes: mat, x, y)"></i>
                         </label>
                         <input type="file" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 

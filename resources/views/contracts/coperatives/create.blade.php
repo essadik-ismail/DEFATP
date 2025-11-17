@@ -61,8 +61,9 @@
 
             <!-- Nom -->
             <div class="form-group">
-                <label for="nom" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Nom de la Coopérative <span class="text-red-500">*</span>
+                <label for="nom" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <span>Nom de la Coopérative <span class="text-red-500">*</span></span>
+                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nom de la coopérative"></i>
                 </label>
                 <input 
                     type="text" 
@@ -83,8 +84,9 @@
 
             <!-- Vocation -->
             <div class="form-group">
-                <label for="vocation_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Vocation
+                <label for="vocation_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <span>Vocation</span>
+                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez la vocation de la coopérative"></i>
                 </label>
                 <select 
                     name="vocation_id" 
@@ -108,8 +110,9 @@
 
             <!-- Nombre de Membres -->
             <div class="form-group">
-                <label for="nombre_membres" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Nombre de Membres
+                <label for="nombre_membres" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <span>Nombre de Membres</span>
+                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nombre de membres de la coopérative"></i>
                 </label>
                 <input 
                     type="number" 
@@ -130,8 +133,9 @@
 
             <!-- Nombre de Coopératives -->
             <div class="form-group">
-                <label for="nombre_coperatives" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Nombre de Coopératives
+                <label for="nombre_coperatives" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <span>Nombre de Coopératives</span>
+                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nombre de coopératives associées"></i>
                 </label>
                 <input 
                     type="number" 
