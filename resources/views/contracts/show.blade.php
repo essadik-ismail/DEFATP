@@ -605,7 +605,7 @@
                             </h3>
                             <div class="flex items-center gap-3">
                                 <span class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                                    {{ count($avenants ?? []) }} avenant(s) trouvé(s)
+                                    {{ ($avenants ?? collect())->count() }} avenant(s) trouvé(s)
                                 </span>
                                 <a href="{{ route('contracts.avenants.create', ['contract_id' => $contract->id]) }}" 
                                    class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300">
@@ -615,7 +615,7 @@
                             </div>
                         </div>
                         
-                        @if(isset($avenants) && $avenants->count() > 0)
+                        @if(($avenants ?? collect())->count() > 0)
                             <div class="space-y-4">
                                 @foreach($avenants as $avenant)
                                     <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 hover:shadow-lg transition-shadow">
@@ -706,8 +706,8 @@
                         @else
                             <div class="bg-gray-50 rounded-xl p-8 text-center border border-gray-200">
                                 <i class="fas fa-file-contract text-4xl text-gray-300 mb-3"></i>
-                                <p class="text-gray-600 font-medium">Aucun avenant trouvé pour cette année</p>
-                                <p class="text-sm text-gray-500 mt-2">Les avenants sont liés par l'année du contrat ({{ $contract->annee }})</p>
+                                <p class="text-gray-600 font-medium">Aucun avenant trouvé pour ce contrat</p>
+                                <p class="text-sm text-gray-500 mt-2">Les avenants sont liés au contrat #{{ $contract->id }}</p>
                             </div>
                         @endif
                     </div>

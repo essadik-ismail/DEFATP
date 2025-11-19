@@ -253,6 +253,7 @@ class ContractController extends Controller
         $avenants = \App\Models\Avenant::where('contact_id', $contract->id)
             ->with(['coperative', 'contract', 'products', 'prestations'])
             ->orderBy('date', 'desc')
+            ->orderBy('id', 'desc')
             ->get();
         
         ActivityLogger::log('view', "Consultation du contrat {$contract->contarct}", Contract::class);

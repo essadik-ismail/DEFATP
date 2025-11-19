@@ -81,24 +81,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="statusFilter" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Statut
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Actions
                         </label>
-                        <div class="flex gap-2">
-                            <select class="form-input flex-1 px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                    name="status" id="statusFilter" onchange="submitFilter()">
-                                <option value="">Tous les statuts</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actives</option>
-                                <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Supprimées</option>
-                                <option value="recent" {{ request('status') == 'recent' ? 'selected' : '' }}>Récentes</option>
-                            </select>
-                            <button type="button" 
-                                    class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
-                                    onclick="clearFilters()" 
-                                    title="Effacer les filtres">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
+                        <button type="button" 
+                                class="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
+                                onclick="clearFilters()" 
+                                title="Effacer les filtres">
+                            <i class="fas fa-times mr-2"></i>
+                            Effacer les filtres
+                        </button>
                     </div>
                 </div>
                 
@@ -207,7 +199,7 @@
                         <i class="fas fa-info-circle mr-1"></i>
                         Affichage de {{ $coperatives->firstItem() ?? 0 }} à {{ $coperatives->lastItem() ?? 0 }} 
                         sur {{ $coperatives->total() }} coopératives
-                        @if(request()->hasAny(['search', 'vocation_id', 'status']))
+                        @if(request()->hasAny(['search', 'vocation_id']))
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-2">
                                 <i class="fas fa-filter mr-1"></i>Filtrés
                             </span>
@@ -255,7 +247,6 @@
     function clearFilters() {
         document.getElementById('searchInput').value = '';
         document.getElementById('vocationFilter').value = '';
-        document.getElementById('statusFilter').value = '';
         submitFilter();
     }
 
@@ -269,6 +260,16 @@
 
     // Add keyboard shortcuts
     document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K to focus search (only when not in input/textarea)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+            e.preventDefault();
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
+        }
+        
         // Ctrl/Cmd + F to focus search
         if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
             e.preventDefault();

@@ -105,32 +105,6 @@
                                 @endforeach
                             </select>
                         </div>
-
-                        <div>
-                            <label for="date_debut" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-calendar-alt text-blue-500 mr-1"></i>Date de Début
-                            </label>
-                            <input 
-                                type="date" 
-                                name="date_debut" 
-                                id="date_debut" 
-                                value="{{ request('date_debut') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            >
-                        </div>
-
-                        <div>
-                            <label for="date_fin" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-calendar-check text-blue-500 mr-1"></i>Date de Fin
-                            </label>
-                            <input 
-                                type="date" 
-                                name="date_fin" 
-                                id="date_fin" 
-                                value="{{ request('date_fin') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            >
-                        </div>
                         
                         <div>
                             <label for="localisation_id" class="block text-sm font-medium text-gray-700 mb-2">
@@ -202,6 +176,35 @@
                             </select>
                         </div>
                     </div>
+
+                    <!-- Date Range Filter -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label for="date_debut" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt text-blue-500 mr-1"></i>Date de Début
+                            </label>
+                            <input 
+                                type="date" 
+                                name="date_debut" 
+                                id="date_debut" 
+                                value="{{ request('date_debut') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label for="date_fin" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-check text-blue-500 mr-1"></i>Date de Fin
+                            </label>
+                            <input 
+                                type="date" 
+                                name="date_fin" 
+                                id="date_fin" 
+                                value="{{ request('date_fin') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
+                    </div>
                     
                     <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                         <div class="flex gap-3">
@@ -253,7 +256,7 @@
                                 </td>
                                 <td>
                                     @if($contract->situationAdministrative)
-                                        <span class="text-sm text-gray-900">{{ $contract->situationAdministrative->commune . " - " . $contract->situationAdministrative->province ?? '-' }}</span>
+                                        <span class="text-sm text-gray-900">{{ $contract->situationAdministrative->commune }}@if($contract->situationAdministrative->province) - {{ $contract->situationAdministrative->province }}@endif</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
@@ -378,7 +381,19 @@
                 tabButton.click();
             }
         }
+    });
 
+    // Add keyboard shortcut Ctrl+K to focus search
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K to focus search (only when not in input/textarea)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+            e.preventDefault();
+            const searchInput = document.getElementById('search');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
+        }
     });
 </script>
 
