@@ -22,11 +22,11 @@ class ArticlesTemplateExport implements FromArray, WithHeadings, WithStyles, Sho
     public function headings(): array
     {
         return [
-            'Type*',
             'Année*',
             'Numéro d\'Article*',
             'Date d\'Adjudication*',
             'Numéro Juridique',
+            'Exploitant',
             'Lot',
             'Nature Juridique',
             'Parcelle',
@@ -35,6 +35,7 @@ class ArticlesTemplateExport implements FromArray, WithHeadings, WithStyles, Sho
             'Superficie',
             'Prix de retrait',
             'Prix de vente',
+            'Invendu',
             'BO (m³)',
             'BI (m³)',
             'BF (st)',
@@ -42,21 +43,21 @@ class ArticlesTemplateExport implements FromArray, WithHeadings, WithStyles, Sho
             'Fleur Acacia (t)',
             'Caroube (t)',
             'Romarin (t)',
+            'PS (t)',
             'Liège (st)',
             'Charbon Bois (ox)',
-            'Observations',
-            'Charges du lot',
+            'Fourniture mise en charge',
         ];
     }
 
     public function columnWidths(): array
     {
         return [
-            'A' => 15,  // Type
-            'B' => 8,   // Année
-            'C' => 18,  // Numéro d'Article
-            'D' => 18,  // Date d'Adjudication
-            'E' => 20,  // Numéro Juridique
+            'A' => 8,   // Année
+            'B' => 18,  // Numéro d'Article
+            'C' => 18,  // Date d'Adjudication
+            'D' => 20,  // Numéro Juridique
+            'E' => 25,  // Exploitant
             'F' => 8,   // Lot
             'G' => 20,  // Nature Juridique
             'H' => 12,  // Parcelle
@@ -65,24 +66,25 @@ class ArticlesTemplateExport implements FromArray, WithHeadings, WithStyles, Sho
             'K' => 12,  // Superficie
             'L' => 15,  // Prix de retrait
             'M' => 15,  // Prix de vente
-            'N' => 10,  // BO (m³)
-            'O' => 10,  // BI (m³)
-            'P' => 10,  // BF (st)
-            'Q' => 10,  // Tanin (t)
-            'R' => 15,  // Fleur Acacia (t)
-            'S' => 12,  // Caroube (t)
-            'T' => 12,  // Romarin (t)
-            'U' => 12,  // Liège (st)
-            'V' => 15,  // Charbon Bois (ox)
-            'W' => 20,  // Observations
-            'X' => 20,  // Charges du lot
+            'N' => 12,  // Invendu
+            'O' => 10,  // BO (m³)
+            'P' => 10,  // BI (m³)
+            'Q' => 10,  // BF (st)
+            'R' => 10,  // Tanin (t)
+            'S' => 15,  // Fleur Acacia (t)
+            'T' => 12,  // Caroube (t)
+            'U' => 12,  // Romarin (t)
+            'V' => 10,  // PS (t)
+            'W' => 12,  // Liège (st)
+            'X' => 15,  // Charbon Bois (ox)
+            'Y' => 20,  // Fourniture mise en charge
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
         // Style the header row
-        $sheet->getStyle('A1:X1')->applyFromArray([
+        $sheet->getStyle('A1:Y1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF']
@@ -105,11 +107,11 @@ class ArticlesTemplateExport implements FromArray, WithHeadings, WithStyles, Sho
         
         $instructions = [
             ['Champ', 'Description', 'Format', 'Obligatoire'],
-            ['Type', 'Type d\'article', 'appel_doffre, adjudication', 'Oui'],
             ['Année', 'Année de l\'article', 'Nombre entier (ex: 2025)', 'Oui'],
             ['Numéro d\'Article', 'Numéro unique de l\'article', 'Texte (ex: ART001)', 'Oui'],
             ['Date d\'Adjudication', 'Date de l\'adjudication', 'Date (YYYY-MM-DD)', 'Oui'],
             ['Numéro Juridique', 'Numéro juridique', 'Texte', 'Non'],
+            ['Exploitant', 'Nom complet de l\'exploitant', 'Texte (doit exister dans la base)', 'Non'],
             ['Lot', 'Numéro du lot', 'Texte ou nombre', 'Non'],
             ['Nature Juridique', 'Nature juridique', 'Texte', 'Non'],
             ['Parcelle', 'Numéro de parcelle', 'Texte', 'Non'],
@@ -118,6 +120,7 @@ class ArticlesTemplateExport implements FromArray, WithHeadings, WithStyles, Sho
             ['Superficie', 'Superficie en hectares', 'Nombre décimal', 'Non'],
             ['Prix de retrait', 'Prix de retrait en DH', 'Nombre décimal', 'Non'],
             ['Prix de vente', 'Prix de vente en DH', 'Nombre décimal', 'Non'],
+            ['Invendu', 'Article invendu', 'Oui/Non, True/False, 1/0', 'Non'],
             ['BO (m³)', 'Bois d\'œuvre en m³', 'Nombre décimal', 'Non'],
             ['BI (m³)', 'Bois d\'industrie en m³', 'Nombre décimal', 'Non'],
             ['BF (st)', 'Bois de feu en stères', 'Nombre décimal', 'Non'],
@@ -125,10 +128,10 @@ class ArticlesTemplateExport implements FromArray, WithHeadings, WithStyles, Sho
             ['Fleur Acacia (t)', 'Fleur d\'acacia en tonnes', 'Nombre décimal', 'Non'],
             ['Caroube (t)', 'Caroube en tonnes', 'Nombre décimal', 'Non'],
             ['Romarin (t)', 'Romarin en tonnes', 'Nombre décimal', 'Non'],
+            ['PS (t)', 'PS en tonnes', 'Nombre décimal', 'Non'],
             ['Liège (st)', 'Liège en stères', 'Nombre décimal', 'Non'],
             ['Charbon Bois (ox)', 'Charbon de bois en ox', 'Nombre décimal', 'Non'],
-            ['Observations', 'Observations générales', 'Texte libre', 'Non'],
-            ['Charges du lot', 'Charges spécifiques au lot', 'Texte libre', 'Non'],
+            ['Fourniture mise en charge', 'Fourniture mise en charge', 'Nombre décimal', 'Non'],
         ];
 
         $instructionsSheet->fromArray($instructions, null, 'A1');

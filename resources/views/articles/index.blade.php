@@ -100,7 +100,7 @@
                             <option value="">Toutes les localisations</option>
                             @foreach($allLocalisations ?? [] as $localisation)
                                 <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }}
+                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                 </option>
                             @endforeach
                         </select>

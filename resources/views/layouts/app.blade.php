@@ -2168,16 +2168,6 @@
                         <i class="fas fa-handshake"></i>
                         Contrat de Partenariat
                     </a>
-                    <!-- <div class="submenu">
-                        <a href="{{ route('contracts.avenants.create') }}" class="submenu-item {{ request()->routeIs('contracts.avenants.*') ? 'active' : '' }}">
-                            <i class="fas fa-file-contract"></i>
-                            Avenant
-                        </a>
-                        <a href="{{ route('contracts.index') }}" class="submenu-item {{ request()->routeIs('contracts.index') && request()->has('tab') && request()->get('tab') == 'cooperatives' ? 'active' : '' }}">
-                            <i class="fas fa-users-cog"></i>
-                            Coopérative
-                        </a>
-                    </div> -->
                 </div>
 
                 <div class="nav-item">
@@ -2193,41 +2183,29 @@
                         Coopératives
                     </a>
                 </div>
-                <!-- <div class="nav-item">
+
+                
+               
+                <!-- 
+                <div class="nav-item">
                     <a href="{{ route('odfs.index') }}" class="nav-link {{ request()->routeIs('odfs.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
-                        ODFs
+                        Organisation Forestière
                     </a>
                 </div>
                 <div class="nav-item">
                     <a href="{{ route('pdfcs.index') }}" class="nav-link {{ request()->routeIs('pdfcs.*') ? 'active' : '' }}">
                         <i class="fas fa-project-diagram"></i>
-                        PDFCs
+                        Plan DFC
                     </a>
                 </div> -->
+               
                 <div class="nav-item">
                     <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') ? 'active' : '' }}">
                         <i class="fas fa-database"></i>
                         Données des Entités
                     </a>
                 </div>
-
-                <!-- <div class="nav-item">
-                    <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                        <i class="fas fa-users"></i>
-                        Utilisateurs
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="{{ route('activity-logs.index') }}" class="nav-link {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
-                        <i class="fas fa-history"></i>
-                        Journal d'Activités
-                    </a>
-                </div> -->
-
-               
-
             
 
             </nav>

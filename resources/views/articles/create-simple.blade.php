@@ -117,6 +117,46 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <div class="form-group">
+                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Type <span class="text-red-500">*</span>
+                        </label>
+                        <select required
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                id="type" name="type"
+                                onchange="toggleNumeroAdjudication()">
+                            <option value="">Sélectionner un type</option>
+                            <option value="appel_doffre" {{ old('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'offre</option>
+                            <option value="adjudication" {{ old('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
+                            <option value="marche_negocié" {{ old('type') == 'marche_negocié' ? 'selected' : '' }}>Marche Negocié</option>
+                        </select>
+                        @error('type')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group" id="numero_adjudication_group" style="display: {{ old('type') == 'appel_doffre' ? 'block' : 'none' }};">
+                        <label for="numero_adjudication" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Numéro Adjudication</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro juridique de l'adjudication"></i>
+                        </label>
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="numero_adjudication" name="numero_adjudication" 
+                               value="{{ old('numero_adjudication') }}" 
+                               placeholder="Numéro juridique">
+                        @error('numero_adjudication')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
                     <div class="form-group">
                         <label for="foret_ids" class="block text-sm font-semibold text-gray-700 mb-2">
                             Forêts <span class="text-red-500">*</span>
@@ -305,11 +345,16 @@ function toggleNumeroAdjudication() {
     const typeSelect = document.getElementById('type');
     const numeroAdjudicationGroup = document.getElementById('numero_adjudication_group');
     
-    if (typeSelect.value === 'appel_doffre') {
-        numeroAdjudicationGroup.style.display = 'block';
-    } else {
-        numeroAdjudicationGroup.style.display = 'none';
-        document.getElementById('numero_adjudication').value = '';
+    if (typeSelect && numeroAdjudicationGroup) {
+        if (typeSelect.value === 'appel_doffre') {
+            numeroAdjudicationGroup.style.display = 'block';
+        } else {
+            numeroAdjudicationGroup.style.display = 'none';
+            const numeroAdjudicationInput = document.getElementById('numero_adjudication');
+            if (numeroAdjudicationInput) {
+                numeroAdjudicationInput.value = '';
+            }
+        }
     }
 }
 

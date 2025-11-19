@@ -16,6 +16,8 @@ class Pdfc extends Model
         'date_de_fin',
         'etat',
         'user_id',
+        'localisation_id',
+        'situation_administrative_id',
     ];
 
     protected $casts = [
@@ -80,5 +82,21 @@ class Pdfc extends Model
     public function phases(): HasMany
     {
         return $this->hasMany(Phase::class, 'pdfc_id');
+    }
+
+    /**
+     * Get the localisation for this PDFC.
+     */
+    public function localisation(): BelongsTo
+    {
+        return $this->belongsTo(Localisation::class, 'localisation_id');
+    }
+
+    /**
+     * Get the situation administrative for this PDFC.
+     */
+    public function situationAdministrative(): BelongsTo
+    {
+        return $this->belongsTo(SituationAdministrative::class, 'situation_administrative_id');
     }
 }

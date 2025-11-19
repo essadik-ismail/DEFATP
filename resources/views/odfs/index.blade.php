@@ -19,54 +19,6 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm font-medium mb-1">Total ODFs</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $stats['total'] }}</p>
-                </div>
-                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-users text-purple-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm font-medium mb-1">Actives</p>
-                    <p class="text-3xl font-bold text-green-600">{{ $stats['active'] }}</p>
-                </div>
-                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm font-medium mb-1">Supprimées</p>
-                    <p class="text-3xl font-bold text-red-600">{{ $stats['deleted'] }}</p>
-                </div>
-                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-trash text-red-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm font-medium mb-1">Récentes (30j)</p>
-                    <p class="text-3xl font-bold text-blue-600">{{ $stats['recent'] }}</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-clock text-blue-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- ODFs Data Table -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
         <div class="flex items-center justify-between mb-6">
@@ -97,7 +49,7 @@
                 <h3 class="text-lg font-bold text-gray-900">Recherche et Filtres</h3>
             </div>
             <form method="GET" action="{{ route('odfs.index') }}" id="filterForm">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
                         <label for="searchInput" class="block text-sm font-semibold text-gray-700 mb-2">
                             Rechercher
@@ -115,25 +67,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="statusFilter" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Statut
-                        </label>
-                        <div class="flex gap-2">
-                            <select class="form-input flex-1 px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                                    name="status" id="statusFilter" onchange="submitFilter()">
-                                <option value="">Tous les statuts</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actives</option>
-                                <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Supprimées</option>
-                                <option value="recent" {{ request('status') == 'recent' ? 'selected' : '' }}>Récentes (30 jours)</option>
-                            </select>
-                            <button type="button" 
-                                    class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
-                                    onclick="clearFilters()" 
-                                    title="Effacer les filtres">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
+                    <div class="form-group flex items-end">
+                        <button type="button" 
+                                class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
+                                onclick="clearFilters()" 
+                                title="Effacer les filtres">
+                            <i class="fas fa-times mr-2"></i>
+                            Effacer les filtres
+                        </button>
                     </div>
                 </div>
                 
@@ -154,6 +95,8 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Présidente</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vice-Présidente</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Trésorière</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Localisation</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Situation Administrative</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -172,6 +115,26 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $odf->vice_présidente ?? 'N/A' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $odf->trésorière ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($odf->localisation)
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-map-marker-alt text-blue-500 text-xs"></i>
+                                            <span>{{ $odf->localisation->DRANEF }} - {{ $odf->localisation->DPANEF }} - {{ $odf->localisation->ENTITE }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400">N/A</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($odf->situationAdministrative)
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-building text-emerald-500 text-xs"></i>
+                                            <span>{{ $odf->situationAdministrative->commune }}@if($odf->situationAdministrative->province) - {{ $odf->situationAdministrative->province }}@endif</span>
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400">N/A</span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $odf->created_at ? $odf->created_at->format('d/m/Y') : 'N/A' }}
                                 </td>
@@ -207,7 +170,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-8">
+                                <td colspan="8" class="text-center py-8">
                                     <div class="text-muted">
                                         <i class="fas fa-users text-4xl mb-2 d-block"></i>
                                         <p class="h5 mb-2">Aucune ODF trouvée</p>
@@ -230,7 +193,7 @@
                             <i class="fas fa-info-circle mr-1"></i>
                             Affichage de {{ $odfs->firstItem() ?? 0 }} à {{ $odfs->lastItem() ?? 0 }} 
                             sur {{ $odfs->total() }} ODFs
-                            @if(request()->hasAny(['search', 'status']))
+                            @if(request()->has('search'))
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 ml-2">
                                     <i class="fas fa-filter mr-1"></i>Filtrés
                                 </span>
@@ -277,7 +240,6 @@
     // Clear all filters
     function clearFilters() {
         document.getElementById('searchInput').value = '';
-        document.getElementById('statusFilter').value = '';
         submitFilter();
     }
 

@@ -19,7 +19,7 @@ class PdfcController extends Controller
         // Log PDFCs view
         ActivityLogger::log('view', 'Consultation de la liste des PDFCs', Pdfc::class);
         
-        $query = Pdfc::with('user');
+        $query = Pdfc::with(['user', 'localisation', 'situationAdministrative']);
         
         // Search functionality
         if ($request->filled('search')) {
@@ -79,7 +79,10 @@ class PdfcController extends Controller
     public function create(): View
     {
         $users = User::where('is_deleted', false)->orderBy('name')->get();
-        return view('pdfcs.create', compact('users'));
+        $localisations = \App\Models\Localisation::orderBy('CODE')->get();
+        $situationAdministratives = \App\Models\SituationAdministrative::orderBy('commune')->get();
+        
+        return view('pdfcs.create', compact('users', 'localisations', 'situationAdministratives'));
     }
 
     /**
@@ -91,6 +94,8 @@ class PdfcController extends Controller
             'date_de_début' => 'required|date',
             'date_de_fin' => 'required|date|after_or_equal:date_de_début',
             'user_id' => 'nullable|exists:users,id',
+            'localisation_id' => 'nullable|exists:localisations,id',
+            'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
         ]);
 
         // Set default state - always start with "Non élaboré"
@@ -138,7 +143,10 @@ class PdfcController extends Controller
     public function edit(Pdfc $pdfc): View
     {
         $users = User::where('is_deleted', false)->orderBy('name')->get();
-        return view('pdfcs.edit', compact('pdfc', 'users'));
+        $localisations = \App\Models\Localisation::orderBy('CODE')->get();
+        $situationAdministratives = \App\Models\SituationAdministrative::orderBy('commune')->get();
+        
+        return view('pdfcs.edit', compact('pdfc', 'users', 'localisations', 'situationAdministratives'));
     }
 
     /**
@@ -150,9 +158,11 @@ class PdfcController extends Controller
             'date_de_début' => 'required|date',
             'date_de_fin' => 'required|date|after_or_equal:date_de_début',
             'user_id' => 'nullable|exists:users,id',
+            'localisation_id' => 'nullable|exists:localisations,id',
+            'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
         ]);
 
-        $oldValues = $pdfc->only(['date_de_début', 'date_de_fin', 'etat', 'user_id']);
+        $oldValues = $pdfc->only(['date_de_début', 'date_de_fin', 'etat', 'user_id', 'localisation_id', 'situation_administrative_id']);
         $oldEtat = $pdfc->etat;
         
         // Don't update etat from form - it's managed automatically
@@ -167,7 +177,7 @@ class PdfcController extends Controller
             ActivityLogger::log('update', "PDFC {$pdfc->id} : transition automatique vers 'élaboré'", Pdfc::class, $pdfc->id, null, $request);
         }
 
-        $changes = array_diff_assoc($pdfc->only(['date_de_début', 'date_de_fin', 'etat', 'user_id']), $oldValues);
+        $changes = array_diff_assoc($pdfc->only(['date_de_début', 'date_de_fin', 'etat', 'user_id', 'localisation_id', 'situation_administrative_id']), $oldValues);
         
         ActivityLogger::logUpdate(
             Pdfc::class,

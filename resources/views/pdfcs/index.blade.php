@@ -132,6 +132,8 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Début</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Fin</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">État</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Localisation</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Situation Administrative</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -153,6 +155,26 @@
                                         </span>
                                     @else
                                         <span class="text-gray-400">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($pdfc->localisation)
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-map-marker-alt text-blue-500 text-xs"></i>
+                                            <span>{{ $pdfc->localisation->DRANEF }} - {{ $pdfc->localisation->DPANEF }} - {{ $pdfc->localisation->ENTITE }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400">N/A</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($pdfc->situationAdministrative)
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-building text-emerald-500 text-xs"></i>
+                                            <span>{{ $pdfc->situationAdministrative->commune }}@if($pdfc->situationAdministrative->province) - {{ $pdfc->situationAdministrative->province }}@endif</span>
+                                        </div>
+                                    @else
+                                        <span class="text-gray-400">N/A</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -190,7 +212,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-8">
+                                <td colspan="8" class="text-center py-8">
                                     <div class="text-muted">
                                         <i class="fas fa-project-diagram text-4xl mb-2 d-block"></i>
                                         <p class="h5 mb-2">Aucun PDFC trouvé</p>

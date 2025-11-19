@@ -766,7 +766,7 @@
                         </label>
                         <input type="number" 
                                step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focuxs:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                id="total_avenant" 
                                name="total_avenant" 
                                value="{{ old('total_avenant', $avenant->total_avenant) }}"

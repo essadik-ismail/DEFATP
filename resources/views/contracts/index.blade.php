@@ -105,6 +105,32 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <div>
+                            <label for="date_debut" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt text-blue-500 mr-1"></i>Date de Début
+                            </label>
+                            <input 
+                                type="date" 
+                                name="date_debut" 
+                                id="date_debut" 
+                                value="{{ request('date_debut') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="date_fin" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-check text-blue-500 mr-1"></i>Date de Fin
+                            </label>
+                            <input 
+                                type="date" 
+                                name="date_fin" 
+                                id="date_fin" 
+                                value="{{ request('date_fin') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
                         
                         <div>
                             <label for="localisation_id" class="block text-sm font-medium text-gray-700 mb-2">
@@ -114,7 +140,7 @@
                                 <option value="">Toutes les localisations</option>
                                 @foreach($localisations as $localisation)
                                     <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
-                                        {{ $localisation->CODE }} - {{ $localisation->DRANEF }}
+                                        {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                     </option>
                                 @endforeach
                             </select>
@@ -220,14 +246,14 @@
                                 </td>
                                 <td>
                                     @if($contract->localisation)
-                                        <span class="text-sm text-gray-900">{{ $contract->localisation->CODE ?? '-' }}</span>
+                                        <span class="text-sm text-gray-900">{{ $contract->localisation->DRANEF }} - {{ $contract->localisation->DPANEF }} - {{ $contract->localisation->ENTITE }}</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($contract->situationAdministrative)
-                                        <span class="text-sm text-gray-900">{{ $contract->situationAdministrative->commune ?? '-' }}</span>
+                                        <span class="text-sm text-gray-900">{{ $contract->situationAdministrative->commune . " - " . $contract->situationAdministrative->province ?? '-' }}</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif

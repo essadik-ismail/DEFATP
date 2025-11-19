@@ -154,6 +154,63 @@
                 </div>
             </div>
 
+            <!-- Section 2: Localisation et Situation Administrative -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
+                        <i class="fas fa-map-marker-alt text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" style="color: #3b82f6;">Localisation et Situation Administrative</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Localisation</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner la localisation du PDFC"></i>
+                        </label>
+                        <select 
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 @error('localisation_id') border-red-500 @enderror" 
+                            id="localisation_id" 
+                            name="localisation_id">
+                            <option value="">Sélectionner une localisation</option>
+                            @foreach($localisations as $localisation)
+                                <option value="{{ $localisation->id }}" {{ old('localisation_id', $pdfc->localisation_id) == $localisation->id ? 'selected' : '' }}>
+                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('localisation_id')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Situation Administrative</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner la situation administrative du PDFC"></i>
+                        </label>
+                        <select 
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 @error('situation_administrative_id') border-red-500 @enderror" 
+                            id="situation_administrative_id" 
+                            name="situation_administrative_id">
+                            <option value="">Sélectionner une situation administrative</option>
+                            @foreach($situationAdministratives as $situation)
+                                <option value="{{ $situation->id }}" {{ old('situation_administrative_id', $pdfc->situation_administrative_id) == $situation->id ? 'selected' : '' }}>
+                                    {{ $situation->commune }}@if($situation->province) - {{ $situation->province }}@endif
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('situation_administrative_id')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-1">
+                                <i class="fas fa-exclamation-circle"></i>{{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             <!-- Form Actions -->
             <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
                 <a href="{{ route('pdfcs.index') }}" class="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl">

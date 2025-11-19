@@ -100,7 +100,7 @@
                     </div>
                     <div class="form-group" id="numero_adjudication_group" style="display: none;">
                         <label for="numero_adjudication" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Numéro Juridique</span>
+                            <span>Numéro Adjudication</span>
                             <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro juridique de l'adjudication"></i>
                         </label>
                         <input type="number" 

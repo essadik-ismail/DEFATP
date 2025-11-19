@@ -94,6 +94,25 @@
                             {{ $pdfc->date_de_fin ? $pdfc->date_de_fin->format('d/m/Y') : 'N/A' }}
                         </p>
                     </div>
+                    @if($pdfc->localisation || $pdfc->situationAdministrative)
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-600 mb-2">Localisation et Situation Administrative</label>
+                        <div class="space-y-2">
+                            @if($pdfc->localisation)
+                            <p class="text-lg font-medium text-gray-900">
+                                <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>
+                                <span class="font-semibold">Localisation:</span> {{ $pdfc->localisation->CODE }} - {{ $pdfc->localisation->DRANEF }}
+                            </p>
+                            @endif
+                            @if($pdfc->situationAdministrative)
+                            <p class="text-lg font-medium text-gray-900">
+                                <i class="fas fa-building text-emerald-500 mr-2"></i>
+                                <span class="font-semibold">Situation Administrative:</span> {{ $pdfc->situationAdministrative->commune }}@if($pdfc->situationAdministrative->province) - {{ $pdfc->situationAdministrative->province }}@endif
+                            </p>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
                     <div>
                         <label class="block text-sm font-semibold text-gray-600 mb-2">État Actuel</label>
                         <p class="text-lg font-medium text-gray-900">

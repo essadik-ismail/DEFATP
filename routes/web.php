@@ -116,6 +116,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/{odf}/edit', [OdfController::class, 'edit'])->middleware('permission:odfs.update')->name('edit');
         Route::put('/{odf}', [OdfController::class, 'update'])->middleware('permission:odfs.update')->name('update');
         Route::delete('/{odf}', [OdfController::class, 'destroy'])->middleware('permission:odfs.delete')->name('destroy');
+        
+        // Members routes
+        Route::post('/{odf}/members', [OdfController::class, 'storeMember'])->middleware('permission:odfs.update')->name('members.store');
+        Route::put('/{odf}/members/{member}', [OdfController::class, 'updateMember'])->middleware('permission:odfs.update')->name('members.update');
+        Route::delete('/{odf}/members/{member}', [OdfController::class, 'destroyMember'])->middleware('permission:odfs.update')->name('members.destroy');
+        
+        // Activities routes
+        Route::post('/{odf}/activities', [OdfController::class, 'storeActivity'])->middleware('permission:odfs.update')->name('activities.store');
+        Route::put('/{odf}/activities/{activity}', [OdfController::class, 'updateActivity'])->middleware('permission:odfs.update')->name('activities.update');
+        Route::delete('/{odf}/activities/{activity}', [OdfController::class, 'destroyActivity'])->middleware('permission:odfs.update')->name('activities.destroy');
     });
     
     // PDFC Routes
