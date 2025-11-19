@@ -2156,7 +2156,7 @@
                     </a>
                 </div>
 
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="{{ route('articles.index') }}" class="nav-link {{ request()->routeIs('articles.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         Exploitation régulière
@@ -2182,11 +2182,11 @@
                         <i class="fas fa-users-cog"></i>
                         Coopératives
                     </a>
-                </div>
+                </div> -->
 
                 
                
-                <!-- 
+                
                 <div class="nav-item">
                     <a href="{{ route('odfs.index') }}" class="nav-link {{ request()->routeIs('odfs.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
@@ -2198,7 +2198,7 @@
                         <i class="fas fa-project-diagram"></i>
                         Plan DFC
                     </a>
-                </div> -->
+                </div>
                
                 <div class="nav-item">
                     <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') ? 'active' : '' }}">

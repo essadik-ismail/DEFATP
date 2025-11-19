@@ -29,19 +29,9 @@ class PdfcController extends Controller
             });
         }
         
-        // Status filter
-        if ($request->filled('status')) {
-            switch ($request->get('status')) {
-                case 'active':
-                    $query->whereNull('deleted_at');
-                    break;
-                case 'deleted':
-                    $query->onlyTrashed();
-                    break;
-                case 'recent':
-                    $query->where('created_at', '>=', now()->subDays(30));
-                    break;
-            }
+        // État filter (PDFC states)
+        if ($request->filled('etat')) {
+            $query->where('etat', $request->etat);
         }
         
         // Date range filter
@@ -50,6 +40,16 @@ class PdfcController extends Controller
         }
         if ($request->filled('end_date')) {
             $query->where('date_de_fin', '<=', $request->end_date);
+        }
+        
+        // Localisation filter
+        if ($request->filled('localisation_id')) {
+            $query->where('localisation_id', $request->localisation_id);
+        }
+        
+        // Situation Administrative filter
+        if ($request->filled('situation_administrative_id')) {
+            $query->where('situation_administrative_id', $request->situation_administrative_id);
         }
         
         // Sorting
@@ -70,7 +70,11 @@ class PdfcController extends Controller
         
         $pdfcs = $query->paginate($perPage);
         
-        return view('pdfcs.index', compact('pdfcs'));
+        // Get filter options
+        $localisations = \App\Models\Localisation::orderBy('CODE')->get();
+        $situationAdministratives = \App\Models\SituationAdministrative::orderBy('commune')->get();
+        
+        return view('pdfcs.index', compact('pdfcs', 'localisations', 'situationAdministratives'));
     }
 
     /**
@@ -102,12 +106,6 @@ class PdfcController extends Controller
         $validated['etat'] = 'Non élaboré';
 
         $pdfc = Pdfc::create($validated);
-
-        // Auto-transition: If dates are set, move to "élaboré"
-        if ($pdfc->date_de_début && $pdfc->date_de_fin && $pdfc->etat == 'Non élaboré') {
-            $pdfc->update(['etat' => 'élaboré']);
-            ActivityLogger::log('update', "PDFC {$pdfc->id} : transition automatique vers 'élaboré'", Pdfc::class, $pdfc->id, null, $request);
-        }
 
         ActivityLogger::logCreate(
             Pdfc::class,

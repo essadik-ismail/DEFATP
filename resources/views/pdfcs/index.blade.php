@@ -49,7 +49,7 @@
                 <h3 class="text-lg font-bold text-gray-900">Recherche et Filtres</h3>
             </div>
             <form method="GET" action="{{ route('pdfcs.index') }}" id="filterForm">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                     <div class="form-group">
                         <label for="searchInput" class="block text-sm font-semibold text-gray-700 mb-2">
                             Rechercher
@@ -60,64 +60,121 @@
                                    name="search" 
                                    id="searchInput" 
                                    placeholder="Rechercher dans les PDFCs..." 
-                                   value="{{ request('search') }}"
-                                   onkeyup="debounceFilter()">
+                                   value="{{ request('search') }}">
                             <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                                 <i class="fas fa-search"></i>
                             </div>
                         </div>
                     </div>
+                    
                     <div class="form-group">
                         <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Date de début
-                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                            <i class="fas fa-calendar-plus text-orange-500 mr-1"></i>Date de début
                         </label>
                         <input type="date" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
                                name="start_date" 
                                id="start_date" 
-                               value="{{ request('start_date') }}"
-                               placeholder="jj/mm/aaaa"
-                               onchange="submitFilter()">
+                               value="{{ request('start_date') }}">
                     </div>
+                    
                     <div class="form-group">
                         <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Date de fin
-                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                            <i class="fas fa-calendar-minus text-red-500 mr-1"></i>Date de fin
                         </label>
                         <input type="date" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
                                name="end_date" 
                                id="end_date" 
-                               value="{{ request('end_date') }}"
-                               placeholder="jj/mm/aaaa"
-                               onchange="submitFilter()">
-                    </div>
-                    <div class="form-group">
-                        <label for="statusFilter" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Statut
-                        </label>
-                        <div class="flex gap-2">
-                            <select class="form-input flex-1 px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                    name="status" id="statusFilter" onchange="submitFilter()">
-                                <option value="">Tous les statuts</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Actifs</option>
-                                <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Supprimés</option>
-                                <option value="recent" {{ request('status') == 'recent' ? 'selected' : '' }}>Récents (30 jours)</option>
-                            </select>
-                            <button type="button" 
-                                    class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
-                                    onclick="clearFilters()" 
-                                    title="Effacer les filtres">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
+                               value="{{ request('end_date') }}">
                     </div>
                 </div>
                 
-                <!-- Hidden fields to preserve pagination -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                    <div class="form-group">
+                        <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt text-blue-500 mr-1"></i>Localisation
+                        </label>
+                        <select name="localisation_id" 
+                                id="localisation_id"
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400">
+                            <option value="">Toutes les localisations</option>
+                            @foreach($localisations as $localisation)
+                                <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
+                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-building text-green-500 mr-1"></i>Situation Administrative
+                        </label>
+                        <select name="situation_administrative_id" 
+                                id="situation_administrative_id"
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400">
+                            <option value="">Toutes les situations</option>
+                            @foreach($situationAdministratives as $situation)
+                                <option value="{{ $situation->id }}" {{ request('situation_administrative_id') == $situation->id ? 'selected' : '' }}>
+                                    {{ $situation->commune }} - {{ $situation->province }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="etatFilter" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-info-circle text-purple-500 mr-1"></i>État
+                        </label>
+                        <select name="etat" 
+                                id="etatFilter"
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400">
+                            <option value="">Tous les états</option>
+                            <option value="Non élaboré" {{ request('etat') == 'Non élaboré' ? 'selected' : '' }}>Non élaboré</option>
+                            <option value="élaboré" {{ request('etat') == 'élaboré' ? 'selected' : '' }}>élaboré</option>
+                            <option value="validé" {{ request('etat') == 'validé' ? 'selected' : '' }}>validé</option>
+                            <option value="validé C.C" {{ request('etat') == 'validé C.C' ? 'selected' : '' }}>validé C.C</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Filter Action Buttons -->
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <div class="flex gap-3">
+                        <button type="submit" 
+                                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-filter"></i>
+                            <span class="font-semibold">Appliquer les filtres</span>
+                        </button>
+                        <button type="button" 
+                                class="inline-flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
+                                onclick="clearFilters()" 
+                                title="Effacer les filtres">
+                            <i class="fas fa-times"></i>
+                            <span>Effacer les filtres</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Hidden fields to preserve filters and pagination -->
                 @if(request('per_page'))
                     <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                @endif
+                @if(request('start_date'))
+                    <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+                @endif
+                @if(request('end_date'))
+                    <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+                @endif
+                @if(request('localisation_id'))
+                    <input type="hidden" name="localisation_id" value="{{ request('localisation_id') }}">
+                @endif
+                @if(request('situation_administrative_id'))
+                    <input type="hidden" name="situation_administrative_id" value="{{ request('situation_administrative_id') }}">
+                @endif
+                @if(request('etat'))
+                    <input type="hidden" name="etat" value="{{ request('etat') }}">
                 @endif
             </form>
         </div>
@@ -235,7 +292,7 @@
                             <i class="fas fa-info-circle mr-1"></i>
                             Affichage de {{ $pdfcs->firstItem() ?? 0 }} à {{ $pdfcs->lastItem() ?? 0 }} 
                             sur {{ $pdfcs->total() }} PDFCs
-                            @if(request()->hasAny(['search', 'status', 'start_date', 'end_date']))
+                            @if(request()->hasAny(['search', 'etat', 'start_date', 'end_date', 'localisation_id', 'situation_administrative_id']))
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2">
                                     <i class="fas fa-filter mr-1"></i>Filtrés
                                 </span>
@@ -265,28 +322,29 @@
 
 @push('scripts')
 <script>
-    // Debounced search function
-    let searchTimeout;
-    function debounceFilter() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            submitFilter();
-        }, 500);
-    }
-
-    // Submit filter form
-    function submitFilter() {
-        document.getElementById('filterForm').submit();
-    }
-
     // Clear all filters
     function clearFilters() {
         document.getElementById('searchInput').value = '';
         document.getElementById('start_date').value = '';
         document.getElementById('end_date').value = '';
-        document.getElementById('statusFilter').value = '';
-        submitFilter();
+        document.getElementById('localisation_id').value = '';
+        document.getElementById('situation_administrative_id').value = '';
+        document.getElementById('etatFilter').value = '';
+        document.getElementById('filterForm').submit();
     }
+    
+    // Allow Enter key to submit form in search input
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('filterForm').submit();
+                }
+            });
+        }
+    });
 
     // Per page selector functionality
     function changePerPage(perPage) {

@@ -144,6 +144,15 @@
                 <p class="text-gray-600">Analysez les exploitants avec statistiques par catégorie, activité, localisation et qualification</p>
             </div>
 
+            <!-- ODFs Report -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.odfs') }}'">
+                <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-white text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des ODFs</h3>
+                <p class="text-gray-600">Analysez les Organisations de la Femme avec statistiques par localisation, situation administrative et type de membre</p>
+            </div>
+
         </div>
     </div>
 </div>

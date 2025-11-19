@@ -11,6 +11,7 @@ use App\Models\Exploitant;
 use App\Models\Localisation;
 use App\Models\LegacyArticle;
 use App\Models\Contract;
+use App\Models\Odf;
 use App\Services\ActivityLogger;
 use App\Http\Requests\ArticlesByYearRequest;
 use App\Http\Requests\ArticlesByForetRequest;
@@ -2206,5 +2207,159 @@ class ReportController extends Controller
         ];
         
         return view('reports.exploitants', compact('exploitants', 'stats', 'localisations', 'categories', 'activites', 'qualifications'));
+    }
+
+    /**
+     * Display ODFs report
+     */
+    public function odfsReport(Request $request): View
+    {
+        // Log report generation
+        ActivityLogger::log('view', 'Génération du rapport des ODFs', Odf::class);
+        
+        // Build base query
+        $query = Odf::with(['localisation', 'situationAdministrative', 'members', 'activities']);
+        
+        // Apply filters
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        
+        if ($request->filled('localisation_id')) {
+            $query->where('localisation_id', $request->localisation_id);
+        }
+        
+        if ($request->filled('situation_administrative_id')) {
+            $query->where('situation_administrative_id', $request->situation_administrative_id);
+        }
+        
+        // Get statistics
+        $totalOdfs = (clone $query)->count();
+        $totalWithMembers = (clone $query)->has('members')->count();
+        $totalWithActivities = (clone $query)->has('activities')->count();
+        $totalWithLocalisation = (clone $query)->whereNotNull('localisation_id')->count();
+        $totalWithSituation = (clone $query)->whereNotNull('situation_administrative_id')->count();
+        
+        // Statistics by localisation
+        $byLocalisationQuery = Odf::withoutGlobalScopes();
+        
+        // Apply the same filters
+        if ($request->filled('start_date')) {
+            $byLocalisationQuery->whereDate('odfs.created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $byLocalisationQuery->whereDate('odfs.created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('situation_administrative_id')) {
+            $byLocalisationQuery->where('odfs.situation_administrative_id', $request->situation_administrative_id);
+        }
+        
+        $byLocalisation = $byLocalisationQuery
+            ->join('localisations', 'odfs.localisation_id', '=', 'localisations.id')
+            ->selectRaw('localisations.DRANEF as label, COUNT(*) as total')
+            ->where('odfs.deleted_at', null)
+            ->where('localisations.is_deleted', false)
+            ->whereNotNull('localisations.DRANEF');
+        
+        if ($request->filled('localisation_id')) {
+            $byLocalisation->where('odfs.localisation_id', $request->localisation_id);
+        }
+        
+        $byLocalisation = $byLocalisation
+            ->groupBy('localisations.id', 'localisations.DRANEF')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+        
+        // Statistics by situation administrative
+        $bySituationQuery = Odf::withoutGlobalScopes();
+        
+        // Apply the same filters
+        if ($request->filled('start_date')) {
+            $bySituationQuery->whereDate('odfs.created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $bySituationQuery->whereDate('odfs.created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('localisation_id')) {
+            $bySituationQuery->where('odfs.localisation_id', $request->localisation_id);
+        }
+        
+        $bySituation = $bySituationQuery
+            ->join('situation_administratives', 'odfs.situation_administrative_id', '=', 'situation_administratives.id')
+            ->selectRaw('CONCAT(situation_administratives.commune, " - ", situation_administratives.province) as label, COUNT(*) as total')
+            ->where('odfs.deleted_at', null)
+            ->whereNotNull('situation_administratives.commune');
+        
+        if ($request->filled('situation_administrative_id')) {
+            $bySituation->where('odfs.situation_administrative_id', $request->situation_administrative_id);
+        }
+        
+        $bySituation = $bySituation
+            ->groupBy('situation_administratives.id', 'situation_administratives.commune', 'situation_administratives.province')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+        
+        // Statistics by member type
+        $byMemberTypeQuery = DB::table('members')
+            ->join('odfs', 'members.odf_id', '=', 'odfs.id')
+            ->selectRaw('members.type as label, COUNT(DISTINCT odfs.id) as total')
+            ->where('members.deleted_at', null)
+            ->where('odfs.deleted_at', null)
+            ->whereNotNull('members.type');
+        
+        // Apply the same filters
+        if ($request->filled('start_date')) {
+            $byMemberTypeQuery->whereDate('odfs.created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $byMemberTypeQuery->whereDate('odfs.created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('localisation_id')) {
+            $byMemberTypeQuery->where('odfs.localisation_id', $request->localisation_id);
+        }
+        if ($request->filled('situation_administrative_id')) {
+            $byMemberTypeQuery->where('odfs.situation_administrative_id', $request->situation_administrative_id);
+        }
+        
+        $byMemberType = $byMemberTypeQuery
+            ->groupBy('members.type')
+            ->orderByDesc('total')
+            ->get();
+        
+        // Statistics by year (created_at)
+        $byYear = (clone $query)
+            ->selectRaw('YEAR(created_at) as year, COUNT(*) as total')
+            ->whereNotNull('created_at')
+            ->groupBy('year')
+            ->orderBy('year', 'desc')
+            ->get();
+        
+        // Get ODFs with pagination
+        $odfs = $query->orderBy('created_at', 'desc')->paginate(20);
+        
+        // Get filter options
+        $localisations = Localisation::orderBy('CODE')->get();
+        $situations = SituationAdministrative::orderBy('commune')->get();
+        $memberTypes = ['Association', 'Coopérative', 'Entreprise', 'Élu', 'Citoyen'];
+        
+        $stats = [
+            'total_odfs' => $totalOdfs,
+            'total_with_members' => $totalWithMembers,
+            'total_with_activities' => $totalWithActivities,
+            'total_with_localisation' => $totalWithLocalisation,
+            'total_with_situation' => $totalWithSituation,
+            'by_localisation' => $byLocalisation,
+            'by_situation' => $bySituation,
+            'by_member_type' => $byMemberType,
+            'by_year' => $byYear,
+        ];
+        
+        return view('reports.odfs', compact('odfs', 'stats', 'localisations', 'situations', 'memberTypes'));
     }
 } 

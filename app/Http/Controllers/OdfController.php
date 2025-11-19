@@ -32,6 +32,25 @@ class OdfController extends Controller
             });
         }
         
+        // Date filters
+        if ($request->filled('date_debut')) {
+            $query->whereDate('created_at', '>=', $request->date_debut);
+        }
+        
+        if ($request->filled('date_fin')) {
+            $query->whereDate('created_at', '<=', $request->date_fin);
+        }
+        
+        // Localisation filter
+        if ($request->filled('localisation_id')) {
+            $query->where('localisation_id', $request->localisation_id);
+        }
+        
+        // Situation Administrative filter
+        if ($request->filled('situation_administrative_id')) {
+            $query->where('situation_administrative_id', $request->situation_administrative_id);
+        }
+        
         // Status filter
         if ($request->filled('status')) {
             switch ($request->get('status')) {
@@ -73,7 +92,11 @@ class OdfController extends Controller
             'recent' => Odf::where('created_at', '>=', now()->subDays(30))->count(),
         ];
         
-        return view('odfs.index', compact('odfs', 'stats'));
+        // Get filter options
+        $localisations = \App\Models\Localisation::orderBy('CODE')->get();
+        $situationAdministratives = \App\Models\SituationAdministrative::orderBy('commune')->get();
+        
+        return view('odfs.index', compact('odfs', 'stats', 'localisations', 'situationAdministratives'));
     }
 
     /**

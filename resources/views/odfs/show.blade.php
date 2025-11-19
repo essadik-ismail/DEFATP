@@ -15,7 +15,7 @@
                     <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                         Détails ODF
                     </h1>
-                    <p class="text-gray-600 text-lg mt-2">Informations détaillées de l'Organisation de la Femme</p>
+                    <p class="text-gray-600 text-lg mt-2">Informations détaillées de l'Organisation développement forestier (ODF)</p>
                 </div>
             </div>
             <div class="flex gap-3">
@@ -50,106 +50,6 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left Column - Main Information -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Informations de Base -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #8b5cf6, #7c3aed);">
-                        <i class="fas fa-info-circle text-white"></i>
-                    </div>
-                    <h3 class="text-xl font-bold" style="color: #8b5cf6;">Informations de Base</h3>
-                </div>
-                <div class="space-y-4">
-                    <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
-                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-purple-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-500 mb-1">Présidente</p>
-                            <p class="text-lg font-medium text-gray-900">{{ $odf->présidente ?? 'N/A' }}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-indigo-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-500 mb-1">Vice-Présidente</p>
-                            <p class="text-lg font-medium text-gray-900">{{ $odf->vice_présidente ?? 'N/A' }}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-blue-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-500 mb-1">Trésorière</p>
-                            <p class="text-lg font-medium text-gray-900">{{ $odf->trésorière ?? 'N/A' }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Localisation et Situation Administrative -->
-            @if($odf->localisation || $odf->situationAdministrative)
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #059669);">
-                        <i class="fas fa-map-marker-alt text-white"></i>
-                    </div>
-                    <h3 class="text-xl font-bold" style="color: #10b981;">Localisation et Situation Administrative</h3>
-                </div>
-                <div class="space-y-4">
-                    @if($odf->localisation)
-                    <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
-                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-map-marker-alt text-green-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-500 mb-1">Localisation</p>
-                            <p class="text-lg font-medium text-gray-900">{{ $odf->localisation->CODE }} - {{ $odf->localisation->DRANEF }}</p>
-                        </div>
-                    </div>
-                    @endif
-                    @if($odf->situationAdministrative)
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-building text-emerald-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-500 mb-1">Situation Administrative</p>
-                            <p class="text-lg font-medium text-gray-900">{{ $odf->situationAdministrative->commune }}@if($odf->situationAdministrative->province) - {{ $odf->situationAdministrative->province }}@endif</p>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-            @endif
-
-            <!-- Détails -->
-            @if($odf->reçu_du_dépôt || $odf->constitution)
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
-                        <i class="fas fa-file-alt text-white"></i>
-                    </div>
-                    <h3 class="text-xl font-bold" style="color: #3b82f6;">Détails</h3>
-                </div>
-                <div class="space-y-6">
-                    @if($odf->reçu_du_dépôt)
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-2">Reçu du Dépôt</p>
-                        <p class="text-gray-700 whitespace-pre-wrap">{{ $odf->reçu_du_dépôt }}</p>
-                    </div>
-                    @endif
-                    @if($odf->constitution)
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-2">Constitution</p>
-                        <p class="text-gray-700 whitespace-pre-wrap">{{ $odf->constitution }}</p>
-                    </div>
-                    @endif
-                </div>
-            </div>
-            @endif
 
             <!-- Members Section -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
@@ -365,70 +265,106 @@
 
         <!-- Right Column - Sidebar -->
         <div class="space-y-6">
-            <!-- Informations Générales -->
+            <!-- Informations de Base -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">Informations Générales</h3>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #8b5cf6, #7c3aed);">
+                        <i class="fas fa-info-circle text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" style="color: #8b5cf6;">Informations de Base</h3>
+                </div>
                 <div class="space-y-4">
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-1">ID</p>
-                        <p class="text-lg font-medium text-gray-900">#{{ $odf->id }}</p>
+                    <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user text-purple-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-500 mb-1">Présidente</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $odf->présidente ?? 'N/A' }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-1">Créée le</p>
-                        <p class="text-lg font-medium text-gray-900">
-                            {{ $odf->created_at ? $odf->created_at->format('d/m/Y à H:i') : 'N/A' }}
-                        </p>
+                    <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user text-indigo-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-500 mb-1">Vice-Présidente</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $odf->vice_présidente ?? 'N/A' }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-1">Modifiée le</p>
-                        <p class="text-lg font-medium text-gray-900">
-                            {{ $odf->updated_at ? $odf->updated_at->format('d/m/Y à H:i') : 'N/A' }}
-                        </p>
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-500 mb-1">Trésorière</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $odf->trésorière ?? 'N/A' }}</p>
+                        </div>
                     </div>
-                    @if($odf->user)
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-1">Créée par</p>
-                        <p class="text-lg font-medium text-gray-900">{{ $odf->user->name ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <!-- Localisation et Situation Administrative -->
+            @if($odf->localisation || $odf->situationAdministrative)
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #059669);">
+                        <i class="fas fa-map-marker-alt text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" style="color: #10b981;">Localisation et Situation Administrative</h3>
+                </div>
+                <div class="space-y-4">
+                    @if($odf->localisation)
+                    <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-map-marker-alt text-green-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-500 mb-1">Localisation</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $odf->localisation->CODE }} - {{ $odf->localisation->DRANEF }} - {{ $odf->localisation->DPANEF }} - {{ $odf->localisation->ENTITE }}</p>
+                        </div>
+                    </div>
+                    @endif
+                    @if($odf->situationAdministrative)
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-building text-emerald-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-500 mb-1">Situation Administrative</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $odf->situationAdministrative->commune }}@if($odf->situationAdministrative->province) - {{ $odf->situationAdministrative->province }}@endif</p>
+                        </div>
                     </div>
                     @endif
                 </div>
             </div>
+            @endif
 
-            <!-- Statistiques -->
+            <!-- Détails -->
+            @if($odf->reçu_du_dépôt || $odf->constitution)
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">Statistiques</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                        <span class="text-sm font-medium text-gray-700">Membres</span>
-                        <span class="text-lg font-bold text-purple-600">{{ $odf->members->count() }}</span>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
+                        <i class="fas fa-file-alt text-white"></i>
                     </div>
-                    <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                        <span class="text-sm font-medium text-gray-700">Activités</span>
-                        <span class="text-lg font-bold text-blue-600">{{ $odf->activities->count() }}</span>
+                    <h3 class="text-xl font-bold" style="color: #3b82f6;">Détails</h3>
+                </div>
+                <div class="space-y-6">
+                    @if($odf->reçu_du_dépôt)
+                    <div>
+                        <p class="text-sm font-semibold text-gray-500 mb-2">Reçu du Dépôt</p>
+                        <p class="text-gray-700 whitespace-pre-wrap">{{ $odf->reçu_du_dépôt }}</p>
                     </div>
+                    @endif
+                    @if($odf->constitution)
+                    <div>
+                        <p class="text-sm font-semibold text-gray-500 mb-2">Constitution</p>
+                        <p class="text-gray-700 whitespace-pre-wrap">{{ $odf->constitution }}</p>
+                    </div>
+                    @endif
                 </div>
             </div>
-
-            <!-- Actions -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">Actions</h3>
-                <div class="space-y-2">
-                    <a href="{{ route('odfs.edit', $odf) }}" 
-                       class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-xl hover:from-orange-600 hover:to-amber-700 transition-all duration-300">
-                        <i class="fas fa-edit"></i>
-                        <span>Modifier</span>
-                    </a>
-                    <form action="{{ route('odfs.destroy', $odf) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ODF ?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" 
-                                class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all duration-300">
-                            <i class="fas fa-trash"></i>
-                            <span>Supprimer</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
+            @endif
         </div>
     </div>
 </div>

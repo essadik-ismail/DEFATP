@@ -351,6 +351,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/unified-table', [ReportController::class, 'unifiedTable'])->name('unified-table');
         Route::get('/contracts', [ReportController::class, 'contractsReport'])->name('contracts');
         Route::get('/exploitants', [ReportController::class, 'exploitantsReport'])->name('exploitants');
+        Route::get('/odfs', [ReportController::class, 'odfsReport'])->name('odfs');
     });
 
 });

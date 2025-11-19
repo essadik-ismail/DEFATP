@@ -735,6 +735,20 @@
                                     autocomplete="current-password"
                                     help="Mot de passe sécurisé requis"
                                 />
+                                
+                                <!-- Remember Me Checkbox -->
+                                <div class="flex items-center mt-4">
+                                    <input type="checkbox" 
+                                           name="remember" 
+                                           id="remember" 
+                                           value="1"
+                                           {{ old('remember') ? 'checked' : '' }}
+                                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                                    <label for="remember" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer flex items-center gap-2">
+                                        <i class="fas fa-clock text-blue-500"></i>
+                                        <span>Se souvenir de moi</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         

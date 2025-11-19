@@ -14,7 +14,7 @@
                 <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                     Modifier ODF
                 </h1>
-                <p class="text-gray-600 text-lg mt-2">Modifiez les informations de l'Organisation de la Femme</p>
+                <p class="text-gray-600 text-lg mt-2">Modifiez les informations de l'Organisation développement forestier (ODF)</p>
             </div>
         </div>
     </div>
@@ -125,6 +125,59 @@
             </div>
         </div>
 
+        <!-- Section 3: Localisation et Situation Administrative -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #059669);">
+                    <i class="fas fa-map-marker-alt text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold" style="color: #10b981;">Localisation et Situation Administrative</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="form-group">
+                    <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <span>Localisation</span>
+                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner la localisation de l'ODF"></i>
+                    </label>
+                    <select 
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                        id="localisation_id" 
+                        name="localisation_id">
+                        <option value="">Sélectionner une localisation</option>
+                        @foreach($localisations as $localisation)
+                            <option value="{{ $localisation->id }}" {{ old('localisation_id', $odf->localisation_id) == $localisation->id ? 'selected' : '' }}>
+                                {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('localisation_id')
+                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <span>Situation Administrative</span>
+                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner la situation administrative de l'ODF"></i>
+                    </label>
+                    <select 
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                        id="situation_administrative_id" 
+                        name="situation_administrative_id">
+                        <option value="">Sélectionner une situation administrative</option>
+                        @foreach($situationAdministratives as $situation)
+                            <option value="{{ $situation->id }}" {{ old('situation_administrative_id', $odf->situation_administrative_id) == $situation->id ? 'selected' : '' }}>
+                                {{ $situation->commune }}@if($situation->province) - {{ $situation->province }}@endif
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('situation_administrative_id')
+                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+        </div>
+
         <!-- Section 2: Détails -->
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
             <div class="flex items-center gap-3 mb-6">
@@ -162,59 +215,6 @@
                         rows="4"
                         placeholder="Détails sur la constitution...">{{ old('constitution', $odf->constitution) }}</textarea>
                     @error('constitution')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 3: Localisation et Situation Administrative -->
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #059669);">
-                    <i class="fas fa-map-marker-alt text-white"></i>
-                </div>
-                <h3 class="text-xl font-bold" style="color: #10b981;">Localisation et Situation Administrative</h3>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="form-group">
-                    <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span>Localisation</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner la localisation de l'ODF"></i>
-                    </label>
-                    <select 
-                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                        id="localisation_id" 
-                        name="localisation_id">
-                        <option value="">Sélectionner une localisation</option>
-                        @foreach($localisations as $localisation)
-                            <option value="{{ $localisation->id }}" {{ old('localisation_id', $odf->localisation_id) == $localisation->id ? 'selected' : '' }}>
-                                {{ $localisation->CODE }} - {{ $localisation->DRANEF }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('localisation_id')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span>Situation Administrative</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner la situation administrative de l'ODF"></i>
-                    </label>
-                    <select 
-                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                        id="situation_administrative_id" 
-                        name="situation_administrative_id">
-                        <option value="">Sélectionner une situation administrative</option>
-                        @foreach($situationAdministratives as $situation)
-                            <option value="{{ $situation->id }}" {{ old('situation_administrative_id', $odf->situation_administrative_id) == $situation->id ? 'selected' : '' }}>
-                                {{ $situation->commune }}@if($situation->province) - {{ $situation->province }}@endif
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('situation_administrative_id')
                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
