@@ -21,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 
 class ReportController extends Controller
 {
@@ -641,61 +642,138 @@ class ReportController extends Controller
             ->get();
 
         // Get quantities by year (Bo m3, Bi m3, Bf st, Liége st)
-        $quantitiesByYear = (clone $query)
-            ->selectRaw('CASE 
-                WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
-                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
-                ELSE NULL
-            END as year, 
-                        SUM(COALESCE(bom3, 0)) as bom3,
-                        SUM(COALESCE(bim3, 0)) as bim3,
-                        SUM(COALESCE(bfst, 0)) as bfst,
-                        SUM(COALESCE(lcst, 0)) as lcst')
+        // Always use base query without filters for chart to ensure data is shown
+        // Process year extraction in PHP for better reliability
+        $quantitiesByYear = LegacyArticle::query()
+            ->select('date', 'bom3', 'bim3', 'bfst', 'lcst')
             ->whereNotNull('date')
             ->where('date', '!=', '')
             ->whereRaw('LENGTH(date) >= 6')
+            ->get()
+            ->map(function($item) {
+                // Extract year from date in PHP
+                $dateStr = trim($item->date ?? '');
+                $year = null;
+                
+                if (strlen($dateStr) >= 8) {
+                    // Format: YYYYMMDD
+                    $year = substr($dateStr, 0, 4);
+                } elseif (strlen($dateStr) >= 6) {
+                    // Format: YYMMDD
+                    $year = '20' . substr($dateStr, 0, 2);
+                }
+                
+                if ($year && is_numeric($year)) {
+                    return [
+                        'year' => (string) $year,
+                        'bom3' => (float) ($item->bom3 ?? 0),
+                        'bim3' => (float) ($item->bim3 ?? 0),
+                        'bfst' => (float) ($item->bfst ?? 0),
+                        'lcst' => (float) ($item->lcst ?? 0),
+                    ];
+                }
+                return null;
+            })
+            ->filter(function($item) {
+                return $item !== null && !empty($item['year']);
+            })
             ->groupBy('year')
-            ->orderBy('year')
-            ->get();
+            ->map(function($group, $year) {
+                // Sum up values for the same year
+                return (object) [
+                    'year' => (string) $year,
+                    'bom3' => $group->sum('bom3'),
+                    'bim3' => $group->sum('bim3'),
+                    'bfst' => $group->sum('bfst'),
+                    'lcst' => $group->sum('lcst'),
+                ];
+            })
+            ->sortBy('year')
+            ->values();
+        
+        // Debug: Log to verify data
+        Log::info('Quantities by year count: ' . $quantitiesByYear->count());
+        Log::info('Total legacy articles: ' . LegacyArticle::count());
+        Log::info('Legacy articles with dates: ' . LegacyArticle::whereNotNull('date')->where('date', '!=', '')->count());
+        if ($quantitiesByYear->count() > 0) {
+            Log::info('First item: ' . json_encode($quantitiesByYear->first()));
+            Log::info('All year data: ' . $quantitiesByYear->toJson());
+        } else {
+            // Check if there's any data at all
+            $sampleDate = LegacyArticle::whereNotNull('date')->where('date', '!=', '')->first();
+            if ($sampleDate) {
+                Log::info('Sample date value: ' . $sampleDate->date . ' (length: ' . strlen($sampleDate->date) . ')');
+            }
+        }
 
         // Get quantities by province
-        $quantitiesByProvince = (clone $query)
+        // Always use base query without filters for chart to ensure data is shown
+        $quantitiesByProvince = LegacyArticle::query()
             ->selectRaw('province, 
                         SUM(COALESCE(bom3, 0)) as bom3,
                         SUM(COALESCE(bim3, 0)) as bim3,
                         SUM(COALESCE(bfst, 0)) as bfst,
                         SUM(COALESCE(lcst, 0)) as lcst')
             ->whereNotNull('province')
+            ->where('province', '!=', '')
+            ->whereRaw('TRIM(province) != \'\'')
             ->groupBy('province')
             ->orderByDesc('bom3')
-            ->limit(10)
-            ->get();
+            ->get()
+            ->map(function($item) {
+                // Ensure values are numeric
+                $item->bom3 = (float) ($item->bom3 ?? 0);
+                $item->bim3 = (float) ($item->bim3 ?? 0);
+                $item->bfst = (float) ($item->bfst ?? 0);
+                $item->lcst = (float) ($item->lcst ?? 0);
+                return $item;
+            });
 
         // Get quantities by essence
-        $quantitiesByEssence = (clone $query)
+        // Always use base query without filters for chart to ensure data is shown
+        $quantitiesByEssence = LegacyArticle::query()
             ->selectRaw('essence, 
                         SUM(COALESCE(bom3, 0)) as bom3,
                         SUM(COALESCE(bim3, 0)) as bim3,
                         SUM(COALESCE(bfst, 0)) as bfst,
                         SUM(COALESCE(lcst, 0)) as lcst')
             ->whereNotNull('essence')
+            ->where('essence', '!=', '')
+            ->whereRaw('TRIM(essence) != \'\'')
             ->groupBy('essence')
             ->orderByDesc('bom3')
-            ->limit(10)
-            ->get();
+            ->get()
+            ->map(function($item) {
+                // Ensure values are numeric
+                $item->bom3 = (float) ($item->bom3 ?? 0);
+                $item->bim3 = (float) ($item->bim3 ?? 0);
+                $item->bfst = (float) ($item->bfst ?? 0);
+                $item->lcst = (float) ($item->lcst ?? 0);
+                return $item;
+            });
 
         // Get quantities by DREF
-        $quantitiesByDref = (clone $query)
+        // Always use base query without filters for chart to ensure data is shown
+        $quantitiesByDref = LegacyArticle::query()
             ->selectRaw('dref, 
                         SUM(COALESCE(bom3, 0)) as bom3,
                         SUM(COALESCE(bim3, 0)) as bim3,
                         SUM(COALESCE(bfst, 0)) as bfst,
                         SUM(COALESCE(lcst, 0)) as lcst')
             ->whereNotNull('dref')
+            ->where('dref', '!=', '')
+            ->whereRaw('TRIM(dref) != \'\'')
             ->groupBy('dref')
             ->orderByDesc('bom3')
-            ->limit(10)
-            ->get();
+            ->get()
+            ->map(function($item) {
+                // Ensure values are numeric
+                $item->bom3 = (float) ($item->bom3 ?? 0);
+                $item->bim3 = (float) ($item->bim3 ?? 0);
+                $item->bfst = (float) ($item->bfst ?? 0);
+                $item->lcst = (float) ($item->lcst ?? 0);
+                return $item;
+            });
 
         // Get all data for the table (limited to reasonable amount for client-side processing)
         $tableData = (clone $query)->orderBy('created_at', 'desc')->limit(1000)->get()->map(function($article) {
@@ -754,6 +832,10 @@ class ReportController extends Controller
             ->sort()
             ->values();
 
+        // Debug: Log quantities by year to see what we're getting
+        Log::info('Quantities by year count: ' . $quantitiesByYear->count());
+        Log::info('Quantities by year data: ' . $quantitiesByYear->toJson());
+        
         $stats = [
             'total_records' => $totalLegacyArticles,
             'total_revenue' => $totalRevenue,

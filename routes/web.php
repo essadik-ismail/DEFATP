@@ -49,6 +49,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('auth.profile');
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('auth.profile.update');
     
+    // Activity Journals Routes
+    Route::resource('activity-journals', \App\Http\Controllers\ActivityJournalController::class);
+    
     // User Management Routes (Legacy - AuthController)
     Route::prefix('users')->name('auth.users.')->group(function () {
         Route::get('/', [AuthController::class, 'showUsers'])->name('index');

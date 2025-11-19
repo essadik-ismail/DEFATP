@@ -193,10 +193,10 @@
                     <i class="fas fa-filter text-blue-600"></i>
                     Filtres
                 </h3>
-                <button type="button" id="resetFilters" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+                <!-- <button type="button" id="resetFilters" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
                     <i class="fas fa-redo"></i>
                     Réinitialiser
-                </button>
+                </button> -->
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
@@ -385,6 +385,17 @@ $(document).ready(function() {
             window[chartKey] = null;
         }
         
+        // Also try to get chart from Chart.js registry
+        const chartId = Chart.getChart(el);
+        if (chartId) {
+            console.log('Destroying chart from registry');
+            try {
+                chartId.destroy();
+            } catch (e) {
+                console.warn('Error destroying chart from registry:', e);
+            }
+        }
+        
         // Ensure data is arrays and convert to numbers
         labels = Array.isArray(labels) ? labels : [];
         bom3Data = Array.isArray(bom3Data) ? bom3Data.map(v => parseFloat(v) || 0) : [];
@@ -397,10 +408,21 @@ $(document).ready(function() {
             console.warn('No data for chart:', canvasId);
             // Show a message in the canvas
             const ctx = el.getContext('2d');
+            // Ensure canvas has proper dimensions
+            const parent = el.parentElement;
+            if (parent) {
+                const rect = parent.getBoundingClientRect();
+                el.width = rect.width || 800;
+                el.height = rect.height || 400;
+            } else {
+                el.width = el.width || 800;
+                el.height = el.height || 400;
+            }
             ctx.clearRect(0, 0, el.width, el.height);
             ctx.font = '16px Arial';
             ctx.fillStyle = '#666';
             ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             ctx.fillText('Aucune donnée disponible', el.width / 2, el.height / 2);
             return;
         }
@@ -482,9 +504,18 @@ $(document).ready(function() {
 
     // Store all chart data - ensure data is properly structured and aligned
     @php
+        // Debug: Check what we're getting
+        $rawQuantitiesByYear = $stats['quantities_by_year'] ?? collect();
+        
         // Process year data - filter out null years and ensure all data is aligned
-        $yearData = $stats['quantities_by_year']->filter(function($item) {
-            return !empty($item->year) && $item->year !== null && $item->year !== '';
+        $yearData = collect($rawQuantitiesByYear)->filter(function($item) {
+            // Check if year exists and is not empty/null
+            if (is_object($item)) {
+                $year = $item->year ?? null;
+            } else {
+                $year = $item['year'] ?? null;
+            }
+            return !empty($year) && $year !== null && $year !== '';
         })->values();
         
         $yearLabels = [];
@@ -494,54 +525,128 @@ $(document).ready(function() {
         $yearLcst = [];
         
         foreach ($yearData as $item) {
-            $yearLabels[] = (string)$item->year;
-            $yearBom3[] = (float)($item->bom3 ?? 0);
-            $yearBim3[] = (float)($item->bim3 ?? 0);
-            $yearBfst[] = (float)($item->bfst ?? 0);
-            $yearLcst[] = (float)($item->lcst ?? 0);
+            // Handle both object and array formats
+            if (is_object($item)) {
+                $year = $item->year ?? null;
+                $bom3 = $item->bom3 ?? 0;
+                $bim3 = $item->bim3 ?? 0;
+                $bfst = $item->bfst ?? 0;
+                $lcst = $item->lcst ?? 0;
+            } else {
+                $year = $item['year'] ?? null;
+                $bom3 = $item['bom3'] ?? 0;
+                $bim3 = $item['bim3'] ?? 0;
+                $bfst = $item['bfst'] ?? 0;
+                $lcst = $item['lcst'] ?? 0;
+            }
+            
+            if (!empty($year)) {
+                $yearLabels[] = (string)$year;
+                $yearBom3[] = (float)$bom3;
+                $yearBim3[] = (float)$bim3;
+                $yearBfst[] = (float)$bfst;
+                $yearLcst[] = (float)$lcst;
+            }
         }
     @endphp
+    
+    @php
+        // Ensure collections exist and convert to arrays safely
+        $provinceData = isset($stats['quantities_by_province']) && $stats['quantities_by_province'] ? $stats['quantities_by_province'] : collect();
+        $essenceData = isset($stats['quantities_by_essence']) && $stats['quantities_by_essence'] ? $stats['quantities_by_essence'] : collect();
+        $drefData = isset($stats['quantities_by_dref']) && $stats['quantities_by_dref'] ? $stats['quantities_by_dref'] : collect();
+    @endphp
+    
     const chartData = {
         year: {
-            labels: @json($yearLabels),
-            bom3: @json($yearBom3),
-            bim3: @json($yearBim3),
-            bfst: @json($yearBfst),
-            lcst: @json($yearLcst)
+            labels: @json($yearLabels ?? []),
+            bom3: @json($yearBom3 ?? []),
+            bim3: @json($yearBim3 ?? []),
+            bfst: @json($yearBfst ?? []),
+            lcst: @json($yearLcst ?? [])
         },
         province: {
-            labels: @json($stats['quantities_by_province']->pluck('province')->toArray()),
-            bom3: @json($stats['quantities_by_province']->pluck('bom3')->toArray()),
-            bim3: @json($stats['quantities_by_province']->pluck('bim3')->toArray()),
-            bfst: @json($stats['quantities_by_province']->pluck('bfst')->toArray()),
-            lcst: @json($stats['quantities_by_province']->pluck('lcst')->toArray())
+            labels: @json($provinceData->pluck('province')->toArray()),
+            bom3: @json($provinceData->pluck('bom3')->toArray()),
+            bim3: @json($provinceData->pluck('bim3')->toArray()),
+            bfst: @json($provinceData->pluck('bfst')->toArray()),
+            lcst: @json($provinceData->pluck('lcst')->toArray())
         },
         essence: {
-            labels: @json($stats['quantities_by_essence']->pluck('essence')->toArray()),
-            bom3: @json($stats['quantities_by_essence']->pluck('bom3')->toArray()),
-            bim3: @json($stats['quantities_by_essence']->pluck('bim3')->toArray()),
-            bfst: @json($stats['quantities_by_essence']->pluck('bfst')->toArray()),
-            lcst: @json($stats['quantities_by_essence']->pluck('lcst')->toArray())
+            labels: @json($essenceData->pluck('essence')->toArray()),
+            bom3: @json($essenceData->pluck('bom3')->toArray()),
+            bim3: @json($essenceData->pluck('bim3')->toArray()),
+            bfst: @json($essenceData->pluck('bfst')->toArray()),
+            lcst: @json($essenceData->pluck('lcst')->toArray())
         },
         dref: {
-            labels: @json($stats['quantities_by_dref']->pluck('dref')->toArray()),
-            bom3: @json($stats['quantities_by_dref']->pluck('bom3')->toArray()),
-            bim3: @json($stats['quantities_by_dref']->pluck('bim3')->toArray()),
-            bfst: @json($stats['quantities_by_dref']->pluck('bfst')->toArray()),
-            lcst: @json($stats['quantities_by_dref']->pluck('lcst')->toArray())
+            labels: @json($drefData->pluck('dref')->toArray()),
+            bom3: @json($drefData->pluck('bom3')->toArray()),
+            bim3: @json($drefData->pluck('bim3')->toArray()),
+            bfst: @json($drefData->pluck('bfst')->toArray()),
+            lcst: @json($drefData->pluck('lcst')->toArray())
         }
     };
+    
+    // Debug: Log the raw data
+    console.log('=== CHART DEBUG INFO ===');
+    console.log('Raw quantities_by_year:', @json($rawQuantitiesByYear));
+    console.log('Year data count:', {{ count($yearData) }});
+    console.log('Year data from PHP:', {
+        labels: @json($yearLabels),
+        bom3: @json($yearBom3),
+        bim3: @json($yearBim3),
+        bfst: @json($yearBfst),
+        lcst: @json($yearLcst),
+        rawYearData: @json($stats['quantities_by_year']),
+        yearDataCount: {{ count($yearData) }},
+        totalRecords: {{ $stats['total_records'] ?? 0 }},
+        labelsLength: {{ count($yearLabels) }},
+        bom3Length: {{ count($yearBom3) }}
+    });
+    console.log('Chart data object:', chartData);
+    console.log('Year chart data:', chartData.year);
+    console.log('Year chart data labels:', chartData.year.labels);
+    console.log('Year chart data labels length:', chartData.year.labels ? chartData.year.labels.length : 0);
+    console.log('=== END DEBUG INFO ===');
 
     // Function to update chart based on selection
     function updateQuantitiesChart() {
-        const chartType = document.getElementById('volumeChartType').value;
+        const selectElement = document.getElementById('volumeChartType');
+        if (!selectElement) {
+            console.error('Select element not found');
+            return;
+        }
+        
+        const chartType = selectElement.value;
         const data = chartData[chartType];
         
         console.log('Updating chart for type:', chartType);
         console.log('Full data object:', data);
+        console.log('Available chart types:', Object.keys(chartData));
         
         if (!data) {
             console.error('No data object found for chart type:', chartType);
+            const el = document.getElementById('quantitiesChart');
+            if (el) {
+                const ctx = el.getContext('2d');
+                // Ensure canvas has proper dimensions
+                const parent = el.parentElement;
+                if (parent) {
+                    const rect = parent.getBoundingClientRect();
+                    el.width = rect.width || 800;
+                    el.height = rect.height || 400;
+                } else {
+                    el.width = el.width || 800;
+                    el.height = el.height || 400;
+                }
+                ctx.clearRect(0, 0, el.width, el.height);
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#666';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Aucune donnée disponible pour ce critère', el.width / 2, el.height / 2);
+            }
             return;
         }
         
@@ -560,11 +665,43 @@ $(document).ready(function() {
             console.warn('No labels found for chart type:', chartType);
             const el = document.getElementById('quantitiesChart');
             if (el) {
+                // Destroy existing chart first
+                const chartKey = 'quantitiesChartChartInstance';
+                if (window[chartKey]) {
+                    try {
+                        window[chartKey].destroy();
+                    } catch (e) {
+                        console.warn('Error destroying chart:', e);
+                    }
+                    window[chartKey] = null;
+                }
+                
+                // Also try to get chart from Chart.js registry
+                const chartId = Chart.getChart(el);
+                if (chartId) {
+                    try {
+                        chartId.destroy();
+                    } catch (e) {
+                        console.warn('Error destroying chart from registry:', e);
+                    }
+                }
+                
                 const ctx = el.getContext('2d');
+                // Ensure canvas has proper dimensions
+                const parent = el.parentElement;
+                if (parent) {
+                    const rect = parent.getBoundingClientRect();
+                    el.width = rect.width || 800;
+                    el.height = rect.height || 400;
+                } else {
+                    el.width = el.width || 800;
+                    el.height = el.height || 400;
+                }
                 ctx.clearRect(0, 0, el.width, el.height);
                 ctx.font = '16px Arial';
                 ctx.fillStyle = '#666';
                 ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
                 ctx.fillText('Aucune donnée disponible pour ce critère', el.width / 2, el.height / 2);
             }
             return;
@@ -596,31 +733,74 @@ $(document).ready(function() {
     }
 
     // Initialize chart with default selection (year)
-    // Wait for DOM and Chart.js to be fully ready
-    setTimeout(function() {
+    // Wait for everything to be ready
+    function initChart() {
         const canvas = document.getElementById('quantitiesChart');
         const select = document.getElementById('volumeChartType');
         
-        if (canvas && select && window.Chart) {
-            console.log('Initializing chart with default selection (year)');
-            updateQuantitiesChart();
-        } else {
+        if (!canvas || !select) {
             console.error('Required elements not found:', {
                 canvas: !!canvas,
-                select: !!select,
-                Chart: !!window.Chart
+                select: !!select
             });
-            // Retry after a longer delay
-            setTimeout(function() {
-                updateQuantitiesChart();
-            }, 500);
+            return false;
         }
-    }, 200);
+        
+        if (!window.Chart) {
+            console.error('Chart.js is not loaded');
+            return false;
+        }
+        
+        console.log('Initializing chart with default selection (year)');
+        console.log('Chart data available:', !!chartData);
+        console.log('Year data available:', !!chartData.year);
+        updateQuantitiesChart();
+        return true;
+    }
+    
+    // Wait for Chart.js to load and then initialize
+    function waitForChartJS(callback, maxAttempts = 20, attempt = 0) {
+        if (window.Chart && typeof window.Chart === 'function') {
+            console.log('Chart.js is loaded, initializing chart');
+            callback();
+        } else if (attempt < maxAttempts) {
+            setTimeout(function() {
+                waitForChartJS(callback, maxAttempts, attempt + 1);
+            }, 100);
+        } else {
+            console.error('Chart.js failed to load after', maxAttempts, 'attempts');
+        }
+    }
+    
+    // Initialize chart after Chart.js is loaded
+    waitForChartJS(function() {
+        setTimeout(function() {
+            if (!initChart()) {
+                // Retry after a longer delay
+                setTimeout(initChart, 500);
+            }
+        }, 100);
+    });
 
     // Update chart when selection changes
-    document.getElementById('volumeChartType').addEventListener('change', function() {
-        updateQuantitiesChart();
-    });
+    const selectElement = document.getElementById('volumeChartType');
+    if (selectElement) {
+        selectElement.addEventListener('change', function() {
+            console.log('Chart type changed to:', this.value);
+            updateQuantitiesChart();
+        });
+    } else {
+        // If select doesn't exist yet, wait for it
+        setTimeout(function() {
+            const select = document.getElementById('volumeChartType');
+            if (select) {
+                select.addEventListener('change', function() {
+                    console.log('Chart type changed to:', this.value);
+                    updateQuantitiesChart();
+                });
+            }
+        }, 500);
+    }
 
     // Destroy existing DataTable instance if it exists
     if ($.fn.DataTable.isDataTable('#legacyArticlesPreviewTable')) {

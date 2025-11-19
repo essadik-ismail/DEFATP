@@ -183,7 +183,14 @@ class AuthController extends Controller
     public function showProfile(): View
     {
         $user = Auth::user();
-        return view('auth.profile', compact('user'));
+        
+        // Get user's activity journals, ordered by most recent first
+        $activityJournals = \App\Models\ActivityJournal::where('user_id', $user->id)
+            ->orderBy('Date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+        
+        return view('auth.profile', compact('user', 'activityJournals'));
     }
 
     public function updateProfile(UpdateProfileRequest $request): RedirectResponse

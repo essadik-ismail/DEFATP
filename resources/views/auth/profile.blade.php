@@ -234,6 +234,116 @@
             </div>
         </div>
     </div>
+
+    <!-- Activity Journals Section -->
+    <div class="mt-8">
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-book text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Journal d'Activités</h2>
+                        <p class="text-gray-600">Historique de vos activités et réunions</p>
+                    </div>
+                </div>
+                <a href="{{ route('activity-journals.create') }}" 
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300">
+                    <i class="fas fa-plus"></i>
+                    <span>Nouvelle entrée</span>
+                </a>
+            </div>
+
+            @if($activityJournals->count() > 0)
+                <div class="space-y-4">
+                    @foreach($activityJournals as $journal)
+                        <div class="bg-gradient-to-r from-gray-50 to-green-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-start justify-between gap-4 mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <h3 class="text-lg font-bold text-gray-900">{{ $journal->Objet }}</h3>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-calendar mr-1"></i>
+                                            {{ $journal->formatted_date }}
+                                        </span>
+                                    </div>
+                                    @if($journal->Lieu)
+                                        <p class="text-sm text-gray-600 mb-2">
+                                            <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>
+                                            {{ $journal->Lieu }}
+                                        </p>
+                                    @endif
+                                    @if($journal->Participants)
+                                        <p class="text-sm text-gray-600 mb-2">
+                                            <i class="fas fa-users text-blue-500 mr-2"></i>
+                                            {{ $journal->Participants }}
+                                        </p>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('activity-journals.edit', $journal) }}" 
+                                       class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                       title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('activity-journals.destroy', $journal) }}" 
+                                          method="POST" 
+                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            @if($journal->Description)
+                                <div class="mb-3">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Description :</h4>
+                                    <p class="text-sm text-gray-600">{{ $journal->Description }}</p>
+                                </div>
+                            @endif
+                            
+                            @if($journal->Recommandations)
+                                <div class="mb-3">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Recommandations :</h4>
+                                    <p class="text-sm text-gray-600">{{ $journal->Recommandations }}</p>
+                                </div>
+                            @endif
+                            
+                            @if($journal->Conclusion)
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Conclusion :</h4>
+                                    <p class="text-sm text-gray-600">{{ $journal->Conclusion }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Pagination -->
+                <div class="mt-6">
+                    {{ $activityJournals->links() }}
+                </div>
+            @else
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-book text-gray-400 text-2xl"></i>
+                    </div>
+                    <p class="text-gray-600 mb-4">Aucune entrée dans le journal d'activités</p>
+                    <a href="{{ route('activity-journals.create') }}" 
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300">
+                        <i class="fas fa-plus"></i>
+                        <span>Créer la première entrée</span>
+                    </a>
+                </div>
+            @endif
+        </div>
+    </div>
 </div>
 @endsection
 
