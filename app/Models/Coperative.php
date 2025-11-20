@@ -14,13 +14,11 @@ class Coperative extends Model
         'vocation_id',
         'nombre_membres',
         'nombre_coperatives',
-        'is_deleted',
     ];
 
     protected $casts = [
         'nombre_membres' => 'integer',
         'nombre_coperatives' => 'integer',
-        'is_deleted' => 'boolean',
     ];
 
     /**

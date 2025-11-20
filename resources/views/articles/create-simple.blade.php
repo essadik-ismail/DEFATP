@@ -11,9 +11,15 @@
                 <i class="fas fa-file-excel text-white text-2xl"></i>
             </div>
             <div>
-                <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
-                    Création Simple d'Article
-                </h1>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
+                        Création Simple d'Article
+                    </h1>
+                    <div class="tooltip-container relative">
+                        <i class="fas fa-question-circle text-blue-500 text-2xl cursor-help hover:text-blue-600 transition-colors" 
+                           data-tooltip="Cette page vous permet de créer un article rapidement en utilisant soit le formulaire simplifié, soit en important un fichier Excel. Remplissez les champs requis et cliquez sur 'Créer l'Article' pour enregistrer."></i>
+                    </div>
+                </div>
                 <p class="text-gray-600 text-lg mt-2">Créez un article rapidement avec Excel ou le formulaire simplifié</p>
             </div>
         </div>
@@ -334,6 +340,15 @@
         display: none;
     }
     
+    /* Help icon tooltip styling for longer text */
+    .tooltip {
+        max-width: 350px !important;
+        white-space: normal !important;
+        word-wrap: break-word;
+        text-align: left;
+        line-height: 1.5;
+        padding: 0.75rem 1rem !important;
+    }
     
 </style>
 @endpush

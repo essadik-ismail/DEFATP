@@ -27,6 +27,7 @@ use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\EssencesExport;
 use App\Exports\ForetsExport;
@@ -65,10 +66,10 @@ class SettingsController extends Controller
         if ($request->filled('status')) {
             switch ($request->get('status')) {
                 case 'active':
-                    $query->where('is_deleted', false);
+                    $query->whereNull('deleted_at');
                     break;
                 case 'deleted':
-                    $query->where('is_deleted', true);
+                    $query->onlyTrashed();
                     break;
                 case 'recent':
                     $query->where('created_at', '>=', now()->subDays(30));
@@ -105,7 +106,7 @@ class SettingsController extends Controller
         // Get statistics for the current filtered results
         $stats = [
             'total' => $query->count(),
-            'active' => $query->where('is_deleted', false)->count(),
+            'active' => $query->whereNull('deleted_at')->count(),
             'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
             'unique' => $query->distinct('essence')->count(),
         ];
@@ -137,14 +138,14 @@ class SettingsController extends Controller
 
     public function destroyEssence(Essence $essence): RedirectResponse
     {
-        $essence->update(['is_deleted' => true]);
+        $essence->delete(); // Soft delete
         return redirect()->route('settings.essences')->with('success', 'Essence supprimée avec succès.');
     }
 
     // Forets Management
     public function forets(): View
     {
-        $forets = Foret::where('is_deleted', false)->orderBy('foret')->paginate(15);
+        $forets = Foret::orderBy('foret')->paginate(15);
         return view('settings.forets.index', compact('forets'));
     }
 
@@ -154,7 +155,7 @@ class SettingsController extends Controller
         ActivityLogger::log('view', 'Consultation de la carte des forêts', Foret::class);
         
         // Get all forests with coordinates
-        $forests = Foret::where('is_deleted', false)
+        $forests = Foret::query()
             ->where('lat', '!=', '0')
             ->where('log', '!=', '0')
             ->whereNotNull('lat')
@@ -163,7 +164,7 @@ class SettingsController extends Controller
             ->get();
             
         // Get statistics
-        $totalForests = Foret::where('is_deleted', false)->count();
+        $totalForests = Foret::count();
         $geolocatedForests = $forests->count();
         $nonGeolocatedForests = $totalForests - $geolocatedForests;
         
@@ -201,7 +202,7 @@ class SettingsController extends Controller
 
     public function destroyForet(Foret $foret): RedirectResponse
     {
-        $foret->update(['is_deleted' => true]);
+        $foret->delete(); // Soft delete
         return redirect()->route('settings.forets')->with('success', 'Forêt supprimée avec succès.');
     }
 
@@ -220,10 +221,10 @@ class SettingsController extends Controller
         if ($request->filled('status')) {
             switch ($request->get('status')) {
                 case 'active':
-                    $query->where('is_deleted', false);
+                    $query->whereNull('deleted_at');
                     break;
                 case 'deleted':
-                    $query->where('is_deleted', true);
+                    $query->onlyTrashed();
                     break;
                 case 'recent':
                     $query->where('created_at', '>=', now()->subDays(30));
@@ -260,7 +261,7 @@ class SettingsController extends Controller
         // Get statistics for the current filtered results
         $stats = [
             'total' => $query->count(),
-            'active' => $query->where('is_deleted', false)->count(),
+            'active' => $query->whereNull('deleted_at')->count(),
             'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
             'unique' => $query->distinct('nature_de_coupe')->count(),
         ];
@@ -322,7 +323,7 @@ class SettingsController extends Controller
     public function destroyNatureDeCoupe(NatureDeCoupe $natureDeCoupe): RedirectResponse
     {
         $natureName = $natureDeCoupe->nature_de_coupe;
-        $natureDeCoupe->update(['is_deleted' => true]);
+        $natureDeCoupe->delete(); // Soft delete
         
         // Log nature de coupe deletion
         ActivityLogger::logDelete(
@@ -358,10 +359,10 @@ class SettingsController extends Controller
         if ($request->filled('status')) {
             switch ($request->get('status')) {
                 case 'active':
-                    $query->where('is_deleted', false);
+                    $query->whereNull('deleted_at');
                     break;
                 case 'deleted':
-                    $query->where('is_deleted', true);
+                    $query->onlyTrashed();
                     break;
                 case 'recent':
                     $query->where('created_at', '>=', now()->subDays(30));
@@ -398,7 +399,7 @@ class SettingsController extends Controller
         // Get statistics for the current filtered results
         $stats = [
             'total' => $query->count(),
-            'active' => $query->where('is_deleted', false)->count(),
+            'active' => $query->whereNull('deleted_at')->count(),
             'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
             'unique' => $query->distinct('commune')->count(),
         ];
@@ -460,7 +461,7 @@ class SettingsController extends Controller
     public function destroySituationAdministrative(SituationAdministrative $situationAdministrative): RedirectResponse
     {
         $communeName = $situationAdministrative->commune;
-        $situationAdministrative->update(['is_deleted' => true]);
+        $situationAdministrative->delete(); // Soft delete
         
         // Log situation administrative deletion
         ActivityLogger::logDelete(
@@ -526,10 +527,10 @@ class SettingsController extends Controller
         if ($request->filled('status')) {
             switch ($request->get('status')) {
                 case 'active':
-                    $query->where('is_deleted', false);
+                    $query->whereNull('deleted_at');
                     break;
                 case 'deleted':
-                    $query->where('is_deleted', true);
+                    $query->onlyTrashed();
                     break;
                 case 'recent':
                     $query->where('created_at', '>=', now()->subDays(30));
@@ -602,10 +603,10 @@ class SettingsController extends Controller
         if ($request->filled('status')) {
             switch ($request->get('status')) {
                 case 'active':
-                    $filteredQuery->where('is_deleted', false);
+                    $filteredQuery->whereNull('deleted_at');
                     break;
                 case 'deleted':
-                    $filteredQuery->where('is_deleted', true);
+                    $filteredQuery->onlyTrashed();
                     break;
                 case 'recent':
                     $filteredQuery->where('created_at', '>=', now()->subDays(30));
@@ -616,8 +617,8 @@ class SettingsController extends Controller
         // Get statistics for the current filtered results
         $stats = [
             'total' => $exploitants->total(),
-            'active' => (clone $filteredQuery)->where('is_deleted', false)->count(),
-            'deleted' => (clone $filteredQuery)->where('is_deleted', true)->count(),
+            'active' => (clone $filteredQuery)->whereNull('deleted_at')->count(),
+            'deleted' => (clone $filteredQuery)->onlyTrashed()->count(),
             'recent' => (clone $filteredQuery)->where('created_at', '>=', now()->subDays(30))->count(),
             'unique' => (clone $filteredQuery)->distinct('nom_complet')->count(),
             'excluded' => (clone $filteredQuery)->where('exclusion', true)->count(),
@@ -647,7 +648,6 @@ class SettingsController extends Controller
     public function createExploitant(): View
     {
         $localisations = Localisation::selectRaw('MIN(id) as id, DRANEF')
-            ->where('is_deleted', false)
             ->groupBy('DRANEF')
             ->orderBy('DRANEF')
             ->get();
@@ -658,6 +658,13 @@ class SettingsController extends Controller
     {
         try {
             $validated = $request->validated();
+            
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('exploitants', 'public');
+                $validated['image'] = $imagePath;
+            }
+            
             $exploitant = Exploitant::create($validated);
             
             // Log exploitant creation
@@ -721,14 +728,27 @@ class SettingsController extends Controller
 
     public function editExploitant(Exploitant $exploitant): View
     {
-        $localisations = Localisation::where('is_deleted', false)->orderBy('CODE')->get();
+        $localisations = Localisation::orderBy('CODE')->get();
         return view('settings.exploitants.edit', compact('exploitant', 'localisations'));
     }
 
     public function updateExploitant(UpdateExploitantRequest $request, Exploitant $exploitant): RedirectResponse
     {
         $oldData = $exploitant->only(['nom_complet', 'telephone', 'email']);
-        $exploitant->update($request->all());
+        $validated = $request->validated();
+        
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($exploitant->image && Storage::disk('public')->exists($exploitant->image)) {
+                Storage::disk('public')->delete($exploitant->image);
+            }
+            
+            $imagePath = $request->file('image')->store('exploitants', 'public');
+            $validated['image'] = $imagePath;
+        }
+        
+        $exploitant->update($validated);
         
         // Log exploitant update
         $changes = array_diff_assoc($exploitant->fresh()->only(['nom_complet', 'telephone', 'email']), $oldData);
@@ -746,7 +766,13 @@ class SettingsController extends Controller
     public function destroyExploitant(Exploitant $exploitant): RedirectResponse
     {
         $exploitantName = $exploitant->nom_complet;
-        $exploitant->update(['is_deleted' => true]);
+        
+        // Delete image if exists
+        if ($exploitant->image && Storage::disk('public')->exists($exploitant->image)) {
+            Storage::disk('public')->delete($exploitant->image);
+        }
+        
+        $exploitant->delete(); // Soft delete
         
         // Log exploitant deletion
         ActivityLogger::logDelete(
@@ -791,10 +817,10 @@ class SettingsController extends Controller
         if ($request->filled('status')) {
             switch ($request->get('status')) {
                 case 'active':
-                    $query->where('is_deleted', false);
+                    $query->whereNull('deleted_at');
                     break;
                 case 'deleted':
-                    $query->where('is_deleted', true);
+                    $query->onlyTrashed();
                     break;
                 case 'recent':
                     $query->where('created_at', '>=', now()->subDays(30));
@@ -831,7 +857,7 @@ class SettingsController extends Controller
         // Get statistics for the current filtered results
         $stats = [
             'total' => $query->count(),
-            'active' => $query->where('is_deleted', false)->count(),
+            'active' => $query->whereNull('deleted_at')->count(),
             'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
             'unique' => $query->distinct('CODE')->count(),
         ];
@@ -907,7 +933,7 @@ class SettingsController extends Controller
     public function destroyLocalisation(Localisation $localisation): RedirectResponse
     {
         $localisationCode = $localisation->CODE;
-        $localisation->update(['is_deleted' => true]);
+        $localisation->delete(); // Soft delete
         
         // Log localisation deletion
         ActivityLogger::logDelete(
@@ -938,10 +964,10 @@ class SettingsController extends Controller
         if ($request->filled('status')) {
             switch ($request->get('status')) {
                 case 'active':
-                    $query->where('is_deleted', false);
+                    $query->whereNull('deleted_at');
                     break;
                 case 'deleted':
-                    $query->where('is_deleted', true);
+                    $query->onlyTrashed();
                     break;
                 case 'recent':
                     $query->where('created_at', '>=', now()->subDays(30));
@@ -978,7 +1004,7 @@ class SettingsController extends Controller
         // Get statistics for the current filtered results
         $stats = [
             'total' => $query->count(),
-            'active' => $query->where('is_deleted', false)->count(),
+            'active' => $query->whereNull('deleted_at')->count(),
             'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
             'unique' => $query->distinct('zdtf')->count(),
         ];
@@ -1348,10 +1374,10 @@ class SettingsController extends Controller
         if ($request->filled('status')) {
             switch ($request->get('status')) {
                 case 'active':
-                    $query->where('is_deleted', false);
+                    $query->whereNull('deleted_at');
                     break;
                 case 'deleted':
-                    $query->where('is_deleted', true);
+                    $query->onlyTrashed();
                     break;
                 case 'recent':
                     $query->where('created_at', '>=', now()->subDays(30));
@@ -1402,10 +1428,10 @@ class SettingsController extends Controller
         if ($request->filled('status')) {
             switch ($request->get('status')) {
                 case 'active':
-                    $filteredQuery->where('is_deleted', false);
+                    $filteredQuery->whereNull('deleted_at');
                     break;
                 case 'deleted':
-                    $filteredQuery->where('is_deleted', true);
+                    $filteredQuery->onlyTrashed();
                     break;
                 case 'recent':
                     $filteredQuery->where('created_at', '>=', now()->subDays(30));
@@ -1416,8 +1442,8 @@ class SettingsController extends Controller
         // Get statistics for the current filtered results
         $stats = [
             'total' => $coperatives->total(),
-            'active' => (clone $filteredQuery)->where('is_deleted', false)->count(),
-            'deleted' => (clone $filteredQuery)->where('is_deleted', true)->count(),
+            'active' => (clone $filteredQuery)->whereNull('deleted_at')->count(),
+            'deleted' => (clone $filteredQuery)->onlyTrashed()->count(),
             'recent' => (clone $filteredQuery)->where('created_at', '>=', now()->subDays(30))->count(),
             'with_vocation' => (clone $filteredQuery)->whereNotNull('vocation_id')->count(),
         ];

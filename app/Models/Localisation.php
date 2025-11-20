@@ -6,33 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Localisation extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'CODE',
         'DRANEF',
         'DPANEF',
         'ENTITE',
-        'is_deleted',
     ];
-
-    protected $casts = [
-        'is_deleted' => 'boolean',
-    ];
-
-    /**
-     * Boot the model.
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        // Global scope to exclude deleted localisations
-        static::addGlobalScope('not_deleted', function (Builder $builder) {
-            $builder->where('is_deleted', false);
-        });
-    }
 
     /**
      * Get localisations formatted for select dropdowns.

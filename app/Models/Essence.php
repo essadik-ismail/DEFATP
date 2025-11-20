@@ -6,30 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Essence extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'essence',
-        'is_deleted',
     ];
-
-    protected $casts = [
-        'is_deleted' => 'boolean',
-    ];
-
-    /**
-     * Boot the model.
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        // Global scope to exclude deleted essences
-        static::addGlobalScope('not_deleted', function (Builder $builder) {
-            $builder->where('is_deleted', false);
-        });
-    }
 
     /**
      * Many-to-many: articles linked via pivot table.

@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'annee',
         'numero',
@@ -41,7 +44,6 @@ class Article extends Model
         'fourniture_mise_charge',
         'date_de_resiliation',
         'date_de_decheance',
-        'is_deleted',
     ];
 
     protected $casts = [
@@ -65,21 +67,7 @@ class Article extends Model
         'invendu' => 'boolean',
         'dc' => 'boolean',
         'rc' => 'boolean',
-        'is_deleted' => 'boolean',
     ];
-
-    /**
-     * Boot the model.
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        // Global scope to exclude deleted articles
-        static::addGlobalScope('not_deleted', function (Builder $builder) {
-            $builder->where('is_deleted', false);
-        });
-    }
 
 
     /**
