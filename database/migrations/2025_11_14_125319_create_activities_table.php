@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
-            $table->string('objet');
-            $table->text('description')->nullable();
-            $table->text('participants')->nullable();
             $table->string('lieu')->nullable();
+            $table->string('objet');
             $table->date('date');
+            $table->text('participants')->nullable();
+            $table->text('description')->nullable();
             $table->string('fichier_joint')->nullable();
-            $table->foreignId('odf_id')->constrained('odfs')->onDelete('cascade');
+            $table->foreignId('odf_id')->nullable()->constrained('odfs')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });

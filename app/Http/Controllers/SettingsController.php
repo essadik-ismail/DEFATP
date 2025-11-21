@@ -23,11 +23,13 @@ use App\Models\Exploitant;
 use App\Models\Localisation;
 use App\Models\Coperative;
 use App\Models\Vocation;
+use App\Models\OdfEntite;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\EssencesExport;
 use App\Exports\ForetsExport;
@@ -659,10 +661,13 @@ class SettingsController extends Controller
         try {
             $validated = $request->validated();
             
-            // Handle image upload
+            // Handle image upload - store in private directory
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('exploitants', 'public');
+                $imagePath = $request->file('image')->store('exploitants', 'local');
                 $validated['image'] = $imagePath;
+            } else {
+                // Remove image from validated if not provided
+                unset($validated['image']);
             }
             
             $exploitant = Exploitant::create($validated);
@@ -737,15 +742,18 @@ class SettingsController extends Controller
         $oldData = $exploitant->only(['nom_complet', 'telephone', 'email']);
         $validated = $request->validated();
         
-        // Handle image upload
+        // Handle image upload - store in private directory
         if ($request->hasFile('image')) {
             // Delete old image if exists
-            if ($exploitant->image && Storage::disk('public')->exists($exploitant->image)) {
-                Storage::disk('public')->delete($exploitant->image);
+            if ($exploitant->image && Storage::disk('local')->exists($exploitant->image)) {
+                Storage::disk('local')->delete($exploitant->image);
             }
             
-            $imagePath = $request->file('image')->store('exploitants', 'public');
+            $imagePath = $request->file('image')->store('exploitants', 'local');
             $validated['image'] = $imagePath;
+        } else {
+            // Keep existing image if no new image is uploaded
+            unset($validated['image']);
         }
         
         $exploitant->update($validated);
@@ -768,8 +776,8 @@ class SettingsController extends Controller
         $exploitantName = $exploitant->nom_complet;
         
         // Delete image if exists
-        if ($exploitant->image && Storage::disk('public')->exists($exploitant->image)) {
-            Storage::disk('public')->delete($exploitant->image);
+        if ($exploitant->image && Storage::disk('local')->exists($exploitant->image)) {
+            Storage::disk('local')->delete($exploitant->image);
         }
         
         $exploitant->delete(); // Soft delete
@@ -783,6 +791,38 @@ class SettingsController extends Controller
         );
         
         return redirect()->route('exploitants.index')->with('success', 'Exploitant supprimé avec succès.');
+    }
+
+    /**
+     * Serve exploitant image securely (requires authentication)
+     */
+    public function serveExploitantImage(Exploitant $exploitant): BinaryFileResponse
+    {
+        // Check if user is authenticated
+        if (!auth()->check()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Check if exploitant has an image
+        if (!$exploitant->image) {
+            abort(404, 'Image not found');
+        }
+
+        // Check if file exists
+        if (!Storage::disk('local')->exists($exploitant->image)) {
+            abort(404, 'Image file not found');
+        }
+
+        // Get file path and mime type
+        $path = Storage::disk('local')->path($exploitant->image);
+        $mimeType = Storage::disk('local')->mimeType($exploitant->image);
+
+        // Return file response with security headers
+        return response()->file($path, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'private, max-age=3600',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 
     // Localisations Management
@@ -944,6 +984,118 @@ class SettingsController extends Controller
         );
         
         return redirect()->route('settings.localisations')->with('success', 'Localisation supprimée avec succès.');
+    }
+
+    // ODF Entités Management
+    public function odfEntites(Request $request): View
+    {
+        ActivityLogger::log('view', 'Consultation de la liste des ODF Entités', OdfEntite::class);
+        
+        $query = OdfEntite::with(['localisation', 'situationAdministrative']);
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            switch ($request->get('status')) {
+                case 'active':
+                    $query->whereNull('deleted_at');
+                    break;
+                case 'deleted':
+                    $query->onlyTrashed();
+                    break;
+                case 'recent':
+                    $query->where('created_at', '>=', now()->subDays(30));
+                    break;
+            }
+        }
+
+        // Sorting
+        $sortField = $request->get('sort', 'name');
+        $sortDirection = $request->get('direction', 'asc');
+        
+        $allowedSortFields = ['id', 'name', 'created_at', 'updated_at'];
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        }
+
+        // Pagination
+        $perPage = $request->get('per_page', 15);
+        $allowedPerPage = [10, 15, 25, 50, 100];
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 15;
+        }
+
+        $odfEntites = $query->paginate($perPage);
+
+        $localisations = Localisation::orderBy('CODE')->get();
+        $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
+
+        return view('settings.odf-entites.index', compact('odfEntites', 'localisations', 'situationAdministratives'));
+    }
+
+    public function createOdfEntite(): View
+    {
+        $localisations = Localisation::orderBy('CODE')->get();
+        $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
+        
+        return view('settings.odf-entites.create', compact('localisations', 'situationAdministratives'));
+    }
+
+    public function storeOdfEntite(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'localisation_id' => 'nullable|exists:localisations,id',
+            'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
+        ]);
+
+        $odfEntite = OdfEntite::create($validated);
+
+        ActivityLogger::log('create', 'Création d\'une nouvelle ODF Entité', OdfEntite::class, $odfEntite->id);
+
+        return redirect()->route('entity-data.index', ['tab' => 'odf-entites'])
+            ->with('success', 'ODF Entité créée avec succès.');
+    }
+
+    public function editOdfEntite(OdfEntite $odfEntite): View
+    {
+        $localisations = Localisation::orderBy('CODE')->get();
+        $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
+        
+        return view('settings.odf-entites.edit', compact('odfEntite', 'localisations', 'situationAdministratives'));
+    }
+
+    public function updateOdfEntite(Request $request, OdfEntite $odfEntite): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'localisation_id' => 'nullable|exists:localisations,id',
+            'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
+        ]);
+
+        $odfEntite->update($validated);
+
+        ActivityLogger::log('update', 'Modification d\'une ODF Entité', OdfEntite::class, $odfEntite->id);
+
+        return redirect()->route('entity-data.index', ['tab' => 'odf-entites'])
+            ->with('success', 'ODF Entité mise à jour avec succès.');
+    }
+
+    public function destroyOdfEntite(OdfEntite $odfEntite): RedirectResponse
+    {
+        $odfEntiteName = $odfEntite->name;
+        $odfEntiteId = $odfEntite->id;
+        $odfEntite->delete();
+
+        ActivityLogger::log('delete', 'Suppression d\'une ODF Entité', OdfEntite::class, $odfEntiteId);
+
+        return redirect()->route('entity-data.index', ['tab' => 'odf-entites'])
+            ->with('success', 'ODF Entité supprimée avec succès.');
     }
 
     // ZDTF Management

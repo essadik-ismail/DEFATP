@@ -50,270 +50,422 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left Column - Main Information -->
         <div class="lg:col-span-2 space-y-6">
-
-            <!-- Members Section -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #059669);">
-                            <i class="fas fa-users text-white"></i>
-                        </div>
-                        <h3 class="text-xl font-bold" style="color: #10b981;">Membres ({{ $odf->members->count() }})</h3>
-                    </div>
-                    <button type="button" onclick="toggleMemberForm()" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-300">
-                        <i class="fas fa-plus"></i>
-                        <span>Ajouter</span>
-                    </button>
+            <!-- Tabs Section -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20">
+                <!-- Section Header -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800">Contrats, Activités et Modifications</h3>
                 </div>
 
-                <!-- Add Member Form (Hidden by default) -->
-                <div id="memberForm" class="hidden mb-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <h4 class="font-semibold text-gray-900 mb-4">Nouveau Membre</h4>
-                    <form action="{{ route('odfs.members.store', $odf) }}" method="POST">
-                        @csrf
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                    <span>Nom <span class="text-red-500">*</span></span>
-                                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nom complet du membre"></i>
-                                </label>
-                                <input type="text" name="nom" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                    <span>Téléphone</span>
-                                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro de téléphone du membre"></i>
-                                </label>
-                                <input type="text" name="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                    <span>Type</span>
-                                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Type de membre: Association, Coopérative, Entreprise, Élu, ou Citoyen"></i>
-                                </label>
-                                <select name="type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                    <option value="">Sélectionner un type</option>
-                                    <option value="Association">Association</option>
-                                    <option value="Coopérative">Coopérative</option>
-                                    <option value="Entreprise">Entreprise</option>
-                                    <option value="Élu">Élu</option>
-                                    <option value="Citoyen">Citoyen</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="flex gap-2 mt-4">
-                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Enregistrer</button>
-                            <button type="button" onclick="toggleMemberForm()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Annuler</button>
-                        </div>
-                    </form>
+                <!-- Tab Buttons -->
+                <div class="border-b border-gray-200">
+                    <nav class="flex -mb-px">
+                        <button onclick="switchTab('contract')" id="tab-contract" class="tab-button active px-6 py-4 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
+                            <i class="fas fa-file-contract mr-2"></i>
+                            Contract
+                        </button>
+                        <button onclick="switchTab('activite')" id="tab-activite" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            Activité
+                        </button>
+                        <button onclick="switchTab('modification')" id="tab-modification" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                            <i class="fas fa-edit mr-2"></i>
+                            Modification
+                        </button>
+                    </nav>
                 </div>
 
-                <!-- Members List -->
-                <div class="space-y-3">
-                    @forelse($odf->members as $member)
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors" id="member-{{ $member->id }}">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-user text-green-600"></i>
+                <!-- Tab Content -->
+                <div id="tabs-content" class="p-6">
+                    <!-- Contract Tab -->
+                    <div id="content-contract" class="tab-content">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold text-gray-800">Contrats ODF</h3>
+                            <button type="button" onclick="toggleContractForm()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300">
+                                <i class="fas fa-plus"></i>
+                                <span>Ajouter</span>
+                            </button>
+                        </div>
+
+                        <!-- Add Contract Form -->
+                        <div id="contractForm" class="hidden mb-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <h4 class="font-semibold text-gray-900 mb-4">Nouveau Contrat</h4>
+                            <form action="{{ route('odfs.contract-odf.store', $odf) }}" method="POST">
+                                @csrf
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+                                        <input type="date" name="date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                     <div>
-                                        <p class="font-semibold text-gray-900">{{ $member->nom }}</p>
-                                        <div class="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                                            @if($member->tel)
-                                                <span><i class="fas fa-phone mr-1"></i>{{ $member->tel }}</span>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Lieu</label>
+                                        <input type="text" name="lieu" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Signature 1 - Nom</label>
+                                        <input type="text" name="signature1_nom" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Signature 1 - Type</label>
+                                        <select name="signature1_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="">Sélectionner un type</option>
+                                            <option value="présidente">Présidente</option>
+                                            <option value="vice_présidente">Vice-Présidente</option>
+                                            <option value="trésorière">Trésorière</option>
+                                            <option value="membre">Membre</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Signature 2 - Nom</label>
+                                        <input type="text" name="signature2_nom" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Signature 2 - Type</label>
+                                        <select name="signature2_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="">Sélectionner un type</option>
+                                            <option value="dranef">DRANEF</option>
+                                            <option value="dpanef">DPANEF</option>
+                                            <option value="autre">Autre</option>
+                                        </select>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Commentaire</label>
+                                        <textarea name="commentaire" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 mt-4">
+                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Enregistrer</button>
+                                    <button type="button" onclick="toggleContractForm()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Annuler</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Contracts List -->
+                        <div class="space-y-3">
+                            @forelse($odf->contractOdf as $contract)
+                                <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-file-contract text-blue-600"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold text-gray-900">Contrat du {{ $contract->date ? \Carbon\Carbon::parse($contract->date)->format('d/m/Y') : 'N/A' }}</p>
+                                                    <div class="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                                                        @if($contract->lieu)
+                                                            <span><i class="fas fa-map-marker-alt mr-1"></i>{{ $contract->lieu }}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if($contract->signature1_nom || $contract->signature2_nom)
+                                                <div class="ml-13 text-sm text-gray-700">
+                                                    @if($contract->signature1_nom)
+                                                        <p><strong>Signature 1:</strong> {{ $contract->signature1_nom }}@if($contract->signature1_type) ({{ $contract->signature1_type }})@endif</p>
+                                                    @endif
+                                                    @if($contract->signature2_nom)
+                                                        <p><strong>Signature 2:</strong> {{ $contract->signature2_nom }}@if($contract->signature2_type) ({{ $contract->signature2_type }})@endif</p>
+                                                    @endif
+                                                </div>
                                             @endif
-                                            @if($member->type)
-                                                <span><i class="fas fa-tag mr-1"></i>{{ $member->type }}</span>
+                                            @if($contract->commentaire)
+                                                <p class="text-sm text-gray-700 mt-2 ml-13">{{ Str::limit($contract->commentaire, 100) }}</p>
                                             @endif
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <form action="{{ route('odfs.contract-odf.destroy', [$odf, $contract]) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce contrat ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="editMember({{ $member->id }}, @json($member->nom), @json($member->tel ?? ''), @json($member->type ?? ''))" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Modifier">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <form action="{{ route('odfs.members.destroy', [$odf, $member]) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
+                            @empty
+                                <p class="text-gray-500 text-center py-4">Aucun contrat enregistré</p>
+                            @endforelse
                         </div>
-                    @empty
-                        <p class="text-gray-500 text-center py-4">Aucun membre enregistré</p>
-                    @endforelse
-                </div>
-            </div>
-
-            <!-- Activities Section -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
-                            <i class="fas fa-calendar-alt text-white"></i>
-                        </div>
-                        <h3 class="text-xl font-bold" style="color: #3b82f6;">Activités ({{ $odf->activities->count() }})</h3>
                     </div>
-                    <button type="button" onclick="toggleActivityForm()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300">
-                        <i class="fas fa-plus"></i>
-                        <span>Ajouter</span>
-                    </button>
-                </div>
 
-                <!-- Add Activity Form (Hidden by default) -->
-                <div id="activityForm" class="hidden mb-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <h4 class="font-semibold text-gray-900 mb-4">Nouvelle Activité</h4>
-                    <form action="{{ route('odfs.activities.store', $odf) }}" method="POST">
-                        @csrf
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                        <span>Objet <span class="text-red-500">*</span></span>
-                                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sujet ou titre de l'activité"></i>
-                                    </label>
-                                    <input type="text" name="objet" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                        <span>Date <span class="text-red-500">*</span></span>
-                                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Date à laquelle l'activité s'est déroulée"></i>
-                                    </label>
-                                    <input type="date" name="date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                    <span>Lieu</span>
-                                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Lieu où l'activité s'est déroulée"></i>
-                                </label>
-                                <input type="text" name="lieu" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                    <span>Description</span>
-                                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Description détaillée de l'activité"></i>
-                                </label>
-                                <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                    <span>Participants</span>
-                                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Liste des participants à l'activité"></i>
-                                </label>
-                                <textarea name="participants" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                            </div>
+                    <!-- Activité Tab -->
+                    <div id="content-activite" class="tab-content hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold text-gray-800">Activités ({{ $odf->activities->count() }})</h3>
+                            <button type="button" onclick="toggleActivityForm()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300">
+                                <i class="fas fa-plus"></i>
+                                <span>Ajouter</span>
+                            </button>
                         </div>
-                        <div class="flex gap-2 mt-4">
-                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Enregistrer</button>
-                            <button type="button" onclick="toggleActivityForm()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Annuler</button>
-                        </div>
-                    </form>
-                </div>
 
-                <!-- Activities List -->
-                <div class="space-y-3">
-                    @forelse($odf->activities as $activity)
-                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors" id="activity-{{ $activity->id }}">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-calendar text-blue-600"></i>
+                        <!-- Add Activity Form -->
+                        <div id="activityForm" class="hidden mb-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <h4 class="font-semibold text-gray-900 mb-4">Nouvelle Activité</h4>
+                            <form action="{{ route('odfs.activities.store', $odf) }}" method="POST">
+                                @csrf
+                                <div class="space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Objet *</label>
+                                            <input type="text" name="objet" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         </div>
                                         <div>
-                                            <p class="font-semibold text-gray-900">{{ $activity->objet }}</p>
-                                            <div class="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                                                <span><i class="fas fa-calendar-day mr-1"></i>{{ $activity->date ? $activity->date->format('d/m/Y') : 'N/A' }}</span>
-                                                @if($activity->lieu)
-                                                    <span><i class="fas fa-map-marker-alt mr-1"></i>{{ $activity->lieu }}</span>
-                                                @endif
-                                            </div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+                                            <input type="date" name="date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         </div>
                                     </div>
-                                    @if($activity->description)
-                                        <p class="text-sm text-gray-700 mt-2 ml-13">{{ Str::limit($activity->description, 100) }}</p>
-                                    @endif
-                                    @if($activity->participants)
-                                        <p class="text-xs text-gray-500 mt-1 ml-13"><i class="fas fa-users mr-1"></i>{{ Str::limit($activity->participants, 80) }}</p>
-                                    @endif
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Lieu</label>
+                                        <input type="text" name="lieu" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                        <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Participants</label>
+                                        <textarea name="participants" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="editActivity({{ $activity->id }}, @json($activity->objet), @json($activity->date ? $activity->date->format('Y-m-d') : ''), @json($activity->lieu ?? ''), @json($activity->description ?? ''), @json($activity->participants ?? ''))" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Modifier">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <form action="{{ route('odfs.activities.destroy', [$odf, $activity]) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette activité ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                <div class="flex gap-2 mt-4">
+                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Enregistrer</button>
+                                    <button type="button" onclick="toggleActivityForm()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Annuler</button>
                                 </div>
-                            </div>
+                            </form>
                         </div>
-                    @empty
-                        <p class="text-gray-500 text-center py-4">Aucune activité enregistrée</p>
-                    @endforelse
+
+                        <!-- Activities List -->
+                        <div class="space-y-3">
+                            @forelse($odf->activities as $activity)
+                                <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors" id="activity-{{ $activity->id }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-calendar text-blue-600"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold text-gray-900">{{ $activity->objet }}</p>
+                                                    <div class="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                                                        <span><i class="fas fa-calendar-day mr-1"></i>{{ $activity->date ? $activity->date->format('d/m/Y') : 'N/A' }}</span>
+                                                        @if($activity->lieu)
+                                                            <span><i class="fas fa-map-marker-alt mr-1"></i>{{ $activity->lieu }}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if($activity->description)
+                                                <p class="text-sm text-gray-700 mt-2 ml-13">{{ Str::limit($activity->description, 100) }}</p>
+                                            @endif
+                                            @if($activity->participants)
+                                                <p class="text-xs text-gray-500 mt-1 ml-13"><i class="fas fa-users mr-1"></i>{{ Str::limit($activity->participants, 80) }}</p>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <button onclick="editActivity({{ $activity->id }}, @json($activity->objet), @json($activity->date ? $activity->date->format('Y-m-d') : ''), @json($activity->lieu ?? ''), @json($activity->description ?? ''), @json($activity->participants ?? ''))" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form action="{{ route('odfs.activities.destroy', [$odf, $activity]) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette activité ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-gray-500 text-center py-4">Aucune activité enregistrée</p>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Modification Tab -->
+                    <div id="content-modification" class="tab-content hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold text-gray-800">Modifications ({{ $odf->odfModifications->count() }})</h3>
+                            <button type="button" onclick="toggleModificationForm()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300">
+                                <i class="fas fa-plus"></i>
+                                <span>Ajouter</span>
+                            </button>
+                        </div>
+
+                        <!-- Add Modification Form -->
+                        <div id="modificationForm" class="hidden mb-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <h4 class="font-semibold text-gray-900 mb-4">Nouvelle Modification</h4>
+                            <form action="{{ route('odfs.odf-modifications.store', $odf) }}" method="POST">
+                                @csrf
+                                <div class="space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+                                            <input type="date" name="date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Modification</label>
+                                        <textarea name="modification" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Actions</label>
+                                        <textarea name="actions" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Commentaire</label>
+                                        <textarea name="commentaire" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 mt-4">
+                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Enregistrer</button>
+                                    <button type="button" onclick="toggleModificationForm()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Annuler</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Modifications List -->
+                        <div class="space-y-3">
+                            @forelse($odf->odfModifications as $modification)
+                                <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-edit text-blue-600"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold text-gray-900">Modification du {{ $modification->date ? \Carbon\Carbon::parse($modification->date)->format('d/m/Y') : 'N/A' }}</p>
+                                                </div>
+                                            </div>
+                                            @if($modification->modification)
+                                                <p class="text-sm text-gray-700 mt-2 ml-13"><strong>Modification:</strong> {{ Str::limit($modification->modification, 150) }}</p>
+                                            @endif
+                                            @if($modification->actions)
+                                                <p class="text-sm text-gray-700 mt-2 ml-13"><strong>Actions:</strong> {{ Str::limit($modification->actions, 150) }}</p>
+                                            @endif
+                                            @if($modification->commentaire)
+                                                <p class="text-sm text-gray-700 mt-2 ml-13"><strong>Commentaire:</strong> {{ Str::limit($modification->commentaire, 150) }}</p>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <form action="{{ route('odfs.odf-modifications.destroy', [$odf, $modification]) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette modification ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-gray-500 text-center py-4">Aucune modification enregistrée</p>
+                            @endforelse
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Right Column - Sidebar -->
         <div class="space-y-6">
             <!-- Informations de Base -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <div class="flex items-center gap-3 mb-6">
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20">
+                <!-- Section Header -->
+                <div class="flex items-center gap-3 p-4 border-b border-gray-200">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #8b5cf6, #7c3aed);">
                         <i class="fas fa-info-circle text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold" style="color: #8b5cf6;">Informations de Base</h3>
+                    <h3 class="text-lg font-bold" style="color: #8b5cf6;">Informations de Base</h3>
                 </div>
-                <div class="space-y-4">
+
+                <!-- Info Content -->
+                <div class="p-6">
+                    <div class="space-y-4">
+                    @if($odf->odfEntite)
                     <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
                         <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-purple-600"></i>
+                            <i class="fas fa-building text-purple-600"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-500 mb-1">Présidente</p>
-                            <p class="text-lg font-medium text-gray-900">{{ $odf->présidente ?? 'N/A' }}</p>
+                            <p class="text-sm font-semibold text-gray-500 mb-1">ODF Entité</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $odf->odfEntite->name }}</p>
                         </div>
                     </div>
+                    @endif
+
                     <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
                         <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-indigo-600"></i>
+                            <i class="fas fa-check-circle text-indigo-600"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-500 mb-1">Vice-Présidente</p>
-                            <p class="text-lg font-medium text-gray-900">{{ $odf->vice_présidente ?? 'N/A' }}</p>
+                            <p class="text-sm font-semibold text-gray-500 mb-1">Constitution</p>
+                            <p class="text-lg font-medium text-gray-900">
+                                @if($odf->constitution)
+                                    <span class="text-green-600">Oui</span>
+                                @else
+                                    <span class="text-red-600">Non</span>
+                                @endif
+                            </p>
                         </div>
                     </div>
-                    <div class="flex items-start gap-4">
+
+                    @if($odf->date_depot_odf)
+                    <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
                         <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-blue-600"></i>
+                            <i class="fas fa-calendar text-blue-600"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-500 mb-1">Trésorière</p>
-                            <p class="text-lg font-medium text-gray-900">{{ $odf->trésorière ?? 'N/A' }}</p>
+                            <p class="text-sm font-semibold text-gray-500 mb-1">Date de Dépôt ODF</p>
+                            <p class="text-lg font-medium text-gray-900">{{ \Carbon\Carbon::parse($odf->date_depot_odf)->format('d/m/Y') }}</p>
                         </div>
+                    </div>
+                    @endif
+
+                    @if($odf->date_reçu_du_définition)
+                    <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
+                        <div class="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-file-download text-cyan-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-500 mb-1">Date Réçu du Définition</p>
+                            <p class="text-lg font-medium text-gray-900">{{ \Carbon\Carbon::parse($odf->date_reçu_du_définition)->format('d/m/Y') }}</p>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($odf->commentaire)
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-comment text-amber-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-500 mb-1">Commentaire</p>
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $odf->commentaire }}</p>
+                        </div>
+                    </div>
+                    @endif
                     </div>
                 </div>
             </div>
 
             <!-- Localisation et Situation Administrative -->
             @if($odf->localisation || $odf->situationAdministrative)
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <div class="flex items-center gap-3 mb-6">
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20">
+                <!-- Section Header -->
+                <div class="flex items-center gap-3 p-4 border-b border-gray-200">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #059669);">
                         <i class="fas fa-map-marker-alt text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold" style="color: #10b981;">Localisation et Situation Administrative</h3>
+                    <h3 class="text-lg font-bold" style="color: #10b981;">Localisation et Situation Administrative</h3>
                 </div>
-                <div class="space-y-4">
+
+                <!-- Location Content -->
+                <div class="p-6">
+                    <div class="space-y-4">
                     @if($odf->localisation)
                     <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
                         <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -321,7 +473,7 @@
                         </div>
                         <div class="flex-1">
                             <p class="text-sm font-semibold text-gray-500 mb-1">Localisation</p>
-                            <p class="text-lg font-medium text-gray-900">{{ $odf->localisation->CODE }} - {{ $odf->localisation->DRANEF }} - {{ $odf->localisation->DPANEF }} - {{ $odf->localisation->ENTITE }}</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $odf->localisation->CODE }} - {{ $odf->localisation->DRANEF }}@if($odf->localisation->ENTITE) - {{ $odf->localisation->ENTITE }}@endif</p>
                         </div>
                     </div>
                     @endif
@@ -336,32 +488,7 @@
                         </div>
                     </div>
                     @endif
-                </div>
-            </div>
-            @endif
-
-            <!-- Détails -->
-            @if($odf->reçu_du_dépôt || $odf->constitution)
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
-                        <i class="fas fa-file-alt text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold" style="color: #3b82f6;">Détails</h3>
-                </div>
-                <div class="space-y-6">
-                    @if($odf->reçu_du_dépôt)
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-2">Reçu du Dépôt</p>
-                        <p class="text-gray-700 whitespace-pre-wrap">{{ $odf->reçu_du_dépôt }}</p>
-                    </div>
-                    @endif
-                    @if($odf->constitution)
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 mb-2">Constitution</p>
-                        <p class="text-gray-700 whitespace-pre-wrap">{{ $odf->constitution }}</p>
-                    </div>
-                    @endif
                 </div>
             </div>
             @endif
@@ -424,39 +551,24 @@
             <div class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                            <span>Objet <span class="text-red-500">*</span></span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sujet ou titre de l'activité"></i>
-                        </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Objet *</label>
                         <input type="text" name="objet" id="edit_activity_objet" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                            <span>Date <span class="text-red-500">*</span></span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Date à laquelle l'activité s'est déroulée"></i>
-                        </label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
                         <input type="date" name="date" id="edit_activity_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                        <span>Lieu</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Lieu où l'activité s'est déroulée"></i>
-                    </label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Lieu</label>
                     <input type="text" name="lieu" id="edit_activity_lieu" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                        <span>Description</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Description détaillée de l'activité"></i>
-                    </label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                     <textarea name="description" id="edit_activity_description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                        <span>Participants</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Liste des participants à l'activité"></i>
-                    </label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Participants</label>
                     <textarea name="participants" id="edit_activity_participants" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
             </div>
@@ -470,13 +582,44 @@
 
 @push('scripts')
 <script>
-    function toggleMemberForm() {
-        const form = document.getElementById('memberForm');
+    function switchTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Remove active class from all tabs
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active', 'border-blue-600', 'text-blue-600');
+            button.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        // Show selected tab content
+        document.getElementById('content-' + tabName).classList.remove('hidden');
+        
+        // Add active class to selected tab
+        const activeTab = document.getElementById('tab-' + tabName);
+        activeTab.classList.add('active', 'border-blue-600', 'text-blue-600');
+        activeTab.classList.remove('border-transparent', 'text-gray-500');
+    }
+
+    function toggleContractForm() {
+        const form = document.getElementById('contractForm');
         form.classList.toggle('hidden');
     }
 
     function toggleActivityForm() {
         const form = document.getElementById('activityForm');
+        form.classList.toggle('hidden');
+    }
+
+    function toggleModificationForm() {
+        const form = document.getElementById('modificationForm');
+        form.classList.toggle('hidden');
+    }
+
+    function toggleMemberForm() {
+        const form = document.getElementById('memberForm');
         form.classList.toggle('hidden');
     }
 
@@ -522,4 +665,3 @@
 </script>
 @endpush
 @endsection
-

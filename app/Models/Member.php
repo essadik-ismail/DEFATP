@@ -11,10 +11,16 @@ class Member extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'type_membre',
         'nom',
+        'n_cin',
         'tel',
-        'type',
+        'email',
+        'type_odf',
+        'type_odf_domaine_activite',
+        'type_odf_nombre_de_membres',
         'odf_id',
+        'commentaire',
     ];
 
     /**

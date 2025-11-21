@@ -11,6 +11,7 @@ use App\Models\Exploitant;
 use App\Models\Espece;
 use App\Models\Coperative;
 use App\Models\Vocation;
+use App\Models\OdfEntite;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -83,6 +84,13 @@ class EntityDataController extends Controller
             ->orderBy('name')
             ->paginate(10, ['*'], 'vocations_page');
 
+        $odfEntites = OdfEntite::with(['localisation', 'situationAdministrative'])
+            ->when($request->filled('odf_entite_search'), function($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->odf_entite_search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(10, ['*'], 'odf_entites_page');
+
         return view('entity-data.index', compact(
             'essences',
             'forets',
@@ -92,7 +100,8 @@ class EntityDataController extends Controller
             'exploitants',
             'especes',
             'coperatives',
-            'vocations'
+            'vocations',
+            'odfEntites'
         ));
     }
 }

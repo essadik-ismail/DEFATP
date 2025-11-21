@@ -92,14 +92,6 @@ class Contract extends Model
             ->withTimestamps();
     }
 
-    /**
-     * Get the foret for this contract (backward compatibility - returns first foret).
-     * @deprecated Use forets() instead
-     */
-    public function foret(): BelongsTo
-    {
-        return $this->belongsTo(\App\Models\Foret::class, 'foret_id');
-    }
 
     /**
      * Get the coperative for this contract.

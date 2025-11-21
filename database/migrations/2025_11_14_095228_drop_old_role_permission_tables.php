@@ -12,26 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Get table names from config (Spatie tables)
-        $tableNames = config('permission.table_names', [
-            'permissions' => 'permissions',
-            'roles' => 'roles',
-            'model_has_permissions' => 'model_has_permissions',
-            'model_has_roles' => 'model_has_roles',
-            'role_has_permissions' => 'role_has_permissions',
-        ]);
-
-        // Drop tables in correct order (respecting foreign key constraints)
-        // Drop pivot tables first
-        $this->dropTableIfExists($tableNames['role_has_permissions'] ?? 'role_has_permissions');
-        $this->dropTableIfExists($tableNames['model_has_roles'] ?? 'model_has_roles');
-        $this->dropTableIfExists($tableNames['model_has_permissions'] ?? 'model_has_permissions');
-        
-        // Drop main tables
-        $this->dropTableIfExists($tableNames['roles'] ?? 'roles');
-        $this->dropTableIfExists($tableNames['permissions'] ?? 'permissions');
-
-        // Drop any custom role/permission tables that might exist
+        // Only drop old custom role/permission tables that might exist
+        // Do NOT drop Spatie permission tables as they are created by create_permission_tables migration
         $this->dropTableIfExists('user_roles');
         $this->dropTableIfExists('role_user');
         $this->dropTableIfExists('user_permissions');

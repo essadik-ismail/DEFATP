@@ -12,7 +12,7 @@
             </div>
             <div>
                 <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #8b5cf6, #7c3aed); -webkit-background-clip: text; background-clip: text;">
-                    ODFs
+                Organisation développement forestier
                 </h1>
                 <p class="text-gray-600 text-lg mt-2">Gérez et consultez toutes les Organisation développement forestier (ODF)</p>
             </div>
@@ -27,8 +27,8 @@
                     <i class="fas fa-table text-white text-xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900">Liste des ODFs</h2>
-                    <p class="text-gray-600">Gérez et consultez toutes les ODFs</p>
+                    <h2 class="text-2xl font-bold text-gray-900">Liste des ODF</h2>
+                    <p class="text-gray-600">Gérez et consultez toutes les ODF</p>
                 </div>
             </div>
             <div class="flex gap-3">
@@ -68,60 +68,64 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="date_debut" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-plus text-orange-500 mr-1"></i>Date de début
+                        <label for="odf_entite_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-building text-purple-500 mr-1"></i>ODF Entité
                         </label>
-                        <input type="date" 
-                               name="date_debut" 
-                               id="date_debut" 
-                               value="{{ request('date_debut') }}"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="date_fin" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-minus text-red-500 mr-1"></i>Date de fin
-                        </label>
-                        <input type="date" 
-                               name="date_fin" 
-                               id="date_fin" 
-                               value="{{ request('date_fin') }}"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400">
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                    <div class="form-group">
-                        <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-map-marker-alt text-blue-500 mr-1"></i>Localisation
-                        </label>
-                        <select name="localisation_id" 
-                                id="localisation_id"
+                        <select name="odf_entite_id" 
+                                id="odf_entite_id"
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400">
-                            <option value="">Toutes les localisations</option>
-                            @foreach($localisations as $localisation)
-                                <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
+                            <option value="">Toutes les ODF Entités</option>
+                            @foreach($odfEntites as $entite)
+                                <option value="{{ $entite->id }}" {{ request('odf_entite_id') == $entite->id ? 'selected' : '' }}>
+                                    {{ $entite->name }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-building text-green-500 mr-1"></i>Situation Administrative
+                        <label for="constitution" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i>Constitution
                         </label>
-                        <select name="situation_administrative_id" 
-                                id="situation_administrative_id"
+                        <select name="constitution" 
+                                id="constitution"
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400">
-                            <option value="">Toutes les situations</option>
-                            @foreach($situationAdministratives as $situation)
-                                <option value="{{ $situation->id }}" {{ request('situation_administrative_id') == $situation->id ? 'selected' : '' }}>
-                                    {{ $situation->commune }} - {{ $situation->province }}
-                                </option>
-                            @endforeach
+                            <option value="">Tous les statuts</option>
+                            <option value="1" {{ request('constitution') == '1' ? 'selected' : '' }}>Constitué</option>
+                            <option value="0" {{ request('constitution') == '0' ? 'selected' : '' }}>Non constitué</option>
                         </select>
                     </div>
+
+                <!-- Date filters -->              
+                <div class="form-group">
+                    <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-plus text-blue-500 mr-1"></i>
+                            Date de début
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                        </label>
+                        <input type="date" 
+                               name="start_date" 
+                               id="start_date" 
+                               value="{{ request('start_date') }}"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                               placeholder="jj/mm/aaaa">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-minus text-blue-500 mr-1"></i>
+                            Date de fin
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 31/12/2024)"></i>
+                        </label>
+                        <input type="date" 
+                               name="end_date" 
+                               id="end_date" 
+                               value="{{ request('end_date') }}"
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                               placeholder="jj/mm/aaaa">
+                    </div>
+
+
                     
                 </div>
                 
@@ -157,11 +161,9 @@
                     <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Présidente</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vice-Présidente</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Trésorière</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Localisation</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Situation Administrative</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ODF Entité</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Constitution</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Dépôt</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -170,31 +172,50 @@
                         @forelse($odfs as $odf)
                             <tr class="hover:bg-gray-50 transition-colors duration-200">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $odf->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-user text-purple-600 text-sm"></i>
-                                        </div>
-                                        <span class="font-medium">{{ $odf->présidente ?? 'N/A' }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $odf->vice_présidente ?? 'N/A' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $odf->trésorière ?? 'N/A' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($odf->localisation)
-                                        <div class="flex items-center gap-2">
-                                            <i class="fas fa-map-marker-alt text-blue-500 text-xs"></i>
-                                            <span>{{ $odf->localisation->DRANEF }} - {{ $odf->localisation->DPANEF }} - {{ $odf->localisation->ENTITE }}</span>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    @if($odf->odfEntite)
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-building text-purple-600 text-sm"></i>
+                                                </div>
+                                                <span class="font-medium">{{ $odf->odfEntite->name }}</span>
+                                            </div>
+                                            @if($odf->odfEntite->localisation)
+                                                <div class="flex items-center gap-2 ml-10 text-xs text-gray-600">
+                                                    <i class="fas fa-map-marker-alt text-blue-500"></i>
+                                                    <span>{{ $odf->odfEntite->localisation->DRANEF }} - {{ $odf->odfEntite->localisation->DPANEF }} - {{ $odf->odfEntite->localisation->ENTITE }}</span>
+                                                </div>
+                                            @endif
+                                            @if($odf->odfEntite->situationAdministrative)
+                                                <div class="flex items-center gap-2 ml-10 text-xs text-gray-600">
+                                                    <i class="fas fa-building text-emerald-500"></i>
+                                                    <span>{{ $odf->odfEntite->situationAdministrative->commune }}@if($odf->odfEntite->situationAdministrative->province) - {{ $odf->odfEntite->situationAdministrative->province }}@endif</span>
+                                                </div>
+                                            @endif
                                         </div>
                                     @else
                                         <span class="text-gray-400">N/A</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($odf->situationAdministrative)
+                                    @if($odf->constitution)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Constitué
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            Non constitué
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($odf->date_depot_odf)
                                         <div class="flex items-center gap-2">
-                                            <i class="fas fa-building text-emerald-500 text-xs"></i>
-                                            <span>{{ $odf->situationAdministrative->commune }}@if($odf->situationAdministrative->province) - {{ $odf->situationAdministrative->province }}@endif</span>
+                                            <i class="fas fa-calendar text-blue-500 text-xs"></i>
+                                            <span>{{ \Carbon\Carbon::parse($odf->date_depot_odf)->format('d/m/Y') }}</span>
                                         </div>
                                     @else
                                         <span class="text-gray-400">N/A</span>
@@ -205,12 +226,14 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center gap-1">
-                                        <!-- View Action -->
+                                        <!-- View Action (only show if constitution is true) -->
+                                        @if($odf->constitution)
                                         <a href="{{ route('odfs.show', $odf) }}" 
                                            class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors duration-200" 
                                            title="Voir les détails">
                                             <i class="fas fa-eye text-sm"></i>
                                         </a>
+                                        @endif
                                         
                                         <!-- Edit Action -->
                                         <a href="{{ route('odfs.edit', $odf) }}" 
@@ -219,7 +242,8 @@
                                             <i class="fas fa-edit text-sm"></i>
                                         </a>
                                         
-                                        <!-- Delete Action -->
+                                        <!-- Delete Action (only show if constitution is false) -->
+                                        @if(!$odf->constitution)
                                         <form action="{{ route('odfs.destroy', $odf) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
@@ -230,12 +254,13 @@
                                                 <i class="fas fa-trash text-sm"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-8">
+                                <td colspan="6" class="text-center py-8">
                                     <div class="text-muted">
                                         <i class="fas fa-users text-4xl mb-2 d-block"></i>
                                         <p class="h5 mb-2">Aucune ODF trouvée</p>
@@ -301,10 +326,10 @@
     // Clear all filters
     function clearFilters() {
         document.getElementById('searchInput').value = '';
-        document.getElementById('date_debut').value = '';
-        document.getElementById('date_fin').value = '';
-        document.getElementById('localisation_id').value = '';
-        document.getElementById('situation_administrative_id').value = '';
+        document.getElementById('start_date').value = '';
+        document.getElementById('end_date').value = '';
+        document.getElementById('odf_entite_id').value = '';
+        document.getElementById('constitution').value = '';
         // Remove page parameter when clearing
         const form = document.getElementById('filterForm');
         const pageInput = form.querySelector('input[name="page"]');

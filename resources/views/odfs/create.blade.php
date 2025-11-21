@@ -75,129 +75,22 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="form-group">
-                    <label for="présidente" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span>Présidente</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nom de la présidente de l'ODF"></i>
-                    </label>
-                    <input type="text" 
-                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                           id="présidente" 
-                           name="présidente" 
-                           value="{{ old('présidente') }}"
-                           placeholder="Nom de la présidente">
-                    @error('présidente')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="vice_présidente" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span>Vice-Présidente</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nom de la vice-présidente de l'ODF"></i>
-                    </label>
-                    <input type="text" 
-                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                           id="vice_présidente" 
-                           name="vice_présidente" 
-                           value="{{ old('vice_présidente') }}"
-                           placeholder="Nom de la vice-présidente">
-                    @error('vice_présidente')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-group md:col-span-2">
-                    <label for="trésorière" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span>Trésorière</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nom de la trésorière de l'ODF"></i>
-                    </label>
-                    <input type="text" 
-                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                           id="trésorière" 
-                           name="trésorière" 
-                           value="{{ old('trésorière') }}"
-                           placeholder="Nom de la trésorière">
-                    @error('trésorière')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 3: Localisation et Situation Administrative -->
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #059669);">
-                    <i class="fas fa-map-marker-alt text-white"></i>
-                </div>
-                <h3 class="text-xl font-bold" style="color: #10b981;">Localisation et Situation Administrative</h3>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="form-group">
-                    <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span>Localisation</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner la localisation de l'ODF"></i>
+                    <label for="odf_entite_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <span>ODF Entité</span>
+                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner l'entité ODF"></i>
                     </label>
                     <select 
-                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                        id="localisation_id" 
-                        name="localisation_id">
-                        <option value="">Sélectionner une localisation</option>
-                        @foreach($localisations as $localisation)
-                            <option value="{{ $localisation->id }}" {{ old('localisation_id') == $localisation->id ? 'selected' : '' }}>
-                                {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                        id="odf_entite_id" 
+                        name="odf_entite_id">
+                        <option value="">Sélectionner une entité ODF</option>
+                        @foreach($odfEntites as $entite)
+                            <option value="{{ $entite->id }}" {{ old('odf_entite_id') == $entite->id ? 'selected' : '' }}>
+                                {{ $entite->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('localisation_id')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="situation_administrative_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span>Situation Administrative</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner la situation administrative de l'ODF"></i>
-                    </label>
-                    <select 
-                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                        id="situation_administrative_id" 
-                        name="situation_administrative_id">
-                        <option value="">Sélectionner une situation administrative</option>
-                        @foreach($situationAdministratives as $situation)
-                            <option value="{{ $situation->id }}" {{ old('situation_administrative_id') == $situation->id ? 'selected' : '' }}>
-                                {{ $situation->commune }}@if($situation->province) - {{ $situation->province }}@endif
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('situation_administrative_id')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 2: Détails -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
-                    <i class="fas fa-file-alt text-white"></i>
-                </div>
-                <h3 class="text-xl font-bold" style="color: #3b82f6;">Détails</h3>
-            </div>
-            <div class="space-y-6">
-                <div class="form-group">
-                    <label for="reçu_du_dépôt" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span>Reçu du Dépôt</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur le reçu du dépôt"></i>
-                    </label>
-                    <textarea 
-                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                        id="reçu_du_dépôt" 
-                        name="reçu_du_dépôt" 
-                        rows="4"
-                        placeholder="Détails du reçu du dépôt...">{{ old('reçu_du_dépôt') }}</textarea>
-                    @error('reçu_du_dépôt')
+                    @error('odf_entite_id')
                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
@@ -205,18 +98,45 @@
                 <div class="form-group">
                     <label for="constitution" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                         <span>Constitution</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur la constitution de l'ODF"></i>
+                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Statut de constitution de l'ODF"></i>
                     </label>
-                    <textarea 
-                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                    <select 
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
                         id="constitution" 
-                        name="constitution" 
-                        rows="4"
-                        placeholder="Détails sur la constitution...">{{ old('constitution') }}</textarea>
+                        name="constitution">
+                        <option value="">Sélectionner</option>
+                        <option value="1" {{ old('constitution') == '1' ? 'selected' : '' }}>Oui</option>
+                        <option value="0" {{ old('constitution') == '0' ? 'selected' : '' }}>Non</option>
+                    </select>
                     @error('constitution')
                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Commentaire -->
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #f59e0b, #d97706);">
+                    <i class="fas fa-comment text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold" style="color: #f59e0b;">Commentaire</h3>
+            </div>
+            <div class="form-group">
+                <label for="commentaire" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <span>Commentaire</span>
+                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Commentaires additionnels sur l'ODF"></i>
+                </label>
+                <textarea 
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 hover:border-gray-400" 
+                    id="commentaire" 
+                    name="commentaire" 
+                    rows="4"
+                    placeholder="Commentaires...">{{ old('commentaire') }}</textarea>
+                @error('commentaire')
+                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 

@@ -3,12 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Odf;
+use App\Models\OdfEntite;
 use App\Models\Member;
 use App\Models\Activity;
+use App\Models\OdfEtap;
+use App\Models\ContractOdf;
+use App\Models\OdfModification;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 
 class OdfController extends Controller
 {
@@ -20,35 +25,46 @@ class OdfController extends Controller
         // Log ODFs view
         ActivityLogger::log('view', 'Consultation de la liste des ODFs', Odf::class);
         
-        $query = Odf::with(['user', 'localisation', 'situationAdministrative']);
+        $query = Odf::with(['odfEntite.localisation', 'odfEntite.situationAdministrative']);
         
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->get('search');
             $query->where(function($q) use ($search) {
-                $q->where('présidente', 'like', "%{$search}%")
-                  ->orWhere('vice_présidente', 'like', "%{$search}%")
-                  ->orWhere('trésorière', 'like', "%{$search}%");
+                $q->where('commentaire', 'like', "%{$search}%")
+                  ->orWhereHas('odfEntite', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
             });
         }
         
         // Date filters
-        if ($request->filled('date_debut')) {
-            $query->whereDate('created_at', '>=', $request->date_debut);
+        $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : null;
+        $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : null;
+        
+        if ($startDate || $endDate) {
+            if ($startDate && $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $query->where('created_at', '>=', $startDate);
+            } elseif ($endDate) {
+                $query->where('created_at', '<=', $endDate);
+            }
         }
         
-        if ($request->filled('date_fin')) {
-            $query->whereDate('created_at', '<=', $request->date_fin);
+        // ODF Entite filter
+        if ($request->filled('odf_entite_id')) {
+            $query->where('odf_entite_id', $request->odf_entite_id);
         }
         
-        // Localisation filter
-        if ($request->filled('localisation_id')) {
-            $query->where('localisation_id', $request->localisation_id);
-        }
-        
-        // Situation Administrative filter
-        if ($request->filled('situation_administrative_id')) {
-            $query->where('situation_administrative_id', $request->situation_administrative_id);
+        // Constitution filter
+        if ($request->filled('constitution')) {
+            $constitution = $request->get('constitution');
+            if ($constitution === '1') {
+                $query->where('constitution', true);
+            } elseif ($constitution === '0') {
+                $query->where('constitution', false);
+            }
         }
         
         // Status filter
@@ -70,7 +86,7 @@ class OdfController extends Controller
         $sortField = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
         
-        $allowedSortFields = ['id', 'présidente', 'vice_présidente', 'trésorière', 'created_at', 'updated_at'];
+        $allowedSortFields = ['id', 'constitution', 'date_depot_odf', 'date_reçu_du_définition', 'created_at', 'updated_at'];
         if (in_array($sortField, $allowedSortFields)) {
             $query->orderBy($sortField, $sortDirection);
         }
@@ -95,8 +111,9 @@ class OdfController extends Controller
         // Get filter options
         $localisations = \App\Models\Localisation::orderBy('CODE')->get();
         $situationAdministratives = \App\Models\SituationAdministrative::orderBy('commune')->get();
+        $odfEntites = OdfEntite::orderBy('name')->get();
         
-        return view('odfs.index', compact('odfs', 'stats', 'localisations', 'situationAdministratives'));
+        return view('odfs.index', compact('odfs', 'stats', 'localisations', 'situationAdministratives', 'odfEntites'));
     }
 
     /**
@@ -106,8 +123,9 @@ class OdfController extends Controller
     {
         $localisations = \App\Models\Localisation::orderBy('CODE')->get();
         $situationAdministratives = \App\Models\SituationAdministrative::orderBy('commune')->get();
+        $odfEntites = OdfEntite::orderBy('name')->get();
         
-        return view('odfs.create', compact('localisations', 'situationAdministratives'));
+        return view('odfs.create', compact('localisations', 'situationAdministratives', 'odfEntites'));
     }
 
     /**
@@ -116,27 +134,31 @@ class OdfController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'présidente' => 'nullable|string|max:255',
-            'vice_présidente' => 'nullable|string|max:255',
-            'trésorière' => 'nullable|string|max:255',
-            'reçu_du_dépôt' => 'nullable|string',
-            'constitution' => 'nullable|string',
+            'odf_entite_id' => 'nullable|exists:odf_entites,id',
+            'constitution' => 'nullable|boolean',
+            'date_depot_odf' => 'nullable|date',
+            'fichier_joint_depot_odf' => 'nullable|string|max:255',
+            'date_reçu_du_définition' => 'nullable|date',
+            'fichier_joint_reçu_du_définition' => 'nullable|string|max:255',
+            'commentaire' => 'nullable|string',
             'localisation_id' => 'nullable|exists:localisations,id',
             'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
         ]);
 
-        $odf = Odf::create([
-            'présidente' => $validated['présidente'] ?? null,
-            'vice_présidente' => $validated['vice_présidente'] ?? null,
-            'trésorière' => $validated['trésorière'] ?? null,
-            'reçu_du_dépôt' => $validated['reçu_du_dépôt'] ?? null,
-            'constitution' => $validated['constitution'] ?? null,
-            'localisation_id' => $validated['localisation_id'] ?? null,
-            'situation_administrative_id' => $validated['situation_administrative_id'] ?? null,
-            'user_id' => auth()->id(),
-        ]);
+        // If date_reçu_du_définition is filled, automatically set constitution to true
+        if (!empty($validated['date_reçu_du_définition'])) {
+            $validated['constitution'] = true;
+        }
+
+        $odf = Odf::create($validated);
 
         ActivityLogger::log('create', 'Création d\'une nouvelle ODF', Odf::class, $odf->id);
+
+        // If constitution is false (non), redirect to edit page to add ODF steps
+        if (isset($validated['constitution']) && ($validated['constitution'] == false || $validated['constitution'] == '0' || $validated['constitution'] == 0)) {
+            return redirect()->route('odfs.edit', $odf)
+                ->with('success', 'ODF créée avec succès. Veuillez ajouter les étapes ODF.');
+        }
 
         return redirect()->route('odfs.index')
             ->with('success', 'ODF créée avec succès.');
@@ -147,7 +169,16 @@ class OdfController extends Controller
      */
     public function show(Odf $odf): View
     {
-        $odf->load(['user', 'members', 'activities', 'localisation', 'situationAdministrative']);
+        $odf->load([
+            'odfEntite',
+            'members',
+            'activities',
+            'odfEtaps',
+            'contractOdf',
+            'odfModifications',
+            'localisation',
+            'situationAdministrative'
+        ]);
         
         ActivityLogger::log('view', 'Consultation des détails de l\'ODF', Odf::class, $odf->id);
         
@@ -161,8 +192,34 @@ class OdfController extends Controller
     {
         $localisations = \App\Models\Localisation::orderBy('CODE')->get();
         $situationAdministratives = \App\Models\SituationAdministrative::orderBy('commune')->get();
+        $odfEntites = OdfEntite::orderBy('name')->get();
+        $odf->load(['odfEtaps', 'members']);
         
-        return view('odfs.edit', compact('odf', 'localisations', 'situationAdministratives'));
+        return view('odfs.edit', compact('odf', 'localisations', 'situationAdministratives', 'odfEntites'));
+    }
+
+    /**
+     * Get ODF Entité information via API
+     */
+    public function getOdfEntite(OdfEntite $odfEntite)
+    {
+        $odfEntite->load(['localisation', 'situationAdministrative']);
+        
+        return response()->json([
+            'id' => $odfEntite->id,
+            'name' => $odfEntite->name,
+            'localisation' => $odfEntite->localisation ? [
+                'id' => $odfEntite->localisation->id,
+                'code' => $odfEntite->localisation->CODE,
+                'dranef' => $odfEntite->localisation->DRANEF,
+                'entite' => $odfEntite->localisation->ENTITE,
+            ] : null,
+            'situation_administrative' => $odfEntite->situationAdministrative ? [
+                'id' => $odfEntite->situationAdministrative->id,
+                'commune' => $odfEntite->situationAdministrative->commune,
+                'province' => $odfEntite->situationAdministrative->province,
+            ] : null,
+        ]);
     }
 
     /**
@@ -171,28 +228,42 @@ class OdfController extends Controller
     public function update(Request $request, Odf $odf): RedirectResponse
     {
         $validated = $request->validate([
-            'présidente' => 'nullable|string|max:255',
-            'vice_présidente' => 'nullable|string|max:255',
-            'trésorière' => 'nullable|string|max:255',
-            'reçu_du_dépôt' => 'nullable|string',
-            'constitution' => 'nullable|string',
+            'odf_entite_id' => 'nullable|exists:odf_entites,id',
+            'constitution' => 'nullable|boolean',
+            'date_depot_odf' => 'nullable|date',
+            'fichier_joint_depot_odf' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'date_reçu_du_définition' => 'nullable|date',
+            'fichier_joint_reçu_du_définition' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'commentaire' => 'nullable|string',
             'localisation_id' => 'nullable|exists:localisations,id',
             'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
         ]);
 
-        $odf->update([
-            'présidente' => $validated['présidente'] ?? null,
-            'vice_présidente' => $validated['vice_présidente'] ?? null,
-            'trésorière' => $validated['trésorière'] ?? null,
-            'reçu_du_dépôt' => $validated['reçu_du_dépôt'] ?? null,
-            'constitution' => $validated['constitution'] ?? null,
-            'localisation_id' => $validated['localisation_id'] ?? null,
-            'situation_administrative_id' => $validated['situation_administrative_id'] ?? null,
-        ]);
+        // Handle file uploads
+        if ($request->hasFile('fichier_joint_depot_odf')) {
+            $file = $request->file('fichier_joint_depot_odf');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/depot', $filename, 'public');
+            $validated['fichier_joint_depot_odf'] = $path;
+        }
+
+        if ($request->hasFile('fichier_joint_reçu_du_définition')) {
+            $file = $request->file('fichier_joint_reçu_du_définition');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/recu', $filename, 'public');
+            $validated['fichier_joint_reçu_du_définition'] = $path;
+        }
+
+        // If date_reçu_du_définition is filled, automatically set constitution to true
+        if (!empty($validated['date_reçu_du_définition'])) {
+            $validated['constitution'] = true;
+        }
+
+        $odf->update($validated);
 
         ActivityLogger::log('update', 'Modification de l\'ODF', Odf::class, $odf->id);
 
-        return redirect()->route('odfs.index')
+        return redirect()->route('odfs.edit', $odf)
             ->with('success', 'ODF mise à jour avec succès.');
     }
 
@@ -216,16 +287,22 @@ class OdfController extends Controller
     public function storeMember(Request $request, Odf $odf): RedirectResponse
     {
         $validated = $request->validate([
+            'type_membre' => 'nullable|in:présidente,vice_présidente,trésorière,membre',
             'nom' => 'required|string|max:255',
+            'n_cin' => 'nullable|string|max:255',
             'tel' => 'nullable|string|max:255',
-            'type' => 'nullable|in:Association,Coopérative,Entreprise,Élu,Citoyen',
+            'email' => 'nullable|email|max:255',
+            'type_odf' => 'nullable|in:Association,Coopérative,Entreprise,Élu,Citoyen',
+            'type_odf_domaine_activite' => 'nullable|string|max:255',
+            'type_odf_nombre_de_membres' => 'nullable|integer|min:0',
+            'commentaire' => 'nullable|string',
         ]);
 
         $member = $odf->members()->create($validated);
 
         ActivityLogger::log('create', 'Ajout d\'un membre à l\'ODF', Member::class, $member->id);
 
-        return redirect()->route('odfs.show', $odf)
+        return redirect()->route('odfs.edit', $odf)
             ->with('success', 'Membre ajouté avec succès.');
     }
 
@@ -235,16 +312,22 @@ class OdfController extends Controller
     public function updateMember(Request $request, Odf $odf, Member $member): RedirectResponse
     {
         $validated = $request->validate([
+            'type_membre' => 'nullable|in:présidente,vice_présidente,trésorière,membre',
             'nom' => 'required|string|max:255',
+            'n_cin' => 'nullable|string|max:255',
             'tel' => 'nullable|string|max:255',
-            'type' => 'nullable|in:Association,Coopérative,Entreprise,Élu,Citoyen',
+            'email' => 'nullable|email|max:255',
+            'type_odf' => 'nullable|in:Association,Coopérative,Entreprise,Élu,Citoyen',
+            'type_odf_domaine_activite' => 'nullable|string|max:255',
+            'type_odf_nombre_de_membres' => 'nullable|integer|min:0',
+            'commentaire' => 'nullable|string',
         ]);
 
         $member->update($validated);
 
         ActivityLogger::log('update', 'Modification d\'un membre de l\'ODF', Member::class, $member->id);
 
-        return redirect()->route('odfs.show', $odf)
+        return redirect()->route('odfs.edit', $odf)
             ->with('success', 'Membre mis à jour avec succès.');
     }
 
@@ -258,7 +341,7 @@ class OdfController extends Controller
 
         ActivityLogger::log('delete', 'Suppression d\'un membre de l\'ODF', Member::class, $memberId);
 
-        return redirect()->route('odfs.show', $odf)
+        return redirect()->route('odfs.edit', $odf)
             ->with('success', 'Membre supprimé avec succès.');
     }
 
@@ -318,5 +401,215 @@ class OdfController extends Controller
 
         return redirect()->route('odfs.show', $odf)
             ->with('success', 'Activité supprimée avec succès.');
+    }
+
+    /**
+     * Get a single ODF etap for editing.
+     */
+    public function getOdfEtap(Odf $odf, OdfEtap $odfEtap)
+    {
+        return response()->json($odfEtap);
+    }
+
+    /**
+     * Store a new ODF etap for the ODF.
+     */
+    public function storeOdfEtap(Request $request, Odf $odf): RedirectResponse
+    {
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'lieu' => 'nullable|string|max:255',
+            'participant' => 'nullable|string',
+            'description' => 'nullable|string',
+            'resultat' => 'nullable|string',
+            'fichierjoin' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+        ]);
+
+        // Handle file upload
+        if ($request->hasFile('fichierjoin')) {
+            $file = $request->file('fichierjoin');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/etaps', $filename, 'public');
+            $validated['fichierjoin'] = $path;
+        } else {
+            unset($validated['fichierjoin']);
+        }
+
+        $validated['odf_id'] = $odf->id;
+        $odfEtap = OdfEtap::create($validated);
+
+        ActivityLogger::log('create', 'Ajout d\'une étape à l\'ODF', OdfEtap::class, $odfEtap->id);
+
+        return redirect()->route('odfs.edit', $odf)
+            ->with('success', 'Étape ajoutée avec succès.');
+    }
+
+    /**
+     * Update an ODF etap.
+     */
+    public function updateOdfEtap(Request $request, Odf $odf, OdfEtap $odfEtap): RedirectResponse
+    {
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'lieu' => 'nullable|string|max:255',
+            'participant' => 'nullable|string',
+            'description' => 'nullable|string',
+            'resultat' => 'nullable|string',
+            'fichierjoin' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+        ]);
+
+        // Handle file upload
+        if ($request->hasFile('fichierjoin')) {
+            // Delete old file if exists
+            if ($odfEtap->fichierjoin && Storage::disk('public')->exists($odfEtap->fichierjoin)) {
+                Storage::disk('public')->delete($odfEtap->fichierjoin);
+            }
+            
+            $file = $request->file('fichierjoin');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/etaps', $filename, 'public');
+            $validated['fichierjoin'] = $path;
+        } else {
+            unset($validated['fichierjoin']);
+        }
+
+        $odfEtap->update($validated);
+
+        ActivityLogger::log('update', 'Modification d\'une étape de l\'ODF', OdfEtap::class, $odfEtap->id);
+
+        return redirect()->route('odfs.edit', $odf)
+            ->with('success', 'Étape mise à jour avec succès.');
+    }
+
+    /**
+     * Delete an ODF etap.
+     */
+    public function destroyOdfEtap(Odf $odf, OdfEtap $odfEtap): RedirectResponse
+    {
+        $odfEtapId = $odfEtap->id;
+        $odfEtap->delete();
+
+        ActivityLogger::log('delete', 'Suppression d\'une étape de l\'ODF', OdfEtap::class, $odfEtapId);
+
+        return redirect()->route('odfs.edit', $odf)
+            ->with('success', 'Étape supprimée avec succès.');
+    }
+
+    /**
+     * Store a new contract ODF for the ODF.
+     */
+    public function storeContractOdf(Request $request, Odf $odf): RedirectResponse
+    {
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'lieu' => 'nullable|string|max:255',
+            'signature1_nom' => 'nullable|string|max:255',
+            'signature2_nom' => 'nullable|string|max:255',
+            'signature1_type' => 'nullable|in:présidente,vice_présidente,trésorière,membre',
+            'signature2_type' => 'nullable|in:dranef,dpanef,autre',
+            'fichier_join' => 'nullable|string|max:255',
+            'commentaire' => 'nullable|string',
+        ]);
+
+        $validated['odf_id'] = $odf->id;
+        $contractOdf = ContractOdf::create($validated);
+
+        ActivityLogger::log('create', 'Ajout d\'un contrat à l\'ODF', ContractOdf::class, $contractOdf->id);
+
+        return redirect()->route('odfs.show', $odf)
+            ->with('success', 'Contrat ajouté avec succès.');
+    }
+
+    /**
+     * Update a contract ODF.
+     */
+    public function updateContractOdf(Request $request, Odf $odf, ContractOdf $contractOdf): RedirectResponse
+    {
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'lieu' => 'nullable|string|max:255',
+            'signature1_nom' => 'nullable|string|max:255',
+            'signature2_nom' => 'nullable|string|max:255',
+            'signature1_type' => 'nullable|in:présidente,vice_présidente,trésorière,membre',
+            'signature2_type' => 'nullable|in:dranef,dpanef,autre',
+            'fichier_join' => 'nullable|string|max:255',
+            'commentaire' => 'nullable|string',
+        ]);
+
+        $contractOdf->update($validated);
+
+        ActivityLogger::log('update', 'Modification d\'un contrat de l\'ODF', ContractOdf::class, $contractOdf->id);
+
+        return redirect()->route('odfs.show', $odf)
+            ->with('success', 'Contrat mis à jour avec succès.');
+    }
+
+    /**
+     * Delete a contract ODF.
+     */
+    public function destroyContractOdf(Odf $odf, ContractOdf $contractOdf): RedirectResponse
+    {
+        $contractOdfId = $contractOdf->id;
+        $contractOdf->delete();
+
+        ActivityLogger::log('delete', 'Suppression d\'un contrat de l\'ODF', ContractOdf::class, $contractOdfId);
+
+        return redirect()->route('odfs.show', $odf)
+            ->with('success', 'Contrat supprimé avec succès.');
+    }
+
+    /**
+     * Store a new ODF modification for the ODF.
+     */
+    public function storeOdfModification(Request $request, Odf $odf): RedirectResponse
+    {
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'modification' => 'nullable|string',
+            'actions' => 'nullable|string',
+            'commentaire' => 'nullable|string',
+        ]);
+
+        $validated['odf_id'] = $odf->id;
+        $odfModification = OdfModification::create($validated);
+
+        ActivityLogger::log('create', 'Ajout d\'une modification à l\'ODF', OdfModification::class, $odfModification->id);
+
+        return redirect()->route('odfs.show', $odf)
+            ->with('success', 'Modification ajoutée avec succès.');
+    }
+
+    /**
+     * Update an ODF modification.
+     */
+    public function updateOdfModification(Request $request, Odf $odf, OdfModification $odfModification): RedirectResponse
+    {
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'modification' => 'nullable|string',
+            'actions' => 'nullable|string',
+            'commentaire' => 'nullable|string',
+        ]);
+
+        $odfModification->update($validated);
+
+        ActivityLogger::log('update', 'Modification d\'une modification de l\'ODF', OdfModification::class, $odfModification->id);
+
+        return redirect()->route('odfs.show', $odf)
+            ->with('success', 'Modification mise à jour avec succès.');
+    }
+
+    /**
+     * Delete an ODF modification.
+     */
+    public function destroyOdfModification(Odf $odf, OdfModification $odfModification): RedirectResponse
+    {
+        $odfModificationId = $odfModification->id;
+        $odfModification->delete();
+
+        ActivityLogger::log('delete', 'Suppression d\'une modification de l\'ODF', OdfModification::class, $odfModificationId);
+
+        return redirect()->route('odfs.show', $odf)
+            ->with('success', 'Modification supprimée avec succès.');
     }
 }

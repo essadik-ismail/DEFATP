@@ -23,26 +23,33 @@ class ContractController extends Controller
         
         // Get contracts with relationships
         $contracts = Contract::with(['localisation', 'situationAdministrative', 'especes', 'forets', 'coperative'])
-            ->when($request->filled('search'), function($query) use ($request) {
-                $query->where(function($q) use ($request) {
-                    $q->where('contarct', 'like', '%' . $request->search . '%')
-                      ->orWhere('annee', 'like', '%' . $request->search . '%')
-                      ->orWhereHas('localisation', function($locQuery) use ($request) {
-                          $locQuery->where('CODE', 'like', '%' . $request->search . '%')
-                                   ->orWhere('DRANEF', 'like', '%' . $request->search . '%');
+            ->when($request->has('search') && !empty(trim($request->search)), function($query) use ($request) {
+                $searchTerm = '%' . trim($request->search) . '%';
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('contacts.contarct', 'like', $searchTerm)
+                      ->orWhere('contacts.annee', 'like', $searchTerm)
+                      ->orWhereHas('localisation', function($locQuery) use ($searchTerm) {
+                          $locQuery->where(function($subQuery) use ($searchTerm) {
+                              $subQuery->where('CODE', 'like', $searchTerm)
+                                       ->orWhere('DRANEF', 'like', $searchTerm)
+                                       ->orWhere('DPANEF', 'like', $searchTerm)
+                                       ->orWhere('ENTITE', 'like', $searchTerm);
+                          });
                       })
-                      ->orWhereHas('situationAdministrative', function($sitQuery) use ($request) {
-                          $sitQuery->where('commune', 'like', '%' . $request->search . '%')
-                                   ->orWhere('province', 'like', '%' . $request->search . '%');
+                      ->orWhereHas('situationAdministrative', function($sitQuery) use ($searchTerm) {
+                          $sitQuery->where(function($subQuery) use ($searchTerm) {
+                              $subQuery->where('commune', 'like', $searchTerm)
+                                       ->orWhere('province', 'like', $searchTerm);
+                          });
                       })
-                      ->orWhereHas('especes', function($espQuery) use ($request) {
-                          $espQuery->where('name', 'like', '%' . $request->search . '%');
+                      ->orWhereHas('especes', function($espQuery) use ($searchTerm) {
+                          $espQuery->where('name', 'like', $searchTerm);
                       })
-                      ->orWhereHas('forets', function($foretQuery) use ($request) {
-                          $foretQuery->where('foret', 'like', '%' . $request->search . '%');
+                      ->orWhereHas('forets', function($foretQuery) use ($searchTerm) {
+                          $foretQuery->where('foret', 'like', $searchTerm);
                       })
-                      ->orWhereHas('coperative', function($coopQuery) use ($request) {
-                          $coopQuery->where('nom', 'like', '%' . $request->search . '%');
+                      ->orWhereHas('coperative', function($coopQuery) use ($searchTerm) {
+                          $coopQuery->where('nom', 'like', $searchTerm);
                       });
                 });
             })

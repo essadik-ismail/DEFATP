@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('odfs', function (Blueprint $table) {
-            $table->foreignId('localisation_id')->nullable()->after('user_id')->constrained('localisations')->onDelete('set null');
+            $table->foreignId('localisation_id')->nullable()->after('odf_entite_id')->constrained('localisations')->onDelete('set null');
             $table->foreignId('situation_administrative_id')->nullable()->after('localisation_id')->constrained('situation_administratives')->onDelete('set null');
         });
     }

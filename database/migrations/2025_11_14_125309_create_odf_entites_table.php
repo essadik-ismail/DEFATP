@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('members', function (Blueprint $table) {
+        Schema::create('odf_entites', function (Blueprint $table) {
             $table->id();
-            $table->string('nom');
-            $table->string('tel')->nullable();
-            $table->string('type')->nullable();
-            $table->foreignId('odf_id')->constrained('odfs')->onDelete('cascade');
+            $table->string('name');
+            $table->foreignId('localisation_id')->nullable()->constrained('localisations')->onDelete('set null');
+            $table->foreignId('situation_administrative_id')->nullable()->constrained('situation_administratives')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('members');
+        Schema::dropIfExists('odf_entites');
     }
 };

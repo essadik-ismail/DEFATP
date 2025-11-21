@@ -100,13 +100,13 @@
         <!-- Reports Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Product Quantities Charts -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.product-quantities-charts') }}'">
+            <!-- <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.product-quantities-charts') }}'">
                 <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-chart-bar text-white text-2xl"></i>
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles Général</h3>
                 <p class="text-gray-600">Générez un rapport complet des articles avec statistiques détaillées</p>
-            </div>
+            </div> -->
 
             <!-- Legacy Quantities Charts -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.legacy-quantities-charts') }}'">

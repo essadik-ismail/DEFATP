@@ -12,22 +12,27 @@ class Odf extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'présidente',
-        'vice_présidente',
-        'trésorière',
-        'reçu_du_dépôt',
+        'odf_entite_id',
         'constitution',
-        'user_id',
+        'date_depot_odf',
+        'fichier_joint_depot_odf',
+        'date_reçu_du_définition',
+        'fichier_joint_reçu_du_définition',
+        'commentaire',
         'localisation_id',
         'situation_administrative_id',
     ];
 
+    protected $casts = [
+        'constitution' => 'boolean',
+    ];
+
     /**
-     * Get the user that owns this ODF.
+     * Get the ODF entite for this ODF.
      */
-    public function user(): BelongsTo
+    public function odfEntite(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(OdfEntite::class, 'odf_entite_id');
     }
 
     /**
@@ -44,6 +49,30 @@ class Odf extends Model
     public function members(): HasMany
     {
         return $this->hasMany(Member::class, 'odf_id');
+    }
+
+    /**
+     * Get the odf etaps for this ODF.
+     */
+    public function odfEtaps(): HasMany
+    {
+        return $this->hasMany(OdfEtap::class, 'odf_id');
+    }
+
+    /**
+     * Get the contract odf for this ODF.
+     */
+    public function contractOdf(): HasMany
+    {
+        return $this->hasMany(ContractOdf::class, 'odf_id');
+    }
+
+    /**
+     * Get the odf modifications for this ODF.
+     */
+    public function odfModifications(): HasMany
+    {
+        return $this->hasMany(OdfModification::class, 'odf_id');
     }
 
     /**

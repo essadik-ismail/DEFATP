@@ -32,10 +32,8 @@ class ArticleSeeder extends Seeder
         // Load JSON data
         $this->loadJsonData();
         
-        // Get articles data (Article.json + any JSON in articles/ directory)
+        // Get articles data from Article.json only
         $articlesData = $this->getArticlesData();
-        $folderArticles = $this->getArticlesFromFolder(base_path('articles'));
-        $articlesData = array_merge($articlesData, $folderArticles);
         $this->command->info('Found ' . count($articlesData) . ' articles to process.');
 
         $createdCount = 0;
@@ -255,7 +253,6 @@ class ArticleSeeder extends Seeder
                     'rc' => isset($row['RC']) ? (bool) filter_var($row['RC'], FILTER_VALIDATE_BOOLEAN) : false,
                     'numero_adjudication' => $adjudicataire,
                     'type' => 'adjudication',
-                    'is_deleted' => false,
                 ];
 
                 // Optional lat/log if parsed
@@ -321,11 +318,16 @@ class ArticleSeeder extends Seeder
                     continue;
                 }
                 $this->command->info('Parsing ' . count($rows) . ' rows from ' . basename($file));
-                // Try Feuil1 schema first
+                // Try Feuil1 schema first (CESSION files)
                 if (isset($payload['Feuil1'])) {
                     foreach ($rows as $row) {
-                        $norm = $this->normalizeFeuil1Row($row);
-                        if (!empty($norm)) { $all[] = $norm; }
+                        try {
+                            $norm = $this->normalizeFeuil1Row($row);
+                            if (!empty($norm)) { $all[] = $norm; }
+                        } catch (\Throwable $e) {
+                            $this->command->warn('Skipping malformed row in ' . basename($file) . ': ' . $e->getMessage());
+                            continue;
+                        }
                     }
                     continue;
                 }
@@ -386,7 +388,6 @@ class ArticleSeeder extends Seeder
                             'rc' => isset($row['RC']) ? (bool) filter_var($row['RC'], FILTER_VALIDATE_BOOLEAN) : false,
                             'numero_adjudication' => $adjudicataire,
                             'type' => 'adjudication',
-                            'is_deleted' => false,
                         ];
                         if ($lat !== null) { $data['lat'] = $lat; }
                         if ($log !== null) { $data['log'] = $log; }
@@ -537,18 +538,29 @@ class ArticleSeeder extends Seeder
     }
 
     /**
-     * Find exploitant - searches across all attributes
+     * Find exploitant - searches across all attributes and database
      */
     private function findExploitant(string $adjudicataire): ?int
     {
-        // First try exact match on numero field
+        // First try exact match on numero field in JSON data
         foreach ($this->exploitantData as $exploitant) {
             if (isset($exploitant['numero']) && $exploitant['numero'] === $adjudicataire) {
                 return $exploitant['id'] ?? null;
             }
         }
         
-        // If not found, search across available text attributes
+        // Try database lookup by numero, nom_complet, raison_sociale, or n_cin
+        $dbExploitant = Exploitant::where('numero', $adjudicataire)
+            ->orWhere('nom_complet', 'LIKE', '%' . $adjudicataire . '%')
+            ->orWhere('raison_sociale', 'LIKE', '%' . $adjudicataire . '%')
+            ->orWhere('n_cin', $adjudicataire)
+            ->first();
+        
+        if ($dbExploitant) {
+            return $dbExploitant->id;
+        }
+        
+        // If not found in database, search across available text attributes in JSON
         foreach ($this->exploitantData as $exploitant) {
             if (isset($exploitant['numero']) && str_contains($exploitant['numero'], $adjudicataire)) {
                 return $exploitant['id'] ?? null;
@@ -578,5 +590,176 @@ class ArticleSeeder extends Seeder
         $year = $articleData['annee'] ?? date('Y');
         $seq = str_pad((string) $this->autoNumber++, 5, '0', STR_PAD_LEFT);
         return (string) $year . '-' . $seq;
+    }
+
+    /**
+     * Normalize a row from Feuil1 schema (CESSION files) to Article format
+     */
+    private function normalizeFeuil1Row(array $row): array
+    {
+        // Parse date - could be Excel serial number or date string
+        $date = null;
+        $annee = null;
+        if (!empty($row['DATE'])) {
+            try {
+                $dateValue = $row['DATE'];
+                // Check if it's an Excel date serial number
+                if (is_numeric($dateValue) && $dateValue > 25569 && $dateValue < 2958466) {
+                    $date = \Carbon\Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((float) $dateValue));
+                } elseif (is_numeric($dateValue) && $dateValue > 0 && $dateValue < 10000) {
+                    // Might be a day number or year
+                    // Try to parse as date string if it's in a recognizable format
+                    $date = null;
+                } else {
+                    // Try to parse as date string
+                    $date = \Carbon\Carbon::parse($dateValue);
+                }
+                if ($date) {
+                    $annee = (int) $date->format('Y');
+                }
+            } catch (\Exception $e) {
+                // Date parsing failed
+            }
+        }
+
+        // Get year from COMPAGNE if date parsing failed
+        if (!$annee && !empty($row['COMPAGNE'])) {
+            $annee = (int) $row['COMPAGNE'];
+            if ($annee < 1900 || $annee > 2100) {
+                // COMPAGNE might be a code, not a year
+                $annee = null;
+            }
+        }
+
+        // If still no year, use current year or skip
+        if (!$annee) {
+            $annee = date('Y');
+        }
+
+        // Parse numero from ARTICLE or NUMERO
+        $numero = null;
+        if (!empty($row['ARTICLE'])) {
+            $numero = (string) $row['ARTICLE'];
+        } elseif (!empty($row['NUMERO'])) {
+            $numero = (string) $row['NUMERO'];
+        }
+
+        // Parse lot
+        $lot = null;
+        if (isset($row['LOT']) && $row['LOT'] !== null && $row['LOT'] !== '') {
+            $lot = (string) $row['LOT'];
+        }
+
+        // Parse parcelle
+        $parcelle = null;
+        if (!empty($row['PARCELLE'])) {
+            $parcelle = (string) $row['PARCELLE'];
+        }
+
+        // Parse coordinates
+        $lat = null;
+        $log = null;
+        if (isset($row['Y']) && $row['Y'] !== null) {
+            $lat = (float) $row['Y'];
+        }
+        if (isset($row['X']) && $row['X'] !== null) {
+            $log = (float) $row['X'];
+        }
+
+        // Parse essence
+        $essenceId = null;
+        if (!empty($row['ESSENCE'])) {
+            $essenceRaw = trim((string) $row['ESSENCE']);
+            $essenceId = $this->findEssence($essenceRaw);
+        }
+
+        // Parse foret
+        $foretId = null;
+        if (!empty($row['FORET'])) {
+            $foretName = trim((string) $row['FORET']);
+            $foretId = $this->findForet($foretName);
+        }
+
+        // Parse localisation from DREF or SERVICE
+        $localisationId = null;
+        if (!empty($row['DREF'])) {
+            $dref = trim((string) $row['DREF']);
+            $localisationId = $this->findLocalisation($dref);
+        }
+
+        // Parse situation administrative from PROVINCE or other location data
+        $situationId = null;
+        if (!empty($row['PROVINCE'])) {
+            $province = trim((string) $row['PROVINCE']);
+            $situationId = $this->findSituation($province);
+        }
+
+        // Parse nature de coupe from INTERVENT
+        $natureCoupeId = null;
+        if (!empty($row['INTERVENT'])) {
+            $intervent = trim((string) $row['INTERVENT']);
+            $natureCoupeId = $this->findNatureCoupe($intervent);
+        }
+
+        // Parse exploitant from ACHETEUR or CIN
+        $exploitantId = null;
+        if (!empty($row['ACHETEUR'])) {
+            $acheteur = trim((string) $row['ACHETEUR']);
+            $exploitantId = $this->findExploitant($acheteur);
+        } elseif (!empty($row['CIN'])) {
+            $cin = trim((string) $row['CIN']);
+            $exploitantId = $this->findExploitant($cin);
+        }
+
+        // Parse type from MODCESSION
+        $type = 'adjudication'; // Default
+        if (!empty($row['MODCESSION'])) {
+            $modCession = strtoupper(trim((string) $row['MODCESSION']));
+            if (in_array($modCession, ['MCG', 'MPA', 'MARCHÉ NÉGOCIÉ'])) {
+                $type = 'marche_negocié';
+            } elseif (in_array($modCession, ['APPEL D\'OFFRE', 'AO'])) {
+                $type = 'appel_doffre';
+            }
+        }
+
+        // Build article data
+        $data = [
+            'annee' => $annee,
+            'numero' => $numero ?? $this->generateNumero(['annee' => $annee]),
+            'date_adjudication' => $date,
+            'type' => $type,
+            'lot' => $lot,
+            'parcelle' => $parcelle,
+            'nature_juridique' => !empty($row['NATJURIDIQ']) ? trim((string) $row['NATJURIDIQ']) : null,
+            'numero_adjudication' => !empty($row['N_MARCHE']) ? trim((string) $row['N_MARCHE']) : null,
+            'exploitant_id' => $exploitantId,
+            'superficie' => isset($row['SURFACE']) && $row['SURFACE'] !== null ? (float) $row['SURFACE'] : null,
+            'bo_m3' => isset($row['BOM3']) && $row['BOM3'] !== null ? (float) $row['BOM3'] : null,
+            'bi_m3' => isset($row['BIM3']) && $row['BIM3'] !== null ? (float) $row['BIM3'] : null,
+            'bf_st' => isset($row['BFST']) && $row['BFST'] !== null ? (float) $row['BFST'] : null,
+            'liége_st' => isset($row['LCST']) && $row['LCST'] !== null ? (float) $row['LCST'] : null,
+            'ps_t' => isset($row['PST']) && $row['PST'] !== null ? (float) $row['PST'] : null,
+            'invendu' => false, // Default
+            'dc' => false,
+            'rc' => false,
+        ];
+
+        // Add coordinates if available
+        if ($lat !== null) {
+            $data['lat'] = $lat;
+        }
+        if ($log !== null) {
+            $data['log'] = $log;
+        }
+
+        // Add pivot IDs
+        $data['_pivot_essence_ids'] = $essenceId ? [$essenceId] : [];
+        $data['_pivot_foret_ids'] = $foretId ? [$foretId] : [];
+        $data['_pivot_localisation_ids'] = $localisationId ? [$localisationId] : [];
+        $data['_pivot_situation_ids'] = $situationId ? [$situationId] : [];
+        $data['_pivot_nature_ids'] = $natureCoupeId ? [$natureCoupeId] : [];
+
+        // Filter out null values
+        return array_filter($data, static function ($v) { return $v !== null; });
     }
 }
