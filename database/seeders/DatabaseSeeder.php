@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             CoperativeSeeder::class,
             ContractSeeder::class,
             AvenantSeeder::class,
+            LegacyArticlesSeeder::class,
         ]);
     }
 

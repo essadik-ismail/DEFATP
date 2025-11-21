@@ -227,15 +227,45 @@ class ConvertExcelToJson extends Command
             for ($colIndex = 1; $colIndex <= $maxColumnIndex; $colIndex++) {
                 $col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
                 $header = $headers[$colIndex - 1];
-                $cellValue = $sheet->getCell($col . $row)->getValue();
+                $cell = $sheet->getCell($col . $row);
+                $cellValue = $cell->getValue();
                 
                 // Handle formulas
                 if ($cellValue instanceof \PhpOffice\PhpSpreadsheet\Cell\Cell) {
                     $cellValue = $cellValue->getCalculatedValue();
                 }
                 
+                // For DATE column, try to preserve formatted value to keep leading zeros
+                if (strtoupper($header) === 'DATE') {
+                    // First check if it's stored as text (preserves leading zeros)
+                    if (is_string($cellValue) && preg_match('/^0+\d+$/', $cellValue)) {
+                        $rowData[$header] = $cellValue;
+                        if ($cellValue !== null && $cellValue !== '') {
+                            $hasData = true;
+                        }
+                        continue;
+                    }
+                    
+                    // If it's numeric, try to get formatted value to preserve leading zeros
+                    if (is_numeric($cellValue)) {
+                        $formattedValue = $cell->getFormattedValue();
+                        // Check if formatted value has leading zeros (like 000106)
+                        if (is_string($formattedValue) && preg_match('/^0+\d+$/', $formattedValue)) {
+                            // Verify it's different from the numeric value (has leading zeros)
+                            $numericString = (string)(int)$cellValue;
+                            if ($formattedValue !== $numericString && strlen($formattedValue) > strlen($numericString)) {
+                                $rowData[$header] = $formattedValue;
+                                if ($formattedValue !== null && $formattedValue !== '') {
+                                    $hasData = true;
+                                }
+                                continue;
+                            }
+                        }
+                    }
+                }
+                
                 // Convert to appropriate type
-                $value = $this->cleanCellValue($cellValue);
+                $value = $this->cleanCellValue($cellValue, $header);
                 
                 // Include value even if null/empty to preserve column structure
                 $rowData[$header] = $value;
@@ -256,7 +286,7 @@ class ConvertExcelToJson extends Command
     /**
      * Clean and convert cell value
      */
-    private function cleanCellValue($value)
+    private function cleanCellValue($value, $header = null)
     {
         if ($value === null) {
             return null;
@@ -270,13 +300,20 @@ class ConvertExcelToJson extends Command
         // Handle numeric strings
         if (is_numeric($value)) {
             // Check if it's a date serial number (Excel dates)
-            if ($value > 25569 && $value < 2958466) {
+            // Only convert if it's clearly an Excel date serial (not a custom date format like 000106)
+            if ($value > 25569 && $value < 2958466 && strtoupper($header) !== 'DATE') {
                 try {
                     $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
                     return $date->format('Y-m-d');
                 } catch (\Exception $e) {
                     // Not a date, return as number
                 }
+            }
+            
+            // For DATE column, preserve as string to keep leading zeros if present
+            if (strtoupper($header) === 'DATE') {
+                // Return as string to preserve leading zeros
+                return (string) $value;
             }
             
             // Return as float if it has decimals, otherwise as int

@@ -623,7 +623,12 @@ class ReportController extends Controller
         $byYear = (clone $query)
             ->selectRaw('CASE 
                 WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
-                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                WHEN LENGTH(date) >= 6 THEN 
+                    CASE 
+                        WHEN CAST(SUBSTRING(date, 1, 2) AS UNSIGNED) >= 90 
+                        THEN CONCAT(\'19\', SUBSTRING(date, 1, 2))
+                        ELSE CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                    END
                 ELSE NULL
             END as year, COUNT(*) as total')
             ->whereNotNull('date')
@@ -661,7 +666,14 @@ class ReportController extends Controller
                     $year = substr($dateStr, 0, 4);
                 } elseif (strlen($dateStr) >= 6) {
                     // Format: YYMMDD
-                    $year = '20' . substr($dateStr, 0, 2);
+                    // If YY >= 90, it means 19YY (1990-1999)
+                    // If YY < 90, it means 20YY (2000-2089)
+                    $yy = (int) substr($dateStr, 0, 2);
+                    if ($yy >= 90) {
+                        $year = '19' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+                    } else {
+                        $year = '20' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+                    }
                 }
                 
                 if ($year && is_numeric($year)) {
@@ -818,7 +830,12 @@ class ReportController extends Controller
         $drefs = LegacyArticle::select('dref')->distinct()->whereNotNull('dref')->orderBy('dref')->pluck('dref');
         $years = LegacyArticle::selectRaw('CASE 
                 WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
-                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                WHEN LENGTH(date) >= 6 THEN 
+                    CASE 
+                        WHEN CAST(SUBSTRING(date, 1, 2) AS UNSIGNED) >= 90 
+                        THEN CONCAT(\'19\', SUBSTRING(date, 1, 2))
+                        ELSE CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                    END
                 ELSE NULL
             END as year')
             ->distinct()
@@ -874,7 +891,12 @@ class ReportController extends Controller
         $drefs = LegacyArticle::select('dref')->distinct()->whereNotNull('dref')->orderBy('dref')->pluck('dref');
         $years = LegacyArticle::selectRaw('CASE 
                 WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
-                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                WHEN LENGTH(date) >= 6 THEN 
+                    CASE 
+                        WHEN CAST(SUBSTRING(date, 1, 2) AS UNSIGNED) >= 90 
+                        THEN CONCAT(\'19\', SUBSTRING(date, 1, 2))
+                        ELSE CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                    END
                 ELSE NULL
             END as year')
             ->distinct()
@@ -1099,7 +1121,12 @@ class ReportController extends Controller
         // Get available years for filter
         $years = LegacyArticle::selectRaw('CASE 
                 WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
-                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                WHEN LENGTH(date) >= 6 THEN 
+                    CASE 
+                        WHEN CAST(SUBSTRING(date, 1, 2) AS UNSIGNED) >= 90 
+                        THEN CONCAT(\'19\', SUBSTRING(date, 1, 2))
+                        ELSE CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                    END
                 ELSE NULL
             END as year')
             ->distinct()
@@ -1229,7 +1256,12 @@ class ReportController extends Controller
             
         $legacyArticlesByYear = LegacyArticle::selectRaw('CASE 
                 WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
-                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                WHEN LENGTH(date) >= 6 THEN 
+                    CASE 
+                        WHEN CAST(SUBSTRING(date, 1, 2) AS UNSIGNED) >= 90 
+                        THEN CONCAT(\'19\', SUBSTRING(date, 1, 2))
+                        ELSE CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                    END
                 ELSE NULL
             END as year, SUM(bom3) as volume')
             ->whereNotNull('date')
@@ -1310,8 +1342,21 @@ class ReportController extends Controller
                 ->distinct()
                 ->pluck('date')
                 ->map(function ($date) {
-                    $yy = substr((string) $date, 0, 2);
-                    return preg_match('/^\d{2}$/', (string) $yy) ? '20' . str_pad($yy, 2, '0', STR_PAD_LEFT) : null;
+                    if (strlen($date) >= 8) {
+                        // Format: YYYYMMDD
+                        return substr($date, 0, 4);
+                    } elseif (strlen($date) >= 6) {
+                        // Format: YYMMDD
+                        // If YY >= 90, it means 19YY (1990-1999)
+                        // If YY < 90, it means 20YY (2000-2089)
+                        $yy = (int) substr($date, 0, 2);
+                        if ($yy >= 90) {
+                            return '19' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+                        } else {
+                            return '20' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+                        }
+                    }
+                    return null;
                 })
                 ->filter()
                 ->values();
@@ -1530,8 +1575,21 @@ class ReportController extends Controller
                 ->distinct()
                 ->pluck('date')
                 ->map(function ($date) {
-                    $yy = substr((string) $date, 0, 2);
-                    return preg_match('/^\d{2}$/', (string) $yy) ? '20' . str_pad($yy, 2, '0', STR_PAD_LEFT) : null;
+                    if (strlen($date) >= 8) {
+                        // Format: YYYYMMDD
+                        return substr($date, 0, 4);
+                    } elseif (strlen($date) >= 6) {
+                        // Format: YYMMDD
+                        // If YY >= 90, it means 19YY (1990-1999)
+                        // If YY < 90, it means 20YY (2000-2089)
+                        $yy = (int) substr($date, 0, 2);
+                        if ($yy >= 90) {
+                            return '19' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+                        } else {
+                            return '20' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+                        }
+                    }
+                    return null;
                 })
                 ->filter()
                 ->unique()
@@ -1888,7 +1946,12 @@ class ReportController extends Controller
         $currentYears = Article::select('annee')->distinct()->orderBy('annee', 'desc')->pluck('annee');
         $legacyYears = LegacyArticle::selectRaw('CASE 
                 WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
-                WHEN LENGTH(date) >= 6 THEN CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                WHEN LENGTH(date) >= 6 THEN 
+                    CASE 
+                        WHEN CAST(SUBSTRING(date, 1, 2) AS UNSIGNED) >= 90 
+                        THEN CONCAT(\'19\', SUBSTRING(date, 1, 2))
+                        ELSE CONCAT(\'20\', SUBSTRING(date, 1, 2))
+                    END
                 ELSE NULL
             END as year')
             ->distinct()

@@ -73,9 +73,17 @@ class LegacyArticle extends Model
             return null;
         }
         
-        $year = '20' . substr($this->date, 0, 2);
+        $yy = (int) substr($this->date, 0, 2);
         $month = substr($this->date, 2, 2);
         $day = substr($this->date, 4, 2);
+        
+        // If YY >= 90, it means 19YY (1990-1999)
+        // If YY < 90, it means 20YY (2000-2089)
+        if ($yy >= 90) {
+            $year = '19' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+        } else {
+            $year = '20' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+        }
         
         return $year . '-' . $month . '-' . $day;
     }
@@ -87,6 +95,14 @@ class LegacyArticle extends Model
             return null;
         }
         
-        return '20' . substr($this->date, 0, 2);
+        $yy = (int) substr($this->date, 0, 2);
+        
+        // If YY >= 90, it means 19YY (1990-1999)
+        // If YY < 90, it means 20YY (2000-2089)
+        if ($yy >= 90) {
+            return '19' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+        } else {
+            return '20' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+        }
     }
 }

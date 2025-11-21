@@ -29,10 +29,11 @@ class ArticleSeeder extends Seeder
     {
         $this->command->info('Starting ArticleSeeder...');
         
-        // Load JSON data
+        // Load JSON data (reference data for lookups)
         $this->loadJsonData();
         
-        // Get articles data from Article.json only
+        // Get articles data from data/Article.json ONLY
+        // This seeder does NOT use CESSION files or other sources
         $articlesData = $this->getArticlesData();
         $this->command->info('Found ' . count($articlesData) . ' articles to process.');
 
@@ -146,14 +147,15 @@ class ArticleSeeder extends Seeder
     }
 
     /**
-     * Get the articles data from the external JSON file
+     * Get the articles data from data/Article.json
+     * This is the ONLY source for ArticleSeeder (not CESSION files)
      */
     private function getArticlesData(): array
     {
-        // Try data folder first
+        // Load from data/Article.json
         $path = base_path('data/Article.json');
         if (!file_exists($path)) {
-            // Fallback to root
+            // Fallback to root (for backwards compatibility)
             $path = base_path('Article.json');
         }
         
@@ -170,7 +172,7 @@ class ArticleSeeder extends Seeder
             return [];
         }
 
-        $this->command->info('Loaded ' . count($rows) . ' articles from Article.json');
+        $this->command->info('Loaded ' . count($rows) . ' articles from data/Article.json');
         $articles = [];
 
         foreach ($rows as $row) {
