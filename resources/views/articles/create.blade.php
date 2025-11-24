@@ -100,7 +100,7 @@
                     </div>
                     <div class="form-group" id="numero_adjudication_group" style="display: none;">
                         <label for="numero_adjudication" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Numéro Adjudication</span>
+                            <span>Numéro d'Appel d'Offre</span>
                             <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro juridique de l'adjudication"></i>
                         </label>
                         <input type="number" 
@@ -152,22 +152,6 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="lot" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Lot</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro de lot"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="lot" name="lot" value="{{ old('lot') }}" 
-                               min="0" placeholder="Numéro de lot">
-                        @error('lot')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
                         <label for="numero" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                             <span>Numéro d'Article <span class="text-red-500">*</span></span>
                             <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro unique de l'article"></i>
@@ -177,6 +161,22 @@
                                id="numero" name="numero" value="{{ old('numero') }}" 
                                placeholder="Ex: ART001" required>
                         @error('numero')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="lot" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Lot</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro de lot"></i>
+                        </label>
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="lot" name="lot" value="{{ old('lot') }}" 
+                               min="0" placeholder="Numéro de lot">
+                        @error('lot')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -445,6 +445,22 @@
                                id="bf_st" name="bf_st" value="{{ old('bf_st') }}" 
                                min="0" step="0.01" placeholder="BF/ST">
                         @error('bf_st')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="fourniture_mise_charge" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Fourniture mise en charge</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Fourniture mise en charge"></i>
+                        </label>
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="fourniture_mise_charge" name="fourniture_mise_charge" value="{{ old('fourniture_mise_charge') }}" 
+                               min="0" step="0.01" placeholder="Fourniture mise en charge">
+                        @error('fourniture_mise_charge')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}

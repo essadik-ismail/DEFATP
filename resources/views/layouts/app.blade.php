@@ -2188,7 +2188,7 @@
                 
                
                 
-                <!-- <div class="nav-item">
+                <div class="nav-item">
                     <a href="{{ route('odfs.index') }}" class="nav-link {{ request()->routeIs('odfs.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         Organisation Forestière
@@ -2199,7 +2199,7 @@
                         <i class="fas fa-project-diagram"></i>
                         Plan DFC
                     </a>
-                </div> -->
+                </div>
                
                 <div class="nav-item">
                     <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') ? 'active' : '' }}">

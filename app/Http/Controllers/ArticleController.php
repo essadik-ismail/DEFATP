@@ -61,13 +61,15 @@ class ArticleController extends Controller
                     $query->where('date_adjudication', '<=', $endDate);
                 }
             })
-            ->when($request->filled('localisation_id'), function($query) use ($request) {
-                $query->whereHas('localisations', function($q) use ($request) {
-                    $q->where('localisations.id', $request->localisation_id);
+            ->when($request->filled('localisation_ids'), function($query) use ($request) {
+                $localisationIds = is_array($request->localisation_ids) ? $request->localisation_ids : [$request->localisation_ids];
+                $query->whereHas('localisations', function($q) use ($localisationIds) {
+                    $q->whereIn('localisations.id', $localisationIds);
                 });
             })
-            ->when($request->filled('year'), function($query) use ($request) {
-                $query->where('annee', $request->year);
+            ->when($request->filled('years'), function($query) use ($request) {
+                $years = is_array($request->years) ? $request->years : [$request->years];
+                $query->whereIn('annee', $years);
             })
             ->when($request->filled('type'), function($query) use ($request) {
                 $query->where('type', $request->type);
@@ -109,14 +111,16 @@ class ArticleController extends Controller
             }
         }
         
-        if ($request->filled('localisation_id')) {
-            $filteredQuery->whereHas('localisations', function($q) use ($request) {
-                $q->where('localisations.id', $request->localisation_id);
+        if ($request->filled('localisation_ids')) {
+            $localisationIds = is_array($request->localisation_ids) ? $request->localisation_ids : [$request->localisation_ids];
+            $filteredQuery->whereHas('localisations', function($q) use ($localisationIds) {
+                $q->whereIn('localisations.id', $localisationIds);
             });
         }
         
-        if ($request->filled('year')) {
-            $filteredQuery->where('annee', $request->year);
+        if ($request->filled('years')) {
+            $years = is_array($request->years) ? $request->years : [$request->years];
+            $filteredQuery->whereIn('annee', $years);
         }
         
         if ($request->filled('type')) {
@@ -225,7 +229,7 @@ class ArticleController extends Controller
                 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
                 'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
                 'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente',
-                'invendu', 'dc', 'rc', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
+                'invendu', 'dc', 'rc', 'nommer_a_la_vente', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
             ]);
 
 
@@ -373,7 +377,7 @@ class ArticleController extends Controller
             'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
             'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
             'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente',
-            'invendu', 'dc', 'rc', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
+            'invendu', 'dc', 'rc', 'nommer_a_la_vente', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
         ]);
 
         // Update article data
@@ -382,7 +386,7 @@ class ArticleController extends Controller
             'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
             'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
             'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente',
-            'invendu', 'dc', 'rc', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
+            'invendu', 'dc', 'rc', 'nommer_a_la_vente', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
         ]);
 
         $article->update($articleData);

@@ -92,31 +92,35 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-map-marker-alt text-indigo-500 mr-1"></i>Localisation
+                        <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt text-indigo-500 mr-1"></i>Localisations
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
-                                name="localisation_id" id="localisation_id">
-                            <option value="">Toutes les localisations</option>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
+                        <select multiple
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
+                                name="localisation_ids[]" id="localisation_ids">
                             @foreach($allLocalisations ?? [] as $localisation)
-                                <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
+                                <option value="{{ $localisation->id }}" {{ in_array($localisation->id, request('localisation_ids', [])) ? 'selected' : '' }}>
                                     {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                 </option>
                             @endforeach
                         </select>
+                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
                     </div>
                     
                     <div class="form-group">
-                        <label for="year" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar text-purple-500 mr-1"></i>Année
+                        <label for="years" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar text-purple-500 mr-1"></i>Années
                         </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                                name="year" id="year">
-                            <option value="">Toutes les années</option>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'years')">
+                        <select multiple
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                                name="years[]" id="years">
                             @for($year = now()->year; $year >= 2020; $year--)
-                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                <option value="{{ $year }}" {{ in_array($year, request('years', [])) ? 'selected' : '' }}>{{ $year }}</option>
                             @endfor
                         </select>
+                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
                     </div>
                 </div>
                 
@@ -167,7 +171,7 @@
                         </button>
                     </div>
                     
-                    @if(request()->hasAny(['search', 'type', 'localisation_id', 'year', 'start_date', 'end_date']))
+                    @if(request()->hasAny(['search', 'type', 'localisation_ids', 'years', 'start_date', 'end_date']))
                         <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm">
                             <i class="fas fa-info-circle mr-1"></i>
                             Filtres actifs
@@ -1003,12 +1007,32 @@ function archiveArticle(articleId) {
     }
 }
 
+// Filter select options function
+function filterSelectOptions(inputEl, selectId) {
+    const filter = inputEl.value.toLowerCase();
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    Array.from(select.options).forEach(function(opt) {
+        const text = (opt.text || '').toLowerCase();
+        const match = text.indexOf(filter) !== -1;
+        opt.style.display = match ? '' : 'none';
+    });
+}
+
 // Clear filters function
 function clearFilters() {
     document.getElementById('search').value = '';
     document.getElementById('type').value = '';
     document.getElementById('status').value = '';
-    document.getElementById('year').value = '';
+    // Clear multiple select fields
+    const localisationSelect = document.getElementById('localisation_ids');
+    if (localisationSelect) {
+        Array.from(localisationSelect.options).forEach(opt => opt.selected = false);
+    }
+    const yearsSelect = document.getElementById('years');
+    if (yearsSelect) {
+        Array.from(yearsSelect.options).forEach(opt => opt.selected = false);
+    }
     document.getElementById('filterForm').submit();
 }
 
@@ -1030,7 +1054,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search');
     const statusFilter = document.getElementById('status');
     const typeFilter = document.getElementById('type');
-    const yearFilter = document.getElementById('year');
+    const localisationSelect = document.getElementById('localisation_ids');
+    const yearsSelect = document.getElementById('years');
     const table = document.querySelector('.table');
     
     // Auto-submit form when filters change
@@ -1054,8 +1079,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    if (yearFilter) {
-        yearFilter.addEventListener('change', function() {
+    // Handle multiple select changes - submit on change
+    if (localisationSelect) {
+        localisationSelect.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+    }
+    
+    if (yearsSelect) {
+        yearsSelect.addEventListener('change', function() {
             document.getElementById('filterForm').submit();
         });
     }

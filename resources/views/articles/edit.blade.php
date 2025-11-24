@@ -467,6 +467,22 @@
                             </div>
                         @enderror
                     </div>
+                    <div class="form-group">
+                        <label for="fourniture_mise_charge" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Fourniture mise en charge</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Fourniture mise en charge"></i>
+                        </label>
+                        <input type="number" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                               id="fourniture_mise_charge" name="fourniture_mise_charge" value="{{ old('fourniture_mise_charge', $article->fourniture_mise_charge) }}" 
+                               min="0" step="0.01" placeholder="Fourniture mise en charge">
+                        @error('fourniture_mise_charge')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
                 </div>
 
                 <!-- Product Quantities -->
@@ -653,6 +669,24 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Nommer à la vente -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-tags text-orange-500 mr-2"></i>Nommer à la vente
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="nommer_a_la_vente" value="0" {{ old('nommer_a_la_vente', $article->nommer_a_la_vente) == 0 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <span class="ml-2 text-gray-700">Non</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="nommer_a_la_vente" value="1" {{ old('nommer_a_la_vente', $article->nommer_a_la_vente) == 1 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <span class="ml-2 text-gray-700">Oui</span>
+                            </label>
+                        </div>
+                    </div>
+
+
                     <!-- Invendu -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -660,24 +694,32 @@
                         </label>
                         <div class="flex items-center space-x-4">
                             <label class="flex items-center">
-                                <input type="radio" name="invendu" value="0" {{ old('invendu', $article->invendu) == 0 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <input type="radio" name="invendu" value="0" {{ old('invendu', $article->invendu ?? 0) == 0 ? 'checked' : '' }} class="form-radio text-orange-500">
                                 <span class="ml-2 text-gray-700">Non</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="radio" name="invendu" value="1" {{ old('invendu', $article->invendu) == 1 ? 'checked' : '' }} class="form-radio text-orange-500">
+                                <input type="radio" name="invendu" value="1" {{ old('invendu', $article->invendu ?? 0) == 1 ? 'checked' : '' }} class="form-radio text-orange-500">
                                 <span class="ml-2 text-gray-700">Oui</span>
                             </label>
                         </div>
                     </div>
 
-                    <!-- Prix de retrait -->
+
+                    <!-- Exploitant -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-money-bill-wave text-orange-500 mr-2"></i>Prix de retrait
+                            <i class="fas fa-user-tie text-orange-500 mr-2"></i>Exploitant
                         </label>
-                        <input type="number" name="prix_de_retrait" value="{{ old('prix_de_retrait', $article->prix_de_retrait) }}" 
-                               step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                    </div>
+                        <select name="exploitant_id" class="form-select w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            <option value="">Sélectionner un exploitant</option>
+                            @foreach(\App\Models\Exploitant::all() as $exploitant)
+                                <option value="{{ $exploitant->id }}" {{ old('exploitant_id', $article->exploitant_id) == $exploitant->id ? 'selected' : '' }}>
+                                    {{ $exploitant->nom_complet }} ({{ $exploitant->numero }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>                    
+                    
 
                     <!-- Prix de vente -->
                     <div class="form-group">
@@ -688,19 +730,10 @@
                                step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                     </div>
 
-                    <!-- Fourniture mise en charge -->
-                    <div class="form-group">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-hand-holding-usd text-orange-500 mr-2"></i>Fourniture mise en charge
-                        </label>
-                        <input type="number" name="fourniture_mise_charge" value="{{ old('fourniture_mise_charge', $article->fourniture_mise_charge) }}" 
-                               step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                    </div>
-
                     <!-- DC -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-check-circle text-orange-500 mr-2"></i>DC
+                            <i class="fas fa-check-circle text-orange-500 mr-2"></i>déchéance
                         </label>
                         <div class="flex items-center space-x-4">
                             <label class="flex items-center">
@@ -714,10 +747,30 @@
                         </div>
                     </div>
 
+                    <!-- Date de déchéance -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-exclamation text-orange-500 mr-2"></i>Date de déchéance
+                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                        </label>
+                        <input type="date" name="date_de_decheance" value="{{ old('date_de_decheance', $article->date_de_decheance) }}" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                               placeholder="jj/mm/aaaa">
+                    </div>
+
+                    <!-- Prix de retrait -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-money-bill-wave text-orange-500 mr-2"></i>Prix de retrait
+                        </label>
+                        <input type="number" name="prix_de_retrait" value="{{ old('prix_de_retrait', $article->prix_de_retrait) }}" 
+                               step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+
                     <!-- RC -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-shield-alt text-orange-500 mr-2"></i>RC
+                            <i class="fas fa-shield-alt text-orange-500 mr-2"></i>résiliation
                         </label>
                         <div class="flex items-center space-x-4">
                             <label class="flex items-center">
@@ -742,31 +795,9 @@
                                placeholder="jj/mm/aaaa">
                     </div>
 
-                    <!-- Date de déchéance -->
-                    <div class="form-group">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-exclamation text-orange-500 mr-2"></i>Date de déchéance
-                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
-                        </label>
-                        <input type="date" name="date_de_decheance" value="{{ old('date_de_decheance', $article->date_de_decheance) }}" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                               placeholder="jj/mm/aaaa">
-                    </div>
+                    
 
-                    <!-- Exploitant -->
-                    <div class="form-group">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-user-tie text-orange-500 mr-2"></i>Exploitant
-                        </label>
-                        <select name="exploitant_id" class="form-select w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                            <option value="">Sélectionner un exploitant</option>
-                            @foreach(\App\Models\Exploitant::all() as $exploitant)
-                                <option value="{{ $exploitant->id }}" {{ old('exploitant_id', $article->exploitant_id) == $exploitant->id ? 'selected' : '' }}>
-                                    {{ $exploitant->nom_complet }} ({{ $exploitant->numero }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+
                 </div>
             </div>
 

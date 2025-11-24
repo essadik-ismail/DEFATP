@@ -62,6 +62,7 @@ class UpdateArticleRequest extends FormRequest
             'invendu' => ['nullable', 'boolean'],
             'dc' => ['nullable', 'boolean'],
             'rc' => ['nullable', 'boolean'],
+            'nommer_a_la_vente' => ['nullable', 'boolean'],
             'date_de_resiliation' => ['nullable', 'date'],
             'date_de_decheance' => ['nullable', 'date'],
             'products' => ['nullable', 'array'],

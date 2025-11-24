@@ -41,6 +41,7 @@ class Article extends Model
         'invendu',
         'dc',
         'rc',
+        'nommer_a_la_vente',
         'fourniture_mise_charge',
         'date_de_resiliation',
         'date_de_decheance',
@@ -67,6 +68,7 @@ class Article extends Model
         'invendu' => 'boolean',
         'dc' => 'boolean',
         'rc' => 'boolean',
+        'nommer_a_la_vente' => 'boolean',
     ];
 
 
