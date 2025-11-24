@@ -152,6 +152,7 @@ class LegacyArticlesSeeder extends Seeder
 
                 $insertData[] = [
                     'dref' => $article['DREF'] ?? null,
+                    'numero_article' => $article['ARTICLE'] ?? null,
                     'foret' => $article['FORET'] ?? null,
                     'province' => $article['PROVINCE'] ?? null,
                     'date' => $dateStr,

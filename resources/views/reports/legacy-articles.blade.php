@@ -186,66 +186,84 @@
             </div>
         </div>
 
-        <!-- Filters Section -->
-        <div class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-filter text-blue-600"></i>
-                    Filtres
-                </h3>
-                <!-- <button type="button" id="resetFilters" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+        <!-- Enhanced Filters Section -->
+        <div class="mb-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-3xl shadow-lg border border-blue-200/50 overflow-hidden">
+            <!-- Filters Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <i class="fas fa-filter text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Filtres de Recherche</h3>
+                        <p class="text-xs text-blue-100">Affinez vos résultats avec des critères précis</p>
+                    </div>
+                </div>
+                <button type="button" id="resetFilters" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-medium flex items-center gap-2 transition-all duration-200 backdrop-blur-sm hover:scale-105">
                     <i class="fas fa-redo"></i>
-                    Réinitialiser
-                </button> -->
+                    <span class="hidden sm:inline">Réinitialiser</span>
+                </button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                    <label for="filterProvince" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-map-marker-alt text-red-500 mr-1"></i>
-                        Province
-                    </label>
-                    <select id="filterProvince" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        <option value="">Toutes les provinces</option>
-                        @foreach($provinces as $province)
-                            <option value="{{ $province }}">{{ $province }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label for="filterEssence" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-leaf text-green-500 mr-1"></i>
-                        Essence
-                    </label>
-                    <select id="filterEssence" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        <option value="">Toutes les essences</option>
-                        @foreach($essences as $essence)
-                            <option value="{{ $essence }}">{{ $essence }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label for="filterDref" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-building text-orange-500 mr-1"></i>
-                        DREF
-                    </label>
-                    <select id="filterDref" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        <option value="">Tous les DREF</option>
-                        @foreach($drefs as $dref)
-                            <option value="{{ $dref }}">{{ $dref }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label for="filterYear" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-calendar-alt text-purple-500 mr-1"></i>
-                        Année
-                    </label>
-                    <select id="filterYear" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        <option value="">Toutes les années</option>
-                        @foreach($years as $year)
-                            <option value="{{ $year }}">{{ $year }}</option>
-                        @endforeach
-                    </select>
+
+            <!-- Filters Content -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="group">
+                        <label for="filterProvince" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition-colors">
+                                <i class="fas fa-map-marker-alt text-red-600 text-sm"></i>
+                            </div>
+                            <span>Province</span>
+                        </label>
+                        <select id="filterProvince" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 bg-white hover:border-red-300 shadow-sm">
+                            <option value="">Toutes les provinces</option>
+                            @foreach($provinces as $province)
+                                <option value="{{ $province }}">{{ $province }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="group">
+                        <label for="filterEssence" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                                <i class="fas fa-leaf text-green-600 text-sm"></i>
+                            </div>
+                            <span>Essence</span>
+                        </label>
+                        <select id="filterEssence" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white hover:border-green-300 shadow-sm">
+                            <option value="">Toutes les essences</option>
+                            @foreach($essences as $essence)
+                                <option value="{{ $essence }}">{{ $essence }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="group">
+                        <label for="filterDref" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                                <i class="fas fa-building text-orange-600 text-sm"></i>
+                            </div>
+                            <span>DREF</span>
+                        </label>
+                        <select id="filterDref" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 bg-white hover:border-orange-300 shadow-sm">
+                            <option value="">Tous les DREF</option>
+                            @foreach($drefs as $dref)
+                                <option value="{{ $dref }}">{{ $dref }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="group">
+                        <label for="filterYear" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                                <i class="fas fa-calendar-alt text-purple-600 text-sm"></i>
+                            </div>
+                            <span>Année</span>
+                        </label>
+                        <select id="filterYear" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 bg-white hover:border-purple-300 shadow-sm">
+                            <option value="">Toutes les années</option>
+                            @foreach($years as $year)
+                                <option value="{{ $year }}">{{ $year }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -255,31 +273,177 @@
             <table id="legacyArticlesPreviewTable" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DREF</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Forêt</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Essence</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Surface (ha)</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume (m³)</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix (DH)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>DREF</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="0" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Numéro d'article</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="1" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Forêt</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="2" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Province</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="3" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Date</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="4" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Essence</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="5" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Intervention</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="6" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Surface (ha)</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="7" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>BOM3</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="8" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>BIM3</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="9" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>BFST</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="10" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>LCST</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="11" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>ETT</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="12" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>PST</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="13" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Volume (m³)</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="14" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Acheteur</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="15" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Prix (DH)</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="16" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>DR</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="17" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($tableData as $article)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['dref'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['numero_article'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['foret'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['province'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['date'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['essence'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['intervent'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['surface'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['bom3'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['bim3'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['bfst'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['lcst'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['ett'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['pst'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['volume'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['acheteur'] }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['ppdh'] }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $article['dr'] }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">Aucune donnée disponible</td>
+                            <td colspan="18" class="px-6 py-4 text-center text-sm text-gray-500">Aucune donnée disponible</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -301,6 +465,151 @@
     .dataTables_wrapper .dataTables_info,
     .dataTables_wrapper .dataTables_paginate {
         margin-top: 1rem;
+    }
+    
+    /* Excel-style filter dropdown */
+    .filter-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 2px 4px;
+        transition: all 0.2s;
+    }
+    
+    .filter-btn:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 3px;
+    }
+    
+    .filter-btn.active {
+        color: #3b82f6 !important;
+    }
+    
+    .filter-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        z-index: 1000;
+        min-width: 250px;
+        max-width: 350px;
+        max-height: 400px;
+        display: none;
+        font-size: 13px;
+    }
+    
+    .filter-dropdown.show {
+        display: block;
+    }
+    
+    .filter-dropdown-header {
+        padding: 8px 12px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+    
+    .filter-dropdown-body {
+        padding: 8px;
+        max-height: 280px;
+        overflow-y: auto;
+    }
+    
+    .filter-search {
+        width: 100%;
+        padding: 6px 8px;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+    
+    .filter-search:focus {
+        outline: none;
+        border-color: #3b82f6;
+        ring: 2px;
+        ring-color: #3b82f6;
+    }
+    
+    .filter-options {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .filter-option {
+        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.15s;
+    }
+    
+    .filter-option:hover {
+        background-color: #f3f4f6;
+    }
+    
+    .filter-option input[type="checkbox"] {
+        margin-right: 8px;
+        cursor: pointer;
+    }
+    
+    .filter-option label {
+        cursor: pointer;
+        flex: 1;
+        user-select: none;
+    }
+    
+    .filter-dropdown-footer {
+        padding: 8px 12px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+    
+    .filter-btn-ok {
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        padding: 6px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    
+    .filter-btn-ok:hover {
+        background-color: #2563eb;
+    }
+    
+    .filter-btn-cancel {
+        background-color: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+        padding: 6px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+    }
+    
+    .filter-btn-cancel:hover {
+        background-color: #f9fafb;
+    }
+    
+    .filter-clear {
+        color: #3b82f6;
+        text-decoration: none;
+        font-size: 12px;
+        padding: 4px 8px;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+    
+    .filter-clear:hover {
+        text-decoration: underline;
     }
     
     .dataTables_wrapper .dataTables_paginate .paginate_button {
@@ -814,15 +1123,25 @@ $(document).ready(function() {
         data: @json($tableData),
         columns: [
             { data: 'dref', name: 'dref', orderable: true, searchable: true },
+            { data: 'numero_article', name: 'numero_article', orderable: true, searchable: true },
             { data: 'foret', name: 'foret', orderable: true, searchable: true },
             { data: 'province', name: 'province', orderable: true, searchable: true },
             { data: 'date', name: 'date', orderable: true, searchable: false },
             { data: 'essence', name: 'essence', orderable: true, searchable: true },
+            { data: 'intervent', name: 'intervent', orderable: true, searchable: true },
             { data: 'surface', name: 'surface', orderable: true, searchable: false },
+            { data: 'bom3', name: 'bom3', orderable: true, searchable: false },
+            { data: 'bim3', name: 'bim3', orderable: true, searchable: false },
+            { data: 'bfst', name: 'bfst', orderable: true, searchable: false },
+            { data: 'lcst', name: 'lcst', orderable: true, searchable: false },
+            { data: 'ett', name: 'ett', orderable: true, searchable: false },
+            { data: 'pst', name: 'pst', orderable: true, searchable: false },
             { data: 'volume', name: 'volume', orderable: true, searchable: false },
-            { data: 'ppdh', name: 'ppdh', orderable: true, searchable: false }
+            { data: 'acheteur', name: 'acheteur', orderable: true, searchable: true },
+            { data: 'ppdh', name: 'ppdh', orderable: true, searchable: false },
+            { data: 'dr', name: 'dr', orderable: true, searchable: true }
         ],
-        order: [[3, 'desc']], // Sort by date column
+        order: [[4, 'desc']], // Sort by date column (index 4)
         pageLength: 25,
         lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
         language: {
@@ -846,7 +1165,7 @@ $(document).ready(function() {
         dom: '<"flex flex-wrap items-center justify-between mb-4"<"flex items-center gap-4"l<"ml-4"f>>>rtip',
         columnDefs: [
             {
-                targets: [5, 6, 7], // Surface, Volume, Prix columns
+                targets: [7, 8, 9, 10, 11, 12, 13, 14, 16], // Surface, BOM3, BIM3, BFST, LCST, ETT, PST, Volume, Prix columns
                 type: 'num',
                 render: function(data, type, row) {
                     if (type === 'display' || type === 'filter') {
@@ -862,7 +1181,7 @@ $(document).ready(function() {
                 }
             },
             {
-                targets: [3], // Date column
+                targets: [4], // Date column
                 type: 'string',
                 render: function(data, type, row) {
                     return data || 'N/A';
@@ -894,15 +1213,226 @@ $(document).ready(function() {
 
     // Custom column filters
     var table = $('#legacyArticlesPreviewTable').DataTable();
+    
+    // Excel-style filter dropdowns
+    var activeFilters = {};
+    var filterDropdowns = {};
+    var columnSearchFunctions = {};
+    
+    // Function to get unique values from a column
+    function getUniqueValues(columnIndex) {
+        var column = table.column(columnIndex);
+        var data = column.data().toArray();
+        var unique = [...new Set(data.map(function(val) {
+            return val === null || val === '' ? 'N/A' : String(val).trim();
+        }))].sort();
+        return unique;
+    }
+    
+    // Remove existing search function for a column
+    function removeColumnSearch(columnIndex) {
+        if (columnSearchFunctions[columnIndex]) {
+            var index = $.fn.dataTable.ext.search.indexOf(columnSearchFunctions[columnIndex]);
+            if (index !== -1) {
+                $.fn.dataTable.ext.search.splice(index, 1);
+            }
+            delete columnSearchFunctions[columnIndex];
+        }
+    }
+    
+    // Function to create filter dropdown
+    function createFilterDropdown(columnIndex, columnName) {
+        var uniqueValues = getUniqueValues(columnIndex);
+        var selectedValues = activeFilters[columnIndex] || uniqueValues;
+        
+        var dropdown = $('<div class="filter-dropdown" data-column="' + columnIndex + '"></div>');
+        
+        // Header
+        var header = $('<div class="filter-dropdown-header"></div>');
+        header.append('<strong>Filtrer ' + columnName + '</strong>');
+        dropdown.append(header);
+        
+        // Body
+        var body = $('<div class="filter-dropdown-body"></div>');
+        
+        // Clear filter link
+        var clearLink = $('<a href="#" class="filter-clear">Effacer le filtre de « ' + columnName + ' »</a>');
+        clearLink.on('click', function(e) {
+            e.preventDefault();
+            activeFilters[columnIndex] = null;
+            removeColumnSearch(columnIndex);
+            table.column(columnIndex).search('').draw();
+            $('.filter-btn[data-column="' + columnIndex + '"]').removeClass('active');
+            dropdown.removeClass('show');
+        });
+        body.append(clearLink);
+        
+        // Search box
+        var searchBox = $('<input type="text" class="filter-search" placeholder="Rechercher...">');
+        body.append(searchBox);
+        
+        // Options list
+        var optionsList = $('<ul class="filter-options"></ul>');
+        
+        // Select All option
+        var selectAllOption = $('<li class="filter-option"></li>');
+        var selectAllCheckbox = $('<input type="checkbox" id="select-all-' + columnIndex + '" checked>');
+        var selectAllLabel = $('<label for="select-all-' + columnIndex + '">(Sélectionner tout)</label>');
+        selectAllOption.append(selectAllCheckbox).append(selectAllLabel);
+        optionsList.append(selectAllOption);
+        
+        // Individual options
+        uniqueValues.forEach(function(value) {
+            var isSelected = selectedValues.includes(value);
+            var option = $('<li class="filter-option"></li>');
+            var checkbox = $('<input type="checkbox" id="filter-' + columnIndex + '-' + value.replace(/[^a-zA-Z0-9]/g, '-') + '" value="' + value.replace(/"/g, '&quot;') + '" ' + (isSelected ? 'checked' : '') + '>');
+            var label = $('<label for="filter-' + columnIndex + '-' + value.replace(/[^a-zA-Z0-9]/g, '-') + '">' + value + '</label>');
+            option.append(checkbox).append(label);
+            optionsList.append(option);
+        });
+        
+        body.append(optionsList);
+        dropdown.append(body);
+        
+        // Footer
+        var footer = $('<div class="filter-dropdown-footer"></div>');
+        var okBtn = $('<button class="filter-btn-ok">OK</button>');
+        var cancelBtn = $('<button class="filter-btn-cancel">Annuler</button>');
+        footer.append(okBtn).append(cancelBtn);
+        dropdown.append(footer);
+        
+        // Search functionality
+        searchBox.on('keyup', function() {
+            var searchTerm = $(this).val().toLowerCase();
+            optionsList.find('.filter-option').each(function() {
+                var text = $(this).text().toLowerCase();
+                if (text.includes(searchTerm) || text === '(sélectionner tout)') {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+        
+        // Select All functionality
+        selectAllCheckbox.on('change', function() {
+            var isChecked = $(this).is(':checked');
+            optionsList.find('input[type="checkbox"]:not(#select-all-' + columnIndex + ')').prop('checked', isChecked);
+        });
+        
+        // Individual checkbox change
+        optionsList.on('change', 'input[type="checkbox"]:not(#select-all-' + columnIndex + ')', function() {
+            var allChecked = optionsList.find('input[type="checkbox"]:not(#select-all-' + columnIndex + '):visible').length === 
+                           optionsList.find('input[type="checkbox"]:not(#select-all-' + columnIndex + '):visible:checked').length;
+            selectAllCheckbox.prop('checked', allChecked);
+        });
+        
+        // OK button
+        okBtn.on('click', function() {
+            var selected = [];
+            optionsList.find('input[type="checkbox"]:not(#select-all-' + columnIndex + '):checked').each(function() {
+                selected.push($(this).val());
+            });
+            
+            // Remove existing search function for this column
+            removeColumnSearch(columnIndex);
+            
+            if (selected.length === uniqueValues.length) {
+                // All selected, clear filter
+                activeFilters[columnIndex] = null;
+                table.column(columnIndex).search('').draw();
+                $('.filter-btn[data-column="' + columnIndex + '"]').removeClass('active');
+            } else {
+                // Apply filter
+                activeFilters[columnIndex] = selected;
+                table.column(columnIndex).search('').draw();
+                
+                // Create custom search function
+                var searchFunction = function(settings, data, dataIndex) {
+                    if (settings.nTable.id !== 'legacyArticlesPreviewTable') {
+                        return true;
+                    }
+                    var colIndex = columnIndex;
+                    var cellValue = data[colIndex] === null || data[colIndex] === '' ? 'N/A' : String(data[colIndex]).trim();
+                    return selected.includes(cellValue);
+                };
+                
+                // Store the function reference
+                columnSearchFunctions[columnIndex] = searchFunction;
+                
+                // Add to DataTables search
+                $.fn.dataTable.ext.search.push(searchFunction);
+                table.draw();
+                $('.filter-btn[data-column="' + columnIndex + '"]').addClass('active');
+            }
+            
+            dropdown.removeClass('show');
+        });
+        
+        // Cancel button
+        cancelBtn.on('click', function() {
+            dropdown.removeClass('show');
+        });
+        
+        return dropdown;
+    }
+    
+    // Handle filter button clicks
+    $(document).on('click', '.filter-btn', function(e) {
+        e.stopPropagation();
+        var columnIndex = $(this).data('column');
+        var columnName = table.column(columnIndex).header().textContent.trim();
+        var th = $(this).closest('th');
+        
+        // Close other dropdowns
+        $('.filter-dropdown').removeClass('show');
+        
+        // Create or get dropdown
+        if (!filterDropdowns[columnIndex]) {
+            var dropdown = createFilterDropdown(columnIndex, columnName);
+            filterDropdowns[columnIndex] = dropdown;
+            $('body').append(dropdown);
+        }
+        
+        var dropdown = filterDropdowns[columnIndex];
+        
+        // Position dropdown
+        var thOffset = th.offset();
+        var thWidth = th.outerWidth();
+        dropdown.css({
+            top: (thOffset.top + th.outerHeight()) + 'px',
+            left: thOffset.left + 'px',
+            width: Math.max(250, thWidth) + 'px'
+        });
+        
+        // Show dropdown
+        dropdown.addClass('show');
+        
+        // Update checkboxes based on current filter
+        var selectedValues = activeFilters[columnIndex];
+        if (selectedValues) {
+            dropdown.find('input[type="checkbox"]').each(function() {
+                var value = $(this).val();
+                $(this).prop('checked', selectedValues.includes(value));
+            });
+        }
+    });
+    
+    // Close dropdowns when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.filter-btn, .filter-dropdown').length) {
+            $('.filter-dropdown').removeClass('show');
+        }
+    });
 
     // Filter by Province
     $('#filterProvince').on('change', function() {
-        table.column(2).search(this.value).draw();
+        table.column(3).search(this.value).draw();
     });
 
     // Filter by Essence
     $('#filterEssence').on('change', function() {
-        table.column(4).search(this.value).draw();
+        table.column(5).search(this.value).draw();
     });
 
     // Filter by DREF
@@ -918,7 +1448,7 @@ $(document).ready(function() {
                 return true; // Show all if no year selected
             }
             
-            var dateValue = data[3]; // Date column index
+            var dateValue = data[4]; // Date column index (updated for new column order)
             if (!dateValue || dateValue === 'N/A') {
                 return false; // Hide rows with invalid dates
             }
@@ -933,6 +1463,37 @@ $(document).ready(function() {
             return false;
         }
     );
+
+    // Reset filters
+    $('#resetFilters').on('click', function() {
+        $('#filterProvince').val('');
+        $('#filterEssence').val('');
+        $('#filterDref').val('');
+        $('#filterYear').val('');
+        
+        // Remove custom year filter
+        $.fn.dataTable.ext.search.pop();
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                var selectedYear = $('#filterYear').val();
+                if (!selectedYear) {
+                    return true;
+                }
+                var dateValue = data[4];
+                if (!dateValue || dateValue === 'N/A') {
+                    return false;
+                }
+                var dateParts = dateValue.split('/');
+                if (dateParts.length === 3) {
+                    var year = dateParts[2];
+                    return year === selectedYear;
+                }
+                return false;
+            }
+        );
+        
+        table.search('').columns().search('').draw();
+    });
 
     $('#filterYear').on('change', function() {
         table.draw();
@@ -953,7 +1514,7 @@ $(document).ready(function() {
                 if (!selectedYear) {
                     return true;
                 }
-                var dateValue = data[3];
+                var dateValue = data[4];
                 if (!dateValue || dateValue === 'N/A') {
                     return false;
                 }

@@ -2347,7 +2347,158 @@
     <script src="{{ asset('js/app.js') }}"></script>
 
     <!-- Additional Scripts -->
+    <!-- Excel-style Filter CSS -->
+    <style>
+        /* Excel-style filter dropdown */
+        .filter-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px 4px;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+        
+        .filter-btn.active {
+            color: #3b82f6 !important;
+        }
+        
+        .filter-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+            min-width: 250px;
+            max-width: 350px;
+            max-height: 400px;
+            display: none;
+            font-size: 13px;
+        }
+        
+        .filter-dropdown.show {
+            display: block;
+        }
+        
+        .filter-dropdown-header {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        
+        .filter-dropdown-body {
+            padding: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        
+        .filter-search {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .filter-search:focus {
+            outline: none;
+            border-color: #3b82f6;
+            ring: 2px;
+            ring-color: #3b82f6;
+        }
+        
+        .filter-options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .filter-option {
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        
+        .filter-option:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .filter-option input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .filter-option label {
+            cursor: pointer;
+            flex: 1;
+            user-select: none;
+        }
+        
+        .filter-dropdown-footer {
+            padding: 8px 12px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        
+        .filter-btn-ok {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .filter-btn-ok:hover {
+            background-color: #2563eb;
+        }
+        
+        .filter-btn-cancel {
+            background-color: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .filter-btn-cancel:hover {
+            background-color: #f9fafb;
+        }
+        
+        .filter-clear {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 4px 8px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        
+        .filter-clear:hover {
+            text-decoration: underline;
+        }
+    </style>
+
     @stack('scripts')
+    
+    <!-- Excel-style Filter JavaScript -->
+    <script src="{{ asset('js/excel-filters.js') }}"></script>
 
     <script>
         // Mobile sidebar toggle

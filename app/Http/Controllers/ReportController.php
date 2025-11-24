@@ -814,13 +814,23 @@ class ReportController extends Controller
 
             return [
                 'dref' => $article->dref ?? 'N/A',
+                'numero_article' => $article->numero_article ?? 'N/A',
                 'foret' => $article->foret ?? 'N/A',
                 'province' => $article->province ?? 'N/A',
                 'date' => $formattedDate,
                 'essence' => $article->essence ?? 'N/A',
+                'intervent' => $article->intervent ?? 'N/A',
                 'surface' => $article->surface ? number_format($article->surface, 2) : 'N/A',
+                'bom3' => $article->bom3 ? number_format($article->bom3, 2) : 'N/A',
+                'bim3' => $article->bim3 ? number_format($article->bim3, 2) : 'N/A',
+                'bfst' => $article->bfst ? number_format($article->bfst, 2) : 'N/A',
+                'lcst' => $article->lcst ? number_format($article->lcst, 2) : 'N/A',
+                'ett' => $article->ett ? number_format($article->ett, 2) : 'N/A',
+                'pst' => $article->pst ? number_format($article->pst, 2) : 'N/A',
                 'volume' => $formattedVolume,
+                'acheteur' => $article->acheteur ?? 'N/A',
                 'ppdh' => $article->ppdh ? number_format($article->ppdh, 2) : 'N/A',
+                'dr' => $article->dr ?? 'N/A',
             ];
         });
 

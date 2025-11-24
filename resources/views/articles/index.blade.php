@@ -203,17 +203,65 @@
         <!-- Data Table -->
         <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table id="articlesTable" class="w-full">
                     <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Année</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Numéro</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date d'Adjudication</th>
-                            
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Prix de Retrait</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Prix de Vente</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>ID</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="0" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Année</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="1" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Numéro</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="2" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Date d'Adjudication</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="3" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Prix de Retrait</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="4" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Prix de Vente</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="5" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Type</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="6" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -221,25 +269,24 @@
                         @forelse($articles as $article)
                             <tr class="hover:bg-gray-50 transition-colors duration-200">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $article->id }}</td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <span class="badge bg-primary">{{ $article->annee ?? '-' }}</span>
                                 </td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if($article->numero)
                                         <span class="badge bg-secondary">{{ $article->numero }}</span>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if($article->date_adjudication)
                                         {{ $article->date_adjudication->format('d/m/Y') }}
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if($article->prix_de_retrait)
                                         <span class="badge bg-warning text-dark">
                                             {{ number_format($article->prix_de_retrait, 2) }} DH
@@ -248,7 +295,7 @@
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if($article->prix_vente)
                                         <span class="badge bg-success">
                                             {{ number_format($article->prix_vente, 2) }} DH
@@ -257,7 +304,7 @@
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if($article->type)
                                         <span class="badge {{ $article->type == 'appel_doffre' ? 'bg-info' : 'bg-primary' }}">
                                             {{ $article->type == 'appel_doffre' ? 'Appel d\'Offre' : 'Adjudication' }}
@@ -266,7 +313,7 @@
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <div class="flex items-center gap-1">
                                         <!-- View Action -->
                                         <a href="{{ route('articles.show', $article) }}" 
@@ -295,11 +342,11 @@
                                         </form>
                                     </div>
                                 </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="12" class="text-center py-4">
-                                        <div class="text-muted">
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <div class="text-muted">
                                             <i class="fas fa-file-alt text-4xl mb-2 d-block"></i>
                                             <p class="h5 mb-2">Aucun article créé</p>
                                             <p class="text-muted mb-3">Commencez par créer votre premier article forestier</p>
@@ -1279,4 +1326,46 @@ document.addEventListener('DOMContentLoaded', function() {
         @apply w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400;
     }
 </style>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
+
+<!-- jQuery (required for DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#articlesTable').DataTable({
+        processing: false,
+        serverSide: false,
+        order: [[3, 'desc']], // Sort by date
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+        },
+        columnDefs: [
+            {
+                targets: [4, 5], // Price columns
+                type: 'num',
+                render: function(data, type, row) {
+                    if (type === 'display' || type === 'filter') {
+                        // Extract number from badge text
+                        var match = data.match(/[\d,]+\.?\d*/);
+                        return match ? match[0].replace(/,/g, '') : '0';
+                    }
+                    return data;
+                }
+            }
+        ]
+    });
+    
+    // Initialize Excel-style filters
+    ExcelFilters.init('articlesTable');
+});
+</script>
 @endpush
