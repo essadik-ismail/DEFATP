@@ -121,7 +121,7 @@
                             <option value="">Sélectionner une localisation</option>
                             @foreach($localisations as $localisation)
                                 <option value="{{ $localisation->id }}" {{ old('localisation_id', $contract->localisation_id) == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }}
+                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                 </option>
                             @endforeach
                         </select>

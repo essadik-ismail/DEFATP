@@ -825,6 +825,31 @@ class SettingsController extends Controller
         ]);
     }
 
+    public function serveExploitantImagePublic(Exploitant $exploitant): BinaryFileResponse
+    {
+        // Public method for verification page (no authentication required)
+        // Check if exploitant has an image
+        if (!$exploitant->image) {
+            abort(404, 'Image not found');
+        }
+
+        // Check if file exists
+        if (!Storage::disk('local')->exists($exploitant->image)) {
+            abort(404, 'Image file not found');
+        }
+
+        // Get file path and mime type
+        $path = Storage::disk('local')->path($exploitant->image);
+        $mimeType = Storage::disk('local')->mimeType($exploitant->image);
+
+        // Return file response with security headers
+        return response()->file($path, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'public, max-age=3600',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     // Localisations Management
     public function localisations(Request $request): View
     {

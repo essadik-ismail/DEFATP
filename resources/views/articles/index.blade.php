@@ -278,9 +278,8 @@
                                             <i class="fas fa-edit text-sm"></i>
                                         </a>
                                         
-                                        
                                         <!-- Delete Action -->
-                                        <form action="{{ route('articles.destroy', $article) }}" method="POST" class="inline">
+                                        <form action="{{ route('articles.destroy', $article) }}" method="POST" style="display: contents;">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" 

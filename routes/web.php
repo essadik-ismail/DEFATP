@@ -29,6 +29,7 @@ Route::middleware('guest')->group(function () {
 
 // Guest verification route (no authentication required)
 Route::get('/verify-exploitant/{exploitant}', [SettingsController::class, 'verifyExploitant'])->name('verify-exploitant');
+Route::get('/verify-exploitant/{exploitant}/image', [SettingsController::class, 'serveExploitantImagePublic'])->name('verify-exploitant.image');
 
 // Notification routes
 Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {

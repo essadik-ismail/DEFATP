@@ -83,11 +83,20 @@ class ContractSeeder extends Seeder
                     $especes = $contractData['especes'] ?? [];
                     unset($contractData['especes']);
 
+                    // Handle forets relationship
+                    $forets = $contractData['forets'] ?? [];
+                    unset($contractData['forets']);
+
                     $contract = Contract::create($contractData);
 
                     // Attach especes
                     if (!empty($especes)) {
                         $contract->especes()->attach($especes);
+                    }
+
+                    // Attach forets
+                    if (!empty($forets)) {
+                        $contract->forets()->attach($forets);
                     }
 
                     $createdCount++;
@@ -172,23 +181,38 @@ class ContractSeeder extends Seeder
             $data['situation_administrative_id'] = $defaultSituation ? $defaultSituation->id : null;
         }
 
+        // Handle forets separately (many-to-many relationship)
+        $forets = [];
         if (isset($item['foret_id'])) {
-            $data['foret_id'] = (int) $item['foret_id'];
+            $foret = Foret::find((int) $item['foret_id']);
+            if ($foret) {
+                $forets[] = $foret->id;
+            }
         } elseif (isset($item['foret'])) {
             $foret = Foret::where('foret', $item['foret'])->first();
-            $data['foret_id'] = $foret ? $foret->id : null;
+            if ($foret) {
+                $forets[] = $foret->id;
+            }
         } elseif (isset($item['Forêt']) && !empty($item['Forêt'])) {
             // Handle multiple forets separated by ";"
             $foretValue = $item['Forêt'];
-            if (strpos($foretValue, ';') !== false) {
-                // Take the first foret if multiple
-                $foretValue = trim(explode(';', $foretValue)[0]);
+            $foretValues = strpos($foretValue, ';') !== false 
+                ? explode(';', $foretValue) 
+                : [$foretValue];
+            
+            foreach ($foretValues as $fv) {
+                $fv = trim($fv);
+                if (empty($fv)) continue;
+                
+                $foret = Foret::where('id', $fv)
+                    ->orWhere('foret', 'like', '%' . $fv . '%')
+                    ->first();
+                if ($foret && !in_array($foret->id, $forets)) {
+                    $forets[] = $foret->id;
+                }
             }
-            $foret = Foret::where('id', $foretValue)
-                ->orWhere('foret', 'like', '%' . $foretValue . '%')
-                ->first();
-            $data['foret_id'] = $foret ? $foret->id : null;
         }
+        $data['forets'] = $forets;
 
         if (isset($item['coperative_id'])) {
             $data['coperative_id'] = (int) $item['coperative_id'];
@@ -202,6 +226,18 @@ class ContractSeeder extends Seeder
                 ->orWhere('nom', 'like', '%' . $coopValue . '%')
                 ->first();
             $data['coperative_id'] = $coperative ? $coperative->id : null;
+        }
+        
+        // If still no coperative_id, try to get a default one (required field)
+        if (empty($data['coperative_id'])) {
+            $defaultCoperative = Coperative::first();
+            if ($defaultCoperative) {
+                $data['coperative_id'] = $defaultCoperative->id;
+            } else {
+                // If no coperatives exist, we can't create contracts
+                // This will be handled by the validation in the create method
+                $data['coperative_id'] = null;
+            }
         }
 
         // Especes - handle multiple values separated by ";"

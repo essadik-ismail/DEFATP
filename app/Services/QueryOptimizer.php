@@ -166,8 +166,8 @@ class QueryOptimizer
             if (isset($filters['activite'])) {
                 if ($filters['activite'] === 'BI') {
                     $query->BI();
-                } elseif ($filters['activite'] === 'BP') {
-                    $query->BP();
+                } elseif ($filters['activite'] === 'BO') {
+                    $query->BO();
                 } elseif ($filters['activite'] === 'PAM') {
                     $query->PAM();
                 }
