@@ -7,6 +7,53 @@
     <!-- Welcome Guide for New Users -->
     <x-welcome-guide :show="true" />
     
+    <!-- Actions Required Section -->
+    @if(isset($actionsRequired) && count($actionsRequired) > 0)
+    <div class="mb-8">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-red-500 to-pink-600">
+                <i class="fas fa-exclamation-circle text-white text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-pink-600">
+                    Actions Requises
+                </h2>
+                <p class="text-gray-600">Éléments nécessitant votre attention</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($actionsRequired as $action)
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer @if($action['priority'] === 'high') border-l-4 border-red-500 @elseif($action['priority'] === 'medium') border-l-4 border-yellow-500 @else border-l-4 border-blue-500 @endif" onclick="window.location.href='{{ $action['route'] }}'">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-14 h-14 bg-gradient-to-br {{ $action['color'] }} rounded-xl flex items-center justify-center">
+                        <i class="fas {{ $action['icon'] }} text-white text-xl"></i>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @if($action['priority'] === 'high')
+                            <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Urgent</span>
+                        @elseif($action['priority'] === 'medium')
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Moyen</span>
+                        @else
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Faible</span>
+                        @endif
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $action['title'] }}</h3>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-3xl font-bold bg-gradient-to-r {{ $action['color'] }} bg-clip-text text-transparent">{{ $action['count'] }}</span>
+                    <span class="text-gray-600 text-sm">élément(s)</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">{{ $action['description'] }}</p>
+                <div class="flex items-center gap-2 text-sm font-semibold" style="color: #059669;">
+                    <span>Voir les détails</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+    
     <!-- Welcome Card -->
     <!-- <div class="mb-8">
         <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center border border-white/20">

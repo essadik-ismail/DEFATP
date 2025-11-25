@@ -58,26 +58,21 @@
     </div>
     @endif
 
-    <!-- Draft Available Indicator -->
-    <div id="draftAvailableIndicator" class="hidden bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
+    <!-- Drafts Available Indicator -->
+    <div id="draftsAvailableIndicator" class="hidden bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <i class="fas fa-file-alt text-2xl"></i>
+                <i class="fas fa-folder-open text-2xl"></i>
                 <div>
-                    <div class="font-semibold">Brouillon disponible</div>
-                    <div class="text-sm" id="draftSavedAt"></div>
+                    <div class="font-semibold">Brouillons disponibles</div>
+                    <div class="text-sm" id="draftsCount">0 brouillon(s) sauvegardé(s)</div>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <button type="button" 
-                        onclick="loadDraft()" 
+                        onclick="showDraftsModal()" 
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                    <i class="fas fa-download mr-1"></i> Charger
-                </button>
-                <button type="button" 
-                        onclick="clearDraft()" 
-                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
-                    <i class="fas fa-trash mr-1"></i> Supprimer
+                    <i class="fas fa-list mr-1"></i> Gérer les brouillons
                 </button>
             </div>
         </div>
@@ -931,7 +926,7 @@
                     </button>
                     <button type="button" 
                             id="saveDraftBtn"
-                            onclick="saveAsDraft()"
+                            onclick="showSaveDraftModal()"
                             class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg">
                         <i class="fas fa-file-alt"></i>
                         <span>Enregistrer comme brouillon</span>
@@ -949,6 +944,63 @@
             <div id="draftIndicator" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2">
                 <i class="fas fa-check-circle"></i>
                 <span>Brouillon enregistré avec succès</span>
+            </div>
+            
+            <!-- Save Draft Modal -->
+            <div id="saveDraftModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900">Enregistrer le brouillon</h3>
+                        <button type="button" onclick="closeSaveDraftModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="mb-6">
+                        <label for="draftName" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Nom du brouillon
+                        </label>
+                        <input type="text" 
+                               id="draftName" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Ex: Contrat Forêt X - 2024"
+                               maxlength="100">
+                        <p class="text-sm text-gray-500 mt-2">Donnez un nom descriptif à votre brouillon pour le retrouver facilement.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button type="button" 
+                                onclick="closeSaveDraftModal()" 
+                                class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors">
+                            Annuler
+                        </button>
+                        <button type="button" 
+                                onclick="saveDraftWithName()" 
+                                class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all">
+                            <i class="fas fa-save mr-2"></i> Enregistrer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Manage Drafts Modal -->
+            <div id="draftsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900">Gérer les brouillons</h3>
+                        <button type="button" onclick="closeDraftsModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="draftsList" class="flex-1 overflow-y-auto mb-6 space-y-3">
+                        <!-- Drafts will be loaded here -->
+                    </div>
+                    <div class="flex items-center gap-3 pt-4 border-t border-gray-200">
+                        <button type="button" 
+                                onclick="closeDraftsModal()" 
+                                class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors">
+                            Fermer
+                        </button>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
@@ -1191,18 +1243,42 @@ function validateStep(step) {
     return isValid;
 }
 
-// Save as draft functionality
-function saveAsDraft() {
+// Get all drafts from localStorage
+function getAllDrafts() {
+    try {
+        const draftsStr = localStorage.getItem('contract_drafts');
+        if (!draftsStr) return [];
+        return JSON.parse(draftsStr);
+    } catch (e) {
+        console.error('Error loading drafts:', e);
+        return [];
+    }
+}
+
+// Save all drafts to localStorage
+function saveAllDrafts(drafts) {
+    try {
+        localStorage.setItem('contract_drafts', JSON.stringify(drafts));
+    } catch (e) {
+        console.error('Error saving drafts:', e);
+        alert('Erreur lors de l\'enregistrement des brouillons');
+    }
+}
+
+// Collect form data
+function collectFormData() {
     const form = document.getElementById('contractForm');
-    if (!form) return;
+    if (!form) return {};
     
-    // Collect all form data
-    const formData = new FormData(form);
     const draftData = {};
     
     // Get all form inputs
     const inputs = form.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
+        if (input.type === 'file') {
+            // Skip file inputs
+            return;
+        }
         if (input.type === 'checkbox') {
             draftData[input.name] = input.checked ? input.value : '';
         } else if (input.type === 'radio') {
@@ -1253,168 +1329,191 @@ function saveAsDraft() {
     // Save current step
     draftData.currentStep = currentStep;
     
-    // Save timestamp
-    draftData.savedAt = new Date().toISOString();
-    
-    // Save to localStorage
-    try {
-        localStorage.setItem('contract_draft', JSON.stringify(draftData));
-        
-        // Show success indicator
-        const indicator = document.getElementById('draftIndicator');
-        if (indicator) {
-            indicator.classList.remove('hidden');
-            setTimeout(() => {
-                indicator.classList.add('hidden');
-            }, 3000);
-        }
-        
-        // Update draft available indicator
-        checkDraftExists();
-    } catch (e) {
-        console.error('Error saving draft:', e);
-        alert('Erreur lors de l\'enregistrement du brouillon');
-    }
+    return draftData;
 }
 
-// Check if draft exists
-function checkDraftExists() {
-    try {
-        const draftDataStr = localStorage.getItem('contract_draft');
-        if (!draftDataStr) {
-            document.getElementById('draftAvailableIndicator').classList.add('hidden');
-            return false;
+// Show save draft modal
+function showSaveDraftModal() {
+    document.getElementById('saveDraftModal').classList.remove('hidden');
+    document.getElementById('draftName').value = '';
+    document.getElementById('draftName').focus();
+}
+
+// Close save draft modal
+function closeSaveDraftModal() {
+    document.getElementById('saveDraftModal').classList.add('hidden');
+}
+
+// Save draft with name
+function saveDraftWithName() {
+    const draftName = document.getElementById('draftName').value.trim();
+    if (!draftName) {
+        alert('Veuillez entrer un nom pour le brouillon');
+        return;
+    }
+    
+    const draftData = collectFormData();
+    if (!draftData || Object.keys(draftData).length === 0) {
+        alert('Aucune donnée à sauvegarder');
+        return;
+    }
+    
+    // Add metadata
+    draftData.name = draftName;
+    draftData.savedAt = new Date().toISOString();
+    draftData.id = Date.now().toString();
+    
+    // Get all drafts
+    const drafts = getAllDrafts();
+    
+    // Check if name already exists
+    const existingIndex = drafts.findIndex(d => d.name === draftName);
+    if (existingIndex !== -1) {
+        if (!confirm('Un brouillon avec ce nom existe déjà. Voulez-vous le remplacer ?')) {
+            return;
         }
-        
-        const draftData = JSON.parse(draftDataStr);
-        const indicator = document.getElementById('draftAvailableIndicator');
-        const savedAtEl = document.getElementById('draftSavedAt');
-        
-        if (indicator && savedAtEl && draftData.savedAt) {
-            const savedDate = new Date(draftData.savedAt);
-            savedAtEl.textContent = 'Enregistré le ' + savedDate.toLocaleString('fr-FR');
+        drafts[existingIndex] = draftData;
+    } else {
+        drafts.push(draftData);
+    }
+    
+    // Save all drafts
+    saveAllDrafts(drafts);
+    
+    // Show success indicator
+    const indicator = document.getElementById('draftIndicator');
+    if (indicator) {
+        indicator.classList.remove('hidden');
+        setTimeout(() => {
+            indicator.classList.add('hidden');
+        }, 3000);
+    }
+    
+    // Close modal
+    closeSaveDraftModal();
+    
+    // Update drafts indicator
+    checkDraftsExists();
+}
+
+// Check if drafts exist
+function checkDraftsExists() {
+    const drafts = getAllDrafts();
+    const indicator = document.getElementById('draftsAvailableIndicator');
+    const countEl = document.getElementById('draftsCount');
+    
+    if (drafts.length > 0) {
+        if (indicator) {
             indicator.classList.remove('hidden');
         }
-        
+        if (countEl) {
+            countEl.textContent = drafts.length + ' brouillon(s) sauvegardé(s)';
+        }
         return true;
-    } catch (e) {
+    } else {
+        if (indicator) {
+            indicator.classList.add('hidden');
+        }
         return false;
     }
 }
 
 // Load draft from localStorage
-function loadDraft() {
-    try {
-        const draftDataStr = localStorage.getItem('contract_draft');
-        if (!draftDataStr) {
-            alert('Aucun brouillon trouvé');
-            return false;
-        }
-        
-        if (!confirm('Charger le brouillon ? Les données actuelles seront remplacées.')) {
-            return false;
-        }
-        
-        const draftData = JSON.parse(draftDataStr);
-        const form = document.getElementById('contractForm');
-        if (!form) return false;
-        
-        // Restore form fields
-        Object.keys(draftData).forEach(key => {
-            if (key === 'prestations' || key === 'products' || key === 'currentStep' || key === 'savedAt') {
-                return; // Skip special fields
-            }
-            
-            const input = form.querySelector(`[name="${key}"]`);
-            if (!input) {
-                // Try array notation
-                if (Array.isArray(draftData[key])) {
-                    draftData[key].forEach(value => {
-                        const arrayInput = form.querySelector(`[name="${key}[]"][value="${value}"]`);
-                        if (arrayInput) {
-                            arrayInput.selected = true;
-                        }
-                    });
-                }
-                return;
-            }
-            
-            if (input.type === 'checkbox') {
-                input.checked = draftData[key] === input.value || draftData[key] === '1';
-            } else if (input.type === 'radio') {
-                if (input.value === draftData[key]) {
-                    input.checked = true;
-                }
-            } else if (input.tagName === 'SELECT' && input.multiple) {
-                // Handle multiple select
-                if (Array.isArray(draftData[key])) {
-                    Array.from(input.options).forEach(option => {
-                        option.selected = draftData[key].includes(option.value);
-                    });
-                }
-            } else {
-                input.value = draftData[key] || '';
-            }
-        });
-        
-        // Restore dynamic prestations
-        if (draftData.prestations && Array.isArray(draftData.prestations)) {
-            draftData.prestations.forEach(prestation => {
-                addPrestation();
-                const rows = document.querySelectorAll('.prestation-row');
-                const lastRow = rows[rows.length - 1];
-                if (lastRow) {
-                    const nameInput = lastRow.querySelector('input[name*="[name]"]');
-                    const quantityInput = lastRow.querySelector('input[name*="[quantity]"]');
-                    if (nameInput) nameInput.value = prestation.name || '';
-                    if (quantityInput) quantityInput.value = prestation.quantity || '';
-                }
-            });
-        }
-        
-        // Restore dynamic products
-        if (draftData.products && Array.isArray(draftData.products)) {
-            draftData.products.forEach(product => {
-                addProduct();
-                const rows = document.querySelectorAll('.product-row');
-                const lastRow = rows[rows.length - 1];
-                if (lastRow) {
-                    const nameInput = lastRow.querySelector('input[name*="[name]"]');
-                    const quantityInput = lastRow.querySelector('input[name*="[quantity]"]');
-                    if (nameInput) nameInput.value = product.name || '';
-                    if (quantityInput) quantityInput.value = product.quantity || '';
-                }
-            });
-        }
-        
-        // Restore current step
-        if (draftData.currentStep) {
-            currentStep = draftData.currentStep;
-            if (typeof showStep === 'function') {
-                showStep(currentStep);
-            }
-        }
-        
-        // Show cooperative info if selected
-        const select = document.getElementById('coperative_id');
-        if (select && select.value) {
-            showCooperativeInfo(select.value);
-        }
-        
-        return true;
-    } catch (e) {
-        console.error('Error loading draft:', e);
-        return false;
+// This function is now replaced by loadDraft(draftId) above
+
+// Delete draft by ID
+function deleteDraft(draftId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce brouillon ?')) {
+        return;
     }
+    
+    const drafts = getAllDrafts();
+    const filteredDrafts = drafts.filter(d => d.id !== draftId);
+    saveAllDrafts(filteredDrafts);
+    
+    // Refresh drafts list
+    loadDraftsList();
+    checkDraftsExists();
 }
 
-// Clear draft when form is successfully submitted
-function clearDraft() {
-    if (confirm('Êtes-vous sûr de vouloir supprimer le brouillon ?')) {
-        localStorage.removeItem('contract_draft');
-        document.getElementById('draftAvailableIndicator').classList.add('hidden');
-        alert('Brouillon supprimé avec succès');
+// Show drafts modal
+function showDraftsModal() {
+    document.getElementById('draftsModal').classList.remove('hidden');
+    loadDraftsList();
+}
+
+// Close drafts modal
+function closeDraftsModal() {
+    document.getElementById('draftsModal').classList.add('hidden');
+}
+
+// Load and display drafts list
+function loadDraftsList() {
+    const drafts = getAllDrafts();
+    const draftsList = document.getElementById('draftsList');
+    
+    if (!draftsList) return;
+    
+    if (drafts.length === 0) {
+        draftsList.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-folder-open text-4xl mb-4"></i>
+                <p>Aucun brouillon sauvegardé</p>
+            </div>
+        `;
+        return;
     }
+    
+    // Sort by date (newest first)
+    drafts.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+    
+    draftsList.innerHTML = drafts.map(draft => {
+        const savedDate = new Date(draft.savedAt);
+        const dateStr = savedDate.toLocaleString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        return `
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:border-blue-300 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-900 mb-1">${escapeHtml(draft.name || 'Brouillon sans nom')}</h4>
+                        <p class="text-sm text-gray-500">${dateStr}</p>
+                        ${draft.currentStep ? `<p class="text-xs text-gray-400 mt-1">Étape ${draft.currentStep}/4</p>` : ''}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" 
+                                onclick="loadDraft('${draft.id}')" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                            <i class="fas fa-download mr-1"></i> Charger
+                        </button>
+                        <button type="button" 
+                                onclick="deleteDraft('${draft.id}')" 
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Clear all drafts (for form submission)
+function clearAllDrafts() {
+    localStorage.removeItem('contract_drafts');
+    checkDraftsExists();
 }
 
 // Show cooperative info on page load if already selected
@@ -1455,8 +1554,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 return false;
             }
-            // Clear draft on successful submission
-            clearDraft();
+            // Clear all drafts on successful submission
+            clearAllDrafts();
         });
     }
     
@@ -1470,10 +1569,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 200);
     
-    // Auto-save draft every 30 seconds
-    setInterval(function() {
-        saveAsDraft();
-    }, 30000);
+    // Close modals on outside click
+    document.getElementById('saveDraftModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeSaveDraftModal();
+        }
+    });
+    
+    document.getElementById('draftsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDraftsModal();
+        }
+    });
 });
 
 </script>
