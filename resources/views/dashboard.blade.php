@@ -21,35 +21,58 @@
                 <p class="text-gray-600">Éléments nécessitant votre attention</p>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($actionsRequired as $action)
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer @if($action['priority'] === 'high') border-l-4 border-red-500 @elseif($action['priority'] === 'medium') border-l-4 border-yellow-500 @else border-l-4 border-blue-500 @endif" onclick="window.location.href='{{ $action['route'] }}'">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-14 h-14 bg-gradient-to-br {{ $action['color'] }} rounded-xl flex items-center justify-center">
-                        <i class="fas {{ $action['icon'] }} text-white text-xl"></i>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        @if($action['priority'] === 'high')
-                            <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Urgent</span>
-                        @elseif($action['priority'] === 'medium')
-                            <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Moyen</span>
-                        @else
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Faible</span>
-                        @endif
-                    </div>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $action['title'] }}</h3>
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="text-3xl font-bold bg-gradient-to-r {{ $action['color'] }} bg-clip-text text-transparent">{{ $action['count'] }}</span>
-                    <span class="text-gray-600 text-sm">élément(s)</span>
-                </div>
-                <p class="text-gray-600 text-sm mb-4">{{ $action['description'] }}</p>
-                <div class="flex items-center gap-2 text-sm font-semibold" style="color: #059669;">
-                    <span>Voir les détails</span>
-                    <i class="fas fa-arrow-right"></i>
-                </div>
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Description</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Quantité</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Priorité</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @foreach($actionsRequired as $action)
+                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='{{ $action['route'] }}'">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br {{ $action['color'] }} rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="fas {{ $action['icon'] }} text-white"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-gray-900">{{ $action['title'] }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600">{{ $action['description'] }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <span class="text-lg font-bold bg-gradient-to-r {{ $action['color'] }} bg-clip-text text-transparent">{{ $action['count'] }}</span>
+                                <span class="text-xs text-gray-500 ml-1">élément(s)</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                @if($action['priority'] === 'high')
+                                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Urgent</span>
+                                @elseif($action['priority'] === 'medium')
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Moyen</span>
+                                @else
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">Faible</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="flex items-center justify-center gap-2 text-sm font-semibold" style="color: #059669;">
+                                    <span>Voir</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            @endforeach
         </div>
     </div>
     @endif

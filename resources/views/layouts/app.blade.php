@@ -2345,6 +2345,9 @@
 
     <!-- Custom JavaScript -->
     <script src="{{ asset('js/app.js') }}"></script>
+    
+    <!-- Global Modal Manager - Load early for availability -->
+    <script src="{{ asset('js/modal.js') }}"></script>
 
     <!-- Additional Scripts -->
     <!-- Excel-style Filter CSS -->
