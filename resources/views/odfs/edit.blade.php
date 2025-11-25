@@ -118,7 +118,10 @@
             <div class="ml-3">
                 <h3 class="text-sm font-medium">Veuillez corriger les erreurs suivantes :</h3>
                 <ul class="mt-2 list-disc list-inside text-sm">
-                    @foreach ($errors->all() as $error)
+                    @php
+                        $uniqueErrors = array_unique($errors->all());
+                    @endphp
+                    @foreach ($uniqueErrors as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
@@ -161,7 +164,10 @@
                     <label for="odf_entite_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                         <i class="fas fa-building text-purple-600"></i>
                         <span>ODF Entité</span>
-                        <i class="fas fa-question-circle text-amber-500 text-xs cursor-help hover:text-amber-600 transition-colors" title="Sélectionner l'entité ODF"></i>
+                        <div class="relative group">
+                            <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                               onclick="showHelpModal('odf_entite_help')"></i>
+                        </div>
                     </label>
                     <div class="relative">
                         <select 
@@ -215,7 +221,10 @@
                     <label for="constitution" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                         <i class="fas fa-check-circle text-purple-600"></i>
                         <span>Constitution</span>
-                        <i class="fas fa-question-circle text-amber-500 text-xs cursor-help hover:text-amber-600 transition-colors" title="Statut de constitution de l'ODF"></i>
+                        <div class="relative group">
+                            <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                               onclick="showHelpModal('constitution_help')"></i>
+                        </div>
                     </label>
                     <div class="relative">
                         <select 
@@ -240,7 +249,10 @@
                     <label for="commentaire" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                         <i class="fas fa-comment-dots text-amber-600"></i>
                         <span>Commentaire</span>
-                        <i class="fas fa-question-circle text-amber-500 text-xs cursor-help hover:text-amber-600 transition-colors" title="Commentaires additionnels sur l'ODF"></i>
+                        <div class="relative group">
+                            <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                               onclick="showHelpModal('commentaire_help')"></i>
+                        </div>
                     </label>
                     <textarea 
                         class="form-input w-full px-4 py-3 border-2 border-gray-200 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 hover:border-amber-300 bg-white shadow-sm resize-none" 
@@ -261,7 +273,7 @@
                 </div>
 
                 <!-- Dépôt ODF Section (only show if not constituted) -->
-                @if(!$odf->constitution)
+                @if($odf->constitution)
                 <div class="form-group md:col-span-2">
                     <div class="bg-gradient-to-br from-white to-blue-50/50 rounded-xl p-5 border-2 border-blue-200 shadow-sm">
                         <div class="flex items-center gap-3 mb-4 pb-3 border-b border-blue-100">
@@ -278,6 +290,10 @@
                                 <label for="date_depot_odf" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                     <i class="fas fa-calendar text-blue-600 text-xs"></i>
                                     <span>Date de Dépôt ODF</span>
+                                    <div class="relative group">
+                                        <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                                           onclick="showHelpModal('date_depot_odf_help')"></i>
+                                    </div>
                                 </label>
                                 <input type="date" 
                                     class="form-input w-full px-3 py-2 border-2 border-gray-200 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300 bg-white shadow-sm" 
@@ -296,6 +312,10 @@
                                 <label for="fichier_joint_depot_odf" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                     <i class="fas fa-file-upload text-blue-600 text-xs"></i>
                                     <span>Fichier Joint Dépôt ODF</span>
+                                    <div class="relative group">
+                                        <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                                           onclick="showHelpModal('fichier_joint_depot_odf_help')"></i>
+                                    </div>
                                 </label>
                                 @if($odf->fichier_joint_depot_odf)
                                     <div class="mb-2 p-2 bg-blue-50 rounded-lg border-2 border-blue-200 flex items-center gap-2">
@@ -340,6 +360,10 @@
                                 <label for="date_reçu_du_définition" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                     <i class="fas fa-calendar text-cyan-600 text-xs"></i>
                                     <span>Date Réçu du Définition</span>
+                                    <div class="relative group">
+                                        <i class="fas fa-question-circle text-cyan-500 text-xs cursor-pointer hover:text-cyan-600 transition-colors" 
+                                           onclick="showHelpModal('date_reçu_du_définition_help')"></i>
+                                    </div>
                                 </label>
                                 <input type="date" 
                                     class="form-input w-full px-3 py-2 border-2 border-gray-200 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 hover:border-cyan-300 bg-white shadow-sm" 
@@ -358,6 +382,10 @@
                                 <label for="fichier_joint_reçu_du_définition" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                     <i class="fas fa-file-download text-cyan-600 text-xs"></i>
                                     <span>Fichier Joint Réçu du Définition</span>
+                                    <div class="relative group">
+                                        <i class="fas fa-question-circle text-cyan-500 text-xs cursor-pointer hover:text-cyan-600 transition-colors" 
+                                           onclick="showHelpModal('fichier_joint_reçu_du_définition_help')"></i>
+                                    </div>
                                 </label>
                                 @if($odf->fichier_joint_reçu_du_définition)
                                     <div class="mb-2 p-2 bg-cyan-50 rounded-lg border-2 border-cyan-200 flex items-center gap-2">
@@ -438,7 +466,13 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="step_date" class="block text-sm font-semibold text-gray-700 mb-2">Date *</label>
+                                <label for="step_date" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                    <span>Date *</span>
+                                    <div class="relative group">
+                                        <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                                           onclick="showHelpModal('step_date_help')"></i>
+                                    </div>
+                                </label>
                                 <input type="date" 
                                     id="step_date" 
                                     name="date" 
@@ -447,7 +481,13 @@
                             </div>
 
                             <div>
-                                <label for="step_lieu" class="block text-sm font-semibold text-gray-700 mb-2">Lieu</label>
+                                <label for="step_lieu" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                    <span>Lieu</span>
+                                    <div class="relative group">
+                                        <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                                           onclick="showHelpModal('step_lieu_help')"></i>
+                                    </div>
+                                </label>
                                 <input type="text" 
                                     id="step_lieu" 
                                     name="lieu" 
@@ -456,7 +496,13 @@
                         </div>
 
                         <div>
-                            <label for="step_participant" class="block text-sm font-semibold text-gray-700 mb-2">Participant</label>
+                            <label for="step_participant" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <span>Participant</span>
+                                <div class="relative group">
+                                    <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                                       onclick="showHelpModal('step_participant_help')"></i>
+                                </div>
+                            </label>
                             <textarea id="step_participant" 
                                     name="participant" 
                                     rows="3"
@@ -464,7 +510,13 @@
                         </div>
 
                         <div>
-                            <label for="step_description" class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                            <label for="step_description" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <span>Description</span>
+                                <div class="relative group">
+                                    <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                                       onclick="showHelpModal('step_description_help')"></i>
+                                </div>
+                            </label>
                             <textarea id="step_description" 
                                     name="description" 
                                     rows="3"
@@ -472,7 +524,13 @@
                         </div>
 
                         <div>
-                            <label for="step_resultat" class="block text-sm font-semibold text-gray-700 mb-2">Résultat</label>
+                            <label for="step_resultat" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <span>Résultat</span>
+                                <div class="relative group">
+                                    <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                                       onclick="showHelpModal('step_resultat_help')"></i>
+                                </div>
+                            </label>
                             <textarea id="step_resultat" 
                                     name="resultat" 
                                     rows="3"
@@ -480,7 +538,13 @@
                         </div>
 
                         <div>
-                            <label for="step_fichierjoin" class="block text-sm font-semibold text-gray-700 mb-2">Fichier Joint</label>
+                            <label for="step_fichierjoin" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <span>Fichier Joint</span>
+                                <div class="relative group">
+                                    <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                                       onclick="showHelpModal('step_fichierjoin_help')"></i>
+                                </div>
+                            </label>
                             <div id="currentFileDisplay" class="mb-2 hidden p-3 bg-blue-50 rounded-lg border border-blue-200">
                                 <div class="flex items-center gap-2 text-sm text-blue-700">
                                     <i class="fas fa-file"></i>
@@ -780,7 +844,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                                 <span>Type Membre</span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Type de membre dans l'ODF"></i>
+                                <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('type_membre_help')"></i>
                             </label>
                             <select name="type_membre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                                 <option value="">Sélectionner</option>
@@ -793,35 +857,35 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                                 <span>Nom <span class="text-red-500">*</span></span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nom complet du membre"></i>
+                                <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('nom_membre_help')"></i>
                             </label>
                             <input type="text" name="nom" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                                 <span>N° CIN</span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro de Carte d'Identité Nationale"></i>
+                                <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('n_cin_help')"></i>
                             </label>
                             <input type="text" name="n_cin" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                                 <span>Téléphone</span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro de téléphone du membre"></i>
+                                <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('telephone_membre_help')"></i>
                             </label>
                             <input type="text" name="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                                 <span>Email</span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Adresse email du membre"></i>
+                                <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('email_membre_help')"></i>
                             </label>
                             <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                                 <span>Type ODF</span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Type d'ODF: Association, Coopérative, Entreprise, Élu, ou Citoyen"></i>
+                                <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('type_odf_help')"></i>
                             </label>
                             <select name="type_odf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                                 <option value="">Sélectionner</option>
@@ -835,14 +899,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                                 <span>Domaine d'Activité</span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Domaine d'activité de l'ODF"></i>
+                                <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('domaine_activite_help')"></i>
                             </label>
                             <input type="text" name="type_odf_domaine_activite" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                                 <span>Nombre de Membres</span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nombre de membres dans l'ODF"></i>
+                                <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('nombre_membres_help')"></i>
                             </label>
                             <input type="number" name="type_odf_nombre_de_membres" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         </div>
@@ -850,7 +914,7 @@
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                             <span>Commentaire</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Commentaires additionnels"></i>
+                            <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('commentaire_membre_help')"></i>
                         </label>
                         <textarea name="commentaire" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"></textarea>
                     </div>
@@ -1192,6 +1256,147 @@ function closeEditMemberModal() {
 document.getElementById('editMemberModal')?.addEventListener('click', function(e) {
     if (e.target === this) {
         closeEditMemberModal();
+    }
+});
+</script>
+<!-- Help Modal -->
+<div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-info-circle text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800">Aide</h3>
+                </div>
+                <button onclick="closeHelpModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="helpModalContent" class="text-gray-700">
+                <!-- Content will be inserted here -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeHelpModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showHelpModal(helpId) {
+    const helpContents = {
+        'odf_entite_help': {
+            title: 'ODF Entité',
+            content: 'Sélectionnez l\'entité ODF (Organisation de Développement Forestier) associée à cette ODF. Cette entité contient les informations de localisation (DRANEF, DPANEF, ENTITE) et de situation administrative (commune, province).'
+        },
+        'constitution_help': {
+            title: 'Constitution',
+            content: 'Indiquez si l\'ODF est constituée (Oui) ou non (Non). Une ODF constituée peut avoir des sections supplémentaires pour le dépôt ODF et la réception de définition. Si l\'ODF n\'est pas constituée, vous pourrez ajouter des étapes de constitution.'
+        },
+        'commentaire_help': {
+            title: 'Commentaire',
+            content: 'Ajoutez des commentaires ou notes additionnelles concernant cette ODF. Ce champ est optionnel et peut être utilisé pour documenter des informations supplémentaires ou des observations importantes.'
+        },
+        'date_depot_odf_help': {
+            title: 'Date de Dépôt ODF',
+            content: 'Saisissez la date à laquelle l\'ODF a été déposée. Cette date est importante pour le suivi administratif et légal de l\'organisation.'
+        },
+        'fichier_joint_depot_odf_help': {
+            title: 'Fichier Joint Dépôt ODF',
+            content: 'Téléchargez le fichier associé au dépôt de l\'ODF. Les formats acceptés sont : PDF, DOC, DOCX, JPG, JPEG, PNG. La taille maximale est de 10MB.'
+        },
+        'date_reçu_du_définition_help': {
+            title: 'Date Réçu du Définition',
+            content: 'Saisissez la date à laquelle le document de définition a été reçu. Ce champ est utilisé pour suivre la réception des documents officiels.'
+        },
+        'fichier_joint_reçu_du_définition_help': {
+            title: 'Fichier Joint Réçu du Définition',
+            content: 'Téléchargez le fichier du document de définition reçu. Les formats acceptés sont : PDF, DOC, DOCX, JPG, JPEG, PNG. La taille maximale est de 10MB.'
+        },
+        'step_date_help': {
+            title: 'Date de l\'Étape',
+            content: 'Saisissez la date à laquelle cette étape a eu lieu. Ce champ est obligatoire et permet de suivre chronologiquement les étapes de constitution de l\'ODF.'
+        },
+        'step_lieu_help': {
+            title: 'Lieu de l\'Étape',
+            content: 'Indiquez le lieu où cette étape s\'est déroulée. Ce champ est optionnel mais peut être utile pour la documentation.'
+        },
+        'step_participant_help': {
+            title: 'Participants',
+            content: 'Listez les participants à cette étape. Vous pouvez inclure les noms, rôles ou organisations des personnes présentes.'
+        },
+        'step_description_help': {
+            title: 'Description de l\'Étape',
+            content: 'Décrivez en détail ce qui s\'est passé lors de cette étape. Incluez les points importants discutés ou les actions entreprises.'
+        },
+        'step_resultat_help': {
+            title: 'Résultat de l\'Étape',
+            content: 'Indiquez les résultats ou conclusions de cette étape. Quels objectifs ont été atteints ou quelles décisions ont été prises ?'
+        },
+        'step_fichierjoin_help': {
+            title: 'Fichier Joint de l\'Étape',
+            content: 'Téléchargez un fichier associé à cette étape (compte-rendu, photos, documents, etc.). Les formats acceptés sont : PDF, DOC, DOCX, JPG, JPEG, PNG.'
+        },
+        'type_membre_help': {
+            title: 'Type de Membre',
+            content: 'Sélectionnez le type de membre dans l\'ODF : Présidente, Vice-Présidente, Trésorière, ou Membre. Ce champ permet de définir le rôle de la personne dans l\'organisation.'
+        },
+        'nom_membre_help': {
+            title: 'Nom du Membre',
+            content: 'Saisissez le nom complet du membre. Ce champ est obligatoire et doit contenir le prénom et le nom de famille.'
+        },
+        'n_cin_help': {
+            title: 'Numéro de Carte d\'Identité Nationale',
+            content: 'Saisissez le numéro de la Carte d\'Identité Nationale (CIN) du membre. Ce champ est optionnel mais recommandé pour l\'identification.'
+        },
+        'telephone_membre_help': {
+            title: 'Téléphone du Membre',
+            content: 'Saisissez le numéro de téléphone du membre. Ce champ est optionnel mais utile pour les communications.'
+        },
+        'email_membre_help': {
+            title: 'Email du Membre',
+            content: 'Saisissez l\'adresse email du membre. Ce champ est optionnel mais permet d\'envoyer des communications électroniques.'
+        },
+        'type_odf_help': {
+            title: 'Type d\'ODF',
+            content: 'Sélectionnez le type d\'ODF : Association, Coopérative, Entreprise, Élu, ou Citoyen. Ce champ définit la nature juridique ou le statut de l\'organisation.'
+        },
+        'domaine_activite_help': {
+            title: 'Domaine d\'Activité',
+            content: 'Indiquez le domaine d\'activité de l\'ODF. Ce champ décrit le secteur ou le type d\'activité principal de l\'organisation.'
+        },
+        'nombre_membres_help': {
+            title: 'Nombre de Membres',
+            content: 'Saisissez le nombre total de membres dans l\'ODF. Ce champ est optionnel mais permet de connaître la taille de l\'organisation.'
+        },
+        'commentaire_membre_help': {
+            title: 'Commentaire',
+            content: 'Ajoutez des commentaires ou notes additionnelles concernant ce membre. Ce champ est optionnel et peut être utilisé pour documenter des informations supplémentaires.'
+        }
+    };
+    
+    const help = helpContents[helpId];
+    if (help) {
+        document.getElementById('helpModalContent').innerHTML = `
+            <h4 class="font-semibold text-gray-800 mb-2">${help.title}</h4>
+            <p class="text-gray-600">${help.content}</p>
+        `;
+        document.getElementById('helpModal').classList.remove('hidden');
+    }
+}
+
+function closeHelpModal() {
+    document.getElementById('helpModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('helpModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeHelpModal();
     }
 });
 </script>

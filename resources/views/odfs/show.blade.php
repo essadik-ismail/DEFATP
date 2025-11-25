@@ -507,21 +507,21 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                         <span>Nom <span class="text-red-500">*</span></span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nom complet du membre"></i>
+                        <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('nom_membre_help')"></i>
                     </label>
                     <input type="text" name="nom" id="edit_member_nom" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                         <span>Téléphone</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro de téléphone du membre"></i>
+                        <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('telephone_membre_help')"></i>
                     </label>
                     <input type="text" name="tel" id="edit_member_tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                         <span>Type</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Type de membre: Association, Coopérative, Entreprise, Élu, ou Citoyen"></i>
+                        <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" onclick="showHelpModal('type_odf_help')"></i>
                     </label>
                     <select name="type" id="edit_member_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         <option value="">Sélectionner un type</option>
@@ -580,8 +580,72 @@
     </div>
 </div>
 
+<!-- Help Modal -->
+<div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-info-circle text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800">Aide</h3>
+                </div>
+                <button onclick="closeHelpModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="helpModalContent" class="text-gray-700">
+                <!-- Content will be inserted here -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeHelpModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
+function showHelpModal(helpId) {
+    const helpContents = {
+        'nom_membre_help': {
+            title: 'Nom du Membre',
+            content: 'Saisissez le nom complet du membre. Ce champ est obligatoire et doit contenir le prénom et le nom de famille.'
+        },
+        'telephone_membre_help': {
+            title: 'Téléphone du Membre',
+            content: 'Saisissez le numéro de téléphone du membre. Ce champ est optionnel mais utile pour les communications.'
+        },
+        'type_odf_help': {
+            title: 'Type d\'ODF',
+            content: 'Sélectionnez le type d\'ODF : Association, Coopérative, Entreprise, Élu, ou Citoyen. Ce champ définit la nature juridique ou le statut de l\'organisation.'
+        }
+    };
+    
+    const help = helpContents[helpId];
+    if (help) {
+        document.getElementById('helpModalContent').innerHTML = `
+            <h4 class="font-semibold text-gray-800 mb-2">${help.title}</h4>
+            <p class="text-gray-600">${help.content}</p>
+        `;
+        document.getElementById('helpModal').classList.remove('hidden');
+    }
+}
+
+function closeHelpModal() {
+    document.getElementById('helpModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('helpModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeHelpModal();
+    }
+});
+
     function switchTab(tabName) {
         // Hide all tab contents
         document.querySelectorAll('.tab-content').forEach(content => {

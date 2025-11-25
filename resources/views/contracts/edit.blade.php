@@ -48,7 +48,10 @@
     <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
         <div class="font-semibold mb-2">Erreurs de validation:</div>
         <ul class="list-disc pl-5">
-            @foreach ($errors->all() as $error)
+            @php
+                $uniqueErrors = array_unique($errors->all());
+            @endphp
+            @foreach ($uniqueErrors as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
@@ -106,6 +109,20 @@
                                value="{{ old('contarct', $contract->contarct) }}"
                                required>
                         @error('contarct')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Date
+                        </label>
+                        <input type="date" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="date" 
+                               name="date" 
+                               value="{{ old('date', $contract->date ? $contract->date->format('Y-m-d') : '') }}">
+                        @error('date')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
@@ -185,10 +202,16 @@
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                 id="coperative_id" 
                                 name="coperative_id" 
-                                required>
+                                required
+                                onchange="showCooperativeInfo(this.value)">
                             <option value="">Sélectionner une coopérative</option>
                             @foreach($coperatives as $coperative)
-                                <option value="{{ $coperative->id }}" {{ old('coperative_id', $contract->coperative_id) == $coperative->id ? 'selected' : '' }}>
+                                <option value="{{ $coperative->id }}" 
+                                        data-nom="{{ $coperative->nom }}"
+                                        data-vocation="{{ $coperative->vocation ? $coperative->vocation->name : 'N/A' }}"
+                                        data-nombre-membres="{{ $coperative->nombre_membres }}"
+                                        data-nombre-coperatives="{{ $coperative->nombre_coperatives }}"
+                                        {{ old('coperative_id', $contract->coperative_id) == $coperative->id ? 'selected' : '' }}>
                                     {{ $coperative->nom }}
                                 </option>
                             @endforeach
@@ -242,6 +265,34 @@
                 </div>
             </div>
 
+            <!-- Section: Coopérative Informations (Conditional) -->
+            <div id="cooperative-info-section" class="hidden bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl p-6 border border-cyan-200">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #06b6d4, #0891b2);">
+                        <i class="fas fa-users-cog text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold" style="color: #06b6d4;">Informations de la Coopérative</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-500 mb-1">Nom</label>
+                        <div class="text-lg font-medium text-gray-900" id="cooperative-nom">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-500 mb-1">Vocation</label>
+                        <div class="text-lg font-medium text-gray-900" id="cooperative-vocation">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-500 mb-1">Nombre de Membres</label>
+                        <div class="text-lg font-medium text-gray-900" id="cooperative-nombre-membres">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-500 mb-1">Nombre de Coopératives</label>
+                        <div class="text-lg font-medium text-gray-900" id="cooperative-nombre-coperatives">-</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Section 2: Prestations -->
             <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
                 <div class="flex items-center gap-3 mb-6">
@@ -251,22 +302,80 @@
                     <h3 class="text-xl font-bold" style="color: #059669;">Prestations</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="form-group">
-                        <label for="gardiennage" class="block text-sm font-semibold text-gray-700 mb-2">Gardiennage</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="gardiennage" 
-                               name="gardiennage" 
-                               value="{{ old('gardiennage', $contract->gardiennage) }}">
+                    <!-- Gardiennage Section -->
+                    <div class="form-group md:col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <span>Gardiennage</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur le gardiennage"></i>
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="gardiennage_nbjour" class="block text-xs font-medium text-gray-600 mb-1">Nombre de Jours</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_nbjour" 
+                                       name="gardiennage_nbjour" 
+                                       value="{{ old('gardiennage_nbjour', $contract->gardiennage_nbjour) }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="gardiennage_superficie" class="block text-xs font-medium text-gray-600 mb-1">Superficie</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_superficie" 
+                                       name="gardiennage_superficie" 
+                                       value="{{ old('gardiennage_superficie', $contract->gardiennage_superficie) }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="gardiennage_parcelle" class="block text-xs font-medium text-gray-600 mb-1">Parcelle</label>
+                                <input type="text" 
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_parcelle" 
+                                       name="gardiennage_parcelle" 
+                                       value="{{ old('gardiennage_parcelle', $contract->gardiennage_parcelle) }}">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="prevention_contre_les_incendies" class="block text-sm font-semibold text-gray-700 mb-2">Prévention contre les Incendies</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="prevention_contre_les_incendies" 
-                               name="prevention_contre_les_incendies" 
-                               value="{{ old('prevention_contre_les_incendies', $contract->prevention_contre_les_incendies) }}">
+                    <!-- Prévention Incendies Section -->
+                    <div class="form-group md:col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <span>Prévention contre les Incendies</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur la prévention contre les incendies"></i>
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="prevention_incendies_nbjour" class="block text-xs font-medium text-gray-600 mb-1">Nombre de Jours</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_nbjour" 
+                                       name="prevention_incendies_nbjour" 
+                                       value="{{ old('prevention_incendies_nbjour', $contract->prevention_incendies_nbjour) }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="prevention_incendies_superficie" class="block text-xs font-medium text-gray-600 mb-1">Superficie</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_superficie" 
+                                       name="prevention_incendies_superficie" 
+                                       value="{{ old('prevention_incendies_superficie', $contract->prevention_incendies_superficie) }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="prevention_incendies_parcelle" class="block text-xs font-medium text-gray-600 mb-1">Parcelle</label>
+                                <input type="text" 
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_parcelle" 
+                                       name="prevention_incendies_parcelle" 
+                                       value="{{ old('prevention_incendies_parcelle', $contract->prevention_incendies_parcelle) }}">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -907,5 +1016,36 @@ window.filterSelectOptions = function(inputEl, selectId) {
         opt.style.display = match ? '' : 'none';
     });
 };
+
+// Show cooperative information when selected
+function showCooperativeInfo(coperativeId) {
+    const section = document.getElementById('cooperative-info-section');
+    const select = document.getElementById('coperative_id');
+    
+    if (!coperativeId || !select) {
+        section.classList.add('hidden');
+        return;
+    }
+    
+    const selectedOption = select.options[select.selectedIndex];
+    if (selectedOption && selectedOption.value) {
+        document.getElementById('cooperative-nom').textContent = selectedOption.getAttribute('data-nom') || '-';
+        document.getElementById('cooperative-vocation').textContent = selectedOption.getAttribute('data-vocation') || '-';
+        document.getElementById('cooperative-nombre-membres').textContent = selectedOption.getAttribute('data-nombre-membres') || '0';
+        document.getElementById('cooperative-nombre-coperatives').textContent = selectedOption.getAttribute('data-nombre-coperatives') || '0';
+        section.classList.remove('hidden');
+    } else {
+        section.classList.add('hidden');
+    }
+}
+
+// Show cooperative info on page load if already selected
+document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('coperative_id');
+    if (select && select.value) {
+        showCooperativeInfo(select.value);
+    }
+});
+
 </script>
 @endpush

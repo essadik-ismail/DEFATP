@@ -54,7 +54,10 @@
     <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
         <div class="font-semibold mb-2">Erreurs de validation:</div>
         <ul class="list-disc pl-5">
-            @foreach ($errors->all() as $error)
+            @php
+                $uniqueErrors = array_unique($errors->all());
+            @endphp
+            @foreach ($uniqueErrors as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>

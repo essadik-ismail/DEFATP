@@ -157,14 +157,41 @@
         <!-- Data Table -->
         <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table id="odfsIndexTable" class="w-full">
                     <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ODF Entité</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Constitution</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Dépôt</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>ID</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="0" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>ODF Entité</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="1" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Constitution</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="2" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Date de Dépôt</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="3" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -220,9 +247,6 @@
                                     @else
                                         <span class="text-gray-400">N/A</span>
                                     @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $odf->created_at ? $odf->created_at->format('d/m/Y') : 'N/A' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center gap-1">
@@ -360,6 +384,34 @@
         url.searchParams.delete('page');
         window.location.href = url.toString();
     }
+</script>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
+
+<!-- jQuery (required for DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#odfsIndexTable').DataTable({
+        processing: false,
+        serverSide: false,
+        order: [[0, 'desc']],
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+        }
+    });
+    
+    // Initialize Excel-style filters
+    ExcelFilters.init('odfsIndexTable');
+});
 </script>
 @endpush
 

@@ -318,6 +318,33 @@
     }
 })();
 </script>
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
+
+<!-- jQuery (required for DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#odfsTable').DataTable({
+        processing: false,
+        serverSide: false,
+        order: [[0, 'desc']],
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+        }
+    });
+    
+    // Initialize Excel-style filters
+    ExcelFilters.init('odfsTable');
+});
+</script>
 @endpush
 @endsection
 

@@ -53,8 +53,9 @@ class ContractController extends Controller
                       });
                 });
             })
-            ->when($request->filled('year'), function($query) use ($request) {
-                $query->where('annee', $request->year);
+            ->when($request->filled('years'), function($query) use ($request) {
+                $years = is_array($request->years) ? $request->years : [$request->years];
+                $query->whereIn('annee', $years);
             })
             ->when($request->filled('date_debut'), function($query) use ($request) {
                 $query->whereDate('created_at', '>=', $request->date_debut);
@@ -62,24 +63,29 @@ class ContractController extends Controller
             ->when($request->filled('date_fin'), function($query) use ($request) {
                 $query->whereDate('created_at', '<=', $request->date_fin);
             })
-            ->when($request->filled('localisation_id'), function($query) use ($request) {
-                $query->where('localisation_id', $request->localisation_id);
+            ->when($request->filled('localisation_ids'), function($query) use ($request) {
+                $localisationIds = is_array($request->localisation_ids) ? $request->localisation_ids : [$request->localisation_ids];
+                $query->whereIn('localisation_id', $localisationIds);
             })
-            ->when($request->filled('situation_administrative_id'), function($query) use ($request) {
-                $query->where('situation_administrative_id', $request->situation_administrative_id);
+            ->when($request->filled('situation_administrative_ids'), function($query) use ($request) {
+                $situationIds = is_array($request->situation_administrative_ids) ? $request->situation_administrative_ids : [$request->situation_administrative_ids];
+                $query->whereIn('situation_administrative_id', $situationIds);
             })
-            ->when($request->filled('espece_id'), function($query) use ($request) {
-                $query->whereHas('especes', function($q) use ($request) {
-                    $q->where('especes.id', $request->espece_id);
+            ->when($request->filled('espece_ids'), function($query) use ($request) {
+                $especeIds = is_array($request->espece_ids) ? $request->espece_ids : [$request->espece_ids];
+                $query->whereHas('especes', function($q) use ($especeIds) {
+                    $q->whereIn('especes.id', $especeIds);
                 });
             })
-            ->when($request->filled('foret_id'), function($query) use ($request) {
-                $query->whereHas('forets', function($q) use ($request) {
-                    $q->where('forets.id', $request->foret_id);
+            ->when($request->filled('foret_ids'), function($query) use ($request) {
+                $foretIds = is_array($request->foret_ids) ? $request->foret_ids : [$request->foret_ids];
+                $query->whereHas('forets', function($q) use ($foretIds) {
+                    $q->whereIn('forets.id', $foretIds);
                 });
             })
-            ->when($request->filled('coperative_id'), function($query) use ($request) {
-                $query->where('coperative_id', $request->coperative_id);
+            ->when($request->filled('coperative_ids'), function($query) use ($request) {
+                $coperativeIds = is_array($request->coperative_ids) ? $request->coperative_ids : [$request->coperative_ids];
+                $query->whereIn('coperative_id', $coperativeIds);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page', 15));
@@ -136,7 +142,7 @@ class ContractController extends Controller
         $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
         $especes = Espece::orderBy('name')->get();
         $forets = \App\Models\Foret::orderBy('foret')->get();
-        $coperatives = Coperative::orderBy('nom')->get();
+        $coperatives = Coperative::with('vocation')->orderBy('nom')->get();
 
         return view('contracts.create', compact(
             'localisations',
@@ -152,6 +158,7 @@ class ContractController extends Controller
         $validated = $request->validate([
             'annee' => 'required|integer',
             'contarct' => 'required|integer',
+            'date' => 'nullable|date',
             'localisation_id' => 'required|exists:localisations,id',
             'situation_administrative_id' => 'required|exists:situation_administratives,id',
             'forets' => 'required|array|min:1',
@@ -160,8 +167,12 @@ class ContractController extends Controller
             'especes' => 'required|array|min:1',
             'especes.*' => 'exists:especes,id',
             'superficie' => 'required|numeric|min:0',
-            'gardiennage' => 'nullable|string|max:255',
-            'prevention_contre_les_incendies' => 'nullable|string|max:255',
+            'gardiennage_nbjour' => 'nullable|integer|min:0',
+            'gardiennage_superficie' => 'nullable|integer|min:0',
+            'gardiennage_parcelle' => 'nullable|string|max:255',
+            'prevention_incendies_nbjour' => 'nullable|integer|min:0',
+            'prevention_incendies_superficie' => 'nullable|integer|min:0',
+            'prevention_incendies_parcelle' => 'nullable|string|max:255',
             'elagage' => 'nullable|string|max:255',
             'eclaircie' => 'nullable|string|max:255',
             'rajeunissement_romarin' => 'nullable|string|max:255',
@@ -275,7 +286,7 @@ class ContractController extends Controller
         $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
         $especes = Espece::orderBy('name')->get();
         $forets = \App\Models\Foret::orderBy('foret')->get();
-        $coperatives = Coperative::orderBy('nom')->get();
+        $coperatives = Coperative::with('vocation')->orderBy('nom')->get();
 
         return view('contracts.edit', compact(
             'contract',
@@ -292,6 +303,7 @@ class ContractController extends Controller
         $validated = $request->validate([
             'annee' => 'required|integer',
             'contarct' => 'required|integer',
+            'date' => 'nullable|date',
             'localisation_id' => 'required|exists:localisations,id',
             'situation_administrative_id' => 'required|exists:situation_administratives,id',
             'forets' => 'required|array|min:1',
@@ -300,8 +312,12 @@ class ContractController extends Controller
             'especes' => 'required|array|min:1',
             'especes.*' => 'exists:especes,id',
             'superficie' => 'required|numeric|min:0',
-            'gardiennage' => 'nullable|string|max:255',
-            'prevention_contre_les_incendies' => 'nullable|string|max:255',
+            'gardiennage_nbjour' => 'nullable|integer|min:0',
+            'gardiennage_superficie' => 'nullable|integer|min:0',
+            'gardiennage_parcelle' => 'nullable|string|max:255',
+            'prevention_incendies_nbjour' => 'nullable|integer|min:0',
+            'prevention_incendies_superficie' => 'nullable|integer|min:0',
+            'prevention_incendies_parcelle' => 'nullable|string|max:255',
             'elagage' => 'nullable|string|max:255',
             'eclaircie' => 'nullable|string|max:255',
             'rajeunissement_romarin' => 'nullable|string|max:255',
@@ -457,7 +473,7 @@ class ContractController extends Controller
     // Avenant Management Methods
     public function createAvenant(Request $request): View
     {
-        $contracts = Contract::with(['localisation', 'situationAdministrative', 'coperative'])
+        $contracts = Contract::with(['localisation', 'situationAdministrative', 'coperative', 'products', 'prestations'])
             ->orderBy('annee', 'desc')
             ->orderBy('contarct')
             ->get();
@@ -466,7 +482,7 @@ class ContractController extends Controller
         // Get preselected contract if provided
         $selectedContract = null;
         if ($request->has('contract_id')) {
-            $selectedContract = Contract::find($request->contract_id);
+            $selectedContract = Contract::with(['localisation', 'situationAdministrative', 'coperative', 'products', 'prestations'])->find($request->contract_id);
         }
         
         return view('contracts.avenants.create', compact('contracts', 'coperatives', 'selectedContract'));
@@ -481,8 +497,12 @@ class ContractController extends Controller
             'coperative_id' => 'nullable|exists:coperatives,id',
             'date' => 'required|date',
             'superficie' => 'nullable|numeric|min:0',
-            'gardiennage' => 'nullable|numeric|min:0',
-            'prevention_incendies' => 'nullable|numeric|min:0',
+            'gardiennage_nbjour' => 'nullable|integer|min:0',
+            'gardiennage_superficie' => 'nullable|integer|min:0',
+            'gardiennage_parcelle' => 'nullable|string|max:255',
+            'prevention_incendies_nbjour' => 'nullable|integer|min:0',
+            'prevention_incendies_superficie' => 'nullable|integer|min:0',
+            'prevention_incendies_parcelle' => 'nullable|string|max:255',
             'elagage' => 'nullable|numeric|min:0',
             'eclaircie' => 'nullable|numeric|min:0',
             'rajeunissement_romarin' => 'nullable|numeric|min:0',
@@ -805,8 +825,12 @@ class ContractController extends Controller
             'coperative_id' => 'nullable|exists:coperatives,id',
             'date' => 'required|date',
             'superficie' => 'nullable|numeric|min:0',
-            'gardiennage' => 'nullable|numeric|min:0',
-            'prevention_incendies' => 'nullable|numeric|min:0',
+            'gardiennage_nbjour' => 'nullable|integer|min:0',
+            'gardiennage_superficie' => 'nullable|integer|min:0',
+            'gardiennage_parcelle' => 'nullable|string|max:255',
+            'prevention_incendies_nbjour' => 'nullable|integer|min:0',
+            'prevention_incendies_superficie' => 'nullable|integer|min:0',
+            'prevention_incendies_parcelle' => 'nullable|string|max:255',
             'elagage' => 'nullable|numeric|min:0',
             'eclaircie' => 'nullable|numeric|min:0',
             'rajeunissement_romarin' => 'nullable|numeric|min:0',

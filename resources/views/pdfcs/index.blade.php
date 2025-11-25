@@ -182,16 +182,65 @@
         <!-- Data Table -->
         <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table id="pdfcsTable" class="w-full">
                     <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Début</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Fin</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">État</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Localisation</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Situation Administrative</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>ID</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="0" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Date de Début</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="1" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Date de Fin</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="2" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>État</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="3" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Localisation</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="4" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Situation Administrative</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="5" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                                <div class="flex items-center justify-between">
+                                    <span>Date de Création</span>
+                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="6" title="Filtrer">
+                                        <i class="fas fa-filter text-xs"></i>
+                                    </button>
+                                </div>
+                            </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -353,6 +402,33 @@
         url.searchParams.delete('page');
         window.location.href = url.toString();
     }
+</script>
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
+
+<!-- jQuery (required for DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#pdfcsTable').DataTable({
+        processing: false,
+        serverSide: false,
+        order: [[0, 'desc']],
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+        }
+    });
+    
+    // Initialize Excel-style filters
+    ExcelFilters.init('pdfcsTable');
+});
 </script>
 @endpush
 

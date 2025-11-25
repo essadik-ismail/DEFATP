@@ -77,7 +77,7 @@
                 icon="fas fa-filter"
                 padding="compact"
             >
-                <form method="GET" action="{{ route('contracts.index') }}" class="space-y-4">
+                <form method="GET" action="{{ route('contracts.index') }}" id="filterForm" class="space-y-4">
                     <!-- Global Search -->
                     <div class="mb-4">
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
@@ -94,86 +94,104 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
-                            <label for="year" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-calendar text-purple-500 mr-1"></i>Année
+                        <div class="form-group">
+                            <label for="years" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar text-purple-500 mr-1"></i>Années
                             </label>
-                            <select name="year" id="year" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Toutes les années</option>
+                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'years')">
+                            <select multiple
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                                    name="years[]" id="years">
                                 @foreach($availableYears as $year)
-                                    <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                    <option value="{{ $year }}" {{ in_array($year, request('years', [])) ? 'selected' : '' }}>{{ $year }}</option>
                                 @endforeach
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
                         </div>
                         
-                        <div>
-                            <label for="localisation_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-map-marker-alt text-green-500 mr-1"></i>Localisation
+                        <div class="form-group">
+                            <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt text-green-500 mr-1"></i>Localisations
                             </label>
-                            <select name="localisation_id" id="localisation_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Toutes les localisations</option>
+                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
+                            <select multiple
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                    name="localisation_ids[]" id="localisation_ids">
                                 @foreach($localisations as $localisation)
-                                    <option value="{{ $localisation->id }}" {{ request('localisation_id') == $localisation->id ? 'selected' : '' }}>
+                                    <option value="{{ $localisation->id }}" {{ in_array($localisation->id, request('localisation_ids', [])) ? 'selected' : '' }}>
                                         {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                     </option>
                                 @endforeach
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
                         </div>
                         
-                        <div>
-                            <label for="situation_administrative_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-building text-indigo-500 mr-1"></i>Situation Administrative
+                        <div class="form-group">
+                            <label for="situation_administrative_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-building text-indigo-500 mr-1"></i>Situations Administratives
                             </label>
-                            <select name="situation_administrative_id" id="situation_administrative_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Toutes les situations</option>
+                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'situation_administrative_ids')">
+                            <select multiple
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
+                                    name="situation_administrative_ids[]" id="situation_administrative_ids">
                                 @foreach($situations as $situation)
-                                    <option value="{{ $situation->id }}" {{ request('situation_administrative_id') == $situation->id ? 'selected' : '' }}>
+                                    <option value="{{ $situation->id }}" {{ in_array($situation->id, request('situation_administrative_ids', [])) ? 'selected' : '' }}>
                                         {{ $situation->commune }} - {{ $situation->province }}
                                     </option>
                                 @endforeach
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
                         </div>
                         
-                        <div>
-                            <label for="espece_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-leaf text-emerald-500 mr-1"></i>Espèce
+                        <div class="form-group">
+                            <label for="espece_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-leaf text-emerald-500 mr-1"></i>Espèces
                             </label>
-                            <select name="espece_id" id="espece_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Toutes les espèces</option>
+                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'espece_ids')">
+                            <select multiple
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 hover:border-gray-400" 
+                                    name="espece_ids[]" id="espece_ids">
                                 @foreach($especesList as $espece)
-                                    <option value="{{ $espece->id }}" {{ request('espece_id') == $espece->id ? 'selected' : '' }}>
+                                    <option value="{{ $espece->id }}" {{ in_array($espece->id, request('espece_ids', [])) ? 'selected' : '' }}>
                                         {{ $espece->name }}
                                     </option>
                                 @endforeach
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
                         </div>
                         
-                        <div>
-                            <label for="foret_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-tree text-green-500 mr-1"></i>Forêt
+                        <div class="form-group">
+                            <label for="foret_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-tree text-green-500 mr-1"></i>Forêts
                             </label>
-                            <select name="foret_id" id="foret_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Toutes les forêts</option>
+                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'foret_ids')">
+                            <select multiple
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                    name="foret_ids[]" id="foret_ids">
                                 @foreach($forets as $foret)
-                                    <option value="{{ $foret->id }}" {{ request('foret_id') == $foret->id ? 'selected' : '' }}>
+                                    <option value="{{ $foret->id }}" {{ in_array($foret->id, request('foret_ids', [])) ? 'selected' : '' }}>
                                         {{ $foret->foret }}
                                     </option>
                                 @endforeach
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
                         </div>
                         
-                        <div>
-                            <label for="coperative_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-users-cog text-cyan-500 mr-1"></i>Coopérative
+                        <div class="form-group">
+                            <label for="coperative_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-users-cog text-cyan-500 mr-1"></i>Coopératives
                             </label>
-                            <select name="coperative_id" id="coperative_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Toutes les coopératives</option>
+                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'coperative_ids')">
+                            <select multiple
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 hover:border-gray-400" 
+                                    name="coperative_ids[]" id="coperative_ids">
                                 @foreach($coperativesList as $coperative)
-                                    <option value="{{ $coperative->id }}" {{ request('coperative_id') == $coperative->id ? 'selected' : '' }}>
+                                    <option value="{{ $coperative->id }}" {{ in_array($coperative->id, request('coperative_ids', [])) ? 'selected' : '' }}>
                                         {{ $coperative->nom }}
                                     </option>
                                 @endforeach
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
                         </div>
                     </div>
 
@@ -436,6 +454,32 @@
                 searchInput.select();
             }
         }
+    });
+
+    // Filter select options function
+    function filterSelectOptions(inputEl, selectId) {
+        const filter = inputEl.value.toLowerCase();
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        Array.from(select.options).forEach(function(opt) {
+            const text = (opt.text || '').toLowerCase();
+            const match = text.indexOf(filter) !== -1;
+            opt.style.display = match ? '' : 'none';
+        });
+    }
+
+    // Auto-submit form when multiple selects change
+    document.addEventListener('DOMContentLoaded', function() {
+        const multipleSelects = ['years', 'localisation_ids', 'situation_administrative_ids', 'espece_ids', 'foret_ids', 'coperative_ids'];
+        
+        multipleSelects.forEach(function(selectId) {
+            const select = document.getElementById(selectId);
+            if (select) {
+                select.addEventListener('change', function() {
+                    document.getElementById('filterForm').submit();
+                });
+            }
+        });
     });
 </script>
 

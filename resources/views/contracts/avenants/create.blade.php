@@ -48,7 +48,10 @@
     <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
         <div class="font-semibold mb-2">Erreurs de validation:</div>
         <ul class="list-disc pl-5">
-            @foreach ($errors->all() as $error)
+            @php
+                $uniqueErrors = array_unique($errors->all());
+            @endphp
+            @foreach ($uniqueErrors as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
@@ -89,10 +92,53 @@
                             id="contact_id" 
                             class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                             required
+                            onchange="loadContractData(this.value)"
                         >
                             <option value="">Sélectionner un contrat</option>
                             @foreach($contracts as $contract)
-                                <option value="{{ $contract->id }}" {{ old('contact_id', isset($selectedContract) && $selectedContract && $selectedContract->id == $contract->id ? $contract->id : null) == $contract->id ? 'selected' : '' }}>
+                                <option value="{{ $contract->id }}" 
+                                        {{ old('contact_id', isset($selectedContract) && $selectedContract && $selectedContract->id == $contract->id ? $contract->id : null) == $contract->id ? 'selected' : '' }}
+                                        data-annee="{{ $contract->annee }}"
+                                        data-coperative-id="{{ $contract->coperative_id ?? '' }}"
+                                        data-superficie="{{ $contract->superficie ?? '' }}"
+                                        data-gardiennage-nbjour="{{ $contract->gardiennage_nbjour ?? '' }}"
+                                        data-gardiennage-superficie="{{ $contract->gardiennage_superficie ?? '' }}"
+                                        data-gardiennage-parcelle="{{ $contract->gardiennage_parcelle ?? '' }}"
+                                        data-prevention-incendies-nbjour="{{ $contract->prevention_incendies_nbjour ?? '' }}"
+                                        data-prevention-incendies-superficie="{{ $contract->prevention_incendies_superficie ?? '' }}"
+                                        data-prevention-incendies-parcelle="{{ $contract->prevention_incendies_parcelle ?? '' }}"
+                                        data-elagage="{{ $contract->elagage ?? '' }}"
+                                        data-eclaircie="{{ $contract->eclaircie ?? '' }}"
+                                        data-rajeunissement-romarin="{{ $contract->rajeunissement_romarin ?? '' }}"
+                                        data-bo-m3="{{ $contract->bo_m3 ?? '' }}"
+                                        data-bi-m3="{{ $contract->bi_m3 ?? '' }}"
+                                        data-bf-st="{{ $contract->bf_st ?? '' }}"
+                                        data-tanin-t="{{ $contract->tanin_t ?? '' }}"
+                                        data-laurier-sauce="{{ $contract->laurier_sauce ?? '' }}"
+                                        data-myrte="{{ $contract->myrte ?? '' }}"
+                                        data-callune="{{ $contract->callune ?? '' }}"
+                                        data-thym="{{ $contract->thym ?? '' }}"
+                                        data-bruyetre="{{ $contract->bruyetre ?? '' }}"
+                                        data-lichen="{{ $contract->lichen ?? '' }}"
+                                        data-tanin="{{ $contract->tanin ?? '' }}"
+                                        data-romarin="{{ $contract->romarin ?? '' }}"
+                                        data-liege-male="{{ $contract->liege_male ?? '' }}"
+                                        data-liege-de-reproduction="{{ $contract->liege_de_reproduction ?? '' }}"
+                                        data-sauge="{{ $contract->sauge ?? '' }}"
+                                        data-lavande="{{ $contract->lavande ?? '' }}"
+                                        data-armoise="{{ $contract->armoise ?? '' }}"
+                                        data-origan="{{ $contract->origan ?? '' }}"
+                                        data-alfa="{{ $contract->alfa ?? '' }}"
+                                        data-lentisque="{{ $contract->lentisque ?? '' }}"
+                                        data-ciste="{{ $contract->ciste ?? '' }}"
+                                        data-fleur-acacia-t="{{ $contract->fleur_acacia_t ?? '' }}"
+                                        data-valeurs-des-produits="{{ $contract->valeurs_des_produits ?? '' }}"
+                                        data-valeur-des-prestations="{{ $contract->valeur_des_prestations ?? '' }}"
+                                        data-redevances="{{ $contract->redevances ?? '' }}"
+                                        data-taxes="{{ $contract->taxes ?? '' }}"
+                                        data-total-avenant="{{ $contract->total_avenant ?? '' }}"
+                                        data-products="{{ htmlspecialchars(json_encode($contract->products ?? []), ENT_QUOTES, 'UTF-8') }}"
+                                        data-prestations="{{ htmlspecialchars(json_encode($contract->prestations ?? []), ENT_QUOTES, 'UTF-8') }}">
                                     Contrat #{{ $contract->contarct }} ({{ $contract->annee }}) - {{ $contract->localisation->DRANEF ?? 'N/A' }} - {{ $contract->situationAdministrative->commune ?? 'N/A' }}
                                 </option>
                             @endforeach
@@ -197,30 +243,80 @@
                     <h3 class="text-xl font-bold" style="color: #6366f1;">Prestations</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="form-group">
-                        <label for="gardiennage" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <!-- Gardiennage Section -->
+                    <div class="form-group md:col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             <span>Gardiennage</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant du gardiennage"></i>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur le gardiennage"></i>
                         </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="gardiennage" 
-                               name="gardiennage" 
-                               value="{{ old('gardiennage') }}">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="gardiennage_nbjour" class="block text-xs font-medium text-gray-600 mb-1">Nombre de Jours</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_nbjour" 
+                                       name="gardiennage_nbjour" 
+                                       value="{{ old('gardiennage_nbjour') }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="gardiennage_superficie" class="block text-xs font-medium text-gray-600 mb-1">Superficie</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_superficie" 
+                                       name="gardiennage_superficie" 
+                                       value="{{ old('gardiennage_superficie') }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="gardiennage_parcelle" class="block text-xs font-medium text-gray-600 mb-1">Parcelle</label>
+                                <input type="text" 
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_parcelle" 
+                                       name="gardiennage_parcelle" 
+                                       value="{{ old('gardiennage_parcelle') }}">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="prevention_incendies" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Prévention Incendies</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant de la prévention contre les incendies"></i>
+                    <!-- Prévention Incendies Section -->
+                    <div class="form-group md:col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <span>Prévention contre les Incendies</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur la prévention contre les incendies"></i>
                         </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="prevention_incendies" 
-                               name="prevention_incendies" 
-                               value="{{ old('prevention_incendies') }}">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="prevention_incendies_nbjour" class="block text-xs font-medium text-gray-600 mb-1">Nombre de Jours</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_nbjour" 
+                                       name="prevention_incendies_nbjour" 
+                                       value="{{ old('prevention_incendies_nbjour') }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="prevention_incendies_superficie" class="block text-xs font-medium text-gray-600 mb-1">Superficie</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_superficie" 
+                                       name="prevention_incendies_superficie" 
+                                       value="{{ old('prevention_incendies_superficie') }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="prevention_incendies_parcelle" class="block text-xs font-medium text-gray-600 mb-1">Parcelle</label>
+                                <input type="text" 
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_parcelle" 
+                                       name="prevention_incendies_parcelle" 
+                                       value="{{ old('prevention_incendies_parcelle') }}">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -815,22 +911,210 @@ function removePrestation(button) {
     prestationRow.remove();
 }
 
+// Load contract data into avenant form
+function loadContractData(contractId) {
+    const select = document.getElementById('contact_id');
+    if (!select || !contractId) {
+        return;
+    }
+    
+    const selectedOption = select.options[select.selectedIndex];
+    if (!selectedOption || !selectedOption.value) {
+        return;
+    }
+    
+    // Load basic information
+    const annee = selectedOption.getAttribute('data-annee');
+    const coperativeId = selectedOption.getAttribute('data-coperative-id');
+    const superficie = selectedOption.getAttribute('data-superficie');
+    
+    if (annee) document.getElementById('annee').value = annee;
+    if (coperativeId) document.getElementById('coperative_id').value = coperativeId;
+    if (superficie) document.getElementById('superficie').value = superficie;
+    
+    // Load prestations
+    const gardiennageNbjour = selectedOption.getAttribute('data-gardiennage-nbjour');
+    const gardiennageSuperficie = selectedOption.getAttribute('data-gardiennage-superficie');
+    const gardiennageParcelle = selectedOption.getAttribute('data-gardiennage-parcelle');
+    const preventionIncendiesNbjour = selectedOption.getAttribute('data-prevention-incendies-nbjour');
+    const preventionIncendiesSuperficie = selectedOption.getAttribute('data-prevention-incendies-superficie');
+    const preventionIncendiesParcelle = selectedOption.getAttribute('data-prevention-incendies-parcelle');
+    const elagage = selectedOption.getAttribute('data-elagage');
+    const eclaircie = selectedOption.getAttribute('data-eclaircie');
+    const rajeunissementRomarin = selectedOption.getAttribute('data-rajeunissement-romarin');
+    
+    if (gardiennageNbjour) document.getElementById('gardiennage_nbjour').value = gardiennageNbjour;
+    if (gardiennageSuperficie) document.getElementById('gardiennage_superficie').value = gardiennageSuperficie;
+    if (gardiennageParcelle) document.getElementById('gardiennage_parcelle').value = gardiennageParcelle;
+    if (preventionIncendiesNbjour) document.getElementById('prevention_incendies_nbjour').value = preventionIncendiesNbjour;
+    if (preventionIncendiesSuperficie) document.getElementById('prevention_incendies_superficie').value = preventionIncendiesSuperficie;
+    if (preventionIncendiesParcelle) document.getElementById('prevention_incendies_parcelle').value = preventionIncendiesParcelle;
+    if (elagage) document.getElementById('elagage').value = elagage;
+    if (eclaircie) document.getElementById('eclaircie').value = eclaircie;
+    if (rajeunissementRomarin) document.getElementById('rajeunissement_romarin').value = rajeunissementRomarin;
+    
+    // Load products quantities
+    const boM3 = selectedOption.getAttribute('data-bo-m3');
+    const biM3 = selectedOption.getAttribute('data-bi-m3');
+    const bfSt = selectedOption.getAttribute('data-bf-st');
+    const taninT = selectedOption.getAttribute('data-tanin-t');
+    const laurierSauce = selectedOption.getAttribute('data-laurier-sauce');
+    const myrte = selectedOption.getAttribute('data-myrte');
+    const callune = selectedOption.getAttribute('data-callune');
+    const thym = selectedOption.getAttribute('data-thym');
+    const bruyetre = selectedOption.getAttribute('data-bruyetre');
+    const lichen = selectedOption.getAttribute('data-lichen');
+    const tanin = selectedOption.getAttribute('data-tanin');
+    const romarin = selectedOption.getAttribute('data-romarin');
+    const liegeMale = selectedOption.getAttribute('data-liege-male');
+    const liegeDeReproduction = selectedOption.getAttribute('data-liege-de-reproduction');
+    const sauge = selectedOption.getAttribute('data-sauge');
+    const lavande = selectedOption.getAttribute('data-lavande');
+    const armoise = selectedOption.getAttribute('data-armoise');
+    const origan = selectedOption.getAttribute('data-origan');
+    const alfa = selectedOption.getAttribute('data-alfa');
+    const lentisque = selectedOption.getAttribute('data-lentisque');
+    const ciste = selectedOption.getAttribute('data-ciste');
+    const fleurAcaciaT = selectedOption.getAttribute('data-fleur-acacia-t');
+    
+    if (boM3) document.getElementById('bo_m3').value = boM3;
+    if (biM3) document.getElementById('bi_m3').value = biM3;
+    if (bfSt) document.getElementById('bf_st').value = bfSt;
+    if (taninT) document.getElementById('tanin_t').value = taninT;
+    if (laurierSauce) document.getElementById('laurier_sauce').value = laurierSauce;
+    if (myrte) document.getElementById('myrte').value = myrte;
+    if (callune) document.getElementById('callune').value = callune;
+    if (thym) document.getElementById('thym').value = thym;
+    if (bruyetre) document.getElementById('bruyetre').value = bruyetre;
+    if (lichen) document.getElementById('lichen').value = lichen;
+    if (tanin) document.getElementById('tanin').value = tanin;
+    if (romarin) document.getElementById('romarin').value = romarin;
+    if (liegeMale) document.getElementById('liege_male').value = liegeMale;
+    if (liegeDeReproduction) document.getElementById('liege_de_reproduction').value = liegeDeReproduction;
+    if (sauge) document.getElementById('sauge').value = sauge;
+    if (lavande) document.getElementById('lavande').value = lavande;
+    if (armoise) document.getElementById('armoise').value = armoise;
+    if (origan) document.getElementById('origan').value = origan;
+    if (alfa) document.getElementById('alfa').value = alfa;
+    if (lentisque) document.getElementById('lentisque').value = lentisque;
+    if (ciste) document.getElementById('ciste').value = ciste;
+    if (fleurAcaciaT) document.getElementById('fleur_acacia_t').value = fleurAcaciaT;
+    
+    // Load financial values
+    const valeursDesProduits = selectedOption.getAttribute('data-valeurs-des-produits');
+    const valeurDesPrestations = selectedOption.getAttribute('data-valeur-des-prestations');
+    const redevances = selectedOption.getAttribute('data-redevances');
+    const taxes = selectedOption.getAttribute('data-taxes');
+    const totalAvenant = selectedOption.getAttribute('data-total-avenant');
+    
+    if (valeursDesProduits) document.getElementById('valeurs_des_produits').value = valeursDesProduits;
+    if (valeurDesPrestations) document.getElementById('valeur_des_prestations').value = valeurDesPrestations;
+    if (redevances) document.getElementById('redevances').value = redevances;
+    if (taxes) document.getElementById('taxes').value = taxes;
+    if (totalAvenant) document.getElementById('total_avenant').value = totalAvenant;
+    
+    // Load products and prestations from JSON
+    const productsJson = selectedOption.getAttribute('data-products');
+    const prestationsJson = selectedOption.getAttribute('data-prestations');
+    
+    // Clear existing products and prestations
+    document.getElementById('products-container').innerHTML = '';
+    document.getElementById('prestations-container').innerHTML = '';
+    productCount = 0;
+    prestationCount = 0;
+    
+    // Load products
+    if (productsJson) {
+        try {
+            const products = JSON.parse(productsJson);
+            products.forEach(product => {
+                productCount++;
+                const container = document.getElementById('products-container');
+                const productRow = document.createElement('div');
+                productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+                const productName = (product.name || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                productRow.innerHTML = `
+                    <div class="flex-1">
+                        <input type="text" 
+                               name="products[${productCount}][name]" 
+                               value="${productName}"
+                               placeholder="Nom du produit" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                               required>
+                    </div>
+                    <div class="w-32">
+                        <input type="number" 
+                               name="products[${productCount}][quantity]" 
+                               value="${product.quantity || 1}"
+                               placeholder="Quantité" 
+                               min="1" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                               required>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" 
+                                onclick="removeProduct(this)" 
+                                class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(productRow);
+            });
+        } catch (e) {
+            console.error('Error parsing products JSON:', e);
+        }
+    }
+    
+    // Load prestations
+    if (prestationsJson) {
+        try {
+            const prestations = JSON.parse(prestationsJson);
+            prestations.forEach(prestation => {
+                prestationCount++;
+                const container = document.getElementById('prestations-container');
+                const prestationRow = document.createElement('div');
+                prestationRow.className = 'prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+                const prestationName = (prestation.name || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                prestationRow.innerHTML = `
+                    <div class="flex-1">
+                        <input type="text" 
+                               name="prestations[${prestationCount}][name]" 
+                               value="${prestationName}"
+                               placeholder="Nom de la prestation" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                               required>
+                    </div>
+                    <div class="w-32">
+                        <input type="number" 
+                               name="prestations[${prestationCount}][quantity]" 
+                               value="${prestation.quantity || 1}"
+                               placeholder="Quantité" 
+                               min="1" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                               required>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" 
+                                onclick="removePrestation(this)" 
+                                class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(prestationRow);
+            });
+        } catch (e) {
+            console.error('Error parsing prestations JSON:', e);
+        }
+    }
+}
+
+// Load contract data on page load if contract is preselected
 document.addEventListener('DOMContentLoaded', function() {
     const contactSelect = document.getElementById('contact_id');
-    const anneeInput = document.getElementById('annee');
-    
-    if (contactSelect && anneeInput) {
-        contactSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption.value) {
-                // Extract year from the contract option text (format: "Contrat #X (YYYY)")
-                const optionText = selectedOption.text;
-                const yearMatch = optionText.match(/\((\d{4})\)/);
-                if (yearMatch) {
-                    anneeInput.value = yearMatch[1];
-                }
-            }
-        });
+    if (contactSelect && contactSelect.value) {
+        loadContractData(contactSelect.value);
     }
 });
 </script>

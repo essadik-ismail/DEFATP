@@ -500,7 +500,6 @@ class SettingsController extends Controller
                 $q->where('nom_complet', 'like', "%{$search}%")
                   ->orWhere('raison_sociale', 'like', "%{$search}%")
                   ->orWhere('n_cin', 'like', "%{$search}%")
-                  ->orWhere('telephone', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('numero', 'like', "%{$search}%");
             });
@@ -552,7 +551,7 @@ class SettingsController extends Controller
         $sortField = $request->get('sort', 'nom_complet');
         $sortDirection = $request->get('direction', 'asc');
         
-        $allowedSortFields = ['id', 'nom_complet', 'telephone', 'email', 'created_at', 'updated_at'];
+        $allowedSortFields = ['id', 'nom_complet', 'email', 'created_at', 'updated_at'];
         if (in_array($sortField, $allowedSortFields)) {
             $query->orderBy($sortField, $sortDirection);
         }
@@ -580,7 +579,6 @@ class SettingsController extends Controller
                 $q->where('nom_complet', 'like', "%{$search}%")
                   ->orWhere('raison_sociale', 'like', "%{$search}%")
                   ->orWhere('n_cin', 'like', "%{$search}%")
-                  ->orWhere('telephone', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('numero', 'like', "%{$search}%");
             });
@@ -733,13 +731,37 @@ class SettingsController extends Controller
 
     public function editExploitant(Exploitant $exploitant): View
     {
-        $localisations = Localisation::orderBy('CODE')->get();
+        // Get distinct DRANEF values with MIN(id) for each
+        $localisations = Localisation::selectRaw('MIN(id) as id, DRANEF')
+            ->groupBy('DRANEF')
+            ->orderBy('DRANEF')
+            ->get();
+        
+        // If the exploitant has a localisation, ensure it's in the list for proper selection
+        if ($exploitant->localisation_id) {
+            $currentLocalisation = Localisation::find($exploitant->localisation_id);
+            if ($currentLocalisation) {
+                // Find if this DRANEF already exists in the list
+                $existingIndex = $localisations->search(function($loc) use ($currentLocalisation) {
+                    return $loc->DRANEF === $currentLocalisation->DRANEF;
+                });
+                
+                if ($existingIndex !== false) {
+                    // Replace with the current localisation to preserve the selection
+                    $localisations[$existingIndex] = $currentLocalisation;
+                } else {
+                    // Add the current localisation if DRANEF doesn't exist
+                    $localisations->push($currentLocalisation);
+                }
+            }
+        }
+        
         return view('settings.exploitants.edit', compact('exploitant', 'localisations'));
     }
 
     public function updateExploitant(UpdateExploitantRequest $request, Exploitant $exploitant): RedirectResponse
     {
-        $oldData = $exploitant->only(['nom_complet', 'telephone', 'email']);
+        $oldData = $exploitant->only(['nom_complet', 'email']);
         $validated = $request->validated();
         
         // Handle image upload - store in private directory
@@ -759,7 +781,7 @@ class SettingsController extends Controller
         $exploitant->update($validated);
         
         // Log exploitant update
-        $changes = array_diff_assoc($exploitant->fresh()->only(['nom_complet', 'telephone', 'email']), $oldData);
+        $changes = array_diff_assoc($exploitant->fresh()->only(['nom_complet', 'email']), $oldData);
         ActivityLogger::logUpdate(
             Exploitant::class,
             $exploitant->id,

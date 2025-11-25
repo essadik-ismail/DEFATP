@@ -34,7 +34,10 @@
                 <div>
                     <h3 class="text-red-800 font-semibold">Erreurs de validation</h3>
                     <ul class="list-disc list-inside text-red-600 mt-2">
-                        @foreach ($errors->all() as $error)
+                        @php
+                            $uniqueErrors = array_unique($errors->all());
+                        @endphp
+                        @foreach ($uniqueErrors as $error)
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>

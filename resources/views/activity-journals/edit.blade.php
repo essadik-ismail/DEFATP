@@ -53,7 +53,10 @@
             <div class="ml-3">
                 <h3 class="text-sm font-medium">Veuillez corriger les erreurs suivantes :</h3>
                 <ul class="mt-2 list-disc list-inside text-sm">
-                    @foreach ($errors->all() as $error)
+                    @php
+                        $uniqueErrors = array_unique($errors->all());
+                    @endphp
+                    @foreach ($uniqueErrors as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>

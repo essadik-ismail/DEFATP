@@ -53,7 +53,10 @@
                 <div class="ml-3">
                     <h3 class="text-sm font-medium">Veuillez corriger les erreurs suivantes :</h3>
                     <ul class="mt-2 list-disc list-inside text-sm">
-                        @foreach ($errors->all() as $error)
+                        @php
+                            $uniqueErrors = array_unique($errors->all());
+                        @endphp
+                        @foreach ($uniqueErrors as $error)
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
@@ -77,7 +80,8 @@
                 <div class="form-group">
                     <label for="odf_entite_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                         <span>ODF Entité</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionner l'entité ODF"></i>
+                        <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                           onclick="showHelpModal('odf_entite_help')"></i>
                     </label>
                     <select 
                         class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -98,7 +102,8 @@
                 <div class="form-group">
                     <label for="constitution" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                         <span>Constitution</span>
-                        <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Statut de constitution de l'ODF"></i>
+                        <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                           onclick="showHelpModal('constitution_help')"></i>
                     </label>
                     <select 
                         class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
@@ -126,7 +131,8 @@
             <div class="form-group">
                 <label for="commentaire" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                     <span>Commentaire</span>
-                    <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Commentaires additionnels sur l'ODF"></i>
+                    <i class="fas fa-question-circle text-blue-500 text-xs cursor-pointer hover:text-blue-600 transition-colors" 
+                       onclick="showHelpModal('commentaire_help')"></i>
                 </label>
                 <textarea 
                     class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 hover:border-gray-400" 
@@ -155,5 +161,71 @@
         </div>
     </form>
 </div>
+
+<!-- Help Modal -->
+<div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-info-circle text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800">Aide</h3>
+                </div>
+                <button onclick="closeHelpModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="helpModalContent" class="text-gray-700">
+                <!-- Content will be inserted here -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeHelpModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showHelpModal(helpId) {
+    const helpContents = {
+        'odf_entite_help': {
+            title: 'ODF Entité',
+            content: 'Sélectionnez l\'entité ODF (Organisation de Développement Forestier) associée à cette ODF. Cette entité contient les informations de localisation (DRANEF, DPANEF, ENTITE) et de situation administrative (commune, province).'
+        },
+        'constitution_help': {
+            title: 'Constitution',
+            content: 'Indiquez si l\'ODF est constituée (Oui) ou non (Non). Une ODF constituée peut avoir des sections supplémentaires pour le dépôt ODF et la réception de définition. Si l\'ODF n\'est pas constituée, vous pourrez ajouter des étapes de constitution.'
+        },
+        'commentaire_help': {
+            title: 'Commentaire',
+            content: 'Ajoutez des commentaires ou notes additionnelles concernant cette ODF. Ce champ est optionnel et peut être utilisé pour documenter des informations supplémentaires ou des observations importantes.'
+        }
+    };
+    
+    const help = helpContents[helpId];
+    if (help) {
+        document.getElementById('helpModalContent').innerHTML = `
+            <h4 class="font-semibold text-gray-800 mb-2">${help.title}</h4>
+            <p class="text-gray-600">${help.content}</p>
+        `;
+        document.getElementById('helpModal').classList.remove('hidden');
+    }
+}
+
+function closeHelpModal() {
+    document.getElementById('helpModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('helpModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeHelpModal();
+    }
+});
+</script>
 @endsection
 

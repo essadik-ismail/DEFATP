@@ -48,15 +48,57 @@
     
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table id="coperativesTable" class="w-full">
                 <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vocation</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre de Membres</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nombre de Coopératives</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date de Création</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>ID</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="0" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Nom</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="1" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Vocation</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="2" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Nombre de Membres</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="3" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Nombre de Coopératives</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="4" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Date de Création</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="5" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>

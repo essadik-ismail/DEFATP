@@ -18,12 +18,17 @@ class Contract extends Model
     protected $fillable = [
         'annee',
         'contarct',
+        'date',
         'localisation_id',
         'situation_administrative_id',
         'coperative_id',
         'superficie',
-        'gardiennage',
-        'prevention_contre_les_incendies',
+        'gardiennage_nbjour',
+        'gardiennage_superficie',
+        'gardiennage_parcelle',
+        'prevention_incendies_nbjour',
+        'prevention_incendies_superficie',
+        'prevention_incendies_parcelle',
         'elagage',
         'eclaircie',
         'rajeunissement_romarin',
@@ -56,6 +61,11 @@ class Contract extends Model
         'total_avenant',
         'resiliation',
         'date_resiliation',
+    ];
+
+    protected $casts = [
+        'date' => 'date',
+        'date_resiliation' => 'date',
     ];
 
     /**

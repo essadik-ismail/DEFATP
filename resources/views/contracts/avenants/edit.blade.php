@@ -48,7 +48,10 @@
     <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
         <div class="font-semibold mb-2">Erreurs de validation:</div>
         <ul class="list-disc pl-5">
-            @foreach ($errors->all() as $error)
+            @php
+                $uniqueErrors = array_unique($errors->all());
+            @endphp
+            @foreach ($uniqueErrors as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
@@ -198,30 +201,80 @@
                     <h3 class="text-xl font-bold" style="color: #6366f1;">Prestations</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="form-group">
-                        <label for="gardiennage" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <!-- Gardiennage Section -->
+                    <div class="form-group md:col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             <span>Gardiennage</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant du gardiennage"></i>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur le gardiennage"></i>
                         </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="gardiennage" 
-                               name="gardiennage" 
-                               value="{{ old('gardiennage', $avenant->gardiennage) }}">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="gardiennage_nbjour" class="block text-xs font-medium text-gray-600 mb-1">Nombre de Jours</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_nbjour" 
+                                       name="gardiennage_nbjour" 
+                                       value="{{ old('gardiennage_nbjour', $avenant->gardiennage_nbjour) }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="gardiennage_superficie" class="block text-xs font-medium text-gray-600 mb-1">Superficie</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_superficie" 
+                                       name="gardiennage_superficie" 
+                                       value="{{ old('gardiennage_superficie', $avenant->gardiennage_superficie) }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="gardiennage_parcelle" class="block text-xs font-medium text-gray-600 mb-1">Parcelle</label>
+                                <input type="text" 
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_parcelle" 
+                                       name="gardiennage_parcelle" 
+                                       value="{{ old('gardiennage_parcelle', $avenant->gardiennage_parcelle) }}">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="prevention_incendies" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Prévention Incendies</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant de la prévention contre les incendies"></i>
+                    <!-- Prévention Incendies Section -->
+                    <div class="form-group md:col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <span>Prévention contre les Incendies</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur la prévention contre les incendies"></i>
                         </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="prevention_incendies" 
-                               name="prevention_incendies" 
-                               value="{{ old('prevention_incendies', $avenant->prevention_incendies) }}">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="prevention_incendies_nbjour" class="block text-xs font-medium text-gray-600 mb-1">Nombre de Jours</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_nbjour" 
+                                       name="prevention_incendies_nbjour" 
+                                       value="{{ old('prevention_incendies_nbjour', $avenant->prevention_incendies_nbjour) }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="prevention_incendies_superficie" class="block text-xs font-medium text-gray-600 mb-1">Superficie</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_superficie" 
+                                       name="prevention_incendies_superficie" 
+                                       value="{{ old('prevention_incendies_superficie', $avenant->prevention_incendies_superficie) }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="prevention_incendies_parcelle" class="block text-xs font-medium text-gray-600 mb-1">Parcelle</label>
+                                <input type="text" 
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_parcelle" 
+                                       name="prevention_incendies_parcelle" 
+                                       value="{{ old('prevention_incendies_parcelle', $avenant->prevention_incendies_parcelle) }}">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">

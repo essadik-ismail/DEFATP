@@ -250,5 +250,84 @@ function importLocalisations(input) {
     }
 }
 </style>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
+
+<!-- jQuery (required for DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
+
+<script>
+// Auto-initialize DataTables for entity-data tabs
+$(document).ready(function() {
+    // Initialize tables when tabs are shown
+    $('.tab-button').on('click', function() {
+        var tabId = $(this).data('tab');
+        setTimeout(function() {
+            var tableId = getTableIdForTab(tabId);
+            if (tableId && !$.fn.DataTable.isDataTable('#' + tableId)) {
+                var table = $('#' + tableId).DataTable({
+                    processing: false,
+                    serverSide: false,
+                    order: [[0, 'desc']],
+                    pageLength: 25,
+                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+                    }
+                });
+                
+                if (typeof ExcelFilters !== 'undefined') {
+                    ExcelFilters.init(tableId);
+                }
+            }
+        }, 300);
+    });
+    
+    // Also initialize active tab on page load
+    var activeTab = $('.tab-button.active').data('tab');
+    if (activeTab) {
+        setTimeout(function() {
+            var tableId = getTableIdForTab(activeTab);
+            if (tableId && !$.fn.DataTable.isDataTable('#' + tableId)) {
+                var table = $('#' + tableId).DataTable({
+                    processing: false,
+                    serverSide: false,
+                    order: [[0, 'desc']],
+                    pageLength: 25,
+                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+                    }
+                });
+                
+                if (typeof ExcelFilters !== 'undefined') {
+                    ExcelFilters.init(tableId);
+                }
+            }
+        }, 500);
+    }
+    
+    function getTableIdForTab(tabId) {
+        var tableIdMap = {
+            'essences': 'essencesTable',
+            'forets': 'foretsTable',
+            'localisations': 'localisationsTable',
+            'situations': 'situationsTable',
+            'vocations': 'vocationsTable',
+            'coperatives': 'coperativesTable',
+            'especes': 'especesTable',
+            'avenants': 'avenantsTable',
+            'natures-coupe': 'naturesCoupeTable',
+            'odf-entites': 'odfEntitesTable',
+            'exploitants': 'entityExploitantsTable'
+        };
+        return tableIdMap[tabId];
+    }
+});
+</script>
 @endpush
 

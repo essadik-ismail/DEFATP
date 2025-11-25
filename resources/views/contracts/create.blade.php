@@ -48,12 +48,40 @@
     <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
         <div class="font-semibold mb-2">Erreurs de validation:</div>
         <ul class="list-disc pl-5">
-            @foreach ($errors->all() as $error)
+            @php
+                $uniqueErrors = array_unique($errors->all());
+            @endphp
+            @foreach ($uniqueErrors as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
     </div>
     @endif
+
+    <!-- Draft Available Indicator -->
+    <div id="draftAvailableIndicator" class="hidden bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-file-alt text-2xl"></i>
+                <div>
+                    <div class="font-semibold">Brouillon disponible</div>
+                    <div class="text-sm" id="draftSavedAt"></div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" 
+                        onclick="loadDraft()" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                    <i class="fas fa-download mr-1"></i> Charger
+                </button>
+                <button type="button" 
+                        onclick="clearDraft()" 
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                    <i class="fas fa-trash mr-1"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Create Form -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
@@ -67,9 +95,41 @@
             </div>
         </div>
 
-        <form action="{{ route('contracts.store') }}" method="POST" class="space-y-8">
+        <form action="{{ route('contracts.store') }}" method="POST" id="contractForm" class="space-y-8">
             @csrf
             
+            <!-- Progress Bar -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="step-indicator active" data-step="1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Informations de Base</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-indicator" data-step="2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Prestations</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-indicator" data-step="3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Produits</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-indicator" data-step="4">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Valeurs Financières</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300" id="progress-bar" style="width: 25%"></div>
+                </div>
+            </div>
+            
+            <!-- Step 1: Informations de Base -->
+            <div class="step-content" data-step="1">
             <!-- Section 1: Informations de Base -->
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
                 <div class="flex items-center gap-3 mb-6">
@@ -107,6 +167,21 @@
                                value="{{ old('contarct') }}"
                                required>
                         @error('contarct')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Date</span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Date du contrat"></i>
+                        </label>
+                        <input type="date" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="date" 
+                               name="date" 
+                               value="{{ old('date') }}">
+                        @error('date')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
@@ -187,10 +262,16 @@
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
                                 id="coperative_id" 
                                 name="coperative_id" 
-                                required>
+                                required
+                                onchange="showCooperativeInfo(this.value)">
                             <option value="">Sélectionner une coopérative</option>
                             @foreach($coperatives as $coperative)
-                                <option value="{{ $coperative->id }}" {{ old('coperative_id') == $coperative->id ? 'selected' : '' }}>
+                                <option value="{{ $coperative->id }}" 
+                                        data-nom="{{ $coperative->nom }}"
+                                        data-vocation="{{ $coperative->vocation ? $coperative->vocation->name : 'N/A' }}"
+                                        data-nombre-membres="{{ $coperative->nombre_membres }}"
+                                        data-nombre-coperatives="{{ $coperative->nombre_coperatives }}"
+                                        {{ old('coperative_id') == $coperative->id ? 'selected' : '' }}>
                                     {{ $coperative->nom }}
                                 </option>
                             @endforeach
@@ -243,8 +324,40 @@
                         @enderror
                     </div>
                 </div>
+                
+                <!-- Section: Coopérative Informations (Conditional) -->
+                <div id="cooperative-info-section" class="hidden bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl p-6 border border-cyan-200 mt-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #06b6d4, #0891b2);">
+                            <i class="fas fa-users-cog text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold" style="color: #06b6d4;">Informations de la Coopérative</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-500 mb-1">Nom</label>
+                            <div class="text-lg font-medium text-gray-900" id="cooperative-nom">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-500 mb-1">Vocation</label>
+                            <div class="text-lg font-medium text-gray-900" id="cooperative-vocation">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-500 mb-1">Nombre de Membres</label>
+                            <div class="text-lg font-medium text-gray-900" id="cooperative-nombre-membres">-</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-500 mb-1">Nombre de Coopératives</label>
+                            <div class="text-lg font-medium text-gray-900" id="cooperative-nombre-coperatives">-</div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            </div>
+            <!-- End Step 1 -->
 
+            <!-- Step 2: Informations Complémentaires -->
+            <div class="step-content hidden" data-step="2">
             <!-- Section 2: Informations Complémentaires -->
             <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
                 <div class="flex items-center gap-3 mb-6">
@@ -255,28 +368,80 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                    <div class="form-group">
-                        <label for="gardiennage" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <!-- Gardiennage Section -->
+                    <div class="form-group md:col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             <span>Gardiennage</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant du gardiennage"></i>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur le gardiennage"></i>
                         </label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="gardiennage" 
-                               name="gardiennage" 
-                               value="{{ old('gardiennage') }}">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="gardiennage_nbjour" class="block text-xs font-medium text-gray-600 mb-1">Nombre de Jours</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_nbjour" 
+                                       name="gardiennage_nbjour" 
+                                       value="{{ old('gardiennage_nbjour') }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="gardiennage_superficie" class="block text-xs font-medium text-gray-600 mb-1">Superficie</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_superficie" 
+                                       name="gardiennage_superficie" 
+                                       value="{{ old('gardiennage_superficie') }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="gardiennage_parcelle" class="block text-xs font-medium text-gray-600 mb-1">Parcelle</label>
+                                <input type="text" 
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="gardiennage_parcelle" 
+                                       name="gardiennage_parcelle" 
+                                       value="{{ old('gardiennage_parcelle') }}">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="prevention_contre_les_incendies" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <!-- Prévention Incendies Section -->
+                    <div class="form-group md:col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             <span>Prévention contre les Incendies</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant de la prévention contre les incendies"></i>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Informations sur la prévention contre les incendies"></i>
                         </label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="prevention_contre_les_incendies" 
-                               name="prevention_contre_les_incendies" 
-                               value="{{ old('prevention_contre_les_incendies') }}">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="prevention_incendies_nbjour" class="block text-xs font-medium text-gray-600 mb-1">Nombre de Jours</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_nbjour" 
+                                       name="prevention_incendies_nbjour" 
+                                       value="{{ old('prevention_incendies_nbjour') }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="prevention_incendies_superficie" class="block text-xs font-medium text-gray-600 mb-1">Superficie</label>
+                                <input type="number" 
+                                       step="1"
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_superficie" 
+                                       name="prevention_incendies_superficie" 
+                                       value="{{ old('prevention_incendies_superficie') }}"
+                                       min="0">
+                            </div>
+                            <div>
+                                <label for="prevention_incendies_parcelle" class="block text-xs font-medium text-gray-600 mb-1">Parcelle</label>
+                                <input type="text" 
+                                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       id="prevention_incendies_parcelle" 
+                                       name="prevention_incendies_parcelle" 
+                                       value="{{ old('prevention_incendies_parcelle') }}">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -317,8 +482,8 @@
                 </div>
             </div>
 
-            <!-- Prestations Section -->
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
+            <!-- Prestations Section (Dynamic) -->
+            <div class="bg-white rounded-2xl p-6 border border-blue-200 mt-6">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
@@ -341,98 +506,11 @@
                     <!-- Prestations will be added dynamically here -->
                 </div>
             </div>
-
-            <!-- Section 3: Valeurs Financières -->
-            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                        <i class="fas fa-coins text-white"></i>
-                    </div>
-                    <h3 class="text-xl font-bold" style="color: #059669;">Valeurs Financières</h3>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="form-group">
-                        <label for="valeurs_des_produits" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Valeurs des Produits <span class="text-red-500">*</span></span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Valeur totale des produits"></i>
-                        </label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="valeurs_des_produits" 
-                               name="valeurs_des_produits" 
-                               value="{{ old('valeurs_des_produits') }}"
-                               required>
-                        @error('valeurs_des_produits')
-                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="valeur_des_prestations" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Valeur des Prestations <span class="text-red-500">*</span></span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Valeur totale des prestations"></i>
-                        </label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="valeur_des_prestations" 
-                               name="valeur_des_prestations" 
-                               value="{{ old('valeur_des_prestations') }}"
-                               required>
-                        @error('valeur_des_prestations')
-                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="redevances" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Redevances <span class="text-red-500">*</span></span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant des redevances"></i>
-                        </label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="redevances" 
-                               name="redevances" 
-                               value="{{ old('redevances') }}"
-                               required>
-                        @error('redevances')
-                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="taxes" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Taxes <span class="text-red-500">*</span></span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant des taxes"></i>
-                        </label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="taxes" 
-                               name="taxes" 
-                               value="{{ old('taxes') }}"
-                               required>
-                        @error('taxes')
-                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Total contract <span class="text-red-500">*</span></span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Total du contrat"></i>
-                        </label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="total_avenant" 
-                               name="total_avenant" 
-                               value="{{ old('total_avenant') }}"
-                               required>
-                        @error('total_avenant')
-                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
             </div>
+            <!-- End Step 2 -->
 
+            <!-- Step 3: Prestations & Produits -->
+            <div class="step-content hidden" data-step="3">
             <!-- Section 3: Produits -->
             <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
                 <div class="flex items-center gap-3 mb-6">
@@ -728,55 +806,149 @@
                     <!-- Products will be added dynamically here -->
                 </div>
             </div>
+            </div>
+            <!-- End Step 3 -->
 
-            <!-- Section 4: Résiliation -->
-            <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 border border-red-200">
+            <!-- Step 4: Valeurs Financières -->
+            <div class="step-content hidden" data-step="4">
+            <!-- Section 3: Valeurs Financières -->
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                        <i class="fas fa-ban text-white"></i>
+                        <i class="fas fa-coins text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold" style="color: #059669;">Résiliation</h3>
+                    <h3 class="text-xl font-bold" style="color: #059669;">Valeurs Financières</h3>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="form-group">
-                        <label for="resiliation" class="flex items-center gap-2">
-                            <input type="checkbox" 
-                                   id="resiliation" 
-                                   name="resiliation" 
-                                   value="1"
-                                   {{ old('resiliation') ? 'checked' : '' }}
-                                   class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                            <span class="text-sm font-semibold text-gray-700">Résilié</span>
+                        <label for="valeurs_des_produits" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Valeurs des Produits <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Valeur totale des produits"></i>
                         </label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="valeurs_des_produits" 
+                               name="valeurs_des_produits" 
+                               value="{{ old('valeurs_des_produits') }}"
+                               required>
+                        @error('valeurs_des_produits')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="date_resiliation" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Date de Résiliation
-                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                        <label for="valeur_des_prestations" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Valeur des Prestations <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Valeur totale des prestations"></i>
                         </label>
-                        <input type="date" 
+                        <input type="text" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="date_resiliation" 
-                               name="date_resiliation" 
-                               value="{{ old('date_resiliation') }}"
-                               placeholder="jj/mm/aaaa">
+                               id="valeur_des_prestations" 
+                               name="valeur_des_prestations" 
+                               value="{{ old('valeur_des_prestations') }}"
+                               required>
+                        @error('valeur_des_prestations')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="redevances" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Redevances <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant des redevances"></i>
+                        </label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="redevances" 
+                               name="redevances" 
+                               value="{{ old('redevances') }}"
+                               required>
+                        @error('redevances')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taxes" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Taxes <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant des taxes"></i>
+                        </label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="taxes" 
+                               name="taxes" 
+                               value="{{ old('taxes') }}"
+                               required>
+                        @error('taxes')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="total_avenant" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Total contract <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Total du contrat"></i>
+                        </label>
+                        <input type="text" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                               id="total_avenant" 
+                               name="total_avenant" 
+                               value="{{ old('total_avenant') }}"
+                               required>
+                        @error('total_avenant')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
+            </div>
+            <!-- End Step 4 -->
 
-            <!-- Actions -->
-            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
-                <a href="{{ route('contracts.index') }}" 
-                   class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                    <i class="fas fa-times"></i>
-                    <span>Annuler</span>
-                </a>
-                <button type="submit" 
-                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-save"></i>
-                    <span>Enregistrer</span>
-                </button>
+            <!-- Navigation Buttons -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200 mt-8 sticky bottom-0 bg-white pb-4 z-10">
+                <div>
+                    <button type="button" 
+                            id="prevBtn" 
+                            onclick="changeStep(-1)"
+                            class="hidden inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Précédent</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="{{ route('contracts.index') }}" 
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
+                        <i class="fas fa-times"></i>
+                        <span>Annuler</span>
+                    </a>
+                    <button type="button" 
+                            id="nextBtn" 
+                            onclick="changeStep(1)"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            style="display: inline-flex !important; visibility: visible !important; opacity: 1 !important;">
+                        <span>Suivant</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button type="button" 
+                            id="saveDraftBtn"
+                            onclick="saveAsDraft()"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Enregistrer comme brouillon</span>
+                    </button>
+                    <button type="submit" 
+                            id="submitBtn"
+                            class="hidden inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-save"></i>
+                        <span>Enregistrer</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Draft Saved Indicator -->
+            <div id="draftIndicator" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2">
+                <i class="fas fa-check-circle"></i>
+                <span>Brouillon enregistré avec succès</span>
             </div>
         </form>
     </div>
@@ -883,5 +1055,518 @@ window.filterSelectOptions = function(inputEl, selectId) {
         opt.style.display = match ? '' : 'none';
     });
 };
+
+// Show cooperative information when selected
+function showCooperativeInfo(coperativeId) {
+    const section = document.getElementById('cooperative-info-section');
+    const select = document.getElementById('coperative_id');
+    
+    if (!coperativeId || !select) {
+        section.classList.add('hidden');
+        return;
+    }
+    
+    const selectedOption = select.options[select.selectedIndex];
+    if (selectedOption && selectedOption.value) {
+        document.getElementById('cooperative-nom').textContent = selectedOption.getAttribute('data-nom') || '-';
+        document.getElementById('cooperative-vocation').textContent = selectedOption.getAttribute('data-vocation') || '-';
+        document.getElementById('cooperative-nombre-membres').textContent = selectedOption.getAttribute('data-nombre-membres') || '0';
+        document.getElementById('cooperative-nombre-coperatives').textContent = selectedOption.getAttribute('data-nombre-coperatives') || '0';
+        section.classList.remove('hidden');
+    } else {
+        section.classList.add('hidden');
+    }
+}
+
+// Multi-step form functionality
+let currentStep = 1;
+const totalSteps = 4;
+
+function showStep(step) {
+    // Hide all steps
+    document.querySelectorAll('.step-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Show current step
+    const currentStepContent = document.querySelector(`.step-content[data-step="${step}"]`);
+    if (currentStepContent) {
+        currentStepContent.classList.remove('hidden');
+    }
+    
+    // Update step indicators
+    document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+        const stepNum = index + 1;
+        if (stepNum < step) {
+            indicator.classList.add('completed');
+            indicator.classList.remove('active');
+        } else if (stepNum === step) {
+            indicator.classList.add('active');
+            indicator.classList.remove('completed');
+        } else {
+            indicator.classList.remove('active', 'completed');
+        }
+    });
+    
+    // Update progress bar
+    const progressBar = document.getElementById('progress-bar');
+    if (progressBar) {
+        const progress = (step / totalSteps) * 100;
+        progressBar.style.width = progress + '%';
+    }
+    
+    // Update navigation buttons
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (!prevBtn || !nextBtn || !submitBtn) {
+        console.error('Navigation buttons not found', { prevBtn, nextBtn, submitBtn });
+        return;
+    }
+    
+    if (step === 1) {
+        prevBtn.classList.add('hidden');
+    } else {
+        prevBtn.classList.remove('hidden');
+    }
+    
+    if (step === totalSteps) {
+        nextBtn.classList.add('hidden');
+        nextBtn.style.display = 'none';
+        submitBtn.classList.remove('hidden');
+        submitBtn.style.display = 'inline-flex';
+    } else {
+        nextBtn.classList.remove('hidden');
+        nextBtn.style.display = 'inline-flex';
+        submitBtn.classList.add('hidden');
+        submitBtn.style.display = 'none';
+    }
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function changeStep(direction) {
+    const newStep = currentStep + direction;
+    
+    if (newStep < 1 || newStep > totalSteps) {
+        return;
+    }
+    
+    // Validate current step before moving
+    if (direction > 0 && !validateStep(currentStep)) {
+        return;
+    }
+    
+    currentStep = newStep;
+    showStep(currentStep);
+}
+
+function validateStep(step) {
+    const stepContent = document.querySelector(`.step-content[data-step="${step}"]`);
+    if (!stepContent) return true;
+    
+    const requiredFields = stepContent.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value || (field.type === 'checkbox' && !field.checked)) {
+            isValid = false;
+            field.classList.add('border-red-500');
+            
+            // Remove error class after user interaction
+            field.addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+            }, { once: true });
+        } else {
+            field.classList.remove('border-red-500');
+        }
+    });
+    
+    if (!isValid) {
+        alert('Veuillez remplir tous les champs obligatoires avant de continuer.');
+    }
+    
+    return isValid;
+}
+
+// Save as draft functionality
+function saveAsDraft() {
+    const form = document.getElementById('contractForm');
+    if (!form) return;
+    
+    // Collect all form data
+    const formData = new FormData(form);
+    const draftData = {};
+    
+    // Get all form inputs
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        if (input.type === 'checkbox') {
+            draftData[input.name] = input.checked ? input.value : '';
+        } else if (input.type === 'radio') {
+            if (input.checked) {
+                draftData[input.name] = input.value;
+            }
+        } else if (input.tagName === 'SELECT' && input.multiple) {
+            // Handle multiple select
+            const selected = Array.from(input.selectedOptions).map(option => option.value);
+            draftData[input.name] = selected;
+        } else {
+            draftData[input.name] = input.value || '';
+        }
+    });
+    
+    // Save dynamic prestations
+    const prestations = [];
+    document.querySelectorAll('.prestation-row').forEach((row, index) => {
+        const nameInput = row.querySelector('input[name*="[name]"]');
+        const quantityInput = row.querySelector('input[name*="[quantity]"]');
+        if (nameInput && quantityInput) {
+            prestations.push({
+                name: nameInput.value,
+                quantity: quantityInput.value
+            });
+        }
+    });
+    if (prestations.length > 0) {
+        draftData.prestations = prestations;
+    }
+    
+    // Save dynamic products
+    const products = [];
+    document.querySelectorAll('.product-row').forEach((row, index) => {
+        const nameInput = row.querySelector('input[name*="[name]"]');
+        const quantityInput = row.querySelector('input[name*="[quantity]"]');
+        if (nameInput && quantityInput) {
+            products.push({
+                name: nameInput.value,
+                quantity: quantityInput.value
+            });
+        }
+    });
+    if (products.length > 0) {
+        draftData.products = products;
+    }
+    
+    // Save current step
+    draftData.currentStep = currentStep;
+    
+    // Save timestamp
+    draftData.savedAt = new Date().toISOString();
+    
+    // Save to localStorage
+    try {
+        localStorage.setItem('contract_draft', JSON.stringify(draftData));
+        
+        // Show success indicator
+        const indicator = document.getElementById('draftIndicator');
+        if (indicator) {
+            indicator.classList.remove('hidden');
+            setTimeout(() => {
+                indicator.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // Update draft available indicator
+        checkDraftExists();
+    } catch (e) {
+        console.error('Error saving draft:', e);
+        alert('Erreur lors de l\'enregistrement du brouillon');
+    }
+}
+
+// Check if draft exists
+function checkDraftExists() {
+    try {
+        const draftDataStr = localStorage.getItem('contract_draft');
+        if (!draftDataStr) {
+            document.getElementById('draftAvailableIndicator').classList.add('hidden');
+            return false;
+        }
+        
+        const draftData = JSON.parse(draftDataStr);
+        const indicator = document.getElementById('draftAvailableIndicator');
+        const savedAtEl = document.getElementById('draftSavedAt');
+        
+        if (indicator && savedAtEl && draftData.savedAt) {
+            const savedDate = new Date(draftData.savedAt);
+            savedAtEl.textContent = 'Enregistré le ' + savedDate.toLocaleString('fr-FR');
+            indicator.classList.remove('hidden');
+        }
+        
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+// Load draft from localStorage
+function loadDraft() {
+    try {
+        const draftDataStr = localStorage.getItem('contract_draft');
+        if (!draftDataStr) {
+            alert('Aucun brouillon trouvé');
+            return false;
+        }
+        
+        if (!confirm('Charger le brouillon ? Les données actuelles seront remplacées.')) {
+            return false;
+        }
+        
+        const draftData = JSON.parse(draftDataStr);
+        const form = document.getElementById('contractForm');
+        if (!form) return false;
+        
+        // Restore form fields
+        Object.keys(draftData).forEach(key => {
+            if (key === 'prestations' || key === 'products' || key === 'currentStep' || key === 'savedAt') {
+                return; // Skip special fields
+            }
+            
+            const input = form.querySelector(`[name="${key}"]`);
+            if (!input) {
+                // Try array notation
+                if (Array.isArray(draftData[key])) {
+                    draftData[key].forEach(value => {
+                        const arrayInput = form.querySelector(`[name="${key}[]"][value="${value}"]`);
+                        if (arrayInput) {
+                            arrayInput.selected = true;
+                        }
+                    });
+                }
+                return;
+            }
+            
+            if (input.type === 'checkbox') {
+                input.checked = draftData[key] === input.value || draftData[key] === '1';
+            } else if (input.type === 'radio') {
+                if (input.value === draftData[key]) {
+                    input.checked = true;
+                }
+            } else if (input.tagName === 'SELECT' && input.multiple) {
+                // Handle multiple select
+                if (Array.isArray(draftData[key])) {
+                    Array.from(input.options).forEach(option => {
+                        option.selected = draftData[key].includes(option.value);
+                    });
+                }
+            } else {
+                input.value = draftData[key] || '';
+            }
+        });
+        
+        // Restore dynamic prestations
+        if (draftData.prestations && Array.isArray(draftData.prestations)) {
+            draftData.prestations.forEach(prestation => {
+                addPrestation();
+                const rows = document.querySelectorAll('.prestation-row');
+                const lastRow = rows[rows.length - 1];
+                if (lastRow) {
+                    const nameInput = lastRow.querySelector('input[name*="[name]"]');
+                    const quantityInput = lastRow.querySelector('input[name*="[quantity]"]');
+                    if (nameInput) nameInput.value = prestation.name || '';
+                    if (quantityInput) quantityInput.value = prestation.quantity || '';
+                }
+            });
+        }
+        
+        // Restore dynamic products
+        if (draftData.products && Array.isArray(draftData.products)) {
+            draftData.products.forEach(product => {
+                addProduct();
+                const rows = document.querySelectorAll('.product-row');
+                const lastRow = rows[rows.length - 1];
+                if (lastRow) {
+                    const nameInput = lastRow.querySelector('input[name*="[name]"]');
+                    const quantityInput = lastRow.querySelector('input[name*="[quantity]"]');
+                    if (nameInput) nameInput.value = product.name || '';
+                    if (quantityInput) quantityInput.value = product.quantity || '';
+                }
+            });
+        }
+        
+        // Restore current step
+        if (draftData.currentStep) {
+            currentStep = draftData.currentStep;
+            if (typeof showStep === 'function') {
+                showStep(currentStep);
+            }
+        }
+        
+        // Show cooperative info if selected
+        const select = document.getElementById('coperative_id');
+        if (select && select.value) {
+            showCooperativeInfo(select.value);
+        }
+        
+        return true;
+    } catch (e) {
+        console.error('Error loading draft:', e);
+        return false;
+    }
+}
+
+// Clear draft when form is successfully submitted
+function clearDraft() {
+    if (confirm('Êtes-vous sûr de vouloir supprimer le brouillon ?')) {
+        localStorage.removeItem('contract_draft');
+        document.getElementById('draftAvailableIndicator').classList.add('hidden');
+        alert('Brouillon supprimé avec succès');
+    }
+}
+
+// Show cooperative info on page load if already selected
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if draft exists
+    checkDraftExists();
+    
+    // Try to load draft first (only if user wants to)
+    // Don't auto-load, just show indicator
+    
+    if (!draftLoaded) {
+        // Ensure next button is visible first
+        const nextBtn = document.getElementById('nextBtn');
+        if (nextBtn) {
+            nextBtn.classList.remove('hidden');
+            nextBtn.style.display = 'inline-flex';
+            nextBtn.style.visibility = 'visible';
+        }
+        
+        // Initialize form steps
+        if (typeof showStep === 'function') {
+            showStep(1);
+        } else {
+            console.error('showStep function not found');
+        }
+        
+        const select = document.getElementById('coperative_id');
+        if (select && select.value) {
+            showCooperativeInfo(select.value);
+        }
+    }
+    
+    // Handle form submission
+    const contractForm = document.getElementById('contractForm');
+    if (contractForm) {
+        contractForm.addEventListener('submit', function(e) {
+            if (!validateStep(currentStep)) {
+                e.preventDefault();
+                return false;
+            }
+            // Clear draft on successful submission
+            clearDraft();
+        });
+    }
+    
+    // Double check next button visibility after a short delay
+    setTimeout(function() {
+        const nextBtnCheck = document.getElementById('nextBtn');
+        if (nextBtnCheck) {
+            nextBtnCheck.classList.remove('hidden');
+            nextBtnCheck.style.display = 'inline-flex';
+            nextBtnCheck.style.visibility = 'visible';
+        }
+    }, 200);
+    
+    // Auto-save draft every 30 seconds
+    setInterval(function() {
+        saveAsDraft();
+    }, 30000);
+});
+
 </script>
+
+<style>
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: 2px solid #e5e7eb;
+}
+
+.step-indicator.active .step-number {
+    background: linear-gradient(to bottom right, #059669, #047857);
+    color: white;
+    border-color: #059669;
+    transform: scale(1.1);
+}
+
+.step-indicator.completed .step-number {
+    background: linear-gradient(to bottom right, #10b981, #059669);
+    color: white;
+    border-color: #10b981;
+}
+
+.step-label {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: center;
+    font-weight: 500;
+}
+
+.step-indicator.active .step-label {
+    color: #059669;
+    font-weight: 600;
+}
+
+.step-indicator.completed .step-label {
+    color: #10b981;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #e5e7eb;
+    margin: 0 8px;
+    margin-top: -20px;
+    z-index: -1;
+}
+
+.step-content {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .step-indicator {
+        flex: 0 0 auto;
+    }
+    
+    .step-label {
+        display: none;
+    }
+    
+    .step-line {
+        display: none;
+    }
+}
+</style>
 @endpush

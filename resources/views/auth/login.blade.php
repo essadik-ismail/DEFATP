@@ -692,7 +692,10 @@
                 @if ($errors->any())
                     <x-alert type="error" title="Erreur de connexion!">
                         <ul class="mt-2">
-                            @foreach ($errors->all() as $error)
+                            @php
+                                $uniqueErrors = array_unique($errors->all());
+                            @endphp
+                            @foreach ($uniqueErrors as $error)
                                 <li class="text-sm">{{ $error }}</li>
                             @endforeach
                         </ul>
