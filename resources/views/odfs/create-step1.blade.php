@@ -77,6 +77,36 @@
                 </div>
             </div>
 
+            {{-- Informations sur l'entité ODF sélectionnée --}}
+            <div id="odfEntiteInfo" class="mt-6 hidden">
+                <div class="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl p-4">
+                    <h3 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-slate-500"></i>
+                        Informations sur l'entité sélectionnée
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div id="localisationInfo" class="hidden">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-map-marker-alt text-emerald-500 mt-1"></i>
+                                <div>
+                                    <div class="font-semibold text-slate-800">Localisation</div>
+                                    <div id="localisationText" class="text-slate-600"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="situationInfo" class="hidden">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-city text-indigo-500 mt-1"></i>
+                                <div>
+                                    <div class="font-semibold text-slate-800">Situation administrative</div>
+                                    <div id="situationText" class="text-slate-600"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex items-center justify-between pt-6 border-t border-gray-200 mt-4">
                 <a href="{{ route('odfs.index') }}"
                    class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
@@ -94,5 +124,66 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const odfEntiteSelect = document.getElementById('odf_entite_id');
+    const odfEntiteInfo = document.getElementById('odfEntiteInfo');
+    const localisationInfo = document.getElementById('localisationInfo');
+    const situationInfo = document.getElementById('situationInfo');
+    const localisationText = document.getElementById('localisationText');
+    const situationText = document.getElementById('situationText');
+
+    if (!odfEntiteSelect) return;
+
+    if (odfEntiteSelect.value) {
+        loadOdfEntiteInfo(odfEntiteSelect.value);
+    }
+
+    odfEntiteSelect.addEventListener('change', function() {
+        if (this.value) {
+            loadOdfEntiteInfo(this.value);
+        } else {
+            odfEntiteInfo.classList.add('hidden');
+            localisationInfo.classList.add('hidden');
+            situationInfo.classList.add('hidden');
+        }
+    });
+
+    function loadOdfEntiteInfo(odfEntiteId) {
+        fetch(`{{ url('/api/odf-entites') }}/${odfEntiteId}`)
+            .then(response => response.json())
+            .then(data => {
+                odfEntiteInfo.classList.remove('hidden');
+
+                if (data.localisation) {
+                    localisationText.textContent = `${data.localisation.code} - ${data.localisation.dranef} - ${data.localisation.entite}`;
+                    localisationInfo.classList.remove('hidden');
+                } else {
+                    localisationInfo.classList.add('hidden');
+                }
+
+                if (data.situation_administrative) {
+                    let situationTextContent = data.situation_administrative.commune;
+                    if (data.situation_administrative.province) {
+                        situationTextContent += ` - ${data.situation_administrative.province}`;
+                    }
+                    situationText.textContent = situationTextContent;
+                    situationInfo.classList.remove('hidden');
+                } else {
+                    situationInfo.classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading ODF Entité info:', error);
+                odfEntiteInfo.classList.add('hidden');
+                localisationInfo.classList.add('hidden');
+                situationInfo.classList.add('hidden');
+            });
+    }
+});
+</script>
+@endpush
 
 

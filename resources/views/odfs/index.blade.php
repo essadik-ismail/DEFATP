@@ -12,9 +12,9 @@
             </div>
             <div>
                 <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #8b5cf6, #7c3aed); -webkit-background-clip: text; background-clip: text;">
-                Organisation développement forestier
+                Organisme de développement forestier
                 </h1>
-                <p class="text-gray-600 text-lg mt-2">Gérez et consultez toutes les Organisation développement forestier (ODF)</p>
+                <p class="text-gray-600 text-lg mt-2">Gérez et consultez toutes les Organismes de développement forestier (ODF)</p>
             </div>
         </div>
     </div>

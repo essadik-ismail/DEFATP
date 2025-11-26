@@ -66,7 +66,7 @@
                     <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                         Modifier ODF
                     </h1>
-                    <p class="text-gray-600 text-lg mt-2">Modifiez les informations de l'Organisation développement forestier (ODF)</p>
+                    <p class="text-gray-600 text-lg mt-2">Modifiez les informations de l'Organisme de développement forestier (ODF)</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
