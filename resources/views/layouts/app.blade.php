@@ -2157,7 +2157,7 @@
                 </div>
                 
                 
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="{{ route('articles.index') }}" class="nav-link {{ request()->routeIs('articles.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         Exploitation régulière
@@ -2176,22 +2176,14 @@
                         <i class="fas fa-file-alt"></i>
                         Exploitant Forêstier
                     </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="{{ route('coperatives.index') }}" class="nav-link {{ request()->routeIs('coperatives.*') ? 'active' : '' }}">
-                        <i class="fas fa-users-cog"></i>
-                        Coopératives
-                    </a>
-                </div>
-
+                </div> -->
                 
                
                 
                 <div class="nav-item">
                     <a href="{{ route('odfs.index') }}" class="nav-link {{ request()->routeIs('odfs.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
-                        Organisation Forestière
+                        ODF
                     </a>
                 </div>
                 <div class="nav-item">

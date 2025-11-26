@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ForetSeeder::class,
             NatureDeCoupeSeeder::class,
             SituationAdministrativeSeeder::class,
+            OdfEntiteSeeder::class,
             ExploitantSeeder::class,
             ArticleSeeder::class,
             EspeceSeeder::class,

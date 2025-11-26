@@ -11,16 +11,9 @@ class Member extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'type_membre',
-        'nom',
-        'n_cin',
-        'tel',
-        'email',
-        'type_odf',
-        'type_odf_domaine_activite',
-        'type_odf_nombre_de_membres',
+        'type',
         'odf_id',
-        'commentaire',
+        'odf_diagnostic_id',
     ];
 
     /**
@@ -29,5 +22,13 @@ class Member extends Model
     public function odf(): BelongsTo
     {
         return $this->belongsTo(Odf::class, 'odf_id');
+    }
+
+    /**
+     * Get the ODF diagnostic associated with this member.
+     */
+    public function odfDiagnostic(): BelongsTo
+    {
+        return $this->belongsTo(OdfDiagnostic::class, 'odf_diagnostic_id');
     }
 }

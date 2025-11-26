@@ -52,131 +52,288 @@
         </div>
         <!-- Search and Filter Section -->
         <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200 mb-6">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-search text-white"></i>
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-search text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Recherche et Filtres Avancés</h3>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900">Recherche et Filtres Avancés</h3>
+                <button type="button" 
+                        onclick="toggleFilterSection()"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        id="toggleFilterBtn">
+                    <i class="fas fa-chevron-down" id="toggleFilterIcon"></i>
+                    <span class="hidden sm:inline">Réduire</span>
+                </button>
+            </div>
+            
+            <!-- Active Filters Badges -->
+            <div id="activeFiltersContainer" class="mb-4 flex flex-wrap gap-2">
+                @if(request('search'))
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                        <i class="fas fa-search text-xs"></i>
+                        Recherche: "{{ request('search') }}"
+                        <button type="button" onclick="removeFilter('search')" class="ml-1 hover:text-blue-900">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </span>
+                @endif
+                @if(request('type'))
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                        <i class="fas fa-tag text-xs"></i>
+                        Type: {{ request('type') == 'appel_doffre' ? 'Appel d\'Offre' : (request('type') == 'adjudication' ? 'Adjudication' : 'Marché Négocié') }}
+                        <button type="button" onclick="removeFilter('type')" class="ml-1 hover:text-green-900">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </span>
+                @endif
+                @if(request('localisation_ids'))
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
+                        <i class="fas fa-map-marker-alt text-xs"></i>
+                        Localisations: {{ count(request('localisation_ids', [])) }} sélectionnée(s)
+                        <button type="button" onclick="removeFilter('localisation_ids')" class="ml-1 hover:text-indigo-900">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </span>
+                @endif
+                @if(request('years'))
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                        <i class="fas fa-calendar text-xs"></i>
+                        Années: {{ count(request('years', [])) }} sélectionnée(s)
+                        <button type="button" onclick="removeFilter('years')" class="ml-1 hover:text-purple-900">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </span>
+                @endif
+                @if(request('start_date') || request('end_date'))
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm">
+                        <i class="fas fa-calendar-alt text-xs"></i>
+                        Période: {{ request('start_date') ? \Carbon\Carbon::parse(request('start_date'))->format('d/m/Y') : '...' }} - {{ request('end_date') ? \Carbon\Carbon::parse(request('end_date'))->format('d/m/Y') : '...' }}
+                        <button type="button" onclick="removeFilter('dates')" class="ml-1 hover:text-amber-900">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </span>
+                @endif
             </div>
             
             <form method="GET" action="{{ route('articles.index') }}" id="filterForm">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                    <div class="form-group">
-                        <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-search text-blue-500 mr-1"></i>Recherche
+                <div id="filterContent" class="transition-all duration-300">
+                    <!-- Quick Filter Presets -->
+                    <div class="mb-6 p-4 bg-white rounded-xl border border-gray-200">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            <i class="fas fa-bolt text-yellow-500 mr-1"></i>Filtres Rapides
                         </label>
-                        <div class="relative">
-                            <input type="text" 
-                                   class="form-input w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                   name="search" 
-                                   id="search" 
-                                   value="{{ request('search') }}"
-                                   placeholder="Numéro, année, forêt, essence...">
-                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                <i class="fas fa-search"></i>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" 
+                                    onclick="applyQuickFilter('today')"
+                                    class="quick-filter-btn px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-200 text-sm">
+                                <i class="fas fa-calendar-day mr-1"></i>Aujourd'hui
+                            </button>
+                            <button type="button" 
+                                    onclick="applyQuickFilter('thisWeek')"
+                                    class="quick-filter-btn px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-200 text-sm">
+                                <i class="fas fa-calendar-week mr-1"></i>Cette Semaine
+                            </button>
+                            <button type="button" 
+                                    onclick="applyQuickFilter('thisMonth')"
+                                    class="quick-filter-btn px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-200 text-sm">
+                                <i class="fas fa-calendar mr-1"></i>Ce Mois
+                            </button>
+                            <button type="button" 
+                                    onclick="applyQuickFilter('thisYear')"
+                                    class="quick-filter-btn px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-200 text-sm">
+                                <i class="fas fa-calendar-alt mr-1"></i>Cette Année
+                            </button>
+                            <button type="button" 
+                                    onclick="applyQuickFilter('lastMonth')"
+                                    class="quick-filter-btn px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-200 text-sm">
+                                <i class="fas fa-arrow-left mr-1"></i>Mois Dernier
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <div class="form-group">
+                            <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-search text-blue-500 mr-1"></i>Recherche
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       class="form-input w-full px-4 py-3 pl-12 pr-10 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                       name="search" 
+                                       id="search" 
+                                       value="{{ request('search') }}"
+                                       placeholder="Numéro, année, forêt, essence...">
+                                <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                @if(request('search'))
+                                    <button type="button" 
+                                            onclick="clearSearchInput()"
+                                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                @endif
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-tag text-green-500 mr-1"></i>Type
-                        </label>
-                        <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                name="type" id="type">
-                            <option value="">Tous les types</option>
-                            <option value="appel_doffre" {{ request('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'Offre</option>
-                            <option value="adjudication" {{ request('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
-                            <option value="marche_negocié" {{ request('type') == 'marche_negocié' ? 'selected' : '' }}>Marché Négocié</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-map-marker-alt text-indigo-500 mr-1"></i>Localisations
-                        </label>
-                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
-                        <select multiple
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
-                                name="localisation_ids[]" id="localisation_ids">
-                            @foreach($allLocalisations ?? [] as $localisation)
-                                <option value="{{ $localisation->id }}" {{ in_array($localisation->id, request('localisation_ids', [])) ? 'selected' : '' }}>
-                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="years" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar text-purple-500 mr-1"></i>Années
-                        </label>
-                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'years')">
-                        <select multiple
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                                name="years[]" id="years">
-                            @for($year = now()->year; $year >= 2020; $year--)
-                                <option value="{{ $year }}" {{ in_array($year, request('years', [])) ? 'selected' : '' }}>{{ $year }}</option>
-                            @endfor
-                        </select>
-                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl/Cmd pour sélectionner plusieurs</p>
-                    </div>
-                </div>
-                
-                <!-- Date Range Filter -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div class="form-group">
-                        <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-plus text-blue-500 mr-1"></i>
-                            Date de début
-                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
-                        </label>
-                        <input type="date" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="start_date" 
-                               name="start_date" 
-                               value="{{ request('start_date') }}"
-                               placeholder="jj/mm/aaaa">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-minus text-blue-500 mr-1"></i>
-                            Date de fin
-                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 31/12/2024)"></i>
-                        </label>
-                        <input type="date" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="end_date" 
-                               name="end_date" 
-                               value="{{ request('end_date') }}"
-                               placeholder="jj/mm/aaaa">
-                    </div>
-                </div>
-                
-                <div class="flex items-center justify-between">
-                    <div class="flex gap-3">
-                        <button type="submit" 
-                                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                            <i class="fas fa-filter"></i>
-                            <span>Filtrer</span>
-                        </button>
-                        <button type="button" 
-                                onclick="clearFilters()"
-                                class="inline-flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
-                                title="Effacer les filtres">
-                            <i class="fas fa-times"></i>
-                            <span>Effacer</span>
-                        </button>
-                    </div>
-                    
-                    @if(request()->hasAny(['search', 'type', 'localisation_ids', 'years', 'start_date', 'end_date']))
-                        <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Filtres actifs
+                        
+                        <div class="form-group">
+                            <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-tag text-green-500 mr-1"></i>Type
+                            </label>
+                            <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                    name="type" id="type">
+                                <option value="">Tous les types</option>
+                                <option value="appel_doffre" {{ request('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'Offre</option>
+                                <option value="adjudication" {{ request('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
+                                <option value="marche_negocié" {{ request('type') == 'marche_negocié' ? 'selected' : '' }}>Marché Négocié</option>
+                            </select>
                         </div>
-                    @endif
+                        
+                        <div class="form-group">
+                            <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt text-indigo-500 mr-1"></i>Localisations
+                                <span class="text-xs text-gray-500 font-normal" id="localisation_count">({{ count(request('localisation_ids', [])) }} sélectionnée(s))</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       placeholder="Rechercher..." 
+                                       class="form-input w-full mb-2 px-4 py-2 pr-8 border border-gray-300 rounded-lg" 
+                                       id="localisation_search"
+                                       onkeyup="enhancedFilterSelectOptions(this, 'localisation_ids')">
+                                <button type="button" 
+                                        onclick="clearSelectFilter('localisation_search', 'localisation_ids')"
+                                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="flex gap-2 mb-2">
+                                <button type="button" 
+                                        onclick="selectAllOptions('localisation_ids')"
+                                        class="flex-1 px-2 py-1 text-xs bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100 transition-colors">
+                                    <i class="fas fa-check-double mr-1"></i>Tout sélectionner
+                                </button>
+                                <button type="button" 
+                                        onclick="deselectAllOptions('localisation_ids')"
+                                        class="flex-1 px-2 py-1 text-xs bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-times mr-1"></i>Tout désélectionner
+                                </button>
+                            </div>
+                            <select multiple
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
+                                    name="localisation_ids[]" 
+                                    id="localisation_ids"
+                                    onchange="updateSelectCount('localisation_ids', 'localisation_count')"
+                                    size="5">
+                                @foreach($allLocalisations ?? [] as $localisation)
+                                    <option value="{{ $localisation->id }}" {{ in_array($localisation->id, request('localisation_ids', [])) ? 'selected' : '' }}>
+                                        {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <span id="localisation_filtered_count">{{ count($allLocalisations ?? []) }}</span> résultat(s) | Maintenez Ctrl/Cmd pour sélectionner plusieurs
+                            </p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="years" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar text-purple-500 mr-1"></i>Années
+                                <span class="text-xs text-gray-500 font-normal" id="years_count">({{ count(request('years', [])) }} sélectionnée(s))</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" 
+                                       placeholder="Rechercher..." 
+                                       class="form-input w-full mb-2 px-4 py-2 pr-8 border border-gray-300 rounded-lg" 
+                                       id="years_search"
+                                       onkeyup="enhancedFilterSelectOptions(this, 'years')">
+                                <button type="button" 
+                                        onclick="clearSelectFilter('years_search', 'years')"
+                                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="flex gap-2 mb-2">
+                                <button type="button" 
+                                        onclick="selectAllOptions('years')"
+                                        class="flex-1 px-2 py-1 text-xs bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors">
+                                    <i class="fas fa-check-double mr-1"></i>Tout sélectionner
+                                </button>
+                                <button type="button" 
+                                        onclick="deselectAllOptions('years')"
+                                        class="flex-1 px-2 py-1 text-xs bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-times mr-1"></i>Tout désélectionner
+                                </button>
+                            </div>
+                            <select multiple
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
+                                    name="years[]" 
+                                    id="years"
+                                    onchange="updateSelectCount('years', 'years_count')"
+                                    size="5">
+                                @for($year = now()->year; $year >= 2020; $year--)
+                                    <option value="{{ $year }}" {{ in_array($year, request('years', [])) ? 'selected' : '' }}>{{ $year }}</option>
+                                @endfor
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <span id="years_filtered_count">{{ now()->year - 2019 }}</span> résultat(s) | Maintenez Ctrl/Cmd pour sélectionner plusieurs
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Date Range Filter -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="form-group">
+                            <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar-plus text-blue-500 mr-1"></i>
+                                Date de début
+                                <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                            </label>
+                            <input type="date" 
+                                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                   id="start_date" 
+                                   name="start_date" 
+                                   value="{{ request('start_date') }}"
+                                   placeholder="jj/mm/aaaa">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar-minus text-blue-500 mr-1"></i>
+                                Date de fin
+                                <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 31/12/2024)"></i>
+                            </label>
+                            <input type="date" 
+                                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
+                                   id="end_date" 
+                                   name="end_date" 
+                                   value="{{ request('end_date') }}"
+                                   placeholder="jj/mm/aaaa">
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-3">
+                            <button type="submit" 
+                                    class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                <i class="fas fa-filter"></i>
+                                <span>Filtrer</span>
+                            </button>
+                            <button type="button" 
+                                    onclick="clearFilters()"
+                                    class="inline-flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
+                                    title="Effacer les filtres">
+                                <i class="fas fa-times"></i>
+                                <span>Effacer</span>
+                            </button>
+                        </div>
+                        
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <span id="filterResultCount">{{ $articles->total() }}</span> article(s) trouvé(s)
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Hidden fields to preserve pagination -->
@@ -440,6 +597,208 @@
 
 @push('styles')
 <style>
+/* Enhanced Filter Styles */
+#activeFiltersContainer {
+    min-height: 40px;
+}
+
+#activeFiltersContainer:empty {
+    display: none;
+}
+
+.filter-badge {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#filterContent {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Enhanced select styling */
+select[multiple] {
+    min-height: 120px;
+    max-height: 200px;
+}
+
+select[multiple] option {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+select[multiple] option:hover {
+    background-color: #f9fafb;
+}
+
+select[multiple] option:checked {
+    background-color: #dbeafe;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+/* Quick filter buttons */
+.quick-filter-btn {
+    transition: all 0.2s ease;
+}
+
+.quick-filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Column Filter Dropdown */
+.column-filter-dropdown {
+    position: absolute;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: none;
+    min-width: 250px;
+    max-width: 400px;
+    max-height: 400px;
+    overflow: hidden;
+}
+
+.column-filter-dropdown.show {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.filter-dropdown-header .close-filter {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.filter-dropdown-header .close-filter:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.filter-dropdown-content {
+    padding: 8px;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.filter-option:hover {
+    background-color: #f3f4f6;
+}
+
+.filter-option input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.filter-option span {
+    flex: 1;
+    font-size: 14px;
+    color: #374151;
+}
+
+.filter-dropdown-footer {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.btn-clear-filter,
+.btn-apply-filter {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-clear-filter {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-clear-filter:hover {
+    background: #e5e7eb;
+}
+
+.btn-apply-filter {
+    background: linear-gradient(to right, #3b82f6, #2563eb);
+    color: white;
+}
+
+.btn-apply-filter:hover {
+    background: linear-gradient(to right, #2563eb, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+}
+
+.filter-btn.active {
+    color: #3b82f6;
+}
+
+.filter-btn.active i {
+    color: #3b82f6;
+}
+
 /* Enhanced table styling */
 .table-responsive {
     border-radius: 8px;
@@ -665,7 +1024,233 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, page initialized');
     initializeTableFilters();
+    initializeEnhancedFilters();
+    initializeColumnFilters();
 });
+
+// Initialize enhanced filters
+function initializeEnhancedFilters() {
+    // Initialize select counts
+    updateSelectCount('localisation_ids', 'localisation_count');
+    updateSelectCount('years', 'years_count');
+    
+    // Initialize filtered counts
+    const localisationSelect = document.getElementById('localisation_ids');
+    if (localisationSelect) {
+        const localisationCount = document.getElementById('localisation_ids_filtered_count');
+        if (localisationCount) {
+            localisationCount.textContent = Array.from(localisationSelect.options).length;
+        }
+    }
+    
+    const yearsSelect = document.getElementById('years');
+    if (yearsSelect) {
+        const yearsCount = document.getElementById('years_filtered_count');
+        if (yearsCount) {
+            yearsCount.textContent = Array.from(yearsSelect.options).length;
+        }
+    }
+}
+
+// Column filter functionality
+let columnFilters = {};
+let filterDropdowns = {};
+
+function initializeColumnFilters() {
+    // Handle filter button clicks
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const columnIndex = parseInt(this.getAttribute('data-column'));
+            const th = this.closest('th');
+            const columnName = th.querySelector('span').textContent.trim();
+            
+            // Close other dropdowns
+            document.querySelectorAll('.column-filter-dropdown').forEach(dd => {
+                dd.classList.remove('show');
+            });
+            
+            // Create or show dropdown
+            let dropdown = filterDropdowns[columnIndex];
+            if (!dropdown) {
+                dropdown = createColumnFilterDropdown(columnIndex, columnName);
+                filterDropdowns[columnIndex] = dropdown;
+                document.body.appendChild(dropdown);
+            }
+            
+            // Position dropdown
+            const thRect = th.getBoundingClientRect();
+            dropdown.style.top = (thRect.bottom + window.scrollY + 5) + 'px';
+            dropdown.style.left = (thRect.left + window.scrollX) + 'px';
+            dropdown.style.width = Math.max(250, thRect.width) + 'px';
+            
+            // Show dropdown
+            dropdown.classList.add('show');
+            
+            // Update checkboxes based on current filter
+            const selectedValues = columnFilters[columnIndex] || [];
+            dropdown.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = selectedValues.includes(checkbox.value);
+            });
+        });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.filter-btn, .column-filter-dropdown')) {
+            document.querySelectorAll('.column-filter-dropdown').forEach(dd => {
+                dd.classList.remove('show');
+            });
+        }
+    });
+}
+
+function createColumnFilterDropdown(columnIndex, columnName) {
+    const dropdown = document.createElement('div');
+    dropdown.className = 'column-filter-dropdown';
+    dropdown.innerHTML = `
+        <div class="filter-dropdown-header">
+            <span class="font-semibold">Filtrer: ${columnName}</span>
+            <button type="button" class="close-filter" onclick="this.closest('.column-filter-dropdown').classList.remove('show')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="filter-dropdown-content">
+            <div class="filter-options" id="filter-options-${columnIndex}">
+                <!-- Options will be populated dynamically -->
+            </div>
+        </div>
+        <div class="filter-dropdown-footer">
+            <button type="button" class="btn-clear-filter" onclick="clearColumnFilter(${columnIndex})">
+                <i class="fas fa-times"></i> Effacer
+            </button>
+            <button type="button" class="btn-apply-filter" onclick="applyColumnFilter(${columnIndex})">
+                <i class="fas fa-check"></i> Appliquer
+            </button>
+        </div>
+    `;
+    
+    // Get unique values from column
+    const table = document.getElementById('articlesTable');
+    const rows = table.querySelectorAll('tbody tr');
+    const values = new Set();
+    
+    rows.forEach(row => {
+        const cell = row.cells[columnIndex];
+        if (cell) {
+            const text = cell.textContent.trim();
+            if (text && text !== '-') {
+                values.add(text);
+            }
+        }
+    });
+    
+    // Create checkboxes for each unique value
+    const optionsContainer = dropdown.querySelector('.filter-options');
+    const sortedValues = Array.from(values).sort();
+    
+    if (sortedValues.length === 0) {
+        optionsContainer.innerHTML = '<p class="text-gray-500 text-sm p-2">Aucune valeur disponible</p>';
+    } else {
+        sortedValues.forEach(value => {
+            const label = document.createElement('label');
+            label.className = 'filter-option';
+            label.innerHTML = `
+                <input type="checkbox" value="${value.replace(/"/g, '&quot;')}">
+                <span>${value}</span>
+            `;
+            optionsContainer.appendChild(label);
+        });
+    }
+    
+    return dropdown;
+}
+
+function applyColumnFilter(columnIndex) {
+    const dropdown = filterDropdowns[columnIndex];
+    if (!dropdown) return;
+    
+    const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]:checked');
+    const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (selectedValues.length === 0) {
+        delete columnFilters[columnIndex];
+    } else {
+        columnFilters[columnIndex] = selectedValues;
+    }
+    
+    // Apply filters to table
+    filterTableByColumns();
+    
+    // Update button appearance
+    const filterBtn = document.querySelector(`.filter-btn[data-column="${columnIndex}"]`);
+    if (filterBtn) {
+        if (selectedValues.length > 0) {
+            filterBtn.classList.add('active');
+            filterBtn.title = `${selectedValues.length} filtre(s) actif(s)`;
+        } else {
+            filterBtn.classList.remove('active');
+            filterBtn.title = 'Filtrer';
+        }
+    }
+    
+    // Close dropdown
+    dropdown.classList.remove('show');
+}
+
+function clearColumnFilter(columnIndex) {
+    delete columnFilters[columnIndex];
+    
+    // Clear checkboxes
+    const dropdown = filterDropdowns[columnIndex];
+    if (dropdown) {
+        dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+    }
+    
+    // Apply filters
+    filterTableByColumns();
+    
+    // Update button appearance
+    const filterBtn = document.querySelector(`.filter-btn[data-column="${columnIndex}"]`);
+    if (filterBtn) {
+        filterBtn.classList.remove('active');
+        filterBtn.title = 'Filtrer';
+    }
+}
+
+function filterTableByColumns() {
+    const table = document.getElementById('articlesTable');
+    const rows = table.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        let showRow = true;
+        
+        // Check each column filter
+        Object.keys(columnFilters).forEach(columnIndex => {
+            const selectedValues = columnFilters[columnIndex];
+            if (selectedValues && selectedValues.length > 0) {
+                const cell = row.cells[parseInt(columnIndex)];
+                if (cell) {
+                    const cellText = cell.textContent.trim();
+                    if (!selectedValues.includes(cellText)) {
+                        showRow = false;
+                    }
+                }
+            }
+        });
+        
+        row.style.display = showRow ? '' : 'none';
+    });
+    
+    // Update visible row count
+    const visibleRows = table.querySelectorAll('tbody tr:not([style*="display: none"])');
+    const resultCount = document.getElementById('filterResultCount');
+    if (resultCount) {
+        resultCount.textContent = visibleRows.length;
+    }
+}
 
 // Function to handle localisation import
 function importLocalisations(input) {
@@ -1054,32 +1639,212 @@ function archiveArticle(articleId) {
     }
 }
 
-// Filter select options function
-function filterSelectOptions(inputEl, selectId) {
+// Enhanced filter select options function with result count
+function enhancedFilterSelectOptions(inputEl, selectId) {
     const filter = inputEl.value.toLowerCase();
     const select = document.getElementById(selectId);
     if (!select) return;
+    
+    let visibleCount = 0;
     Array.from(select.options).forEach(function(opt) {
         const text = (opt.text || '').toLowerCase();
         const match = text.indexOf(filter) !== -1;
         opt.style.display = match ? '' : 'none';
+        if (match) visibleCount++;
     });
+    
+    // Update filtered count display
+    const countElement = document.getElementById(selectId + '_filtered_count');
+    if (countElement) {
+        countElement.textContent = visibleCount;
+    }
+}
+
+// Legacy function for backward compatibility
+function filterSelectOptions(inputEl, selectId) {
+    enhancedFilterSelectOptions(inputEl, selectId);
+}
+
+// Clear select filter input
+function clearSelectFilter(inputId, selectId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.value = '';
+        enhancedFilterSelectOptions(input, selectId);
+    }
+}
+
+// Select all visible options
+function selectAllOptions(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    Array.from(select.options).forEach(function(opt) {
+        if (opt.style.display !== 'none') {
+            opt.selected = true;
+        }
+    });
+    updateSelectCount(selectId, selectId + '_count');
+}
+
+// Deselect all options
+function deselectAllOptions(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    Array.from(select.options).forEach(function(opt) {
+        opt.selected = false;
+    });
+    updateSelectCount(selectId, selectId + '_count');
+}
+
+// Update select count display
+function updateSelectCount(selectId, countElementId) {
+    const select = document.getElementById(selectId);
+    const countElement = document.getElementById(countElementId);
+    if (select && countElement) {
+        const selectedCount = Array.from(select.selectedOptions).length;
+        countElement.textContent = `(${selectedCount} sélectionnée(s))`;
+    }
+}
+
+// Clear search input
+function clearSearchInput() {
+    document.getElementById('search').value = '';
+}
+
+// Toggle filter section
+function toggleFilterSection() {
+    const content = document.getElementById('filterContent');
+    const icon = document.getElementById('toggleFilterIcon');
+    const btn = document.getElementById('toggleFilterBtn');
+    
+    if (content && icon && btn) {
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+            btn.querySelector('span').textContent = 'Réduire';
+        } else {
+            content.style.display = 'none';
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+            btn.querySelector('span').textContent = 'Afficher';
+        }
+    }
+}
+
+// Remove specific filter
+function removeFilter(filterName) {
+    const form = document.getElementById('filterForm');
+    if (!form) return;
+    
+    if (filterName === 'search') {
+        document.getElementById('search').value = '';
+    } else if (filterName === 'type') {
+        document.getElementById('type').value = '';
+    } else if (filterName === 'localisation_ids') {
+        const select = document.getElementById('localisation_ids');
+        if (select) {
+            Array.from(select.options).forEach(opt => opt.selected = false);
+            updateSelectCount('localisation_ids', 'localisation_count');
+        }
+    } else if (filterName === 'years') {
+        const select = document.getElementById('years');
+        if (select) {
+            Array.from(select.options).forEach(opt => opt.selected = false);
+            updateSelectCount('years', 'years_count');
+        }
+    } else if (filterName === 'dates') {
+        document.getElementById('start_date').value = '';
+        document.getElementById('end_date').value = '';
+    }
+    
+    form.submit();
+}
+
+// Apply quick filter presets
+function applyQuickFilter(preset) {
+    const today = new Date();
+    const startDate = document.getElementById('start_date');
+    const endDate = document.getElementById('end_date');
+    
+    let start, end;
+    
+    switch(preset) {
+        case 'today':
+            start = new Date(today);
+            end = new Date(today);
+            break;
+        case 'thisWeek':
+            start = new Date(today);
+            start.setDate(today.getDate() - today.getDay());
+            end = new Date(today);
+            end.setDate(today.getDate() + (6 - today.getDay()));
+            break;
+        case 'thisMonth':
+            start = new Date(today.getFullYear(), today.getMonth(), 1);
+            end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            break;
+        case 'thisYear':
+            start = new Date(today.getFullYear(), 0, 1);
+            end = new Date(today.getFullYear(), 11, 31);
+            break;
+        case 'lastMonth':
+            start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            end = new Date(today.getFullYear(), today.getMonth(), 0);
+            break;
+        default:
+            return;
+    }
+    
+    if (startDate) startDate.value = start.toISOString().split('T')[0];
+    if (endDate) endDate.value = end.toISOString().split('T')[0];
+    
+    document.getElementById('filterForm').submit();
 }
 
 // Clear filters function
 function clearFilters() {
-    document.getElementById('search').value = '';
-    document.getElementById('type').value = '';
-    document.getElementById('status').value = '';
-    // Clear multiple select fields
+    // Clear search
+    const searchInput = document.getElementById('search');
+    if (searchInput) searchInput.value = '';
+    
+    // Clear type
+    const typeSelect = document.getElementById('type');
+    if (typeSelect) typeSelect.value = '';
+    
+    // Clear localisations
     const localisationSelect = document.getElementById('localisation_ids');
     if (localisationSelect) {
         Array.from(localisationSelect.options).forEach(opt => opt.selected = false);
+        updateSelectCount('localisation_ids', 'localisation_count');
     }
+    const localisationSearch = document.getElementById('localisation_search');
+    if (localisationSearch) {
+        localisationSearch.value = '';
+        enhancedFilterSelectOptions(localisationSearch, 'localisation_ids');
+    }
+    
+    // Clear years
     const yearsSelect = document.getElementById('years');
     if (yearsSelect) {
         Array.from(yearsSelect.options).forEach(opt => opt.selected = false);
+        updateSelectCount('years', 'years_count');
     }
+    const yearsSearch = document.getElementById('years_search');
+    if (yearsSearch) {
+        yearsSearch.value = '';
+        enhancedFilterSelectOptions(yearsSearch, 'years');
+    }
+    
+    // Clear dates
+    const startDate = document.getElementById('start_date');
+    if (startDate) startDate.value = '';
+    const endDate = document.getElementById('end_date');
+    if (endDate) endDate.value = '';
+    
+    // Submit form
     document.getElementById('filterForm').submit();
 }
 
@@ -1327,45 +2092,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 </style>
 
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
-
-<!-- jQuery (required for DataTables) -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- DataTables JS -->
-<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
-
-<script>
-$(document).ready(function() {
-    // Initialize DataTable
-    var table = $('#articlesTable').DataTable({
-        processing: false,
-        serverSide: false,
-        order: [[3, 'desc']], // Sort by date
-        pageLength: 25,
-        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
-        },
-        columnDefs: [
-            {
-                targets: [4, 5], // Price columns
-                type: 'num',
-                render: function(data, type, row) {
-                    if (type === 'display' || type === 'filter') {
-                        // Extract number from badge text
-                        var match = data.match(/[\d,]+\.?\d*/);
-                        return match ? match[0].replace(/,/g, '') : '0';
-                    }
-                    return data;
-                }
-            }
-        ]
-    });
-    
-    // Initialize Excel-style filters
-    ExcelFilters.init('articlesTable');
-});
-</script>
+<!-- DataTables removed - using Laravel pagination instead -->
 @endpush

@@ -125,6 +125,7 @@ class FormValidator {
     constructor(form) {
         this.form = form;
         this.errors = new Map();
+        this.errorElements = new Map(); // Store direct references to error elements
         this.init();
     }
 
@@ -212,21 +213,27 @@ class FormValidator {
         this.errors.set(field, message);
         field.classList.add('border-red-500');
         
+        // Remove existing error if any
+        this.clearFieldError(field);
+        
         const errorDiv = document.createElement('div');
         errorDiv.className = 'text-red-500 text-sm mt-1';
         errorDiv.textContent = message;
-        errorDiv.id = `error-${field.id || field.name}`;
         
         field.parentNode.appendChild(errorDiv);
+        // Store direct reference to avoid CSS selector issues with brackets
+        this.errorElements.set(field, errorDiv);
     }
 
     clearFieldError(field) {
         this.errors.delete(field);
         field.classList.remove('border-red-500');
         
-        const errorDiv = field.parentNode.querySelector(`#error-${field.id || field.name}`);
-        if (errorDiv) {
+        // Use stored reference instead of querySelector to avoid CSS selector issues
+        const errorDiv = this.errorElements.get(field);
+        if (errorDiv && errorDiv.parentNode) {
             errorDiv.remove();
+            this.errorElements.delete(field);
         }
     }
 

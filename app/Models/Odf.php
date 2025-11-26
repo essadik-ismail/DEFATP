@@ -14,13 +14,7 @@ class Odf extends Model
     protected $fillable = [
         'odf_entite_id',
         'constitution',
-        'date_depot_odf',
-        'fichier_joint_depot_odf',
-        'date_reçu_du_définition',
-        'fichier_joint_reçu_du_définition',
         'commentaire',
-        'localisation_id',
-        'situation_administrative_id',
     ];
 
     protected $casts = [
@@ -73,6 +67,22 @@ class Odf extends Model
     public function odfModifications(): HasMany
     {
         return $this->hasMany(OdfModification::class, 'odf_id');
+    }
+
+    /**
+     * Get the odf diagnostics for this ODF.
+     */
+    public function odfDiagnostics(): HasMany
+    {
+        return $this->hasMany(OdfDiagnostic::class, 'odf_id');
+    }
+
+    /**
+     * Get the constitution for this ODF.
+     */
+    public function constitution(): HasMany
+    {
+        return $this->hasMany(Constitution::class, 'odf_id');
     }
 
     /**

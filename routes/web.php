@@ -112,10 +112,45 @@ Route::middleware('auth')->group(function () {
     // ODF Routes
     Route::prefix('odfs')->name('odfs.')->group(function () {
         Route::get('/', [OdfController::class, 'index'])->name('index');
-        Route::get('/create', [OdfController::class, 'create'])->name('create');
+
+        // New multi-step creation wizard
+        Route::get('/create', [OdfController::class, 'createStep1'])->name('create');
+        Route::get('/create/step1', [OdfController::class, 'createStep1'])->name('create.step1');
+        Route::post('/create/step1', [OdfController::class, 'storeStep1'])->name('store.step1');
+
+        Route::get('/{odf}/create/step2', [OdfController::class, 'createStep2'])->name('create.step2');
+        Route::post('/{odf}/create/step2', [OdfController::class, 'storeStep2'])->name('store.step2');
+
+        Route::get('/{odf}/create/step3', [OdfController::class, 'createStep3'])->name('create.step3');
+        Route::post('/{odf}/create/step3', [OdfController::class, 'storeStep3'])->name('store.step3');
+
+        Route::get('/{odf}/create/step4', [OdfController::class, 'createStep4'])->name('create.step4');
+        Route::post('/{odf}/create/step4', [OdfController::class, 'storeStep4'])->name('store.step4');
+
+        Route::get('/{odf}/create/step5', [OdfController::class, 'createStep5'])->name('create.step5');
+        Route::post('/{odf}/create/step5', [OdfController::class, 'storeStep5'])->name('store.step5');
+
+        // Legacy single-step store route (kept for safety, but wizard uses the step routes)
         Route::post('/', [OdfController::class, 'store'])->name('store');
         Route::get('/{odf}', [OdfController::class, 'show'])->name('show');
         Route::get('/{odf}/edit', [OdfController::class, 'edit'])->name('edit');
+        
+        // Multi-step edit routes
+        Route::get('/{odf}/edit/step1', [OdfController::class, 'editStep1'])->name('edit.step1');
+        Route::put('/{odf}/edit/step1', [OdfController::class, 'updateStep1'])->name('update.step1');
+        
+        Route::get('/{odf}/edit/step2', [OdfController::class, 'editStep2'])->name('edit.step2');
+        Route::put('/{odf}/edit/step2', [OdfController::class, 'updateStep2'])->name('update.step2');
+        
+        Route::get('/{odf}/edit/step3', [OdfController::class, 'editStep3'])->name('edit.step3');
+        Route::put('/{odf}/edit/step3', [OdfController::class, 'updateStep3'])->name('update.step3');
+        
+        Route::get('/{odf}/edit/step4', [OdfController::class, 'editStep4'])->name('edit.step4');
+        Route::put('/{odf}/edit/step4', [OdfController::class, 'updateStep4'])->name('update.step4');
+        
+        Route::get('/{odf}/edit/step5', [OdfController::class, 'editStep5'])->name('edit.step5');
+        Route::put('/{odf}/edit/step5', [OdfController::class, 'updateStep5'])->name('update.step5');
+        
         Route::put('/{odf}', [OdfController::class, 'update'])->name('update');
         Route::delete('/{odf}', [OdfController::class, 'destroy'])->name('destroy');
         

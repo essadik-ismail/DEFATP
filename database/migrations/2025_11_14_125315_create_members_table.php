@@ -13,16 +13,9 @@ return new class extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->id();
-            $table->enum('type_membre', ['présidente', 'vice_présidente', 'trésorière', 'membre'])->nullable();
-            $table->string('nom');
-            $table->string('n_cin')->nullable();
-            $table->string('tel')->nullable();
-            $table->string('email')->nullable();
-            $table->enum('type_odf', ['Association', 'Coopérative', 'Entreprise', 'Élu', 'Citoyen'])->nullable();
-            $table->string('type_odf_domaine_activite')->nullable();
-            $table->integer('type_odf_nombre_de_membres')->nullable();
+            $table->string('type')->nullable();
             $table->foreignId('odf_id')->nullable()->constrained('odfs')->onDelete('set null');
-            $table->text('commentaire')->nullable();
+            $table->foreignId('odf_diagnostic_id')->nullable()->constrained('odf_diagnostic')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });

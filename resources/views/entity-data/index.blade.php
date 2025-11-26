@@ -98,6 +98,16 @@
                             </div>
                             <div class="tab-indicator"></div>
                         </button>
+                        <button class="tab-button group" data-tab="coperatives">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                                <i class="fas fa-users-cog text-white text-sm"></i>
+                            </div>
+                            <div class="text-left">
+                                <span class="block font-semibold">Coopératives</span>
+                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Contrats</span>
+                            </div>
+                            <div class="tab-indicator"></div>
+                        </button>
                         <!-- ODF Entities Tab -->
                         <button class="tab-button group" data-tab="odf-entites">
                             <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
@@ -120,6 +130,7 @@
                         @include('entity-data.partials.natures-coupe-tab')
                         @include('entity-data.partials.especes-tab')
                         @include('entity-data.partials.vocations-tab')
+                        @include('entity-data.partials.coperatives-tab')
                         @include('entity-data.partials.odf-entites-tab')
                     </div>
                 </div>

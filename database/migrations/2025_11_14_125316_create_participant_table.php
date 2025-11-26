@@ -11,17 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('odf_etaps', function (Blueprint $table) {
+        Schema::create('participant', function (Blueprint $table) {
             $table->id();
-            $table->string('objet')->nullable();
-            $table->string('lieu')->nullable();
-            $table->date('date')->nullable();
-            $table->string('type')->nullable();
-            $table->text('description')->nullable();
-            $table->text('resultat')->nullable();
-            // Participants (diagnostic IDs) stockés en JSON
-            $table->text('participants')->nullable();
             $table->foreignId('odf_id')->nullable()->constrained('odfs')->onDelete('set null');
+            $table->foreignId('member_id')->nullable()->constrained('members')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -32,6 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('odf_etaps');
+        Schema::dropIfExists('participant');
     }
 };
+
