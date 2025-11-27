@@ -296,22 +296,56 @@ class OdfController extends Controller
             'constitution.date'                 => 'nullable|date',
             'constitution.lieu'                 => 'nullable|string|max:255',
             'constitution.participant'          => 'nullable|string',
+            'constitution.status'               => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'constitution.dossier_juridique'    => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
             'constitution.date_depot_odf'       => 'nullable|date',
-            'constitution.fichier_joint_depot_odf' => 'nullable|string|max:255',
+            'constitution.fichier_joint_depot_odf' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
             'constitution.lieu_depot_odf'       => 'nullable|string|max:255',
             'constitution.date_reçu_définitive' => 'nullable|date',
-            'constitution.fichier_joint_reçu_définitive' => 'nullable|string|max:255',
+            'constitution.fichier_joint_reçu_définitive' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
             'constitution.lieu_reçu_définitive' => 'nullable|string|max:255',
         ]);
 
         // Constitution
         $constitutionData = $validated['constitution'] ?? [];
+        
+        // Handle file uploads
+        if ($request->hasFile('constitution.status')) {
+            $file = $request->file('constitution.status');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/constitution/status', $filename, 'public');
+            $constitutionData['status'] = $path;
+        }
+
+        if ($request->hasFile('constitution.dossier_juridique')) {
+            $file = $request->file('constitution.dossier_juridique');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/constitution/dossier_juridique', $filename, 'public');
+            $constitutionData['dossier_juridique'] = $path;
+        }
+
+        if ($request->hasFile('constitution.fichier_joint_depot_odf')) {
+            $file = $request->file('constitution.fichier_joint_depot_odf');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/constitution/depot', $filename, 'public');
+            $constitutionData['fichier_joint_depot_odf'] = $path;
+        }
+
+        if ($request->hasFile('constitution.fichier_joint_reçu_définitive')) {
+            $file = $request->file('constitution.fichier_joint_reçu_définitive');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/constitution/recu', $filename, 'public');
+            $constitutionData['fichier_joint_reçu_définitive'] = $path;
+        }
+
         if (!empty($constitutionData)) {
             Constitution::create([
                 'odf_id'                     => $odf->id,
                 'date'                       => $constitutionData['date'] ?? null,
                 'lieu'                       => $constitutionData['lieu'] ?? null,
                 'participant'                => $constitutionData['participant'] ?? null,
+                'status'                     => $constitutionData['status'] ?? null,
+                'dossier_juridique'          => $constitutionData['dossier_juridique'] ?? null,
                 'date_depot_odf'             => $constitutionData['date_depot_odf'] ?? null,
                 'fichier_joint_depot_odf'    => $constitutionData['fichier_joint_depot_odf'] ?? null,
                 'lieu_depot_odf'             => $constitutionData['lieu_depot_odf'] ?? null,
@@ -628,16 +662,75 @@ class OdfController extends Controller
             'constitution.date' => 'nullable|date',
             'constitution.lieu' => 'nullable|string|max:255',
             'constitution.participant' => 'nullable|string',
+            'constitution.status' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'constitution.dossier_juridique' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
             'constitution.date_depot_odf' => 'nullable|date',
-            'constitution.fichier_joint_depot_odf' => 'nullable|string|max:255',
+            'constitution.fichier_joint_depot_odf' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
             'constitution.lieu_depot_odf' => 'nullable|string|max:255',
             'constitution.date_reçu_définitive' => 'nullable|date',
-            'constitution.fichier_joint_reçu_définitive' => 'nullable|string|max:255',
+            'constitution.fichier_joint_reçu_définitive' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
             'constitution.lieu_reçu_définitive' => 'nullable|string|max:255',
         ]);
 
         $constitutionData = $validated['constitution'] ?? [];
         $constitution = $odf->constitution()->first();
+
+        // Handle file uploads
+        if ($request->hasFile('constitution.status')) {
+            // Delete old file if exists
+            if ($constitution && $constitution->status) {
+                Storage::disk('public')->delete($constitution->status);
+            }
+            $file = $request->file('constitution.status');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/constitution/status', $filename, 'public');
+            $constitutionData['status'] = $path;
+        } elseif ($constitution && $constitution->status) {
+            // Keep existing file if no new file uploaded
+            $constitutionData['status'] = $constitution->status;
+        }
+
+        if ($request->hasFile('constitution.dossier_juridique')) {
+            // Delete old file if exists
+            if ($constitution && $constitution->dossier_juridique) {
+                Storage::disk('public')->delete($constitution->dossier_juridique);
+            }
+            $file = $request->file('constitution.dossier_juridique');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/constitution/dossier_juridique', $filename, 'public');
+            $constitutionData['dossier_juridique'] = $path;
+        } elseif ($constitution && $constitution->dossier_juridique) {
+            // Keep existing file if no new file uploaded
+            $constitutionData['dossier_juridique'] = $constitution->dossier_juridique;
+        }
+
+        if ($request->hasFile('constitution.fichier_joint_depot_odf')) {
+            // Delete old file if exists
+            if ($constitution && $constitution->fichier_joint_depot_odf) {
+                Storage::disk('public')->delete($constitution->fichier_joint_depot_odf);
+            }
+            $file = $request->file('constitution.fichier_joint_depot_odf');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/constitution/depot', $filename, 'public');
+            $constitutionData['fichier_joint_depot_odf'] = $path;
+        } elseif ($constitution && $constitution->fichier_joint_depot_odf) {
+            // Keep existing file if no new file uploaded
+            $constitutionData['fichier_joint_depot_odf'] = $constitution->fichier_joint_depot_odf;
+        }
+
+        if ($request->hasFile('constitution.fichier_joint_reçu_définitive')) {
+            // Delete old file if exists
+            if ($constitution && $constitution->fichier_joint_reçu_définitive) {
+                Storage::disk('public')->delete($constitution->fichier_joint_reçu_définitive);
+            }
+            $file = $request->file('constitution.fichier_joint_reçu_définitive');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('odf/constitution/recu', $filename, 'public');
+            $constitutionData['fichier_joint_reçu_définitive'] = $path;
+        } elseif ($constitution && $constitution->fichier_joint_reçu_définitive) {
+            // Keep existing file if no new file uploaded
+            $constitutionData['fichier_joint_reçu_définitive'] = $constitution->fichier_joint_reçu_définitive;
+        }
 
         if (!empty($constitutionData)) {
             if ($constitution) {
@@ -676,6 +769,7 @@ class OdfController extends Controller
                 'id' => $odfEntite->localisation->id,
                 'code' => $odfEntite->localisation->CODE,
                 'dranef' => $odfEntite->localisation->DRANEF,
+                'dpanef' => $odfEntite->localisation->DPANEF,
                 'entite' => $odfEntite->localisation->ENTITE,
             ] : null,
             'situation_administrative' => $odfEntite->situationAdministrative ? [

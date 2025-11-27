@@ -26,6 +26,36 @@ use Illuminate\Support\Facades\Log;
 
 class ReportController extends Controller
 {
+    /**
+     * Calculate volume (BO + BI) from products pivot table for articles
+     */
+    private function calculateArticleVolume($articleIds = null)
+    {
+        $query = DB::table('article_product')
+            ->join('products', 'article_product.product_id', '=', 'products.id')
+            ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
+        
+        if ($articleIds) {
+            $query->whereIn('article_product.article_id', is_array($articleIds) ? $articleIds : [$articleIds]);
+        }
+        
+        return $query->sum('article_product.quantity') ?? 0;
+    }
+
+    /**
+     * Get volume subquery for articles
+     */
+    private function getVolumeSubquery()
+    {
+        return DB::table('article_product')
+            ->join('products', function($join) {
+                $join->on('article_product.product_id', '=', 'products.id')
+                     ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
+            })
+            ->whereColumn('article_product.article_id', 'articles.id')
+            ->selectRaw('COALESCE(SUM(article_product.quantity), 0)');
+    }
+
     public function index(Request $request): View
     {
         // Log report dashboard view
@@ -48,8 +78,14 @@ class ReportController extends Controller
         }
         
         // Lightweight aggregates for charts on the reports dashboard
+        // Calculate volume from products (BO + BI) using pivot table
         $byYear = (clone $baseQuery)
-            ->selectRaw('articles.annee, COUNT(*) as total, SUM(COALESCE(bo_m3, 0) + COALESCE(bi_m3, 0)) as volume')
+            ->leftJoin('article_product', 'articles.id', '=', 'article_product.article_id')
+            ->leftJoin('products', function($join) {
+                $join->on('article_product.product_id', '=', 'products.id')
+                     ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
+            })
+            ->selectRaw('articles.annee, COUNT(DISTINCT articles.id) as total, COALESCE(SUM(article_product.quantity), 0) as volume')
             ->groupBy('articles.annee')
             ->orderBy('articles.annee', 'asc')
             ->get();
@@ -57,7 +93,12 @@ class ReportController extends Controller
         $byForet = (clone $baseQuery)
             ->join('article_foret', 'articles.id', '=', 'article_foret.article_id')
             ->join('forets', 'article_foret.foret_id', '=', 'forets.id')
-            ->selectRaw('forets.foret as label, COUNT(*) as total, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as volume')
+            ->leftJoin('article_product', 'articles.id', '=', 'article_product.article_id')
+            ->leftJoin('products', function($join) {
+                $join->on('article_product.product_id', '=', 'products.id')
+                     ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
+            })
+            ->selectRaw('forets.foret as label, COUNT(DISTINCT articles.id) as total, COALESCE(SUM(article_product.quantity), 0) as volume')
             ->where('forets.is_deleted', false)
             ->groupBy('forets.id', 'forets.foret')
             ->orderByDesc('total')
@@ -67,7 +108,12 @@ class ReportController extends Controller
         $byEssence = (clone $baseQuery)
             ->join('article_essence', 'articles.id', '=', 'article_essence.article_id')
             ->join('essences', 'article_essence.essence_id', '=', 'essences.id')
-            ->selectRaw('essences.essence as label, COUNT(*) as total, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as volume')
+            ->leftJoin('article_product', 'articles.id', '=', 'article_product.article_id')
+            ->leftJoin('products', function($join) {
+                $join->on('article_product.product_id', '=', 'products.id')
+                     ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
+            })
+            ->selectRaw('essences.essence as label, COUNT(DISTINCT articles.id) as total, COALESCE(SUM(article_product.quantity), 0) as volume')
             ->where('essences.is_deleted', false)
             ->groupBy('essences.id', 'essences.essence')
             ->orderByDesc('total')
@@ -76,7 +122,12 @@ class ReportController extends Controller
 
         $byExploitant = (clone $baseQuery)
             ->join('exploitants', 'articles.exploitant_id', '=', 'exploitants.id')
-            ->selectRaw('COALESCE(exploitants.nom_complet, exploitants.raison_sociale) as label, COUNT(*) as total, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as volume')
+            ->leftJoin('article_product', 'articles.id', '=', 'article_product.article_id')
+            ->leftJoin('products', function($join) {
+                $join->on('article_product.product_id', '=', 'products.id')
+                     ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
+            })
+            ->selectRaw('COALESCE(exploitants.nom_complet, exploitants.raison_sociale) as label, COUNT(DISTINCT articles.id) as total, COALESCE(SUM(article_product.quantity), 0) as volume')
             ->where('exploitants.is_deleted', false)
             ->groupBy('exploitants.id', 'exploitants.nom_complet', 'exploitants.raison_sociale')
             ->orderByDesc('total')
@@ -86,7 +137,12 @@ class ReportController extends Controller
         $byNature = (clone $baseQuery)
             ->join('article_nature_de_coupe', 'articles.id', '=', 'article_nature_de_coupe.article_id')
             ->join('nature_de_coupes', 'article_nature_de_coupe.nature_de_coupe_id', '=', 'nature_de_coupes.id')
-            ->selectRaw('nature_de_coupes.nature_de_coupe as label, COUNT(*) as total, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as volume')
+            ->leftJoin('article_product', 'articles.id', '=', 'article_product.article_id')
+            ->leftJoin('products', function($join) {
+                $join->on('article_product.product_id', '=', 'products.id')
+                     ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
+            })
+            ->selectRaw('nature_de_coupes.nature_de_coupe as label, COUNT(DISTINCT articles.id) as total, COALESCE(SUM(article_product.quantity), 0) as volume')
             ->where('nature_de_coupes.is_deleted', false)
             ->groupBy('nature_de_coupes.id', 'nature_de_coupes.nature_de_coupe')
             ->orderByDesc('total')
@@ -96,7 +152,12 @@ class ReportController extends Controller
         $byLocalisation = (clone $baseQuery)
             ->join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
             ->join('localisations', 'article_localisation.localisation_id', '=', 'localisations.id')
-            ->selectRaw('localisations.DRANEF as label, COUNT(*) as total, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as volume')
+            ->leftJoin('article_product', 'articles.id', '=', 'article_product.article_id')
+            ->leftJoin('products', function($join) {
+                $join->on('article_product.product_id', '=', 'products.id')
+                     ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
+            })
+            ->selectRaw('localisations.DRANEF as label, COUNT(DISTINCT articles.id) as total, COALESCE(SUM(article_product.quantity), 0) as volume')
             ->where('localisations.is_deleted', false)
             ->groupBy('localisations.id', 'localisations.DRANEF')
             ->orderByDesc('total')
@@ -153,7 +214,12 @@ class ReportController extends Controller
             'total_prix_vente' => $allArticles->sum('prix_vente'),
             'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
             'total_volume' => $allArticles->sum(function($article) {
-                return ($article->bo_m3 ?? 0) + ($article->bi_m3 ?? 0);
+                $article->load('products');
+                $boProduct = $article->products->firstWhere('name', 'BO (m³)');
+                $biProduct = $article->products->firstWhere('name', 'BI (m³)');
+                $boQuantity = $boProduct ? ($boProduct->pivot->quantity ?? 0) : 0;
+                $biQuantity = $biProduct ? ($biProduct->pivot->quantity ?? 0) : 0;
+                return $boQuantity + $biQuantity;
             }),
         ];
 
@@ -192,7 +258,12 @@ class ReportController extends Controller
             'total_prix_vente' => $allArticles->sum('prix_vente'),
             'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
             'total_volume' => $allArticles->sum(function($article) {
-                return ($article->bo_m3 ?? 0) + ($article->bi_m3 ?? 0);
+                $article->load('products');
+                $boProduct = $article->products->firstWhere('name', 'BO (m³)');
+                $biProduct = $article->products->firstWhere('name', 'BI (m³)');
+                $boQuantity = $boProduct ? ($boProduct->pivot->quantity ?? 0) : 0;
+                $biQuantity = $biProduct ? ($biProduct->pivot->quantity ?? 0) : 0;
+                return $boQuantity + $biQuantity;
             }),
         ];
 
@@ -231,7 +302,12 @@ class ReportController extends Controller
             'total_prix_vente' => $allArticles->sum('prix_vente'),
             'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
             'total_volume' => $allArticles->sum(function($article) {
-                return ($article->bo_m3 ?? 0) + ($article->bi_m3 ?? 0);
+                $article->load('products');
+                $boProduct = $article->products->firstWhere('name', 'BO (m³)');
+                $biProduct = $article->products->firstWhere('name', 'BI (m³)');
+                $boQuantity = $boProduct ? ($boProduct->pivot->quantity ?? 0) : 0;
+                $biQuantity = $biProduct ? ($biProduct->pivot->quantity ?? 0) : 0;
+                return $boQuantity + $biQuantity;
             }),
         ];
 
@@ -280,7 +356,12 @@ class ReportController extends Controller
             'total_prix_vente' => $allArticles->sum('prix_vente'),
             'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
             'total_volume' => $allArticles->sum(function($article) {
-                return ($article->bo_m3 ?? 0) + ($article->bi_m3 ?? 0);
+                $article->load('products');
+                $boProduct = $article->products->firstWhere('name', 'BO (m³)');
+                $biProduct = $article->products->firstWhere('name', 'BI (m³)');
+                $boQuantity = $boProduct ? ($boProduct->pivot->quantity ?? 0) : 0;
+                $biQuantity = $biProduct ? ($biProduct->pivot->quantity ?? 0) : 0;
+                return $boQuantity + $biQuantity;
             }),
         ];
 
@@ -355,46 +436,92 @@ class ReportController extends Controller
         $totalInvendus = Article::where('invendu', true)->count();
         $totalPrixVente = Article::sum('prix_vente');
         $totalPrixRetrait = Article::sum('prix_de_retrait');
-        $totalVolume = Article::selectRaw('SUM(COALESCE(bo_m3, 0) + COALESCE(bi_m3, 0)) as total')->value('total') ?? 0;
+        // Calculate total volume from products
+        $totalVolume = $this->calculateArticleVolume();
 
         // Get statistics by year
-        $statsByYear = Article::selectRaw('annee, COUNT(*) as total, SUM(CASE WHEN invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(prix_vente) as total_prix_vente, SUM(prix_de_retrait) as total_prix_retrait, SUM(COALESCE(bo_m3, 0) + COALESCE(bi_m3, 0)) as total_volume')
-            ->groupBy('annee')
-            ->orderBy('annee', 'desc')
-            ->get();
+        $statsByYear = Article::selectRaw('articles.annee, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
+            ->groupBy('articles.annee')
+            ->orderBy('articles.annee', 'desc')
+            ->get()
+            ->map(function($item) {
+                $articleIds = Article::where('annee', $item->annee)->pluck('id')->toArray();
+                $item->total_volume = $this->calculateArticleVolume($articleIds);
+                return $item;
+            });
 
         // Get statistics by forest
         $statsByForet = Article::join('article_foret', 'articles.id', '=', 'article_foret.article_id')
             ->join('forets', 'article_foret.foret_id', '=', 'forets.id')
-            ->selectRaw('forets.foret, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as total_volume')
+            ->selectRaw('forets.foret, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
+            ->where('forets.is_deleted', false)
             ->groupBy('forets.id', 'forets.foret')
             ->orderBy('forets.foret')
-            ->get();
+            ->get()
+            ->map(function($item) {
+                $foretId = DB::table('forets')->where('foret', $item->foret)->value('id');
+                $articleIds = DB::table('article_foret')
+                    ->where('foret_id', $foretId)
+                    ->pluck('article_id')
+                    ->toArray();
+                $item->total_volume = $this->calculateArticleVolume($articleIds);
+                return $item;
+            });
 
         // Get statistics by essence
         $statsByEssence = Article::join('article_essence', 'articles.id', '=', 'article_essence.article_id')
             ->join('essences', 'article_essence.essence_id', '=', 'essences.id')
-            ->selectRaw('essences.essence, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as total_volume')
+            ->selectRaw('essences.essence, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
+            ->where('essences.is_deleted', false)
             ->groupBy('essences.id', 'essences.essence')
             ->orderBy('essences.essence')
-            ->get();
+            ->get()
+            ->map(function($item) {
+                $essenceId = DB::table('essences')->where('essence', $item->essence)->value('id');
+                $articleIds = DB::table('article_essence')
+                    ->where('essence_id', $essenceId)
+                    ->pluck('article_id')
+                    ->toArray();
+                $item->total_volume = $this->calculateArticleVolume($articleIds);
+                return $item;
+            });
 
         // Get statistics by exploitant
         $statsByExploitant = Article::join('exploitants', 'articles.exploitant_id', '=', 'exploitants.id')
-            ->selectRaw('COALESCE(exploitants.nom_complet, exploitants.raison_sociale) as exploitant, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as total_volume')
+            ->selectRaw('COALESCE(exploitants.nom_complet, exploitants.raison_sociale) as exploitant, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
             ->where('exploitants.is_deleted', false)
             ->groupBy('exploitants.id', 'exploitants.nom_complet', 'exploitants.raison_sociale')
             ->orderBy('exploitant')
-            ->get();
+            ->get()
+            ->map(function($item) {
+                $exploitantId = DB::table('exploitants')
+                    ->where(function($q) use ($item) {
+                        $q->where('nom_complet', $item->exploitant)
+                          ->orWhere('raison_sociale', $item->exploitant);
+                    })
+                    ->value('id');
+                $articleIds = Article::where('exploitant_id', $exploitantId)->pluck('id')->toArray();
+                $item->total_volume = $this->calculateArticleVolume($articleIds);
+                return $item;
+            });
 
         // Get statistics by localisation
         $statsByLocalisation = Article::join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
             ->join('localisations', 'article_localisation.localisation_id', '=', 'localisations.id')
-            ->selectRaw('localisations.DRANEF, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as total_volume')
+            ->selectRaw('localisations.DRANEF, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
             ->where('localisations.is_deleted', false)
             ->groupBy('localisations.id', 'localisations.DRANEF')
             ->orderBy('localisations.DRANEF')
-            ->get();
+            ->get()
+            ->map(function($item) {
+                $localisationId = DB::table('localisations')->where('DRANEF', $item->DRANEF)->value('id');
+                $articleIds = DB::table('article_localisation')
+                    ->where('localisation_id', $localisationId)
+                    ->pluck('article_id')
+                    ->toArray();
+                $item->total_volume = $this->calculateArticleVolume($articleIds);
+                return $item;
+            });
 
         $summary = [
             'total_articles' => $totalArticles,
@@ -461,7 +588,12 @@ class ReportController extends Controller
             'total_prix_vente' => $allArticles->sum('prix_vente'),
             'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
             'total_volume' => $allArticles->sum(function($article) {
-                return ($article->bo_m3 ?? 0) + ($article->bi_m3 ?? 0);
+                $article->load('products');
+                $boProduct = $article->products->firstWhere('name', 'BO (m³)');
+                $biProduct = $article->products->firstWhere('name', 'BI (m³)');
+                $boQuantity = $boProduct ? ($boProduct->pivot->quantity ?? 0) : 0;
+                $biQuantity = $biProduct ? ($biProduct->pivot->quantity ?? 0) : 0;
+                return $boQuantity + $biQuantity;
             }),
         ];
 
@@ -501,7 +633,12 @@ class ReportController extends Controller
             'total_prix_vente' => $allArticles->sum('prix_vente'),
             'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
             'total_volume' => $allArticles->sum(function($article) {
-                return ($article->bo_m3 ?? 0) + ($article->bi_m3 ?? 0);
+                $article->load('products');
+                $boProduct = $article->products->firstWhere('name', 'BO (m³)');
+                $biProduct = $article->products->firstWhere('name', 'BI (m³)');
+                $boQuantity = $boProduct ? ($boProduct->pivot->quantity ?? 0) : 0;
+                $biQuantity = $biProduct ? ($biProduct->pivot->quantity ?? 0) : 0;
+                return $boQuantity + $biQuantity;
             }),
         ];
 
@@ -546,7 +683,12 @@ class ReportController extends Controller
             'total_prix_vente' => $allArticles->sum('prix_vente'),
             'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
             'total_volume' => $allArticles->sum(function($article) {
-                return ($article->bo_m3 ?? 0) + ($article->bi_m3 ?? 0);
+                $article->load('products');
+                $boProduct = $article->products->firstWhere('name', 'BO (m³)');
+                $biProduct = $article->products->firstWhere('name', 'BI (m³)');
+                $boQuantity = $boProduct ? ($boProduct->pivot->quantity ?? 0) : 0;
+                $biQuantity = $biProduct ? ($biProduct->pivot->quantity ?? 0) : 0;
+                return $boQuantity + $biQuantity;
             }),
         ];
 
@@ -741,6 +883,8 @@ class ReportController extends Controller
                 $item->lcst = (float) ($item->lcst ?? 0);
                 return $item;
             });
+
+        dd($quantitiesByProvince);
 
         // Get quantities by essence
         // Always use base query without filters for chart to ensure data is shown
@@ -1259,10 +1403,15 @@ class ReportController extends Controller
         ];
 
         // Get year distribution for both types - VOLUME BY YEAR
-        $currentArticlesByYear = Article::selectRaw('annee, SUM(COALESCE(bo_m3, 0) + COALESCE(bi_m3, 0)) as volume')
+        $currentArticlesByYear = Article::selectRaw('annee')
             ->groupBy('annee')
             ->orderBy('annee')
-            ->get();
+            ->get()
+            ->map(function($item) {
+                $articleIds = Article::where('annee', $item->annee)->pluck('id')->toArray();
+                $item->volume = $this->calculateArticleVolume($articleIds);
+                return $item;
+            });
             
         $legacyArticlesByYear = LegacyArticle::selectRaw('CASE 
                 WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
@@ -2021,7 +2170,7 @@ class ReportController extends Controller
         ActivityLogger::log('view', 'Génération du rapport des contrats', Contract::class);
         
         // Build base query
-        $query = Contract::with(['localisation', 'situationAdministrative', 'especes', 'forets', 'coperative']);
+        $query = Contract::with(['localisation', 'situationAdministrative', 'essences', 'forets', 'coperative']);
         
         // Apply filters
         if ($request->filled('year')) {
@@ -2036,9 +2185,9 @@ class ReportController extends Controller
             $query->where('situation_administrative_id', $request->situation_administrative_id);
         }
         
-        if ($request->filled('espece_id')) {
-            $query->whereHas('especes', function($q) use ($request) {
-                $q->where('especes.id', $request->espece_id);
+        if ($request->filled('essence_id')) {
+            $query->whereHas('essences', function($q) use ($request) {
+                $q->where('essences.id', $request->essence_id);
             });
         }
         
@@ -2093,12 +2242,12 @@ class ReportController extends Controller
             ->limit(10)
             ->get();
         
-        // Statistics by espece
-        $byEspece = (clone $query)
-            ->join('contact_espece', 'contacts.id', '=', 'contact_espece.contact_id')
-            ->join('especes', 'contact_espece.espece_id', '=', 'especes.id')
-            ->selectRaw('especes.name as label, COUNT(DISTINCT contacts.id) as total')
-            ->groupBy('especes.id', 'especes.name')
+        // Statistics by essence
+        $byEssence = (clone $query)
+            ->join('contact_essence', 'contacts.id', '=', 'contact_essence.contact_id')
+            ->join('essences', 'contact_essence.essence_id', '=', 'essences.id')
+            ->selectRaw('essences.essence as label, COUNT(DISTINCT contacts.id) as total')
+            ->groupBy('essences.id', 'essences.essence')
             ->orderByDesc('total')
             ->limit(10)
             ->get();
@@ -2116,9 +2265,9 @@ class ReportController extends Controller
         if ($request->filled('situation_administrative_id')) {
             $byForetQuery->where('situation_administrative_id', $request->situation_administrative_id);
         }
-        if ($request->filled('espece_id')) {
-            $byForetQuery->whereHas('especes', function($q) use ($request) {
-                $q->where('especes.id', $request->espece_id);
+        if ($request->filled('essence_id')) {
+            $byForetQuery->whereHas('essences', function($q) use ($request) {
+                $q->where('essences.id', $request->essence_id);
             });
         }
         if ($request->filled('foret_id')) {
@@ -2162,7 +2311,7 @@ class ReportController extends Controller
         // Get filter options
         $localisations = Localisation::orderBy('CODE')->get();
         $situations = SituationAdministrative::orderBy('commune')->get();
-        $especes = \App\Models\Espece::orderBy('name')->get();
+        $essences = \App\Models\Essence::orderBy('essence')->get();
         $forets = Foret::orderBy('foret')->get();
         $coperatives = \App\Models\Coperative::orderBy('nom')->get();
         $availableYears = Contract::select('annee')
@@ -2178,12 +2327,12 @@ class ReportController extends Controller
             'by_year' => $byYear,
             'by_localisation' => $byLocalisation,
             'by_situation' => $bySituation,
-            'by_espece' => $byEspece,
+            'by_essence' => $byEssence,
             'by_foret' => $byForet,
             'by_coperative' => $byCoperative,
         ];
         
-        return view('reports.contracts', compact('contracts', 'stats', 'localisations', 'situations', 'especes', 'forets', 'coperatives', 'availableYears'));
+        return view('reports.contracts', compact('contracts', 'stats', 'localisations', 'situations', 'essences', 'forets', 'coperatives', 'availableYears'));
     }
 
     /**

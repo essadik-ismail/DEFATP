@@ -7,7 +7,7 @@ use App\Models\Localisation;
 use App\Models\SituationAdministrative;
 use App\Models\Foret;
 use App\Models\Coperative;
-use App\Models\Espece;
+use App\Models\Essence;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -79,9 +79,9 @@ class ContractSeeder extends Seeder
                         continue;
                     }
 
-                    // Handle especes relationship
-                    $especes = $contractData['especes'] ?? [];
-                    unset($contractData['especes']);
+                    // Handle essences relationship
+                    $essences = $contractData['essences'] ?? [];
+                    unset($contractData['essences']);
 
                     // Handle forets relationship
                     $forets = $contractData['forets'] ?? [];
@@ -89,9 +89,9 @@ class ContractSeeder extends Seeder
 
                     $contract = Contract::create($contractData);
 
-                    // Attach especes
-                    if (!empty($especes)) {
-                        $contract->especes()->attach($especes);
+                    // Attach essences
+                    if (!empty($essences)) {
+                        $contract->essences()->attach($essences);
                     }
 
                     // Attach forets
@@ -240,61 +240,61 @@ class ContractSeeder extends Seeder
             }
         }
 
-        // Especes - handle multiple values separated by ";"
-        $especes = [];
-        if (isset($item['especes']) && is_array($item['especes'])) {
-            foreach ($item['especes'] as $especeName) {
-                $espece = Espece::where('name', $especeName)->first();
-                if ($espece) {
-                    $especes[] = $espece->id;
+        // Essences - handle multiple values separated by ";"
+        $essences = [];
+        if (isset($item['essences']) && is_array($item['essences'])) {
+            foreach ($item['essences'] as $essenceName) {
+                $essence = Essence::where('essence', $essenceName)->first();
+                if ($essence) {
+                    $essences[] = $essence->id;
                 }
             }
-        } elseif (isset($item['espece'])) {
-            $especeValue = $item['espece'];
-            // Handle multiple especes separated by ";"
-            if (strpos($especeValue, ';') !== false) {
-                $especeNames = explode(';', $especeValue);
-                foreach ($especeNames as $especeName) {
-                    $especeName = trim($especeName);
-                    $espece = Espece::where('id', $especeName)
-                        ->orWhere('name', 'like', '%' . $especeName . '%')
+        } elseif (isset($item['essence'])) {
+            $essenceValue = $item['essence'];
+            // Handle multiple essences separated by ";"
+            if (strpos($essenceValue, ';') !== false) {
+                $essenceNames = explode(';', $essenceValue);
+                foreach ($essenceNames as $essenceName) {
+                    $essenceName = trim($essenceName);
+                    $essence = Essence::where('id', $essenceName)
+                        ->orWhere('essence', 'like', '%' . $essenceName . '%')
                         ->first();
-                    if ($espece) {
-                        $especes[] = $espece->id;
+                    if ($essence) {
+                        $essences[] = $essence->id;
                     }
                 }
             } else {
-                $espece = Espece::where('id', $especeValue)
-                    ->orWhere('name', 'like', '%' . $especeValue . '%')
+                $essence = Essence::where('id', $essenceValue)
+                    ->orWhere('essence', 'like', '%' . $essenceValue . '%')
                     ->first();
-                if ($espece) {
-                    $especes[] = $espece->id;
+                if ($essence) {
+                    $essences[] = $essence->id;
                 }
             }
         } elseif (isset($item['Espèce']) && !empty($item['Espèce'])) {
-            $especeValue = $item['Espèce'];
-            // Handle multiple especes separated by ";"
-            if (strpos($especeValue, ';') !== false) {
-                $especeNames = explode(';', $especeValue);
-                foreach ($especeNames as $especeName) {
-                    $especeName = trim($especeName);
-                    $espece = Espece::where('id', $especeName)
-                        ->orWhere('name', 'like', '%' . $especeName . '%')
+            $essenceValue = $item['Espèce'];
+            // Handle multiple essences separated by ";"
+            if (strpos($essenceValue, ';') !== false) {
+                $essenceNames = explode(';', $essenceValue);
+                foreach ($essenceNames as $essenceName) {
+                    $essenceName = trim($essenceName);
+                    $essence = Essence::where('id', $essenceName)
+                        ->orWhere('essence', 'like', '%' . $essenceName . '%')
                         ->first();
-                    if ($espece) {
-                        $especes[] = $espece->id;
+                    if ($essence) {
+                        $essences[] = $essence->id;
                     }
                 }
             } else {
-                $espece = Espece::where('id', $especeValue)
-                    ->orWhere('name', 'like', '%' . $especeValue . '%')
+                $essence = Essence::where('id', $essenceValue)
+                    ->orWhere('essence', 'like', '%' . $essenceValue . '%')
                     ->first();
-                if ($espece) {
-                    $especes[] = $espece->id;
+                if ($essence) {
+                    $essences[] = $essence->id;
                 }
             }
         }
-        $data['especes'] = $especes;
+        $data['essences'] = $essences;
 
         // Numeric fields with mapping for different column names
         $numericFieldMap = [

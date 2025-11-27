@@ -134,7 +134,7 @@
                     <option value="year">Par Année</option>
                     <option value="localisation">Par Localisation</option>
                     <option value="situation">Par Situation Administrative</option>
-                    <option value="espece">Par Espèce</option>
+                    <option value="essence">Par Essence</option>
                     <option value="foret">Par Forêt</option>
                     <option value="coperative">Par Coopérative</option>
                 </select>
@@ -172,9 +172,9 @@
             type: 'doughnut',
             label: 'Nombre de contrats'
         },
-        espece: {
-            labels: @json($stats['by_espece']->pluck('label')->toArray()),
-            data: @json($stats['by_espece']->pluck('total')->toArray()),
+        essence: {
+            labels: @json($stats['by_essence']->pluck('label')->toArray()),
+            data: @json($stats['by_essence']->pluck('total')->toArray()),
             type: 'doughnut',
             label: 'Nombre de contrats'
         },

@@ -2157,7 +2157,7 @@
                 </div>
                 
                 
-                <!-- <div class="nav-item">
+                <div class="nav-item">
                     <a href="{{ route('articles.index') }}" class="nav-link {{ request()->routeIs('articles.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         Exploitation régulière
@@ -2176,7 +2176,7 @@
                         <i class="fas fa-file-alt"></i>
                         Exploitant Forêstier
                     </a>
-                </div> -->
+                </div>
                 
                
                 
@@ -2186,12 +2186,13 @@
                         ODF
                     </a>
                 </div>
-                <div class="nav-item">
+
+                <!-- <div class="nav-item">
                     <a href="{{ route('pdfcs.index') }}" class="nav-link {{ request()->routeIs('pdfcs.*') ? 'active' : '' }}">
                         <i class="fas fa-project-diagram"></i>
                         Plan DFC
                     </a>
-                </div>
+                </div> -->
                
                 <div class="nav-item">
                     <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') ? 'active' : '' }}">

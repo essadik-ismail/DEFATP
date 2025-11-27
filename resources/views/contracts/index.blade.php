@@ -123,11 +123,11 @@
                         </button>
                     </span>
                 @endif
-                @if(request('espece_ids'))
+                @if(request('essence_ids'))
                     <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm">
                         <i class="fas fa-leaf text-xs"></i>
-                        Espèces: {{ count(request('espece_ids', [])) }} sélectionnée(s)
-                        <button type="button" onclick="removeFilter('espece_ids')" class="ml-1 hover:text-emerald-900">
+                        Essences: {{ count(request('essence_ids', [])) }} sélectionnée(s)
+                        <button type="button" onclick="removeFilter('essence_ids')" class="ml-1 hover:text-emerald-900">
                             <i class="fas fa-times text-xs"></i>
                         </button>
                     </span>
@@ -208,7 +208,7 @@
                                 name="search" 
                                 id="search" 
                                 value="{{ request('search') }}"
-                                placeholder="Rechercher dans les contrats (numéro, année, localisation, situation, espèce, forêt, coopérative...)"
+                                placeholder="Rechercher dans les contrats (numéro, année, localisation, situation, essence, forêt, coopérative...)"
                                 class="w-full px-4 py-3 pl-12 pr-10 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                             >
                             <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -362,48 +362,48 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="espece_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-leaf text-emerald-500 mr-1"></i>Espèces
-                                <span class="text-xs text-gray-500 font-normal" id="espece_count">({{ count(request('espece_ids', [])) }} sélectionnée(s))</span>
+                            <label for="essence_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-leaf text-emerald-500 mr-1"></i>Essences
+                                <span class="text-xs text-gray-500 font-normal" id="essence_count">({{ count(request('essence_ids', [])) }} sélectionnée(s))</span>
                             </label>
                             <div class="relative">
                                 <input type="text" 
                                        placeholder="Rechercher..." 
                                        class="form-input w-full mb-2 px-4 py-2 pr-8 border border-gray-300 rounded-lg" 
-                                       id="espece_search"
-                                       onkeyup="enhancedFilterSelectOptions(this, 'espece_ids')">
+                                       id="essence_search"
+                                       onkeyup="enhancedFilterSelectOptions(this, 'essence_ids')">
                                 <button type="button" 
-                                        onclick="clearSelectFilter('espece_search', 'espece_ids')"
+                                        onclick="clearSelectFilter('essence_search', 'essence_ids')"
                                         class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
                             <div class="flex gap-2 mb-2">
                                 <button type="button" 
-                                        onclick="selectAllOptions('espece_ids')"
+                                        onclick="selectAllOptions('essence_ids')"
                                         class="flex-1 px-2 py-1 text-xs bg-emerald-50 text-emerald-700 rounded hover:bg-emerald-100 transition-colors">
                                     <i class="fas fa-check-double mr-1"></i>Tout sélectionner
                                 </button>
                                 <button type="button" 
-                                        onclick="deselectAllOptions('espece_ids')"
+                                        onclick="deselectAllOptions('essence_ids')"
                                         class="flex-1 px-2 py-1 text-xs bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors">
                                     <i class="fas fa-times mr-1"></i>Tout désélectionner
                                 </button>
                             </div>
                             <select multiple
                                     class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 hover:border-gray-400" 
-                                    name="espece_ids[]" 
-                                    id="espece_ids"
-                                    onchange="updateSelectCount('espece_ids', 'espece_count')"
+                                    name="essence_ids[]" 
+                                    id="essence_ids"
+                                    onchange="updateSelectCount('essence_ids', 'essence_count')"
                                     size="5">
-                                @foreach($especesList as $espece)
-                                    <option value="{{ $espece->id }}" {{ in_array($espece->id, request('espece_ids', [])) ? 'selected' : '' }}>
-                                        {{ $espece->name }}
+                                @foreach($essencesList as $essence)
+                                    <option value="{{ $essence->id }}" {{ in_array($essence->id, request('essence_ids', [])) ? 'selected' : '' }}>
+                                        {{ $essence->essence }}
                                     </option>
                                 @endforeach
                             </select>
                             <p class="text-xs text-gray-500 mt-1">
-                                <span id="espece_filtered_count">{{ count($especesList) }}</span> résultat(s) | Maintenez Ctrl/Cmd pour sélectionner plusieurs
+                                <span id="essence_filtered_count">{{ count($essencesList) }}</span> résultat(s) | Maintenez Ctrl/Cmd pour sélectionner plusieurs
                             </p>
                         </div>
                         
@@ -600,7 +600,7 @@
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
                                 <div class="flex items-center justify-between">
-                                    <span>Espèce</span>
+                                    <span>Essence</span>
                                     <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="5" title="Filtrer">
                                         <i class="fas fa-filter text-xs"></i>
                                     </button>
@@ -634,15 +634,15 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($contract->especes && $contract->especes->count() > 0)
+                                    @if($contract->essences && $contract->essences->count() > 0)
                                         <div class="flex flex-wrap gap-1">
-                                            @foreach($contract->especes->take(2) as $espece)
+                                            @foreach($contract->essences->take(2) as $essence)
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                                    {{ $espece->name }}
+                                                    {{ $essence->essence }}
                                                 </span>
                                             @endforeach
-                                            @if($contract->especes->count() > 2)
-                                                <span class="text-xs text-gray-500">+{{ $contract->especes->count() - 2 }}</span>
+                                            @if($contract->essences->count() > 2)
+                                                <span class="text-xs text-gray-500">+{{ $contract->essences->count() - 2 }}</span>
                                             @endif
                                         </div>
                                     @else
@@ -812,7 +812,7 @@
             'years': 'years_count',
             'localisation_ids': 'localisation_count',
             'situation_administrative_ids': 'situation_count',
-            'espece_ids': 'espece_count',
+            'essence_ids': 'essence_count',
             'foret_ids': 'foret_count',
             'coperative_ids': 'coperative_count'
         };
@@ -834,7 +834,7 @@
             'years': 'years_count',
             'localisation_ids': 'localisation_count',
             'situation_administrative_ids': 'situation_count',
-            'espece_ids': 'espece_count',
+            'essence_ids': 'essence_count',
             'foret_ids': 'foret_count',
             'coperative_ids': 'coperative_count'
         };
@@ -906,11 +906,11 @@
                 Array.from(select.options).forEach(opt => opt.selected = false);
                 updateSelectCount('situation_administrative_ids', 'situation_count');
             }
-        } else if (filterName === 'espece_ids') {
-            const select = document.getElementById('espece_ids');
+        } else if (filterName === 'essence_ids') {
+            const select = document.getElementById('essence_ids');
             if (select) {
                 Array.from(select.options).forEach(opt => opt.selected = false);
-                updateSelectCount('espece_ids', 'espece_count');
+                updateSelectCount('essence_ids', 'essence_count');
             }
         } else if (filterName === 'foret_ids') {
             const select = document.getElementById('foret_ids');
@@ -984,7 +984,7 @@
             'years': 'years_count',
             'localisation_ids': 'localisation_count',
             'situation_administrative_ids': 'situation_count',
-            'espece_ids': 'espece_count',
+            'essence_ids': 'essence_count',
             'foret_ids': 'foret_count',
             'coperative_ids': 'coperative_count'
         };
@@ -1019,12 +1019,12 @@
         updateSelectCount('years', 'years_count');
         updateSelectCount('localisation_ids', 'localisation_count');
         updateSelectCount('situation_administrative_ids', 'situation_count');
-        updateSelectCount('espece_ids', 'espece_count');
+        updateSelectCount('essence_ids', 'essence_count');
         updateSelectCount('foret_ids', 'foret_count');
         updateSelectCount('coperative_ids', 'coperative_count');
         
         // Initialize filtered counts
-        const selectIds = ['years', 'localisation_ids', 'situation_administrative_ids', 'espece_ids', 'foret_ids', 'coperative_ids'];
+        const selectIds = ['years', 'localisation_ids', 'situation_administrative_ids', 'essence_ids', 'foret_ids', 'coperative_ids'];
         selectIds.forEach(selectId => {
             const select = document.getElementById(selectId);
             if (select) {
@@ -1041,7 +1041,7 @@
         initializeEnhancedFilters();
         
         // Auto-submit form when multiple selects change
-        const multipleSelects = ['years', 'localisation_ids', 'situation_administrative_ids', 'espece_ids', 'foret_ids', 'coperative_ids'];
+        const multipleSelects = ['years', 'localisation_ids', 'situation_administrative_ids', 'essence_ids', 'foret_ids', 'coperative_ids'];
         
         multipleSelects.forEach(function(selectId) {
             const select = document.getElementById(selectId);

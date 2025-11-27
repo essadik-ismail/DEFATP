@@ -35,8 +35,14 @@ class DashboardController extends Controller
         $totalPrixVente = (clone $articlesQuery)->sum('prix_vente');
         $totalPrixRetrait = (clone $articlesQuery)->sum('prix_de_retrait');
         
-        // Get volume statistics
-        $totalVolume = (clone $articlesQuery)->sum('bo_m3') + (clone $articlesQuery)->sum('bi_m3');
+        // Get volume statistics from products
+        $articles = (clone $articlesQuery)->with('products')->get();
+        $totalVolume = 0;
+        foreach ($articles as $article) {
+            $boProduct = $article->products()->where('name', 'BO (m³)')->first();
+            $biProduct = $article->products()->where('name', 'BI (m³)')->first();
+            $totalVolume += ($boProduct ? $boProduct->pivot->quantity : 0) + ($biProduct ? $biProduct->pivot->quantity : 0);
+        }
         
         // Get validation statistics (no validation column exists, so all articles are considered valid)
         $validatedArticles = $totalArticles; // All existing articles are considered validated

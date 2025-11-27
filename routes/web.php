@@ -331,14 +331,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/{contract}', [ContractController::class, 'update'])->name('update');
         Route::delete('/{contract}', [ContractController::class, 'destroy'])->name('destroy');
         
-        // Contract Especes Routes
-        Route::prefix('especes')->name('especes.')->group(function () {
-            Route::get('/create', [ContractController::class, 'createEspece'])->name('create');
-            Route::post('/', [ContractController::class, 'storeEspece'])->name('store');
-            Route::get('/{espece}/edit', [ContractController::class, 'editEspece'])->name('edit');
-            Route::put('/{espece}', [ContractController::class, 'updateEspece'])->name('update');
-            Route::delete('/{espece}', [ContractController::class, 'destroyEspece'])->name('destroy');
-        });
         
         // Contract Avenants Routes
         Route::prefix('avenants')->name('avenants.')->group(function () {

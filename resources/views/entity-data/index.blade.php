@@ -14,7 +14,7 @@
                 <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
                     Données des Entités
                 </h1>
-                <p class="text-gray-600 text-lg mt-2">Gérez toutes les données de base du système (Articles)</p>
+                <p class="text-gray-600 text-lg mt-2">Gérez toutes les données de base du système</p>
             </div>
         </div>
     </div>
@@ -78,16 +78,6 @@
                             <div class="tab-indicator"></div>
                         </button>
                         <!-- Contracts Entities Tabs -->
-                        <button class="tab-button group" data-tab="especes">
-                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                                <i class="fas fa-leaf text-white text-sm"></i>
-                            </div>
-                            <div class="text-left">
-                                <span class="block font-semibold">Espèces</span>
-                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Contrats</span>
-                            </div>
-                            <div class="tab-indicator"></div>
-                        </button>
                         <button class="tab-button group" data-tab="vocations">
                             <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                                 <i class="fas fa-briefcase text-white text-sm"></i>
@@ -119,6 +109,17 @@
                             </div>
                             <div class="tab-indicator"></div>
                         </button>
+                        <!-- Products Tab -->
+                        <button class="tab-button group" data-tab="products">
+                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                                <i class="fas fa-box text-white text-sm"></i>
+                            </div>
+                            <div class="text-left">
+                                <span class="block font-semibold">Produits</span>
+                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Articles/Contrats</span>
+                            </div>
+                            <div class="tab-indicator"></div>
+                        </button>
                     </div>
                 </div>
                 <div class="p-6">
@@ -128,10 +129,10 @@
                         @include('entity-data.partials.localisations-tab')
                         @include('entity-data.partials.situations-tab')
                         @include('entity-data.partials.natures-coupe-tab')
-                        @include('entity-data.partials.especes-tab')
                         @include('entity-data.partials.vocations-tab')
                         @include('entity-data.partials.coperatives-tab')
                         @include('entity-data.partials.odf-entites-tab')
+                        @include('entity-data.partials.products-tab')
                     </div>
                 </div>
             </div>
@@ -141,7 +142,7 @@
 
 @endsection
 
-@push('scripts')
+@push('scripts')z
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -330,11 +331,11 @@ $(document).ready(function() {
             'situations': 'situationsTable',
             'vocations': 'vocationsTable',
             'coperatives': 'coperativesTable',
-            'especes': 'especesTable',
             'avenants': 'avenantsTable',
             'natures-coupe': 'naturesCoupeTable',
             'odf-entites': 'odfEntitesTable',
-            'exploitants': 'entityExploitantsTable'
+            'exploitants': 'entityExploitantsTable',
+            'products': 'productsTable'
         };
         return tableIdMap[tabId];
     }

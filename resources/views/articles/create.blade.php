@@ -479,54 +479,6 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="bo_m3" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>BO (m³)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bois d'œuvre en mètres cubes"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="bo_m3" name="bo_m3" value="{{ old('bo_m3') }}" 
-                               min="0" step="0.01" placeholder="BO en m³">
-                        @error('bo_m3')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="bi_m3" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>BI (m³)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bois d'industrie en mètres cubes"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="bi_m3" name="bi_m3" value="{{ old('bi_m3') }}" 
-                               min="0" step="0.01" placeholder="BI en m³">
-                        @error('bi_m3')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="bf_st" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>BF/ST</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bois de feu/stère"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="bf_st" name="bf_st" value="{{ old('bf_st') }}" 
-                               min="0" step="0.01" placeholder="BF/ST">
-                        @error('bf_st')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
                         <label for="fourniture_mise_charge" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                             <span>Fourniture mise en charge</span>
                             <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Fourniture mise en charge"></i>
@@ -536,106 +488,6 @@
                                id="fourniture_mise_charge" name="fourniture_mise_charge" value="{{ old('fourniture_mise_charge') }}" 
                                min="0" step="0.01" placeholder="Fourniture mise en charge">
                         @error('fourniture_mise_charge')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                </div>
-
-                <!-- Product Quantities -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <div class="form-group">
-                        <label for="tanin_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Tanin (T)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Tanin en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="tanin_t" name="tanin_t" value="{{ old('tanin_t') }}" 
-                               min="0" step="0.01" placeholder="Tanin en tonnes">
-                        @error('tanin_t')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="fleur_acacia_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Fleur Acacia (T)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Fleur d'acacia en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="fleur_acacia_t" name="fleur_acacia_t" value="{{ old('fleur_acacia_t') }}" 
-                               min="0" step="0.01" placeholder="Fleur Acacia en tonnes">
-                        @error('fleur_acacia_t')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="caroube_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Caroube (T)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Caroube en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="caroube_t" name="caroube_t" value="{{ old('caroube_t') }}" 
-                               min="0" step="0.01" placeholder="Caroube en tonnes">
-                        @error('caroube_t')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="romarin_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Romarin (T)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Romarin en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="romarin_t" name="romarin_t" value="{{ old('romarin_t') }}" 
-                               min="0" step="0.01" placeholder="Romarin en tonnes">
-                        @error('romarin_t')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="liége_st" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Liège (ST)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Liège en stères"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="liége_st" name="liége_st" value="{{ old('liége_st') }}" 
-                               min="0" step="0.01" placeholder="Liège en ST">
-                        @error('liége_st')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="charbon_bois_ox" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Charbon Bois (OX)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Charbon de bois en OX"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                               id="charbon_bois_ox" name="charbon_bois_ox" value="{{ old('charbon_bois_ox') }}" 
-                               min="0" step="0.01" placeholder="Charbon Bois en OX">
-                        @error('charbon_bois_ox')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -821,21 +673,30 @@ function addProduct() {
     productCount++;
     const container = document.getElementById('products-container');
     
+    const products = @json($products ?? []);
+    
     const productRow = document.createElement('div');
     productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    
+    let productOptions = '<option value="">Sélectionner un produit</option>';
+    products.forEach(product => {
+        productOptions += `<option value="${product.name}">${product.name}</option>`;
+    });
+    
     productRow.innerHTML = `
         <div class="flex-1">
-            <input type="text" 
-                   name="products[${productCount}][name]" 
-                   placeholder="Nom du produit" 
+            <select name="products[${productCount}][name]" 
                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
                    required>
+                ${productOptions}
+            </select>
         </div>
         <div class="w-32">
             <input type="number" 
                    name="products[${productCount}][quantity]" 
                    placeholder="Quantité" 
-                   min="1" 
+                   min="0.01" 
+                   step="0.01"
                    value="1"
                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
                    required>
@@ -1300,9 +1161,9 @@ function loadDraft(draftId) {
             const rows = document.querySelectorAll('.product-row');
             const lastRow = rows[rows.length - 1];
             if (lastRow) {
-                const nameInput = lastRow.querySelector('input[name*="[name]"]');
+                const nameSelect = lastRow.querySelector('select[name*="[name]"]');
                 const quantityInput = lastRow.querySelector('input[name*="[quantity]"]');
-                if (nameInput) nameInput.value = product.name || '';
+                if (nameSelect) nameSelect.value = product.name || '';
                 if (quantityInput) quantityInput.value = product.quantity || '';
             }
         });

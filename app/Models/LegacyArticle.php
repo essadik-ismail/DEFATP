@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class LegacyArticle extends Model
 {
@@ -104,5 +105,15 @@ class LegacyArticle extends Model
         } else {
             return '20' . str_pad($yy, 2, '0', STR_PAD_LEFT);
         }
+    }
+
+    /**
+     * Get the products for this legacy article (many-to-many relationship).
+     */
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'legacy_article_product', 'legacy_article_id', 'product_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }

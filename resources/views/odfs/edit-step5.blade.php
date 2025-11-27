@@ -45,12 +45,12 @@
                 </div>
                 <div>
                     <h2 class="text-xl font-bold text-gray-900">Constitution</h2>
-                    <p class="text-sm text-gray-600">Modifiez les informations de constitution (facultatif mais recommandé).</p>
+                    <p class="text-sm text-gray-600">Modifiez les informations de constitution.</p>
                 </div>
             </div>
         </div>
 
-        <form action="{{ route('odfs.update.step5', $odf) }}" method="POST" id="constitutionForm">
+        <form action="{{ route('odfs.update.step5', $odf) }}" method="POST" id="constitutionForm" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -77,46 +77,129 @@
                     @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Date de Dépôt ODF</label>
-                    <input type="date" name="constitution[date_depot_odf]" class="form-input w-full" value="{{ old('constitution.date_depot_odf', $constitution->date_depot_odf ?? '') }}">
-                    @error('constitution.date_depot_odf')
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                    @if($constitution && $constitution->status)
+                        <div class="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-file text-blue-600"></i>
+                                    <span class="text-sm text-gray-700">{{ basename($constitution->status) }}</span>
+                                </div>
+                                <a href="{{ asset('storage/' . $constitution->status) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
+                                    <i class="fas fa-download"></i> Télécharger
+                                </a>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-1">Fichier actuel ci-dessus. Sélectionnez un nouveau fichier pour le remplacer.</p>
+                    @endif
+                    <input type="file" name="constitution[status]" class="form-input w-full" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                    <p class="text-xs text-gray-500 mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)</p>
+                    @error('constitution.status')
                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Lieu de Dépôt ODF</label>
-                    <input type="text" name="constitution[lieu_depot_odf]" class="form-input w-full" placeholder="Lieu de dépôt" value="{{ old('constitution.lieu_depot_odf', $constitution->lieu_depot_odf ?? '') }}">
-                    @error('constitution.lieu_depot_odf')
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Dossier Juridique</label>
+                    @if($constitution && $constitution->dossier_juridique)
+                        <div class="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-file text-blue-600"></i>
+                                    <span class="text-sm text-gray-700">{{ basename($constitution->dossier_juridique) }}</span>
+                                </div>
+                                <a href="{{ asset('storage/' . $constitution->dossier_juridique) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
+                                    <i class="fas fa-download"></i> Télécharger
+                                </a>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-1">Fichier actuel ci-dessus. Sélectionnez un nouveau fichier pour le remplacer.</p>
+                    @endif
+                    <input type="file" name="constitution[dossier_juridique]" class="form-input w-full" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                    <p class="text-xs text-gray-500 mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)</p>
+                    @error('constitution.dossier_juridique')
                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fichier Joint Dépôt ODF</label>
-                    <input type="text" name="constitution[fichier_joint_depot_odf]" class="form-input w-full" placeholder="Nom du fichier" value="{{ old('constitution.fichier_joint_depot_odf', $constitution->fichier_joint_depot_odf ?? '') }}">
-                    @error('constitution.fichier_joint_depot_odf')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
+                <div class="md:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Date de Dépôt ODF</label>
+                            <input type="date" name="constitution[date_depot_odf]" class="form-input w-full" value="{{ old('constitution.date_depot_odf', $constitution->date_depot_odf ?? '') }}">
+                            @error('constitution.date_depot_odf')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Lieu de Dépôt ODF</label>
+                            <input type="text" name="constitution[lieu_depot_odf]" class="form-input w-full" placeholder="Lieu de dépôt" value="{{ old('constitution.lieu_depot_odf', $constitution->lieu_depot_odf ?? '') }}">
+                            @error('constitution.lieu_depot_odf')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Fichier Joint Dépôt ODF</label>
+                            @if($constitution && $constitution->fichier_joint_depot_odf)
+                                <div class="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-file text-blue-600"></i>
+                                            <span class="text-sm text-gray-700">{{ basename($constitution->fichier_joint_depot_odf) }}</span>
+                                        </div>
+                                        <a href="{{ asset('storage/' . $constitution->fichier_joint_depot_odf) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-download"></i> Télécharger
+                                        </a>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-1">Fichier actuel ci-dessus. Sélectionnez un nouveau fichier pour le remplacer.</p>
+                            @endif
+                            <input type="file" name="constitution[fichier_joint_depot_odf]" class="form-input w-full" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            <p class="text-xs text-gray-500 mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)</p>
+                            @error('constitution.fichier_joint_depot_odf')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Date de Réception Définitive</label>
-                    <input type="date" name="constitution[date_reçu_définitive]" class="form-input w-full" value="{{ old('constitution.date_reçu_définitive', $constitution->date_reçu_définitive ?? '') }}">
-                    @error('constitution.date_reçu_définitive')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Lieu de Réception Définitive</label>
-                    <input type="text" name="constitution[lieu_reçu_définitive]" class="form-input w-full" placeholder="Lieu de réception" value="{{ old('constitution.lieu_reçu_définitive', $constitution->lieu_reçu_définitive ?? '') }}">
-                    @error('constitution.lieu_reçu_définitive')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fichier Joint Réception Définitive</label>
-                    <input type="text" name="constitution[fichier_joint_reçu_définitive]" class="form-input w-full" placeholder="Nom du fichier" value="{{ old('constitution.fichier_joint_reçu_définitive', $constitution->fichier_joint_reçu_définitive ?? '') }}">
-                    @error('constitution.fichier_joint_reçu_définitive')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
+
+                <div class="md:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Date de Réception Définitive</label>
+                            <input type="date" name="constitution[date_reçu_définitive]" class="form-input w-full" value="{{ old('constitution.date_reçu_définitive', $constitution->date_reçu_définitive ?? '') }}">
+                            @error('constitution.date_reçu_définitive')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Lieu de Réception Définitive</label>
+                            <input type="text" name="constitution[lieu_reçu_définitive]" class="form-input w-full" placeholder="Lieu de réception" value="{{ old('constitution.lieu_reçu_définitive', $constitution->lieu_reçu_définitive ?? '') }}">
+                            @error('constitution.lieu_reçu_définitive')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Fichier Joint Réception Définitive</label>
+                            @if($constitution && $constitution->fichier_joint_reçu_définitive)
+                                <div class="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-file text-blue-600"></i>
+                                            <span class="text-sm text-gray-700">{{ basename($constitution->fichier_joint_reçu_définitive) }}</span>
+                                        </div>
+                                        <a href="{{ asset('storage/' . $constitution->fichier_joint_reçu_définitive) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-download"></i> Télécharger
+                                        </a>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-1">Fichier actuel ci-dessus. Sélectionnez un nouveau fichier pour le remplacer.</p>
+                            @endif
+                            <input type="file" name="constitution[fichier_joint_reçu_définitive]" class="form-input w-full" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            <p class="text-xs text-gray-500 mt-1">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)</p>
+                            @error('constitution.fichier_joint_reçu_définitive')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
             </div>
 

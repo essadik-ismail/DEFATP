@@ -32,28 +32,6 @@ class Contract extends Model
         'elagage',
         'eclaircie',
         'rajeunissement_romarin',
-        'bo_m3',
-        'bi_m3',
-        'bf_st',
-        'tanin_t',
-        'laurier_sauce',
-        'myrte',
-        'callune',
-        'thym',
-        'bruyetre',
-        'lichen',
-        'tanin',
-        'romarin',
-        'liege_male',
-        'liege_de_reproduction',
-        'sauge',
-        'lavande',
-        'armoise',
-        'origan',
-        'alfa',
-        'lentisque',
-        'ciste',
-        'fleur_acacia_t',
         'valeurs_des_produits',
         'valeur_des_prestations',
         'redevances',
@@ -85,11 +63,11 @@ class Contract extends Model
     }
 
     /**
-     * Get the especes for this contract (many-to-many relationship).
+     * Get the essences for this contract (many-to-many relationship).
      */
-    public function especes(): BelongsToMany
+    public function essences(): BelongsToMany
     {
-        return $this->belongsToMany(Espece::class, 'contact_espece', 'contact_id', 'espece_id')
+        return $this->belongsToMany(Essence::class, 'contact_essence', 'contact_id', 'essence_id')
             ->withTimestamps();
     }
 
@@ -120,11 +98,13 @@ class Contract extends Model
     }
 
     /**
-     * Get the products for this contract.
+     * Get the products for this contract (many-to-many relationship).
      */
-    public function products(): HasMany
+    public function products(): BelongsToMany
     {
-        return $this->hasMany(Product::class, 'contract_id');
+        return $this->belongsToMany(Product::class, 'contract_product', 'contract_id', 'product_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     /**

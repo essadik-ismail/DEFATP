@@ -8,10 +8,10 @@ use App\Models\Localisation;
 use App\Models\SituationAdministrative;
 use App\Models\NatureDeCoupe;
 use App\Models\Exploitant;
-use App\Models\Espece;
 use App\Models\Coperative;
 use App\Models\Vocation;
 use App\Models\OdfEntite;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -64,12 +64,7 @@ class EntityDataController extends Controller
             ->orderBy('nom_complet')
             ->paginate(10, ['*'], 'exploitants_page');
 
-        // Contracts entities
-        $especes = Espece::when($request->filled('espece_search'), function($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->espece_search . '%');
-            })
-            ->orderBy('name')
-            ->paginate(10, ['*'], 'especes_page');
+        // Contracts entities (essences are already loaded above)
 
         $coperatives = Coperative::with('vocation')
             ->when($request->filled('coperative_search'), function($query) use ($request) {
@@ -91,6 +86,13 @@ class EntityDataController extends Controller
             ->orderBy('name')
             ->paginate(10, ['*'], 'odf_entites_page');
 
+        $products = Product::with(['articles', 'contracts', 'avenants'])
+            ->when($request->filled('product_search'), function($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->product_search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(10, ['*'], 'products_page');
+
         return view('entity-data.index', compact(
             'essences',
             'forets',
@@ -98,10 +100,10 @@ class EntityDataController extends Controller
             'situationsAdministratives',
             'natureDeCoupes',
             'exploitants',
-            'especes',
             'coperatives',
             'vocations',
-            'odfEntites'
+            'odfEntites',
+            'products'
         ));
     }
 }

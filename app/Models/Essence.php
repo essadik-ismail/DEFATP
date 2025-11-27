@@ -24,4 +24,13 @@ class Essence extends Model
         return $this->belongsToMany(Article::class, 'article_essence', 'essence_id', 'article_id')
             ->withTimestamps();
     }
+
+    /**
+     * Many-to-many: contracts linked via pivot table.
+     */
+    public function contracts(): BelongsToMany
+    {
+        return $this->belongsToMany(Contract::class, 'contact_essence', 'essence_id', 'contact_id')
+            ->withTimestamps();
+    }
 }

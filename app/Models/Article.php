@@ -26,16 +26,7 @@ class Article extends Model
         'lat',
         'log',
         'superficie',
-        'bo_m3',
-        'bi_m3',
-        'bf_st',
-        'tanin_t',
-        'fleur_acacia_t',
-        'caroube_t',
-        'romarin_t',
         'ps_t',
-        'liége_st',
-        'charbon_bois_ox',
         'prix_de_retrait',
         'prix_vente',
         'invendu',
@@ -51,16 +42,7 @@ class Article extends Model
         'date_adjudication' => 'date',
         'date_de_resiliation' => 'date',
         'date_de_decheance' => 'date',
-        'bo_m3' => 'decimal:2',
-        'bi_m3' => 'decimal:2',
-        'bf_st' => 'decimal:2',
-        'tanin_t' => 'decimal:2',
-        'fleur_acacia_t' => 'decimal:2',
-        'caroube_t' => 'decimal:2',
-        'romarin_t' => 'decimal:2',
         'ps_t' => 'decimal:2',
-        'liége_st' => 'decimal:2',
-        'charbon_bois_ox' => 'decimal:2',
         'prix_de_retrait' => 'decimal:2',
         'prix_vente' => 'decimal:2',
         'fourniture_mise_charge' => 'decimal:2',
@@ -127,11 +109,13 @@ class Article extends Model
     }
 
     /**
-     * Get the products for this article.
+     * Get the products for this article (many-to-many relationship).
      */
-    public function products(): HasMany
+    public function products(): BelongsToMany
     {
-        return $this->hasMany(Product::class);
+        return $this->belongsToMany(Product::class, 'article_product', 'article_id', 'product_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     /**
@@ -147,7 +131,14 @@ class Article extends Model
      */
     public function getTotalVolumeAttribute(): float
     {
-        return ($this->bo_m3 ?? 0) + ($this->bi_m3 ?? 0);
+        // Calculate total volume from products
+        $boProduct = $this->products()->where('name', 'BO (m³)')->first();
+        $biProduct = $this->products()->where('name', 'BI (m³)')->first();
+        
+        $boQuantity = $boProduct ? $boProduct->pivot->quantity : 0;
+        $biQuantity = $biProduct ? $biProduct->pivot->quantity : 0;
+        
+        return $boQuantity + $biQuantity;
     }
 
     /**

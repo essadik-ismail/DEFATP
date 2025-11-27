@@ -315,7 +315,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 <i class="fas fa-ruler text-purple-500 mr-2"></i>Superficie
@@ -326,85 +326,43 @@
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-cube text-purple-500 mr-2"></i>BO (m³)
+                                <i class="fas fa-truck text-purple-500 mr-2"></i>Fourniture mise en charge
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->bo_m3 ? number_format($article->bo_m3, 2) . ' m³' : 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-cube text-purple-500 mr-2"></i>BI (m³)
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->bi_m3 ? number_format($article->bi_m3, 2) . ' m³' : 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-cube text-purple-500 mr-2"></i>BF/ST
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->bf_st ? number_format($article->bf_st, 2) . ' st' : 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-weight text-purple-500 mr-2"></i>Tanin (tonnes)
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->tanin_t ? number_format($article->tanin_t, 2) . ' T' : 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-weight text-purple-500 mr-2"></i>Fleur d'Acacia (tonnes)
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->fleur_acacia_t ? number_format($article->fleur_acacia_t, 2) . ' T' : 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-weight text-purple-500 mr-2"></i>Caroube (tonnes)
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->caroube_t ? number_format($article->caroube_t, 2) . ' T' : 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-weight text-purple-500 mr-2"></i>Romarin (tonnes)
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->romarin_t ? number_format($article->romarin_t, 2) . ' T' : 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-weight text-purple-500 mr-2"></i>PS (tonnes)
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->ps_t ? number_format($article->ps_t, 2) . ' T' : 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-weight text-purple-500 mr-2"></i>Liège (stères)
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->liége_st ? number_format($article->liége_st, 2) . ' st' : 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-weight text-purple-500 mr-2"></i>Charbon de Bois (ox)
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->charbon_bois_ox ? number_format($article->charbon_bois_ox, 2) . ' ox' : 'Non spécifié' }}
+                                {{ $article->fourniture_mise_charge ? number_format($article->fourniture_mise_charge, 2) : 'Non spécifiée' }}
                             </div>
                         </div>
                     </div>
+
+                    <!-- Produits -->
+                    @if($article->products && $article->products->count() > 0)
+                    <div class="mt-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fas fa-box text-purple-500"></i>
+                            Produits
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach($article->products as $product)
+                                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h4 class="text-sm font-bold text-gray-800">{{ $product->name }}</h4>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                                            <i class="fas fa-hashtag mr-1"></i>
+                                            {{ $product->pivot->quantity ?? $product->quantity ?? 0 }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @else
+                    <div class="mt-6">
+                        <div class="bg-gray-50 rounded-xl p-6 text-center border border-gray-200">
+                            <i class="fas fa-box text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-600 font-medium">Aucun produit associé</p>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
 

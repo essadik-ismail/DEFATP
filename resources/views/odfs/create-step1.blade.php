@@ -89,7 +89,7 @@
                             <div class="flex items-start gap-2">
                                 <i class="fas fa-map-marker-alt text-emerald-500 mt-1"></i>
                                 <div>
-                                    <div class="font-semibold text-slate-800">Localisation</div>
+                                    <div class="font-semibold text-slate-800">CODE - DRANEF - DPANEF - ENTITE</div>
                                     <div id="localisationText" class="text-slate-600"></div>
                                 </div>
                             </div>
@@ -98,7 +98,7 @@
                             <div class="flex items-start gap-2">
                                 <i class="fas fa-city text-indigo-500 mt-1"></i>
                                 <div>
-                                    <div class="font-semibold text-slate-800">Situation administrative</div>
+                                    <div class="font-semibold text-slate-800">commune - province</div>
                                     <div id="situationText" class="text-slate-600"></div>
                                 </div>
                             </div>
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 odfEntiteInfo.classList.remove('hidden');
 
                 if (data.localisation) {
-                    localisationText.textContent = `${data.localisation.code} - ${data.localisation.dranef} - ${data.localisation.entite}`;
+                    localisationText.textContent = `${data.localisation.code} - ${data.localisation.dranef} - ${data.localisation.dpanef} - ${data.localisation.entite}`;
                     localisationInfo.classList.remove('hidden');
                 } else {
                     localisationInfo.classList.add('hidden');

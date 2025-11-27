@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -13,46 +13,36 @@ class Product extends Model
 
     protected $fillable = [
         'name',
-        'quantity',
-        'article_id',
-        'contract_id',
-        'avenant_id',
-    ];
-
-    protected $casts = [
-        'quantity' => 'integer',
     ];
 
     /**
-     * Get the article that owns this product.
+     * Get the articles that have this product.
      */
-    public function article(): BelongsTo
+    public function articles(): BelongsToMany
     {
-        return $this->belongsTo(Article::class);
+        return $this->belongsToMany(Article::class, 'article_product', 'product_id', 'article_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     /**
-     * Get the contract that owns this product.
+     * Get the contracts that have this product.
      */
-    public function contract(): BelongsTo
+    public function contracts(): BelongsToMany
     {
-        return $this->belongsTo(Contract::class);
+        return $this->belongsToMany(Contract::class, 'contract_product', 'product_id', 'contract_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     /**
-     * Get the avenant that owns this product.
+     * Get the avenants that have this product.
      */
-    public function avenant(): BelongsTo
+    public function avenants(): BelongsToMany
     {
-        return $this->belongsTo(Avenant::class);
-    }
-
-    /**
-     * Scope for products by article.
-     */
-    public function scopeByArticle(Builder $query, int $articleId): Builder
-    {
-        return $query->where('article_id', $articleId);
+        return $this->belongsToMany(Avenant::class, 'avenant_product', 'product_id', 'avenant_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     /**

@@ -318,303 +318,6 @@
                 </div>
             </div>
 
-            <!-- Section 3: Produits -->
-            <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #6366f1, #8b5cf6);">
-                        <i class="fas fa-boxes text-white"></i>
-                    </div>
-                    <h3 class="text-xl font-bold" style="color: #6366f1;">Produits</h3>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="form-group">
-                        <label for="bo_m3" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>BO (m³)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bois d'œuvre en mètres cubes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="bo_m3" 
-                               name="bo_m3" 
-                               value="{{ old('bo_m3', $avenant->bo_m3) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bi_m3" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>BI (m³)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bois d'industrie en mètres cubes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="bi_m3" 
-                               name="bi_m3" 
-                               value="{{ old('bi_m3', $avenant->bi_m3) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bf_st" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>BF (st)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bois de feu en stères"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="bf_st" 
-                               name="bf_st" 
-                               value="{{ old('bf_st', $avenant->bf_st) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tanin_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Tanin (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Tanin en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="tanin_t" 
-                               name="tanin_t" 
-                               value="{{ old('tanin_t', $avenant->tanin_t) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="laurier_sauce" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Laurier Sauce (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Laurier sauce en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="laurier_sauce" 
-                               name="laurier_sauce" 
-                               value="{{ old('laurier_sauce', $avenant->laurier_sauce) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="myrte" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Myrte (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Myrte en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="myrte" 
-                               name="myrte" 
-                               value="{{ old('myrte', $avenant->myrte) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="callune" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Callune (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Callune en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="callune" 
-                               name="callune" 
-                               value="{{ old('callune', $avenant->callune) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="thym" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Thym (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Thym en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="thym" 
-                               name="thym" 
-                               value="{{ old('thym', $avenant->thym) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bruyetre" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Bruyère (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Bruyère en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="bruyetre" 
-                               name="bruyetre" 
-                               value="{{ old('bruyetre', $avenant->bruyetre) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lichen" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Lichen (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Lichen en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="lichen" 
-                               name="lichen" 
-                               value="{{ old('lichen', $avenant->lichen) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tanin" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Tanin (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Tanin en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="tanin" 
-                               name="tanin" 
-                               value="{{ old('tanin', $avenant->tanin) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="romarin" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Romarin (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Romarin en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="romarin" 
-                               name="romarin" 
-                               value="{{ old('romarin', $avenant->romarin) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="liege_male" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Liège Mâle (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Liège mâle en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="liege_male" 
-                               name="liege_male" 
-                               value="{{ old('liege_male', $avenant->liege_male) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="liege_de_reproduction" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Liège de Reproduction (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Liège de reproduction en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="liege_de_reproduction" 
-                               name="liege_de_reproduction" 
-                               value="{{ old('liege_de_reproduction', $avenant->liege_de_reproduction) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="sauge" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Sauge (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sauge en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="sauge" 
-                               name="sauge" 
-                               value="{{ old('sauge', $avenant->sauge) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lavande" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Lavande (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Lavande en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="lavande" 
-                               name="lavande" 
-                               value="{{ old('lavande', $avenant->lavande) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="armoise" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Armoise (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Armoise en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="armoise" 
-                               name="armoise" 
-                               value="{{ old('armoise', $avenant->armoise) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="origan" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Origan (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Origan en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="origan" 
-                               name="origan" 
-                               value="{{ old('origan', $avenant->origan) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="alfa" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Alfa (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Alfa en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="alfa" 
-                               name="alfa" 
-                               value="{{ old('alfa', $avenant->alfa) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lentisque" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Lentisque (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Lentisque en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="lentisque" 
-                               name="lentisque" 
-                               value="{{ old('lentisque', $avenant->lentisque) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ciste" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Ciste (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Ciste en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="ciste" 
-                               name="ciste" 
-                               value="{{ old('ciste', $avenant->ciste) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="fleur_acacia_t" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Fleur Acacia (t)</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Fleur d'acacia en tonnes"></i>
-                        </label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="fleur_acacia_t" 
-                               name="fleur_acacia_t" 
-                               value="{{ old('fleur_acacia_t', $avenant->fleur_acacia_t) }}">
-                    </div>
-                </div>
-            </div>
-
             <!-- Products Section -->
             <div class="bg-white rounded-2xl p-6 border border-purple-200">
                 <div class="flex items-center justify-between mb-6">
@@ -858,21 +561,30 @@ function addProduct() {
     productCount++;
     const container = document.getElementById('products-container');
     
+    const products = @json($products ?? []);
+    
     const productRow = document.createElement('div');
     productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    
+    let productOptions = '<option value="">Sélectionner un produit</option>';
+    products.forEach(product => {
+        productOptions += `<option value="${product.name}">${product.name}</option>`;
+    });
+    
     productRow.innerHTML = `
         <div class="flex-1">
-            <input type="text" 
-                   name="products[${productCount}][name]" 
-                   placeholder="Nom du produit" 
+            <select name="products[${productCount}][name]" 
                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
                    required>
+                ${productOptions}
+            </select>
         </div>
         <div class="w-32">
             <input type="number" 
                    name="products[${productCount}][quantity]" 
                    placeholder="Quantité" 
-                   min="1" 
+                   min="0.01" 
+                   step="0.01"
                    value="1"
                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
                    required>

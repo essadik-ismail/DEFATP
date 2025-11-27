@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <a href="{{ route('articles.legacy-articles') }}" 
+                <!-- <a href="{{ route('articles.legacy-articles') }}" 
                    class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                     <i class="fas fa-archive"></i>
                     <span class="font-semibold">Articles Historiques</span>
@@ -42,7 +42,7 @@
                    class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                     <i class="fas fa-file-excel"></i>
                     <span class="font-semibold">Création Simple</span>
-                </a>
+                </a> -->
                 <a href="{{ route('articles.create') }}" 
                    class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                     <i class="fas fa-plus"></i>

@@ -133,7 +133,7 @@ class ArticleController extends Controller
             'unsold_articles' => (clone $filteredQuery)->where('invendu', true)->count(),
             'total_revenue' => (clone $filteredQuery)->sum('prix_vente'),
             'total_retrait' => (clone $filteredQuery)->sum('prix_de_retrait'),
-            'total_volume' => (clone $filteredQuery)->sum('bo_m3') + (clone $filteredQuery)->sum('bi_m3'),
+            'total_volume' => $this->calculateTotalVolume($filteredQuery),
             'total_forets' => Foret::where('is_deleted', false)->count(),
             'total_essences' => Essence::where('is_deleted', false)->count(),
             'total_localisations' => Localisation::where('is_deleted', false)->count(),
@@ -209,6 +209,7 @@ class ArticleController extends Controller
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
         $exploitants = Exploitant::orderBy('nom_complet')->get();
         $localisations = Localisation::orderBy('CODE')->get();
+        $products = \App\Models\Product::orderBy('name')->get();
 
         return view('articles.create', compact(
             'situationAdministratives',
@@ -216,7 +217,8 @@ class ArticleController extends Controller
             'essences',
             'natureDeCoupes',
             'exploitants',
-            'localisations'
+            'localisations',
+            'products'
         ));
     }
 
@@ -227,8 +229,7 @@ class ArticleController extends Controller
             $articleData = $request->only([
                 'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
                 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
-                'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-                'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente',
+                'superficie', 'ps_t', 'prix_de_retrait', 'prix_vente',
                 'invendu', 'dc', 'rc', 'nommer_a_la_vente', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
             ]);
 
@@ -238,14 +239,20 @@ class ArticleController extends Controller
 
             // Handle products if provided
             if ($request->has('products') && is_array($request->products)) {
+                $productSync = [];
                 foreach ($request->products as $product) {
                     if (!empty($product['name'])) {
-                        $article->products()->create([
-                            'name' => $product['name'],
-                            'quantity' => $product['quantity'] ?? 1,
-                            'is_deleted' => false
-                        ]);
+                        // Find or create product (normalize name to match seeder)
+                        $productName = trim($product['name']);
+                        $productModel = \App\Models\Product::firstOrCreate(
+                            ['name' => $productName]
+                        );
+                        $quantity = isset($product['quantity']) && $product['quantity'] > 0 ? $product['quantity'] : 1;
+                        $productSync[$productModel->id] = ['quantity' => $quantity];
                     }
+                }
+                if (!empty($productSync)) {
+                    $article->products()->sync($productSync);
                 }
             }
 
@@ -358,6 +365,7 @@ class ArticleController extends Controller
 
         // Load products and locations for the article
         $article->load(['products', 'locations']);
+        $products = \App\Models\Product::orderBy('name')->get();
 
         return view('articles.edit', compact(
             'article',
@@ -366,7 +374,8 @@ class ArticleController extends Controller
             'essences',
             'natureDeCoupes',
             'exploitants',
-            'localisations'
+            'localisations',
+            'products'
         ));
     }
 
@@ -375,8 +384,7 @@ class ArticleController extends Controller
         $oldData = $article->only([
             'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
             'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
-            'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-            'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente',
+            'superficie', 'ps_t', 'prix_de_retrait', 'prix_vente',
             'invendu', 'dc', 'rc', 'nommer_a_la_vente', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
         ]);
 
@@ -384,8 +392,7 @@ class ArticleController extends Controller
         $articleData = $request->only([
             'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
             'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
-            'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-            'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente',
+            'superficie', 'ps_t', 'prix_de_retrait', 'prix_vente',
             'invendu', 'dc', 'rc', 'nommer_a_la_vente', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
         ]);
 
@@ -394,19 +401,22 @@ class ArticleController extends Controller
 
         // Handle products update
         if ($request->has('products') && is_array($request->products)) {
-            // Delete existing products
-            $article->products()->delete();
-            
-            // Create new products
+            $productSync = [];
             foreach ($request->products as $product) {
                 if (!empty($product['name'])) {
-                    $article->products()->create([
-                        'name' => $product['name'],
-                        'quantity' => $product['quantity'] ?? 1,
-                        'is_deleted' => false
-                    ]);
+                    // Find or create product (normalize name to match seeder)
+                    $productName = trim($product['name']);
+                    $productModel = \App\Models\Product::firstOrCreate(
+                        ['name' => $productName]
+                    );
+                    $quantity = isset($product['quantity']) && $product['quantity'] > 0 ? $product['quantity'] : 1;
+                    $productSync[$productModel->id] = ['quantity' => $quantity];
                 }
             }
+            $article->products()->sync($productSync);
+        } else {
+            // If no products provided, detach all
+            $article->products()->sync([]);
         }
 
         // Sync many-to-many from multi-selects
@@ -587,8 +597,7 @@ class ArticleController extends Controller
             $articleData = $request->only([
                 'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
                 'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
-                'superficie', 'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t',
-                'romarin_t', 'liége_st', 'charbon_bois_ox', 'prix_de_retrait', 'prix_vente'
+                'superficie', 'ps_t', 'prix_de_retrait', 'prix_vente'
             ]);
 
             // Create the article
@@ -625,6 +634,27 @@ class ArticleController extends Controller
                 ->withInput()
                 ->with('error', 'Erreur lors de la création de l\'article: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Calculate total volume from products (BO + BI)
+     */
+    private function calculateTotalVolume($query)
+    {
+        $articles = $query->with('products')->get();
+        $totalVolume = 0;
+        
+        foreach ($articles as $article) {
+            $boProduct = $article->products()->where('name', 'BO (m³)')->first();
+            $biProduct = $article->products()->where('name', 'BI (m³)')->first();
+            
+            $boQuantity = $boProduct ? $boProduct->pivot->quantity : 0;
+            $biQuantity = $biProduct ? $biProduct->pivot->quantity : 0;
+            
+            $totalVolume += $boQuantity + $biQuantity;
+        }
+        
+        return $totalVolume;
     }
 
     /**

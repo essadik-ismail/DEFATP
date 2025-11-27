@@ -28,28 +28,6 @@ class Avenant extends Model
         'elagage',
         'eclaircie',
         'rajeunissement_romarin',
-        'bo_m3',
-        'bi_m3',
-        'bf_st',
-        'tanin_t',
-        'laurier_sauce',
-        'myrte',
-        'callune',
-        'thym',
-        'bruyetre',
-        'lichen',
-        'tanin',
-        'romarin',
-        'liege_male',
-        'liege_de_reproduction',
-        'sauge',
-        'lavande',
-        'armoise',
-        'origan',
-        'alfa',
-        'lentisque',
-        'ciste',
-        'fleur_acacia_t',
         'valeurs_des_produits',
         'valeur_des_prestations',
         'redevances',
@@ -87,11 +65,13 @@ class Avenant extends Model
     }
 
     /**
-     * Get the products for this avenant (hasMany relationship).
+     * Get the products for this avenant (many-to-many relationship).
      */
-    public function products(): HasMany
+    public function products(): BelongsToMany
     {
-        return $this->hasMany(Product::class, 'avenant_id');
+        return $this->belongsToMany(Product::class, 'avenant_product', 'avenant_id', 'product_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     /**

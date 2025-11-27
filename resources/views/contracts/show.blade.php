@@ -105,19 +105,19 @@
                         </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-leaf text-green-500 mr-2"></i>Espèces
+                                <i class="fas fa-leaf text-green-500 mr-2"></i>Essences
                             </label>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($contract->especes && $contract->especes->count() > 0)
+                                @if($contract->essences && $contract->essences->count() > 0)
                                     <div class="flex flex-wrap gap-2">
-                                        @foreach($contract->especes as $espece)
+                                        @foreach($contract->essences as $essence)
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                                {{ $espece->name }}
+                                                {{ $essence->essence }}
                                             </span>
                                         @endforeach
                                     </div>
                                 @else
-                                    <span class="text-gray-500">Aucune espèce spécifiée</span>
+                                    <span class="text-gray-500">Aucune essence spécifiée</span>
                                 @endif
                             </div>
                         </div>
@@ -271,202 +271,37 @@
                 </div>
             </div>
 
-            <!-- Section 3: Produits -->
+            <!-- Section 3: Produits du Contrat -->
             <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
                 <div class="bg-gradient-to-r from-purple-500 to-pink-600 px-6 py-4">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-boxes"></i>
-                        Produits
-                    </h2>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">BO (m³)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->bo_m3 ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">BI (m³)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->bi_m3 ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">BF (st)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->bf_st ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Tanin (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->tanin_t ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fleur Acacia (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->fleur_acacia_t ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Caroube (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->caroube_t ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Romarin (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->romarin_t ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">PS (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->ps_t ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Liège (st)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->liége_st ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Laurier Sauce (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->laurier_sauce ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Myrte (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->myrte ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Callune (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->callune ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Thym (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->thym ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Bruyère (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->bruyetre ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Lichen (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->lichen ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Tanin (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->tanin ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Romarin (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->romarin ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Liège Mâle (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->liege_male ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Liège de Reproduction (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->liege_de_reproduction ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Sauge (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->sauge ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Lavande (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->lavande ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Armoise (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->armoise ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Origan (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->origan ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Alfa (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->alfa ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Lentisque (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->lentisque ?? '-' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Ciste (t)</label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->ciste ?? '-' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 3.5: Produits du Contrat -->
-            @if($contract->products && $contract->products->count() > 0)
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                        <i class="fas fa-box"></i>
                         Produits du Contrat
                     </h2>
                 </div>
                 <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach($contract->products as $product)
-                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="text-sm font-bold text-gray-800">{{ $product->name }}</h4>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                        <i class="fas fa-hashtag mr-1"></i>
-                                        {{ $product->quantity }}
-                                    </span>
+                    @if($contract->products && $contract->products->count() > 0)
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach($contract->products as $product)
+                                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h4 class="text-sm font-bold text-gray-800">{{ $product->name }}</h4>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                                            <i class="fas fa-hashtag mr-1"></i>
+                                            {{ $product->pivot->quantity ?? $product->quantity ?? 0 }}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="bg-gray-50 rounded-xl p-8 text-center border border-gray-200">
+                            <i class="fas fa-box text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-600 font-medium">Aucun produit associé</p>
+                        </div>
+                    @endif
                 </div>
             </div>
-            @endif
 
             <!-- Section 3.6: Prestations du Contrat -->
             @if($contract->prestations && $contract->prestations->count() > 0)
@@ -548,30 +383,30 @@
                     </h2>
                 </div>
                 <div class="p-6">
-                    <!-- Espèces -->
+                    <!-- Essences -->
                     <div class="mb-8">
                         <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                             <i class="fas fa-leaf text-green-600"></i>
-                            Espèces
+                            Essences
                         </h3>
                         <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="form-group">
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                        <i class="fas fa-tree text-green-500 mr-2"></i>Espèces
+                                        <i class="fas fa-tree text-green-500 mr-2"></i>Essences
                                     </label>
                                     <div class="bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                        @if($contract->especes && $contract->especes->count() > 0)
+                                        @if($contract->essences && $contract->essences->count() > 0)
                                             <div class="flex flex-wrap gap-2">
-                                                @foreach($contract->especes as $espece)
+                                                @foreach($contract->essences as $essence)
                                                     <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-800">
                                                         <i class="fas fa-leaf mr-2"></i>
-                                                        {{ $espece->name }}
+                                                        {{ $essence->essence }}
                                                     </span>
                                                 @endforeach
                                             </div>
                                         @else
-                                            <span class="text-gray-500">Aucune espèce spécifiée</span>
+                                            <span class="text-gray-500">Aucune essence spécifiée</span>
                                         @endif
                                     </div>
                                 </div>
@@ -580,11 +415,11 @@
                                         <i class="fas fa-info-circle text-blue-500 mr-2"></i>Informations
                                     </label>
                                     <div class="bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                        @if($contract->especes && $contract->especes->count() > 0)
-                                            <p class="text-sm">{{ $contract->especes->count() }} espèce(s) associée(s) au contrat</p>
-                                            @if($contract->especes->first()->created_at)
+                                        @if($contract->essences && $contract->essences->count() > 0)
+                                            <p class="text-sm">{{ $contract->essences->count() }} essence(s) associée(s) au contrat</p>
+                                            @if($contract->essences->first()->created_at)
                                                 <p class="text-xs text-gray-500 mt-1">
-                                                    Première espèce créée: {{ $contract->especes->first()->created_at->format('d/m/Y') }}
+                                                    Première essence créée: {{ $contract->essences->first()->created_at->format('d/m/Y') }}
                                                 </p>
                                             @endif
                                         @else
@@ -680,7 +515,7 @@
                                                     @foreach($avenant->products as $product)
                                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                                                             <i class="fas fa-box mr-1"></i>
-                                                            {{ $product->name }} ({{ $product->quantity }})
+                                                            {{ $product->name }} ({{ $product->pivot->quantity ?? $product->quantity ?? 0 }})
                                                         </span>
                                                     @endforeach
                                                 </div>

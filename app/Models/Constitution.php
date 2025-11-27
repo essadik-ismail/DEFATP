@@ -14,6 +14,8 @@ class Constitution extends Model
         'date',
         'lieu',
         'participant',
+        'status',
+        'dossier_juridique',
         'date_depot_odf',
         'fichier_joint_depot_odf',
         'lieu_depot_odf',

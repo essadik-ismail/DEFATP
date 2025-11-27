@@ -222,29 +222,29 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="especes" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Espèces <span class="text-red-500">*</span>
+                        <label for="essences" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Essences <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'especes')">
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'essences')">
                         <select class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                id="especes" 
-                                name="especes[]" 
+                                id="essences" 
+                                name="essences[]" 
                                 multiple
                                 required>
                             @php
-                                $selectedEspeces = old('especes', $contract->especes->pluck('id')->toArray());
+                                $selectedEssences = old('essences', $contract->essences->pluck('id')->toArray());
                             @endphp
-                            @foreach($especes as $espece)
-                                <option value="{{ $espece->id }}" {{ in_array($espece->id, $selectedEspeces) ? 'selected' : '' }}>
-                                    {{ $espece->name }}
+                            @foreach($essences as $essence)
+                                <option value="{{ $essence->id }}" {{ in_array($essence->id, $selectedEssences) ? 'selected' : '' }}>
+                                    {{ $essence->essence }}
                                 </option>
                             @endforeach
                         </select>
-                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs espèces</p>
-                        @error('especes')
+                        <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs essences</p>
+                        @error('essences')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
-                        @error('especes.*')
+                        @error('essences.*')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
@@ -537,277 +537,6 @@
                 </div>
             </div>
 
-            <!-- Section 3: Produits -->
-            <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                        <i class="fas fa-boxes text-white"></i>
-                    </div>
-                    <h3 class="text-xl font-bold" style="color: #059669;">Produits</h3>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="form-group">
-                        <label for="bo_m3" class="block text-sm font-semibold text-gray-700 mb-2">BO (m³)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="bo_m3" 
-                               name="bo_m3" 
-                               value="{{ old('bo_m3', $contract->bo_m3) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bi_m3" class="block text-sm font-semibold text-gray-700 mb-2">BI (m³)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="bi_m3" 
-                               name="bi_m3" 
-                               value="{{ old('bi_m3', $contract->bi_m3) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bf_st" class="block text-sm font-semibold text-gray-700 mb-2">BF (st)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="bf_st" 
-                               name="bf_st" 
-                               value="{{ old('bf_st', $contract->bf_st) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tanin_t" class="block text-sm font-semibold text-gray-700 mb-2">Tanin (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="tanin_t" 
-                               name="tanin_t" 
-                               value="{{ old('tanin_t', $contract->tanin_t) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="fleur_acacia_t" class="block text-sm font-semibold text-gray-700 mb-2">Fleur Acacia (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="fleur_acacia_t" 
-                               name="fleur_acacia_t" 
-                               value="{{ old('fleur_acacia_t', $contract->fleur_acacia_t) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="caroube_t" class="block text-sm font-semibold text-gray-700 mb-2">Caroube (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="caroube_t" 
-                               name="caroube_t" 
-                               value="{{ old('caroube_t', $contract->caroube_t) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="romarin_t" class="block text-sm font-semibold text-gray-700 mb-2">Romarin (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="romarin_t" 
-                               name="romarin_t" 
-                               value="{{ old('romarin_t', $contract->romarin_t) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ps_t" class="block text-sm font-semibold text-gray-700 mb-2">PS (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="ps_t" 
-                               name="ps_t" 
-                               value="{{ old('ps_t', $contract->ps_t) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="liége_st" class="block text-sm font-semibold text-gray-700 mb-2">Liège (st)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="liége_st" 
-                               name="liége_st" 
-                               value="{{ old('liége_st', $contract->liége_st) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="laurier_sauce" class="block text-sm font-semibold text-gray-700 mb-2">Laurier Sauce (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="laurier_sauce" 
-                               name="laurier_sauce" 
-                               value="{{ old('laurier_sauce', $contract->laurier_sauce) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="myrte" class="block text-sm font-semibold text-gray-700 mb-2">Myrte (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="myrte" 
-                               name="myrte" 
-                               value="{{ old('myrte', $contract->myrte) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="callune" class="block text-sm font-semibold text-gray-700 mb-2">Callune (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="callune" 
-                               name="callune" 
-                               value="{{ old('callune', $contract->callune) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="thym" class="block text-sm font-semibold text-gray-700 mb-2">Thym (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="thym" 
-                               name="thym" 
-                               value="{{ old('thym', $contract->thym) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bruyetre" class="block text-sm font-semibold text-gray-700 mb-2">Bruyère (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="bruyetre" 
-                               name="bruyetre" 
-                               value="{{ old('bruyetre', $contract->bruyetre) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lichen" class="block text-sm font-semibold text-gray-700 mb-2">Lichen (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="lichen" 
-                               name="lichen" 
-                               value="{{ old('lichen', $contract->lichen) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tanin" class="block text-sm font-semibold text-gray-700 mb-2">Tanin (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="tanin" 
-                               name="tanin" 
-                               value="{{ old('tanin', $contract->tanin) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="romarin" class="block text-sm font-semibold text-gray-700 mb-2">Romarin (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="romarin" 
-                               name="romarin" 
-                               value="{{ old('romarin', $contract->romarin) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="liege_male" class="block text-sm font-semibold text-gray-700 mb-2">Liège Mâle (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="liege_male" 
-                               name="liege_male" 
-                               value="{{ old('liege_male', $contract->liege_male) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="liege_de_reproduction" class="block text-sm font-semibold text-gray-700 mb-2">Liège de Reproduction (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="liege_de_reproduction" 
-                               name="liege_de_reproduction" 
-                               value="{{ old('liege_de_reproduction', $contract->liege_de_reproduction) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="sauge" class="block text-sm font-semibold text-gray-700 mb-2">Sauge (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="sauge" 
-                               name="sauge" 
-                               value="{{ old('sauge', $contract->sauge) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lavande" class="block text-sm font-semibold text-gray-700 mb-2">Lavande (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="lavande" 
-                               name="lavande" 
-                               value="{{ old('lavande', $contract->lavande) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="armoise" class="block text-sm font-semibold text-gray-700 mb-2">Armoise (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="armoise" 
-                               name="armoise" 
-                               value="{{ old('armoise', $contract->armoise) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="origan" class="block text-sm font-semibold text-gray-700 mb-2">Origan (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="origan" 
-                               name="origan" 
-                               value="{{ old('origan', $contract->origan) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="alfa" class="block text-sm font-semibold text-gray-700 mb-2">Alfa (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="alfa" 
-                               name="alfa" 
-                               value="{{ old('alfa', $contract->alfa) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lentisque" class="block text-sm font-semibold text-gray-700 mb-2">Lentisque (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="lentisque" 
-                               name="lentisque" 
-                               value="{{ old('lentisque', $contract->lentisque) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ciste" class="block text-sm font-semibold text-gray-700 mb-2">Ciste (t)</label>
-                        <input type="number" 
-                               step="1"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="ciste" 
-                               name="ciste" 
-                               value="{{ old('ciste', $contract->ciste) }}">
-                    </div>
-                </div>
-            </div>
-
             <!-- Products Section -->
             <div class="bg-white rounded-2xl p-6 border border-purple-200">
                 <div class="flex items-center justify-between mb-6">
@@ -833,19 +562,24 @@
                         @foreach($contract->products as $index => $product)
                             <div class="product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                 <div class="flex-1">
-                                    <input type="text" 
-                                           name="products[{{ $index }}][name]" 
-                                           placeholder="Nom du produit" 
-                                           value="{{ old("products.{$index}.name", $product->name) }}"
+                                    <select name="products[{{ $index }}][name]" 
                                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
                                            required>
+                                        <option value="">Sélectionner un produit</option>
+                                        @foreach($products as $prod)
+                                            <option value="{{ $prod->name }}" {{ old("products.{$index}.name", $product->name) == $prod->name ? 'selected' : '' }}>
+                                                {{ $prod->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="w-32">
                                     <input type="number" 
                                            name="products[{{ $index }}][quantity]" 
                                            placeholder="Quantité" 
-                                           min="1" 
-                                           value="{{ old("products.{$index}.quantity", $product->quantity) }}"
+                                           min="0.01" 
+                                           step="0.01"
+                                           value="{{ old("products.{$index}.quantity", $product->pivot->quantity ?? $product->quantity ?? 1) }}"
                                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
                                            required>
                                 </div>
@@ -926,21 +660,30 @@ function addProduct() {
     productCount++;
     const container = document.getElementById('products-container');
     
+    const products = @json($products ?? []);
+    
     const productRow = document.createElement('div');
     productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    
+    let productOptions = '<option value="">Sélectionner un produit</option>';
+    products.forEach(product => {
+        productOptions += `<option value="${product.name}">${product.name}</option>`;
+    });
+    
     productRow.innerHTML = `
         <div class="flex-1">
-            <input type="text" 
-                   name="products[${productCount}][name]" 
-                   placeholder="Nom du produit" 
+            <select name="products[${productCount}][name]" 
                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
                    required>
+                ${productOptions}
+            </select>
         </div>
         <div class="w-32">
             <input type="number" 
                    name="products[${productCount}][quantity]" 
                    placeholder="Quantité" 
-                   min="1" 
+                   min="0.01" 
+                   step="0.01"
                    value="1"
                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
                    required>

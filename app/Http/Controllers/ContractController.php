@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contract;
 use App\Models\Localisation;
 use App\Models\SituationAdministrative;
-use App\Models\Espece;
+use App\Models\Essence;
 use App\Models\Coperative;
 use App\Models\Product;
 use App\Services\ActivityLogger;
@@ -22,7 +22,7 @@ class ContractController extends Controller
         ActivityLogger::log('view', 'Consultation de la liste des contrats', Contract::class);
         
         // Get contracts with relationships
-        $contracts = Contract::with(['localisation', 'situationAdministrative', 'especes', 'forets', 'coperative'])
+        $contracts = Contract::with(['localisation', 'situationAdministrative', 'essences', 'forets', 'coperative'])
             ->when($request->has('search') && !empty(trim($request->search)), function($query) use ($request) {
                 $searchTerm = '%' . trim($request->search) . '%';
                 $query->where(function($q) use ($searchTerm) {
@@ -42,7 +42,7 @@ class ContractController extends Controller
                                        ->orWhere('province', 'like', $searchTerm);
                           });
                       })
-                      ->orWhereHas('especes', function($espQuery) use ($searchTerm) {
+                      ->orWhereHas('essences', function($espQuery) use ($searchTerm) {
                           $espQuery->where('name', 'like', $searchTerm);
                       })
                       ->orWhereHas('forets', function($foretQuery) use ($searchTerm) {
@@ -71,10 +71,10 @@ class ContractController extends Controller
                 $situationIds = is_array($request->situation_administrative_ids) ? $request->situation_administrative_ids : [$request->situation_administrative_ids];
                 $query->whereIn('situation_administrative_id', $situationIds);
             })
-            ->when($request->filled('espece_ids'), function($query) use ($request) {
-                $especeIds = is_array($request->espece_ids) ? $request->espece_ids : [$request->espece_ids];
-                $query->whereHas('especes', function($q) use ($especeIds) {
-                    $q->whereIn('especes.id', $especeIds);
+            ->when($request->filled('essence_ids'), function($query) use ($request) {
+                $essenceIds = is_array($request->essence_ids) ? $request->essence_ids : [$request->essence_ids];
+                $query->whereHas('essences', function($q) use ($essenceIds) {
+                    $q->whereIn('essences.id', $essenceIds);
                 });
             })
             ->when($request->filled('foret_ids'), function($query) use ($request) {
@@ -90,12 +90,12 @@ class ContractController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page', 15));
 
-        // Provide especes list for the especes table section
-        $especes = Espece::when($request->filled('espece_search'), function($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->espece_search . '%');
+        // Provide essences list for the essences table section
+        $essences = Essence::when($request->filled('essence_search'), function($query) use ($request) {
+                $query->where('essence', 'like', '%' . $request->essence_search . '%');
             })
-            ->orderBy('name')
-            ->paginate(10, ['*'], 'especes_page');
+            ->orderBy('essence')
+            ->paginate(10, ['*'], 'essences_page');
 
         // Provide avenants list for the avenants table section
         $avenants = \App\Models\Avenant::with(['coperative', 'contract'])
@@ -122,7 +122,7 @@ class ContractController extends Controller
         // Get filter options
         $localisations = Localisation::orderBy('CODE')->get();
         $situations = SituationAdministrative::orderBy('commune')->get();
-        $especesList = Espece::orderBy('name')->get();
+        $essencesList = Essence::orderBy('essence')->get();
         $forets = \App\Models\Foret::orderBy('foret')->get();
         $coperativesList = \App\Models\Coperative::orderBy('nom')->get();
         
@@ -133,23 +133,25 @@ class ContractController extends Controller
             ->orderBy('annee', 'desc')
             ->pluck('annee');
 
-        return view('contracts.index', compact('contracts', 'especes', 'avenants', 'coperatives', 'localisations', 'situations', 'especesList', 'forets', 'coperativesList', 'availableYears'));
+        return view('contracts.index', compact('contracts', 'essences', 'avenants', 'coperatives', 'localisations', 'situations', 'essencesList', 'forets', 'coperativesList', 'availableYears'));
     }
 
     public function create(): View
     {
         $localisations = Localisation::orderBy('CODE')->get();
         $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
-        $especes = Espece::orderBy('name')->get();
+        $essences = Essence::orderBy('essence')->get();
         $forets = \App\Models\Foret::orderBy('foret')->get();
         $coperatives = Coperative::with('vocation')->orderBy('nom')->get();
+        $products = Product::orderBy('name')->get();
 
         return view('contracts.create', compact(
             'localisations',
             'situationAdministratives',
-            'especes',
+            'essences',
             'forets',
-            'coperatives'
+            'coperatives',
+            'products'
         ));
     }
 
@@ -164,8 +166,8 @@ class ContractController extends Controller
             'forets' => 'required|array|min:1',
             'forets.*' => 'exists:forets,id',
             'coperative_id' => 'required|exists:coperatives,id',
-            'especes' => 'required|array|min:1',
-            'especes.*' => 'exists:especes,id',
+            'essences' => 'required|array|min:1',
+            'essences.*' => 'exists:essences,id',
             'superficie' => 'required|numeric|min:0',
             'gardiennage_nbjour' => 'nullable|integer|min:0',
             'gardiennage_superficie' => 'nullable|integer|min:0',
@@ -176,28 +178,6 @@ class ContractController extends Controller
             'elagage' => 'nullable|string|max:255',
             'eclaircie' => 'nullable|string|max:255',
             'rajeunissement_romarin' => 'nullable|string|max:255',
-            'bo_m3' => 'nullable|integer|min:0',
-            'bi_m3' => 'nullable|integer|min:0',
-            'bf_st' => 'nullable|integer|min:0',
-            'tanin_t' => 'nullable|integer|min:0',
-            'laurier_sauce' => 'nullable|integer|min:0',
-            'myrte' => 'nullable|integer|min:0',
-            'callune' => 'nullable|integer|min:0',
-            'thym' => 'nullable|integer|min:0',
-            'bruyetre' => 'nullable|integer|min:0',
-            'lichen' => 'nullable|integer|min:0',
-            'tanin' => 'nullable|integer|min:0',
-            'romarin' => 'nullable|integer|min:0',
-            'liege_male' => 'nullable|integer|min:0',
-            'liege_de_reproduction' => 'nullable|integer|min:0',
-            'sauge' => 'nullable|integer|min:0',
-            'lavande' => 'nullable|integer|min:0',
-            'armoise' => 'nullable|integer|min:0',
-            'origan' => 'nullable|integer|min:0',
-            'alfa' => 'nullable|integer|min:0',
-            'lentisque' => 'nullable|integer|min:0',
-            'ciste' => 'nullable|integer|min:0',
-            'fleur_acacia_t' => 'nullable|integer|min:0',
             'valeurs_des_produits' => 'required|string|max:255',
             'valeur_des_prestations' => 'required|string|max:255',
             'redevances' => 'required|string|max:255',
@@ -208,30 +188,36 @@ class ContractController extends Controller
         ]);
 
         try {
-            $especes = $validated['especes'];
-            unset($validated['especes']);
+            $essences = $validated['essences'];
+            unset($validated['essences']);
             
             $forets = $validated['forets'];
             unset($validated['forets']);
             
             $contract = Contract::create($validated);
             
-            // Attach especes to the contract
-            $contract->especes()->attach($especes);
+            // Attach essences to the contract
+            $contract->essences()->attach($essences);
             
             // Attach forets to the contract
             $contract->forets()->attach($forets);
 
             // Handle products if provided
             if ($request->has('products') && is_array($request->products)) {
+                $productSync = [];
                 foreach ($request->products as $product) {
                     if (!empty($product['name'])) {
-                        $contract->products()->create([
-                            'name' => $product['name'],
-                            'quantity' => $product['quantity'] ?? 1,
-                            'is_deleted' => false
-                        ]);
+                        // Find or create product (normalize name to match seeder)
+                        $productName = trim($product['name']);
+                        $productModel = \App\Models\Product::firstOrCreate(
+                            ['name' => $productName]
+                        );
+                        $quantity = isset($product['quantity']) && $product['quantity'] > 0 ? $product['quantity'] : 1;
+                        $productSync[$productModel->id] = ['quantity' => $quantity];
                     }
+                }
+                if (!empty($productSync)) {
+                    $contract->products()->sync($productSync);
                 }
             }
 
@@ -265,7 +251,7 @@ class ContractController extends Controller
 
     public function show(Contract $contract): View
     {
-        $contract->load(['localisation', 'situationAdministrative', 'especes', 'forets', 'coperative', 'products', 'prestations']);
+        $contract->load(['localisation', 'situationAdministrative', 'essences', 'forets', 'coperative', 'products', 'prestations']);
         
         // Load related avenants for this contract
         $avenants = \App\Models\Avenant::where('contact_id', $contract->id)
@@ -281,20 +267,22 @@ class ContractController extends Controller
 
     public function edit(Contract $contract): View
     {
-        $contract->load(['especes', 'forets', 'products', 'prestations']);
+        $contract->load(['essences', 'forets', 'products', 'prestations']);
         $localisations = Localisation::orderBy('CODE')->get();
         $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
-        $especes = Espece::orderBy('name')->get();
+        $essences = Essence::orderBy('essence')->get();
         $forets = \App\Models\Foret::orderBy('foret')->get();
         $coperatives = Coperative::with('vocation')->orderBy('nom')->get();
+        $products = Product::orderBy('name')->get();
 
         return view('contracts.edit', compact(
             'contract',
             'localisations',
             'situationAdministratives',
-            'especes',
+            'essences',
             'forets',
-            'coperatives'
+            'coperatives',
+            'products'
         ));
     }
 
@@ -309,8 +297,8 @@ class ContractController extends Controller
             'forets' => 'required|array|min:1',
             'forets.*' => 'exists:forets,id',
             'coperative_id' => 'required|exists:coperatives,id',
-            'especes' => 'required|array|min:1',
-            'especes.*' => 'exists:especes,id',
+            'essences' => 'required|array|min:1',
+            'essences.*' => 'exists:essences,id',
             'superficie' => 'required|numeric|min:0',
             'gardiennage_nbjour' => 'nullable|integer|min:0',
             'gardiennage_superficie' => 'nullable|integer|min:0',
@@ -321,28 +309,6 @@ class ContractController extends Controller
             'elagage' => 'nullable|string|max:255',
             'eclaircie' => 'nullable|string|max:255',
             'rajeunissement_romarin' => 'nullable|string|max:255',
-            'bo_m3' => 'nullable|integer|min:0',
-            'bi_m3' => 'nullable|integer|min:0',
-            'bf_st' => 'nullable|integer|min:0',
-            'tanin_t' => 'nullable|integer|min:0',
-            'laurier_sauce' => 'nullable|integer|min:0',
-            'myrte' => 'nullable|integer|min:0',
-            'callune' => 'nullable|integer|min:0',
-            'thym' => 'nullable|integer|min:0',
-            'bruyetre' => 'nullable|integer|min:0',
-            'lichen' => 'nullable|integer|min:0',
-            'tanin' => 'nullable|integer|min:0',
-            'romarin' => 'nullable|integer|min:0',
-            'liege_male' => 'nullable|integer|min:0',
-            'liege_de_reproduction' => 'nullable|integer|min:0',
-            'sauge' => 'nullable|integer|min:0',
-            'lavande' => 'nullable|integer|min:0',
-            'armoise' => 'nullable|integer|min:0',
-            'origan' => 'nullable|integer|min:0',
-            'alfa' => 'nullable|integer|min:0',
-            'lentisque' => 'nullable|integer|min:0',
-            'ciste' => 'nullable|integer|min:0',
-            'fleur_acacia_t' => 'nullable|integer|min:0',
             'valeurs_des_produits' => 'required|string|max:255',
             'valeur_des_prestations' => 'required|string|max:255',
             'redevances' => 'required|string|max:255',
@@ -353,35 +319,36 @@ class ContractController extends Controller
         ]);
 
         try {
-            $especes = $validated['especes'];
-            unset($validated['especes']);
+            $essences = $validated['essences'];
+            unset($validated['essences']);
             
             $forets = $validated['forets'];
             unset($validated['forets']);
             
             $contract->update($validated);
             
-            // Sync especes to the contract (replace existing with new ones)
-            $contract->especes()->sync($especes);
+            // Sync essences to the contract (replace existing with new ones)
+            $contract->essences()->sync($essences);
             
             // Sync forets to the contract (replace existing with new ones)
             $contract->forets()->sync($forets);
 
             // Handle products update
             if ($request->has('products') && is_array($request->products)) {
-                // Delete existing products
-                $contract->products()->delete();
-                
-                // Create new products
+                $productSync = [];
                 foreach ($request->products as $product) {
                     if (!empty($product['name'])) {
-                        $contract->products()->create([
-                            'name' => $product['name'],
-                            'quantity' => $product['quantity'] ?? 1,
-                            'is_deleted' => false
-                        ]);
+                        // Find or create product
+                        $productModel = \App\Models\Product::firstOrCreate(
+                            ['name' => $product['name']]
+                        );
+                        $productSync[$productModel->id] = ['quantity' => $product['quantity'] ?? 1];
                     }
                 }
+                $contract->products()->sync($productSync);
+            } else {
+                // If no products provided, detach all
+                $contract->products()->sync([]);
             }
 
             // Handle prestations update
@@ -439,36 +406,7 @@ class ContractController extends Controller
         }
     }
 
-    // Espece Management Methods
-    public function createEspece(): View
-    {
-        return view('contracts.especes.create');
-    }
-
-    public function storeEspece(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:especes,name,NULL,id,deleted_at,NULL',
-        ]);
-
-        try {
-            $espece = Espece::create($validated);
-
-            ActivityLogger::logCreate(
-                Espece::class,
-                $espece->id,
-                "Espèce {$espece->name}",
-                $request
-            );
-
-            return redirect()->route('contracts.index', ['tab' => 'especes'])
-                ->with('success', 'Espèce créée avec succès.');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Erreur lors de la création de l\'espèce: ' . $e->getMessage());
-        }
-    }
+    // Essence Management Methods (removed - essences are managed in articles section)
 
     // Avenant Management Methods
     public function createAvenant(Request $request): View
@@ -478,6 +416,7 @@ class ContractController extends Controller
             ->orderBy('contarct')
             ->get();
         $coperatives = Coperative::orderBy('nom')->get();
+        $products = Product::orderBy('name')->get();
         
         // Get preselected contract if provided
         $selectedContract = null;
@@ -485,7 +424,7 @@ class ContractController extends Controller
             $selectedContract = Contract::with(['localisation', 'situationAdministrative', 'coperative', 'products', 'prestations'])->find($request->contract_id);
         }
         
-        return view('contracts.avenants.create', compact('contracts', 'coperatives', 'selectedContract'));
+        return view('contracts.avenants.create', compact('contracts', 'coperatives', 'selectedContract', 'products'));
     }
 
     public function storeAvenant(Request $request): RedirectResponse
@@ -506,28 +445,6 @@ class ContractController extends Controller
             'elagage' => 'nullable|numeric|min:0',
             'eclaircie' => 'nullable|numeric|min:0',
             'rajeunissement_romarin' => 'nullable|numeric|min:0',
-            'bo_m3' => 'nullable|integer|min:0',
-            'bi_m3' => 'nullable|integer|min:0',
-            'bf_st' => 'nullable|integer|min:0',
-            'tanin_t' => 'nullable|integer|min:0',
-            'laurier_sauce' => 'nullable|integer|min:0',
-            'myrte' => 'nullable|integer|min:0',
-            'callune' => 'nullable|integer|min:0',
-            'thym' => 'nullable|integer|min:0',
-            'bruyetre' => 'nullable|integer|min:0',
-            'lichen' => 'nullable|integer|min:0',
-            'tanin' => 'nullable|integer|min:0',
-            'romarin' => 'nullable|integer|min:0',
-            'liege_male' => 'nullable|integer|min:0',
-            'liege_de_reproduction' => 'nullable|integer|min:0',
-            'sauge' => 'nullable|integer|min:0',
-            'lavande' => 'nullable|integer|min:0',
-            'armoise' => 'nullable|integer|min:0',
-            'origan' => 'nullable|integer|min:0',
-            'alfa' => 'nullable|integer|min:0',
-            'lentisque' => 'nullable|integer|min:0',
-            'ciste' => 'nullable|integer|min:0',
-            'fleur_acacia_t' => 'nullable|integer|min:0',
             'valeurs_des_produits' => 'required|numeric|min:0',
             'valeur_des_prestations' => 'required|numeric|min:0',
             'redevances' => 'required|numeric|min:0',
@@ -540,14 +457,20 @@ class ContractController extends Controller
 
             // Handle products if provided
             if ($request->has('products') && is_array($request->products)) {
+                $productSync = [];
                 foreach ($request->products as $product) {
                     if (!empty($product['name'])) {
-                        $avenant->products()->create([
-                            'name' => $product['name'],
-                            'quantity' => $product['quantity'] ?? 1,
-                            'is_deleted' => false
-                        ]);
+                        // Find or create product (normalize name to match seeder)
+                        $productName = trim($product['name']);
+                        $productModel = \App\Models\Product::firstOrCreate(
+                            ['name' => $productName]
+                        );
+                        $quantity = isset($product['quantity']) && $product['quantity'] > 0 ? $product['quantity'] : 1;
+                        $productSync[$productModel->id] = ['quantity' => $quantity];
                     }
+                }
+                if (!empty($productSync)) {
+                    $avenant->products()->sync($productSync);
                 }
             }
 
@@ -752,57 +675,6 @@ class ContractController extends Controller
         }
     }
 
-    // Espece CRUD Methods
-    public function editEspece(Espece $espece): View
-    {
-        return view('contracts.especes.edit', compact('espece'));
-    }
-
-    public function updateEspece(Request $request, Espece $espece): RedirectResponse
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:especes,name,' . $espece->id . ',id,deleted_at,NULL',
-        ]);
-
-        try {
-            $espece->update($validated);
-
-            ActivityLogger::logUpdate(
-                Espece::class,
-                $espece->id,
-                "Espèce {$espece->name}",
-                [],
-                $request
-            );
-
-            return redirect()->route('contracts.index', ['tab' => 'especes'])
-                ->with('success', 'Espèce mise à jour avec succès.');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Erreur lors de la mise à jour de l\'espèce: ' . $e->getMessage());
-        }
-    }
-
-    public function destroyEspece(Espece $espece): RedirectResponse
-    {
-        try {
-            $especeName = $espece->name;
-            $espece->delete();
-
-            ActivityLogger::logDelete(
-                Espece::class,
-                $espece->id,
-                "Espèce {$especeName}"
-            );
-
-            return redirect()->route('contracts.index', ['tab' => 'especes'])
-                ->with('success', 'Espèce supprimée avec succès.');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Erreur lors de la suppression de l\'espèce: ' . $e->getMessage());
-        }
-    }
 
     // Avenant CRUD Methods
     public function editAvenant(\App\Models\Avenant $avenant): View
@@ -812,8 +684,9 @@ class ContractController extends Controller
             ->orderBy('contarct')
             ->get();
         $coperatives = Coperative::orderBy('nom')->get();
+        $products = Product::orderBy('name')->get();
         $avenant->load(['products', 'prestations']);
-        return view('contracts.avenants.edit', compact('avenant', 'contracts', 'coperatives'));
+        return view('contracts.avenants.edit', compact('avenant', 'contracts', 'coperatives', 'products'));
     }
 
     public function updateAvenant(Request $request, \App\Models\Avenant $avenant): RedirectResponse
@@ -834,28 +707,6 @@ class ContractController extends Controller
             'elagage' => 'nullable|numeric|min:0',
             'eclaircie' => 'nullable|numeric|min:0',
             'rajeunissement_romarin' => 'nullable|numeric|min:0',
-            'bo_m3' => 'nullable|integer|min:0',
-            'bi_m3' => 'nullable|integer|min:0',
-            'bf_st' => 'nullable|integer|min:0',
-            'tanin_t' => 'nullable|integer|min:0',
-            'laurier_sauce' => 'nullable|integer|min:0',
-            'myrte' => 'nullable|integer|min:0',
-            'callune' => 'nullable|integer|min:0',
-            'thym' => 'nullable|integer|min:0',
-            'bruyetre' => 'nullable|integer|min:0',
-            'lichen' => 'nullable|integer|min:0',
-            'tanin' => 'nullable|integer|min:0',
-            'romarin' => 'nullable|integer|min:0',
-            'liege_male' => 'nullable|integer|min:0',
-            'liege_de_reproduction' => 'nullable|integer|min:0',
-            'sauge' => 'nullable|integer|min:0',
-            'lavande' => 'nullable|integer|min:0',
-            'armoise' => 'nullable|integer|min:0',
-            'origan' => 'nullable|integer|min:0',
-            'alfa' => 'nullable|integer|min:0',
-            'lentisque' => 'nullable|integer|min:0',
-            'ciste' => 'nullable|integer|min:0',
-            'fleur_acacia_t' => 'nullable|integer|min:0',
             'valeurs_des_produits' => 'required|numeric|min:0',
             'valeur_des_prestations' => 'required|numeric|min:0',
             'redevances' => 'required|numeric|min:0',
@@ -868,19 +719,20 @@ class ContractController extends Controller
 
             // Handle products update
             if ($request->has('products') && is_array($request->products)) {
-                // Delete existing products
-                $avenant->products()->delete();
-                
-                // Create new products
+                $productSync = [];
                 foreach ($request->products as $product) {
                     if (!empty($product['name'])) {
-                        $avenant->products()->create([
-                            'name' => $product['name'],
-                            'quantity' => $product['quantity'] ?? 1,
-                            'is_deleted' => false
-                        ]);
+                        // Find or create product
+                        $productModel = \App\Models\Product::firstOrCreate(
+                            ['name' => $product['name']]
+                        );
+                        $productSync[$productModel->id] = ['quantity' => $product['quantity'] ?? 1];
                     }
                 }
+                $avenant->products()->sync($productSync);
+            } else {
+                // If no products provided, detach all
+                $avenant->products()->sync([]);
             }
 
             // Handle prestations update

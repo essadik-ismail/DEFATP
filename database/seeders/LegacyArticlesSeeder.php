@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 
 class LegacyArticlesSeeder extends Seeder
@@ -31,6 +32,9 @@ class LegacyArticlesSeeder extends Seeder
         
         // Normalize all dates to YYMMDD format
         $this->normalizeAllDates();
+        
+        // Insert products into legacy_article_product pivot table
+        $this->seedLegacyArticleProducts();
     }
 
     /**
@@ -43,7 +47,12 @@ class LegacyArticlesSeeder extends Seeder
         $count = DB::table('legacy_articles')->count();
         
         if ($count > 0) {
-            DB::table('legacy_articles')->truncate();
+            // First, delete from pivot table to avoid foreign key constraint issues
+            if (Schema::hasTable('legacy_article_product')) {
+                DB::table('legacy_article_product')->delete();
+            }
+            // Then delete from the main table (can't use truncate due to foreign key constraints)
+            DB::table('legacy_articles')->delete();
             $this->command->info("Cleared {$count} existing legacy article records.");
         } else {
             $this->command->info('No existing legacy articles to clear.');
@@ -466,5 +475,106 @@ class LegacyArticlesSeeder extends Seeder
         
         // If we can't parse it, return null
         return null;
+    }
+
+    /**
+     * Seed products into legacy_article_product pivot table
+     * Maps legacy article columns to products:
+     * - bom3 -> BO (m³)
+     * - bim3 -> BI (m³)
+     * - bfst -> BF (st)
+     * - lcst -> Liège (st)
+     */
+    private function seedLegacyArticleProducts(): void
+    {
+        $this->command->info('Seeding products into legacy_article_product pivot table...');
+        
+        // Clear existing pivot records
+        DB::table('legacy_article_product')->truncate();
+        
+        // Get product IDs
+        $boProduct = DB::table('products')->where('name', 'BO (m³)')->first();
+        $biProduct = DB::table('products')->where('name', 'BI (m³)')->first();
+        $bfProduct = DB::table('products')->where('name', 'BF (st)')->first();
+        $liegeProduct = DB::table('products')->where('name', 'Liège (st)')->first();
+        
+        if (!$boProduct || !$biProduct || !$bfProduct || !$liegeProduct) {
+            $this->command->error('Required products not found. Please run ProductSeeder first.');
+            return;
+        }
+        
+        $boProductId = $boProduct->id;
+        $biProductId = $biProduct->id;
+        $bfProductId = $bfProduct->id;
+        $liegeProductId = $liegeProduct->id;
+        
+        $batchSize = 1000;
+        $totalInserted = 0;
+        
+        // Process legacy articles in batches
+        DB::table('legacy_articles')
+            ->where(function($query) {
+                $query->whereNotNull('bom3')
+                      ->orWhereNotNull('bim3')
+                      ->orWhereNotNull('bfst')
+                      ->orWhereNotNull('lcst');
+            })
+            ->orderBy('id')
+            ->chunk($batchSize, function ($articles) use ($boProductId, $biProductId, $bfProductId, $liegeProductId, &$totalInserted) {
+                $pivotData = [];
+                
+                foreach ($articles as $article) {
+                    // BO (m³) from bom3
+                    if (!empty($article->bom3) && $article->bom3 > 0) {
+                        $pivotData[] = [
+                            'legacy_article_id' => $article->id,
+                            'product_id' => $boProductId,
+                            'quantity' => $article->bom3,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    
+                    // BI (m³) from bim3
+                    if (!empty($article->bim3) && $article->bim3 > 0) {
+                        $pivotData[] = [
+                            'legacy_article_id' => $article->id,
+                            'product_id' => $biProductId,
+                            'quantity' => $article->bim3,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    
+                    // BF (st) from bfst
+                    if (!empty($article->bfst) && $article->bfst > 0) {
+                        $pivotData[] = [
+                            'legacy_article_id' => $article->id,
+                            'product_id' => $bfProductId,
+                            'quantity' => $article->bfst,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    
+                    // Liège (st) from lcst
+                    if (!empty($article->lcst) && $article->lcst > 0) {
+                        $pivotData[] = [
+                            'legacy_article_id' => $article->id,
+                            'product_id' => $liegeProductId,
+                            'quantity' => $article->lcst,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                }
+                
+                if (!empty($pivotData)) {
+                    DB::table('legacy_article_product')->insert($pivotData);
+                    $totalInserted += count($pivotData);
+                }
+            });
+        
+        $this->command->info("Inserted {$totalInserted} product records into legacy_article_product pivot table.");
     }
 }
