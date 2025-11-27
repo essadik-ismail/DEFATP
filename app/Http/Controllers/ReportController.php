@@ -12,6 +12,7 @@ use App\Models\Localisation;
 use App\Models\LegacyArticle;
 use App\Models\Contract;
 use App\Models\Odf;
+use App\Models\Product;
 use App\Services\ActivityLogger;
 use App\Http\Requests\ArticlesByYearRequest;
 use App\Http\Requests\ArticlesByForetRequest;
@@ -184,6 +185,534 @@ class ReportController extends Controller
         
         return view('reports.index', compact(
             'byYear', 'byForet', 'byEssence', 'byExploitant', 'byNature', 'byLocalisation', 'byValidation'
+        ));
+    }
+
+    /**
+     * Products Report - Show products organized by different criteria
+     */
+    public function productsReport(Request $request): View
+    {
+        // Log report generation
+        ActivityLogger::log('view', 'Consultation du rapport des produits', null);
+        
+        $groupBy = $request->get('group_by', 'product'); // product, article, contract, localisation, foret, essence, exploitant
+        $productId = $request->get('product_id');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        
+        // Get all products for filter
+        $allProducts = Product::orderBy('name')->get();
+        
+        // Base query for articles with products
+        $articlesQuery = Article::where('is_deleted', false)
+            ->with('products');
+        
+        if ($startDate) {
+            $articlesQuery->where('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $articlesQuery->where('created_at', '<=', $endDate . ' 23:59:59');
+        }
+        
+        // Base query for contracts with products
+        $contractsQuery = Contract::with('products');
+        
+        // Get statistics based on group_by parameter
+        $stats = [];
+        $data = [];
+        
+        switch ($groupBy) {
+            case 'product':
+                // Group by product - show all products with their quantities
+                $products = Product::orderBy('name')->get();
+                foreach ($products as $product) {
+                    $articleQuantity = DB::table('article_product')
+                        ->where('product_id', $product->id)
+                        ->when($startDate || $endDate, function($q) use ($startDate, $endDate) {
+                            $q->join('articles', 'article_product.article_id', '=', 'articles.id')
+                              ->where('articles.is_deleted', false);
+                            if ($startDate) {
+                                $q->where('articles.created_at', '>=', $startDate);
+                            }
+                            if ($endDate) {
+                                $q->where('articles.created_at', '<=', $endDate . ' 23:59:59');
+                            }
+                        })
+                        ->sum('article_product.quantity') ?? 0;
+                    
+                    $legacyArticleQuantity = DB::table('legacy_article_product')
+                        ->where('product_id', $product->id)
+                        ->sum('legacy_article_product.quantity') ?? 0;
+                    
+                    $contractQuantity = DB::table('contract_product')
+                        ->where('product_id', $product->id)
+                        ->sum('contract_product.quantity') ?? 0;
+                    
+                    $avenantQuantity = DB::table('avenant_product')
+                        ->where('product_id', $product->id)
+                        ->sum('avenant_product.quantity') ?? 0;
+                    
+                    $totalQuantity = $articleQuantity + $legacyArticleQuantity + $contractQuantity + $avenantQuantity;
+                    
+                    if ($totalQuantity > 0 || !$productId || $product->id == $productId) {
+                        $data[] = [
+                            'product' => $product,
+                            'article_quantity' => $articleQuantity,
+                            'legacy_article_quantity' => $legacyArticleQuantity,
+                            'contract_quantity' => $contractQuantity,
+                            'avenant_quantity' => $avenantQuantity,
+                            'total_quantity' => $totalQuantity,
+                        ];
+                    }
+                }
+                break;
+                
+            case 'article':
+                // Group by article - show articles with their products
+                $articles = (clone $articlesQuery)->get();
+                foreach ($articles as $article) {
+                    $articleProducts = [];
+                    $totalQuantity = 0;
+                    
+                    foreach ($article->products as $product) {
+                        $quantity = $product->pivot->quantity ?? 0;
+                        if (!$productId || $product->id == $productId) {
+                            $articleProducts[] = [
+                                'product' => $product,
+                                'quantity' => $quantity,
+                            ];
+                            $totalQuantity += $quantity;
+                        }
+                    }
+                    
+                    if (count($articleProducts) > 0) {
+                        $data[] = [
+                            'article' => $article,
+                            'products' => $articleProducts,
+                            'total_quantity' => $totalQuantity,
+                        ];
+                    }
+                }
+                break;
+                
+            case 'contract':
+                // Group by contract - show contracts with their products
+                $contracts = (clone $contractsQuery)->get();
+                foreach ($contracts as $contract) {
+                    $contractProducts = [];
+                    $totalQuantity = 0;
+                    
+                    foreach ($contract->products as $product) {
+                        $quantity = $product->pivot->quantity ?? 0;
+                        if (!$productId || $product->id == $productId) {
+                            $contractProducts[] = [
+                                'product' => $product,
+                                'quantity' => $quantity,
+                            ];
+                            $totalQuantity += $quantity;
+                        }
+                    }
+                    
+                    if (count($contractProducts) > 0) {
+                        $data[] = [
+                            'contract' => $contract,
+                            'products' => $contractProducts,
+                            'total_quantity' => $totalQuantity,
+                        ];
+                    }
+                }
+                break;
+                
+            case 'localisation':
+                // Group by localisation - show products by localisation
+                $localisations = Localisation::where('is_deleted', false)->orderBy('DRANEF')->get();
+                foreach ($localisations as $localisation) {
+                    $localisationProducts = [];
+                    
+                    $articles = Article::where('is_deleted', false)
+                        ->whereHas('localisations', function($q) use ($localisation) {
+                            $q->where('localisations.id', $localisation->id);
+                        })
+                        ->with('products')
+                        ->get();
+                    
+                    $productQuantities = [];
+                    foreach ($articles as $article) {
+                        foreach ($article->products as $product) {
+                            if (!$productId || $product->id == $productId) {
+                                $quantity = $product->pivot->quantity ?? 0;
+                                if (!isset($productQuantities[$product->id])) {
+                                    $productQuantities[$product->id] = [
+                                        'product' => $product,
+                                        'quantity' => 0,
+                                    ];
+                                }
+                                $productQuantities[$product->id]['quantity'] += $quantity;
+                            }
+                        }
+                    }
+                    
+                    if (count($productQuantities) > 0) {
+                        $data[] = [
+                            'localisation' => $localisation,
+                            'products' => array_values($productQuantities),
+                            'total_quantity' => array_sum(array_column($productQuantities, 'quantity')),
+                        ];
+                    }
+                }
+                break;
+                
+            case 'foret':
+                // Group by foret - show products by forest
+                $forets = Foret::where('is_deleted', false)->orderBy('foret')->get();
+                foreach ($forets as $foret) {
+                    $foretProducts = [];
+                    
+                    $articles = Article::where('is_deleted', false)
+                        ->whereHas('forets', function($q) use ($foret) {
+                            $q->where('forets.id', $foret->id);
+                        })
+                        ->with('products')
+                        ->get();
+                    
+                    $productQuantities = [];
+                    foreach ($articles as $article) {
+                        foreach ($article->products as $product) {
+                            if (!$productId || $product->id == $productId) {
+                                $quantity = $product->pivot->quantity ?? 0;
+                                if (!isset($productQuantities[$product->id])) {
+                                    $productQuantities[$product->id] = [
+                                        'product' => $product,
+                                        'quantity' => 0,
+                                    ];
+                                }
+                                $productQuantities[$product->id]['quantity'] += $quantity;
+                            }
+                        }
+                    }
+                    
+                    if (count($productQuantities) > 0) {
+                        $data[] = [
+                            'foret' => $foret,
+                            'products' => array_values($productQuantities),
+                            'total_quantity' => array_sum(array_column($productQuantities, 'quantity')),
+                        ];
+                    }
+                }
+                break;
+                
+            case 'essence':
+                // Group by essence - show products by essence
+                $essences = Essence::where('is_deleted', false)->orderBy('essence')->get();
+                foreach ($essences as $essence) {
+                    $essenceProducts = [];
+                    
+                    $articles = Article::where('is_deleted', false)
+                        ->whereHas('essences', function($q) use ($essence) {
+                            $q->where('essences.id', $essence->id);
+                        })
+                        ->with('products')
+                        ->get();
+                    
+                    $productQuantities = [];
+                    foreach ($articles as $article) {
+                        foreach ($article->products as $product) {
+                            if (!$productId || $product->id == $productId) {
+                                $quantity = $product->pivot->quantity ?? 0;
+                                if (!isset($productQuantities[$product->id])) {
+                                    $productQuantities[$product->id] = [
+                                        'product' => $product,
+                                        'quantity' => 0,
+                                    ];
+                                }
+                                $productQuantities[$product->id]['quantity'] += $quantity;
+                            }
+                        }
+                    }
+                    
+                    if (count($productQuantities) > 0) {
+                        $data[] = [
+                            'essence' => $essence,
+                            'products' => array_values($productQuantities),
+                            'total_quantity' => array_sum(array_column($productQuantities, 'quantity')),
+                        ];
+                    }
+                }
+                break;
+                
+            case 'exploitant':
+                // Group by exploitant - show products by exploitant
+                $exploitants = Exploitant::where('is_deleted', false)->orderBy('nom_complet')->get();
+                foreach ($exploitants as $exploitant) {
+                    $exploitantProducts = [];
+                    
+                    $articles = Article::where('is_deleted', false)
+                        ->where('exploitant_id', $exploitant->id)
+                        ->with('products')
+                        ->get();
+                    
+                    $productQuantities = [];
+                    foreach ($articles as $article) {
+                        foreach ($article->products as $product) {
+                            if (!$productId || $product->id == $productId) {
+                                $quantity = $product->pivot->quantity ?? 0;
+                                if (!isset($productQuantities[$product->id])) {
+                                    $productQuantities[$product->id] = [
+                                        'product' => $product,
+                                        'quantity' => 0,
+                                    ];
+                                }
+                                $productQuantities[$product->id]['quantity'] += $quantity;
+                            }
+                        }
+                    }
+                    
+                    if (count($productQuantities) > 0) {
+                        $data[] = [
+                            'exploitant' => $exploitant,
+                            'products' => array_values($productQuantities),
+                            'total_quantity' => array_sum(array_column($productQuantities, 'quantity')),
+                        ];
+                    }
+                }
+                break;
+        }
+        
+        // Calculate overall statistics
+        $totalProducts = Product::count();
+        $totalArticlesWithProducts = Article::where('is_deleted', false)
+            ->whereHas('products')
+            ->count();
+        $totalLegacyArticlesWithProducts = LegacyArticle::whereHas('products')->count();
+        $totalContractsWithProducts = Contract::whereHas('products')->count();
+        $totalAvenantsWithProducts = \App\Models\Avenant::whereHas('products')->count();
+        
+        $stats = [
+            'total_products' => $totalProducts,
+            'total_articles_with_products' => $totalArticlesWithProducts,
+            'total_legacy_articles_with_products' => $totalLegacyArticlesWithProducts,
+            'total_contracts_with_products' => $totalContractsWithProducts,
+            'total_avenants_with_products' => $totalAvenantsWithProducts,
+        ];
+        
+        return view('reports.products', compact(
+            'data', 'stats', 'allProducts', 'groupBy', 'productId', 'startDate', 'endDate'
+        ));
+    }
+
+    /**
+     * Products Development Chart - Show product development by year and localisation
+     */
+    public function productsDevelopmentChart(Request $request): View
+    {
+        // Log report generation
+        ActivityLogger::log('view', 'Consultation du graphique de développement des produits', null);
+        
+        $productId = $request->get('product_id');
+        $localisationId = $request->get('localisation_id');
+        $startYear = $request->get('start_year');
+        $endYear = $request->get('end_year');
+        
+        // Get all products and localisations for filters
+        $allProducts = Product::orderBy('name')->get();
+        $allLocalisations = Localisation::where('is_deleted', false)->orderBy('DRANEF')->get();
+        
+        // Get all years from articles and legacy articles
+        $articleYears = Article::where('is_deleted', false)
+            ->whereNotNull('annee')
+            ->distinct()
+            ->orderBy('annee')
+            ->pluck('annee')
+            ->toArray();
+        
+        // Optimized legacy years query
+        $legacyYears = DB::table('legacy_articles')
+            ->selectRaw('SUBSTRING(date, 1, 2) as yy')
+            ->whereNotNull('date')
+            ->distinct()
+            ->get()
+            ->map(function($item) {
+                $yy = (int) $item->yy;
+                if ($yy >= 90) {
+                    return '19' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+                } else {
+                    return '20' . str_pad($yy, 2, '0', STR_PAD_LEFT);
+                }
+            })
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+        
+        $allYears = array_unique(array_merge($articleYears, $legacyYears));
+        sort($allYears);
+        
+        // Filter years if specified
+        if ($startYear) {
+            $allYears = array_filter($allYears, function($year) use ($startYear) {
+                return $year >= $startYear;
+            });
+        }
+        if ($endYear) {
+            $allYears = array_filter($allYears, function($year) use ($endYear) {
+                return $year <= $endYear;
+            });
+        }
+        $allYears = array_values($allYears);
+        
+        // Get products to analyze
+        $productsToAnalyze = $productId 
+            ? Product::where('id', $productId)->get()
+            : Product::orderBy('name')->get();
+        
+        $productIds = $productsToAnalyze->pluck('id')->toArray();
+        
+        // Build WHERE conditions for products
+        $productWhere = $productId ? ['article_product.product_id' => $productId] : [];
+        
+        // Optimized: Calculate data by year using single aggregated queries
+        $chartDataByYear = [];
+        
+        // Articles by year - single query
+        $articlesByYear = DB::table('article_product')
+            ->join('articles', 'article_product.article_id', '=', 'articles.id')
+            ->join('products', 'article_product.product_id', '=', 'products.id')
+            ->where('articles.is_deleted', false)
+            ->whereIn('article_product.product_id', $productIds)
+            ->when($startYear, function($q) use ($startYear) {
+                $q->where('articles.annee', '>=', $startYear);
+            })
+            ->when($endYear, function($q) use ($endYear) {
+                $q->where('articles.annee', '<=', $endYear);
+            })
+            ->selectRaw('articles.annee as year, products.name as product_name, SUM(article_product.quantity) as total_quantity')
+            ->groupBy('articles.annee', 'products.id', 'products.name')
+            ->get();
+        
+        foreach ($articlesByYear as $row) {
+            if (!isset($chartDataByYear[$row->year])) {
+                $chartDataByYear[$row->year] = [];
+            }
+            $chartDataByYear[$row->year][$row->product_name] = (float) $row->total_quantity;
+        }
+        
+        // Legacy articles by year - optimized query
+        $legacyByYear = DB::table('legacy_article_product')
+            ->join('legacy_articles', 'legacy_article_product.legacy_article_id', '=', 'legacy_articles.id')
+            ->join('products', 'legacy_article_product.product_id', '=', 'products.id')
+            ->whereIn('legacy_article_product.product_id', $productIds)
+            ->whereNotNull('legacy_articles.date')
+            ->selectRaw('
+                CASE 
+                    WHEN CAST(SUBSTRING(legacy_articles.date, 1, 2) AS UNSIGNED) >= 90 
+                    THEN CONCAT("19", LPAD(SUBSTRING(legacy_articles.date, 1, 2), 2, "0"))
+                    ELSE CONCAT("20", LPAD(SUBSTRING(legacy_articles.date, 1, 2), 2, "0"))
+                END as year,
+                products.name as product_name,
+                SUM(legacy_article_product.quantity) as total_quantity
+            ')
+            ->when($startYear, function($q) use ($startYear) {
+                $yearSuffix = substr($startYear, 2, 2);
+                $q->whereRaw('SUBSTRING(legacy_articles.date, 1, 2) >= ?', [$yearSuffix]);
+            })
+            ->when($endYear, function($q) use ($endYear) {
+                $yearSuffix = substr($endYear, 2, 2);
+                $q->whereRaw('SUBSTRING(legacy_articles.date, 1, 2) <= ?', [$yearSuffix]);
+            })
+            ->groupBy('year', 'products.id', 'products.name')
+            ->get();
+        
+        foreach ($legacyByYear as $row) {
+            $year = $row->year;
+            if (!isset($chartDataByYear[$year])) {
+                $chartDataByYear[$year] = [];
+            }
+            if (!isset($chartDataByYear[$year][$row->product_name])) {
+                $chartDataByYear[$year][$row->product_name] = 0;
+            }
+            $chartDataByYear[$year][$row->product_name] += (float) $row->total_quantity;
+        }
+        
+        // Calculate data by localisation - optimized query
+        $chartDataByLocalisation = [];
+        
+        $localisationsToAnalyze = $localisationId
+            ? Localisation::where('id', $localisationId)->where('is_deleted', false)->get()
+            : Localisation::where('is_deleted', false)->orderBy('DRANEF')->get();
+        
+        $localisationIds = $localisationsToAnalyze->pluck('id')->toArray();
+        
+        $articlesByLocalisation = DB::table('article_product')
+            ->join('articles', 'article_product.article_id', '=', 'articles.id')
+            ->join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
+            ->join('localisations', 'article_localisation.localisation_id', '=', 'localisations.id')
+            ->join('products', 'article_product.product_id', '=', 'products.id')
+            ->where('articles.is_deleted', false)
+            ->where('localisations.is_deleted', false)
+            ->whereIn('article_product.product_id', $productIds)
+            ->whereIn('article_localisation.localisation_id', $localisationIds)
+            ->selectRaw('localisations.DRANEF as localisation, products.name as product_name, SUM(article_product.quantity) as total_quantity')
+            ->groupBy('localisations.id', 'localisations.DRANEF', 'products.id', 'products.name')
+            ->get();
+        
+        foreach ($articlesByLocalisation as $row) {
+            if (!isset($chartDataByLocalisation[$row->localisation])) {
+                $chartDataByLocalisation[$row->localisation] = [];
+            }
+            $chartDataByLocalisation[$row->localisation][$row->product_name] = (float) $row->total_quantity;
+        }
+        
+        // Calculate data by year and localisation (combined) - optimized query
+        $chartDataByYearAndLocalisation = [];
+        
+        $articlesByYearAndLocalisation = DB::table('article_product')
+            ->join('articles', 'article_product.article_id', '=', 'articles.id')
+            ->join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
+            ->join('localisations', 'article_localisation.localisation_id', '=', 'localisations.id')
+            ->join('products', 'article_product.product_id', '=', 'products.id')
+            ->where('articles.is_deleted', false)
+            ->where('localisations.is_deleted', false)
+            ->whereIn('article_product.product_id', $productIds)
+            ->whereIn('article_localisation.localisation_id', $localisationIds)
+            ->when($startYear, function($q) use ($startYear) {
+                $q->where('articles.annee', '>=', $startYear);
+            })
+            ->when($endYear, function($q) use ($endYear) {
+                $q->where('articles.annee', '<=', $endYear);
+            })
+            ->selectRaw('
+                articles.annee as year,
+                localisations.DRANEF as localisation,
+                products.name as product_name,
+                SUM(article_product.quantity) as total_quantity
+            ')
+            ->groupBy('articles.annee', 'localisations.id', 'localisations.DRANEF', 'products.id', 'products.name')
+            ->get();
+        
+        foreach ($articlesByYearAndLocalisation as $row) {
+            $key = $row->year . ' - ' . $row->localisation;
+            if (!isset($chartDataByYearAndLocalisation[$key])) {
+                $chartDataByYearAndLocalisation[$key] = [
+                    'year' => $row->year,
+                    'localisation' => $row->localisation,
+                    'products' => []
+                ];
+            }
+            $chartDataByYearAndLocalisation[$key]['products'][$row->product_name] = (float) $row->total_quantity;
+        }
+        
+        return view('reports.products-development-chart', compact(
+            'chartDataByYear',
+            'chartDataByLocalisation',
+            'chartDataByYearAndLocalisation',
+            'allProducts',
+            'allLocalisations',
+            'allYears',
+            'productId',
+            'localisationId',
+            'startYear',
+            'endYear'
         ));
     }
 

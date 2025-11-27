@@ -153,6 +153,24 @@
                 <p class="text-gray-600">Analysez les Organisations de la Femme avec statistiques par localisation, situation administrative et type de membre</p>
             </div>
 
+            <!-- Products Report -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.products') }}'">
+                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-boxes text-white text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Produits</h3>
+                <p class="text-gray-600">Analysez les produits par article, contrat, localisation, forêt, essence ou exploitant</p>
+            </div>
+
+            <!-- Products Development Chart -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.products-development-chart') }}'">
+                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-line text-white text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Graphique de Développement des Produits</h3>
+                <p class="text-gray-600">Visualisez l'évolution des produits par année et par localisation</p>
+            </div>
+
         </div>
     </div>
 </div>

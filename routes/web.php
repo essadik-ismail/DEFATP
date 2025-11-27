@@ -410,6 +410,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/contracts', [ReportController::class, 'contractsReport'])->name('contracts');
         Route::get('/exploitants', [ReportController::class, 'exploitantsReport'])->name('exploitants');
         Route::get('/odfs', [ReportController::class, 'odfsReport'])->name('odfs');
+        Route::get('/products', [ReportController::class, 'productsReport'])->name('products');
+        Route::get('/products-development-chart', [ReportController::class, 'productsDevelopmentChart'])->name('products-development-chart');
     });
 
 });
