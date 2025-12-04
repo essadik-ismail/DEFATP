@@ -220,6 +220,47 @@ Route::middleware('auth')->group(function () {
     // Settings Routes
     // Unified Entity Data Management
     Route::get('/entity-data', [App\Http\Controllers\EntityDataController::class, 'index'])->name('entity-data.index');
+    
+    // Financial Data Management
+    Route::prefix('financial-data')->name('financial-data.')->group(function () {
+        Route::get('/', [App\Http\Controllers\FinancialDataController::class, 'index'])->name('index');
+        
+        // Province Annual Shares
+        Route::prefix('province-annual-shares')->name('province-annual-shares.')->group(function () {
+            Route::get('/create', [App\Http\Controllers\FinancialDataController::class, 'createProvinceAnnualShare'])->name('create');
+            Route::post('/', [App\Http\Controllers\FinancialDataController::class, 'storeProvinceAnnualShare'])->name('store');
+            Route::get('/{provinceAnnualShare}/edit', [App\Http\Controllers\FinancialDataController::class, 'editProvinceAnnualShare'])->name('edit');
+            Route::put('/{provinceAnnualShare}', [App\Http\Controllers\FinancialDataController::class, 'updateProvinceAnnualShare'])->name('update');
+            Route::delete('/{provinceAnnualShare}', [App\Http\Controllers\FinancialDataController::class, 'destroyProvinceAnnualShare'])->name('destroy');
+        });
+        
+        // Regional Budgets
+        Route::prefix('regional-budgets')->name('regional-budgets.')->group(function () {
+            Route::get('/create', [App\Http\Controllers\FinancialDataController::class, 'createRegionalBudget'])->name('create');
+            Route::post('/', [App\Http\Controllers\FinancialDataController::class, 'storeRegionalBudget'])->name('store');
+            Route::get('/{regionalBudget}/edit', [App\Http\Controllers\FinancialDataController::class, 'editRegionalBudget'])->name('edit');
+            Route::put('/{regionalBudget}', [App\Http\Controllers\FinancialDataController::class, 'updateRegionalBudget'])->name('update');
+            Route::delete('/{regionalBudget}', [App\Http\Controllers\FinancialDataController::class, 'destroyRegionalBudget'])->name('destroy');
+        });
+        
+        // Monthly Revenues
+        Route::prefix('monthly-revenues')->name('monthly-revenues.')->group(function () {
+            Route::get('/create', [App\Http\Controllers\FinancialDataController::class, 'createMonthlyRevenue'])->name('create');
+            Route::post('/', [App\Http\Controllers\FinancialDataController::class, 'storeMonthlyRevenue'])->name('store');
+            Route::get('/{monthlyRevenue}/edit', [App\Http\Controllers\FinancialDataController::class, 'editMonthlyRevenue'])->name('edit');
+            Route::put('/{monthlyRevenue}', [App\Http\Controllers\FinancialDataController::class, 'updateMonthlyRevenue'])->name('update');
+            Route::delete('/{monthlyRevenue}', [App\Http\Controllers\FinancialDataController::class, 'destroyMonthlyRevenue'])->name('destroy');
+        });
+        
+        // National Summaries
+        Route::prefix('national-summaries')->name('national-summaries.')->group(function () {
+            Route::get('/create', [App\Http\Controllers\FinancialDataController::class, 'createNationalSummary'])->name('create');
+            Route::post('/', [App\Http\Controllers\FinancialDataController::class, 'storeNationalSummary'])->name('store');
+            Route::get('/{nationalSummary}/edit', [App\Http\Controllers\FinancialDataController::class, 'editNationalSummary'])->name('edit');
+            Route::put('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'updateNationalSummary'])->name('update');
+            Route::delete('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'destroyNationalSummary'])->name('destroy');
+        });
+    });
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [SettingsController::class, 'index'])->name('index');

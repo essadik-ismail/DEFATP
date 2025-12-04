@@ -75,6 +75,12 @@
                     Données des Entités
                 </a>
                 
+                <a href="{{ route('financial-data.index') }}" 
+                   class="mobile-nav-item {{ request()->routeIs('financial-data.*') ? 'active' : '' }}">
+                    <i class="fas fa-money-bill-wave me-3"></i>
+                    Recette
+                </a>
+                
                 <a href="{{ route('settings.index') }}" 
                    class="mobile-nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                     <i class="fas fa-cog me-3"></i>

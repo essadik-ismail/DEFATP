@@ -2200,6 +2200,13 @@
                         Données des Entités
                     </a>
                 </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('financial-data.index') }}" class="nav-link {{ request()->routeIs('financial-data.*') ? 'active' : '' }}">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Recette
+                    </a>
+                </div>
             
 
             </nav>
@@ -3107,6 +3114,13 @@
         });
 
         // Global unhandled promise rejection handling
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+            UXUtils.showToast('Une erreur réseau s\'est produite', 'error');
+        });
+    </script>
+</body>
+</html> 
         window.addEventListener('unhandledrejection', function(e) {
             console.error('Unhandled promise rejection:', e.reason);
             UXUtils.showToast('Une erreur réseau s\'est produite', 'error');
