@@ -320,7 +320,7 @@
                                     <h4 class="text-sm font-bold text-gray-800">{{ $prestation->name }}</h4>
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
                                         <i class="fas fa-hashtag mr-1"></i>
-                                        {{ $prestation->quantity }}
+                                        {{ $prestation->pivot->quantity ?? $prestation->quantity }}
                                     </span>
                                 </div>
                             </div>

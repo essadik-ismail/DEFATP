@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+    use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Relations\BelongsTo;
+    use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -108,10 +107,12 @@ class Contract extends Model
     }
 
     /**
-     * Get the prestations for this contract.
+     * Get the prestations for this contract (many-to-many relationship).
      */
-    public function prestations(): HasMany
+    public function prestations(): BelongsToMany
     {
-        return $this->hasMany(Prestation::class, 'contract_id');
+        return $this->belongsToMany(Prestation::class, 'contract_prestation', 'contract_id', 'prestation_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }

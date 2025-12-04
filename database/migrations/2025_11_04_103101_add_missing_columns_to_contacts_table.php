@@ -16,14 +16,10 @@ return new class extends Migration
             if (!Schema::hasColumn('contacts', 'situation_administrative_id')) {
                 $table->foreignId('situation_administrative_id')->nullable()->constrained('situation_administratives')->onDelete('cascade')->after('localisation_id');
             }
-            
-            if (!Schema::hasColumn('contacts', 'espece_id')) {
-                $table->foreignId('espece_id')->nullable()->constrained('especes')->onDelete('cascade')->after('situation_administrative_id');
-            }
 
             // Add the named columns if they don't exist (mapping to replace attributes if needed)
             if (!Schema::hasColumn('contacts', 'superficie')) {
-                $table->string('superficie')->nullable()->after('espece_id');
+                $table->string('superficie')->nullable()->after('situation_administrative_id');
             }
             
             if (!Schema::hasColumn('contacts', 'gardiennage')) {
@@ -115,18 +111,19 @@ return new class extends Migration
                 $table->dropForeign(['situation_administrative_id']);
                 $table->dropColumn('situation_administrative_id');
             }
-            
-            if (Schema::hasColumn('contacts', 'espece_id')) {
-                $table->dropForeign(['espece_id']);
-                $table->dropColumn('espece_id');
-            }
-            
+
             // Drop other columns
             $columnsToDrop = [
-                'superficie', 'gardiennage', 'elagage', 'eclaircie', 'rajeunissement_romarin',
-                'valeurs_des_produits', 'valeur_des_prestations', 'redevances', 'taxes', 'total_avenant',
-                'bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t', 'romarin_t',
-                'ps_t', 'liége_st', 'charbon_bois_ox'
+                'superficie',
+                'gardiennage',
+                'elagage',
+                'eclaircie',
+                'rajeunissement_romarin',
+                'valeurs_des_produits',
+                'valeur_des_prestations',
+                'redevances',
+                'taxes',
+                'total_avenant',
             ];
             
             foreach ($columnsToDrop as $column) {

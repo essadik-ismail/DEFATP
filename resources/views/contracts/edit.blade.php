@@ -432,19 +432,31 @@
                         @foreach($contract->prestations as $index => $prestation)
                             <div class="prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                 <div class="flex-1">
-                                    <input type="text" 
-                                           name="prestations[{{ $index }}][name]" 
-                                           placeholder="Nom de la prestation" 
-                                           value="{{ old("prestations.{$index}.name", $prestation->name) }}"
-                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                                           required>
+                                    @php
+                                        $currentName = old("prestations.{$index}.name", $prestation->name);
+                                        $allPrestations = $prestations ?? collect();
+                                        $hasCurrent = $allPrestations->pluck('name')->contains($currentName);
+                                    @endphp
+                                    <select name="prestations[{{ $index }}][name]" 
+                                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                                            required>
+                                        <option value="">Sélectionner une prestation</option>
+                                        @foreach($prestations as $p)
+                                            <option value="{{ $p->name }}" {{ $currentName === $p->name ? 'selected' : '' }}>
+                                                {{ $p->name }}
+                                            </option>
+                                        @endforeach
+                                        @unless($hasCurrent)
+                                            <option value="{{ $currentName }}" selected>{{ $currentName }}</option>
+                                        @endunless
+                                    </select>
                                 </div>
                                 <div class="w-32">
                                     <input type="number" 
                                            name="prestations[{{ $index }}][quantity]" 
                                            placeholder="Quantité" 
                                            min="1" 
-                                           value="{{ old("prestations.{$index}.quantity", $prestation->quantity) }}"
+                                           value="{{ old("prestations.{$index}.quantity", $prestation->pivot->quantity ?? $prestation->quantity) }}"
                                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                            required>
                                 </div>
@@ -711,15 +723,23 @@ function addPrestation() {
     prestationCount++;
     const container = document.getElementById('prestations-container');
     
+    const prestations = @json($prestations ?? []);
+    
     const prestationRow = document.createElement('div');
     prestationRow.className = 'prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    
+    let prestationOptions = '<option value="">Sélectionner une prestation</option>';
+    prestations.forEach(prestation => {
+        prestationOptions += `<option value="${prestation.name}">${prestation.name}</option>`;
+    });
+
     prestationRow.innerHTML = `
         <div class="flex-1">
-            <input type="text" 
-                   name="prestations[${prestationCount}][name]" 
-                   placeholder="Nom de la prestation" 
-                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                   required>
+            <select name="prestations[${prestationCount}][name]" 
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                    required>
+                ${prestationOptions}
+            </select>
         </div>
         <div class="w-32">
             <input type="number" 

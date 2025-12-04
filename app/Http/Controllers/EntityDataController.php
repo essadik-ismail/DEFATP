@@ -12,6 +12,7 @@ use App\Models\Coperative;
 use App\Models\Vocation;
 use App\Models\OdfEntite;
 use App\Models\Product;
+use App\Models\Prestation;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -93,6 +94,13 @@ class EntityDataController extends Controller
             ->orderBy('name')
             ->paginate(10, ['*'], 'products_page');
 
+        $prestations = Prestation::with(['contracts', 'avenants'])
+            ->when($request->filled('prestation_search'), function($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->prestation_search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(10, ['*'], 'prestations_page');
+
         return view('entity-data.index', compact(
             'essences',
             'forets',
@@ -103,7 +111,8 @@ class EntityDataController extends Controller
             'coperatives',
             'vocations',
             'odfEntites',
-            'products'
+            'products',
+            'prestations'
         ));
     }
 }

@@ -3,31 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Prestation extends Model
 {
     protected $fillable = [
         'name',
-        'quantity',
-        'avenant_id',
-        'contract_id',
     ];
 
     /**
-     * Get the contract for this prestation.
+     * Get the contracts for this prestation (many-to-many).
      */
-    public function contract(): BelongsTo
+    public function contracts(): BelongsToMany
     {
-        return $this->belongsTo(Contract::class, 'contract_id');
+        return $this->belongsToMany(Contract::class, 'contract_prestation', 'prestation_id', 'contract_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     /**
-     * Get the avenant for this prestation.
+     * Get the avenants for this prestation (many-to-many).
      */
-    public function avenant(): BelongsTo
+    public function avenants(): BelongsToMany
     {
-        return $this->belongsTo(Avenant::class, 'avenant_id');
+        return $this->belongsToMany(Avenant::class, 'avenant_prestation', 'prestation_id', 'avenant_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }
 

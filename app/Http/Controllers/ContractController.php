@@ -8,6 +8,7 @@ use App\Models\SituationAdministrative;
 use App\Models\Essence;
 use App\Models\Coperative;
 use App\Models\Product;
+use App\Models\Prestation;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -144,6 +145,7 @@ class ContractController extends Controller
         $forets = \App\Models\Foret::orderBy('foret')->get();
         $coperatives = Coperative::with('vocation')->orderBy('nom')->get();
         $products = Product::orderBy('name')->get();
+        $prestations = Prestation::orderBy('name')->get();
 
         return view('contracts.create', compact(
             'localisations',
@@ -151,7 +153,8 @@ class ContractController extends Controller
             'essences',
             'forets',
             'coperatives',
-            'products'
+            'products',
+            'prestations'
         ));
     }
 
@@ -221,15 +224,22 @@ class ContractController extends Controller
                 }
             }
 
-            // Handle prestations if provided
+            // Handle prestations if provided (many-to-many, like products)
             if ($request->has('prestations') && is_array($request->prestations)) {
+                $prestationSync = [];
                 foreach ($request->prestations as $prestation) {
                     if (!empty($prestation['name'])) {
-                        $contract->prestations()->create([
-                            'name' => $prestation['name'],
-                            'quantity' => $prestation['quantity'] ?? 1,
-                        ]);
+                        $name = trim($prestation['name']);
+                        $prestationModel = Prestation::firstOrCreate(['name' => $name]);
+                        $quantity = isset($prestation['quantity']) && $prestation['quantity'] > 0
+                            ? $prestation['quantity']
+                            : 1;
+                        $prestationSync[$prestationModel->id] = ['quantity' => $quantity];
                     }
+                }
+
+                if (!empty($prestationSync)) {
+                    $contract->prestations()->sync($prestationSync);
                 }
             }
 
@@ -274,6 +284,7 @@ class ContractController extends Controller
         $forets = \App\Models\Foret::orderBy('foret')->get();
         $coperatives = Coperative::with('vocation')->orderBy('nom')->get();
         $products = Product::orderBy('name')->get();
+        $prestations = Prestation::orderBy('name')->get();
 
         return view('contracts.edit', compact(
             'contract',
@@ -282,7 +293,8 @@ class ContractController extends Controller
             'essences',
             'forets',
             'coperatives',
-            'products'
+            'products',
+            'prestations'
         ));
     }
 
@@ -351,20 +363,23 @@ class ContractController extends Controller
                 $contract->products()->sync([]);
             }
 
-            // Handle prestations update
+            // Handle prestations update (many-to-many)
             if ($request->has('prestations') && is_array($request->prestations)) {
-                // Delete existing prestations
-                $contract->prestations()->delete();
-                
-                // Create new prestations
+                $prestationSync = [];
                 foreach ($request->prestations as $prestation) {
                     if (!empty($prestation['name'])) {
-                        $contract->prestations()->create([
-                            'name' => $prestation['name'],
-                            'quantity' => $prestation['quantity'] ?? 1,
-                        ]);
+                        $name = trim($prestation['name']);
+                        $prestationModel = Prestation::firstOrCreate(['name' => $name]);
+                        $quantity = isset($prestation['quantity']) && $prestation['quantity'] > 0
+                            ? $prestation['quantity']
+                            : 1;
+                        $prestationSync[$prestationModel->id] = ['quantity' => $quantity];
                     }
                 }
+                $contract->prestations()->sync($prestationSync);
+            } else {
+                // If no prestations provided, detach all
+                $contract->prestations()->sync([]);
             }
 
             ActivityLogger::logUpdate(
@@ -417,6 +432,7 @@ class ContractController extends Controller
             ->get();
         $coperatives = Coperative::orderBy('nom')->get();
         $products = Product::orderBy('name')->get();
+        $prestations = Prestation::orderBy('name')->get();
         
         // Get preselected contract if provided
         $selectedContract = null;
@@ -424,7 +440,7 @@ class ContractController extends Controller
             $selectedContract = Contract::with(['localisation', 'situationAdministrative', 'coperative', 'products', 'prestations'])->find($request->contract_id);
         }
         
-        return view('contracts.avenants.create', compact('contracts', 'coperatives', 'selectedContract', 'products'));
+        return view('contracts.avenants.create', compact('contracts', 'coperatives', 'selectedContract', 'products', 'prestations'));
     }
 
     public function storeAvenant(Request $request): RedirectResponse
@@ -453,7 +469,7 @@ class ContractController extends Controller
         ]);
 
         try {
-            $avenant = \App\Models\Avenant::create($validated);
+        $avenant = \App\Models\Avenant::create($validated);
 
             // Handle products if provided
             if ($request->has('products') && is_array($request->products)) {
@@ -474,15 +490,22 @@ class ContractController extends Controller
                 }
             }
 
-            // Handle prestations if provided
+            // Handle prestations if provided (many-to-many)
             if ($request->has('prestations') && is_array($request->prestations)) {
+                $prestationSync = [];
                 foreach ($request->prestations as $prestation) {
                     if (!empty($prestation['name'])) {
-                        $avenant->prestations()->create([
-                            'name' => $prestation['name'],
-                            'quantity' => $prestation['quantity'] ?? 1,
-                        ]);
+                        $name = trim($prestation['name']);
+                        $prestationModel = Prestation::firstOrCreate(['name' => $name]);
+                        $quantity = isset($prestation['quantity']) && $prestation['quantity'] > 0
+                            ? $prestation['quantity']
+                            : 1;
+                        $prestationSync[$prestationModel->id] = ['quantity' => $quantity];
                     }
+                }
+
+                if (!empty($prestationSync)) {
+                    $avenant->prestations()->sync($prestationSync);
                 }
             }
 
@@ -685,8 +708,9 @@ class ContractController extends Controller
             ->get();
         $coperatives = Coperative::orderBy('nom')->get();
         $products = Product::orderBy('name')->get();
+        $prestations = Prestation::orderBy('name')->get();
         $avenant->load(['products', 'prestations']);
-        return view('contracts.avenants.edit', compact('avenant', 'contracts', 'coperatives', 'products'));
+        return view('contracts.avenants.edit', compact('avenant', 'contracts', 'coperatives', 'products', 'prestations'));
     }
 
     public function updateAvenant(Request $request, \App\Models\Avenant $avenant): RedirectResponse
@@ -735,20 +759,23 @@ class ContractController extends Controller
                 $avenant->products()->sync([]);
             }
 
-            // Handle prestations update
+            // Handle prestations update (many-to-many)
             if ($request->has('prestations') && is_array($request->prestations)) {
-                // Delete existing prestations
-                $avenant->prestations()->delete();
-                
-                // Create new prestations
+                $prestationSync = [];
                 foreach ($request->prestations as $prestation) {
                     if (!empty($prestation['name'])) {
-                        $avenant->prestations()->create([
-                            'name' => $prestation['name'],
-                            'quantity' => $prestation['quantity'] ?? 1,
-                        ]);
+                        $name = trim($prestation['name']);
+                        $prestationModel = Prestation::firstOrCreate(['name' => $name]);
+                        $quantity = isset($prestation['quantity']) && $prestation['quantity'] > 0
+                            ? $prestation['quantity']
+                            : 1;
+                        $prestationSync[$prestationModel->id] = ['quantity' => $quantity];
                     }
                 }
+                $avenant->prestations()->sync($prestationSync);
+            } else {
+                // If no prestations provided, detach all
+                $avenant->prestations()->sync([]);
             }
 
             ActivityLogger::logUpdate(

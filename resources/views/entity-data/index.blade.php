@@ -120,6 +120,17 @@
                             </div>
                             <div class="tab-indicator"></div>
                         </button>
+                        <!-- Prestations Tab -->
+                        <button class="tab-button group" data-tab="prestations">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-sky-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                                <i class="fas fa-tasks text-white text-sm"></i>
+                            </div>
+                            <div class="text-left">
+                                <span class="block font-semibold">Prestations</span>
+                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Contrats/Avenants</span>
+                            </div>
+                            <div class="tab-indicator"></div>
+                        </button>
                     </div>
                 </div>
                 <div class="p-6">
@@ -133,6 +144,7 @@
                         @include('entity-data.partials.coperatives-tab')
                         @include('entity-data.partials.odf-entites-tab')
                         @include('entity-data.partials.products-tab')
+                        @include('entity-data.partials.prestations-tab')
                     </div>
                 </div>
             </div>
@@ -335,7 +347,8 @@ $(document).ready(function() {
             'natures-coupe': 'naturesCoupeTable',
             'odf-entites': 'odfEntitesTable',
             'exploitants': 'entityExploitantsTable',
-            'products': 'productsTable'
+            'products': 'productsTable',
+            'prestations': 'prestationsTable'
         };
         return tableIdMap[tabId];
     }

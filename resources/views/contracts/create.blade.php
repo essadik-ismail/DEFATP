@@ -753,15 +753,23 @@ function addPrestation() {
     prestationCount++;
     const container = document.getElementById('prestations-container');
     
+    const prestations = @json($prestations ?? []);
+    
     const prestationRow = document.createElement('div');
     prestationRow.className = 'prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200';
+    
+    let prestationOptions = '<option value="">Sélectionner une prestation</option>';
+    prestations.forEach(prestation => {
+        prestationOptions += `<option value="${prestation.name}">${prestation.name}</option>`;
+    });
+
     prestationRow.innerHTML = `
         <div class="flex-1">
-            <input type="text" 
-                   name="prestations[${prestationCount}][name]" 
-                   placeholder="Nom de la prestation" 
-                   class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                   required>
+            <select name="prestations[${prestationCount}][name]" 
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                    required>
+                ${prestationOptions}
+            </select>
         </div>
         <div class="w-32">
             <input type="number" 

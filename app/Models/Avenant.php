@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+    use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Database\Eloquent\Relations\BelongsTo;
+    use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Avenant extends Model
@@ -75,11 +74,13 @@ class Avenant extends Model
     }
 
     /**
-     * Get the prestations for this avenant (hasMany relationship).
+     * Get the prestations for this avenant (many-to-many relationship).
      */
-    public function prestations(): HasMany
+    public function prestations(): BelongsToMany
     {
-        return $this->hasMany(Prestation::class, 'avenant_id');
+        return $this->belongsToMany(Prestation::class, 'avenant_prestation', 'avenant_id', 'prestation_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
 }
