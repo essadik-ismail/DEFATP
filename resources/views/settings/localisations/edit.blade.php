@@ -66,7 +66,7 @@
                         <div class="row mt-3">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary">Mettre à jour</button>
-                                <a href="{{ route('settings.localisations') }}" class="btn btn-secondary">Annuler</a>
+                                <a href="{{ route('entity-data.index', ['tab' => 'localisations']) }}" class="btn btn-secondary">Annuler</a>
                             </div>
                         </div>
                     </form>

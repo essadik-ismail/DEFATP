@@ -117,7 +117,7 @@
                 </button>
                 
                 <a 
-                    href="{{ route('settings.situation-administratives') }}" 
+                    href="{{ route('entity-data.index', ['tab' => 'situations']) }}" 
                     class="inline-flex items-center gap-3 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
                 >
                     <i class="fas fa-arrow-left"></i>

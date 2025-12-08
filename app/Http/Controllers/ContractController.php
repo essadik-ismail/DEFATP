@@ -573,7 +573,7 @@ class ContractController extends Controller
                 $request
             );
 
-            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+            return redirect()->route('entity-data.index', ['tab' => 'vocations'])
                 ->with('success', 'Vocation créée avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -604,7 +604,7 @@ class ContractController extends Controller
                 $request
             );
 
-            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+            return redirect()->route('entity-data.index', ['tab' => 'vocations'])
                 ->with('success', 'Vocation mise à jour avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -625,7 +625,7 @@ class ContractController extends Controller
                 "Vocation {$vocationName}"
             );
 
-            return redirect()->route('contracts.index', ['tab' => 'coperatives'])
+            return redirect()->route('entity-data.index', ['tab' => 'vocations'])
                 ->with('success', 'Vocation supprimée avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()
