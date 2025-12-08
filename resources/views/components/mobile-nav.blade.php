@@ -70,7 +70,7 @@
                 </a>
                 
                 <a href="{{ route('entity-data.index') }}" 
-                   class="mobile-nav-item {{ request()->routeIs('entity-data.*') ? 'active' : '' }}">
+                   class="mobile-nav-item {{ request()->routeIs('entity-data.*') || request()->routeIs('essences.*') || request()->routeIs('forets.*') || request()->routeIs('localisations.*') || request()->routeIs('situations.*') || request()->routeIs('natures.*') || request()->routeIs('vocations.*') || request()->routeIs('coperatives.*') || request()->routeIs('odf-entites.*') || request()->routeIs('products.*') || request()->routeIs('prestations.*') ? 'active' : '' }}">
                     <i class="fas fa-database me-3"></i>
                     Données des Entités
                 </a>

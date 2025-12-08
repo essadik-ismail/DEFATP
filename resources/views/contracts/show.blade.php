@@ -189,30 +189,6 @@
                                 {{ $contract->prevention_contre_les_incendies ?? 'Non spécifié' }}
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-cut text-green-500 mr-2"></i>Elagage
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->elagage ?? 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-tree text-emerald-500 mr-2"></i>Eclaircie
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->eclaircie ?? 'Non spécifié' }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-leaf text-green-500 mr-2"></i>Rajeunissement Romarin
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $contract->rajeunissement_romarin ?? 'Non spécifié' }}
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

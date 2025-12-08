@@ -277,44 +277,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="elagage" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Elagage</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant de l'élagage"></i>
-                        </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="elagage" 
-                               name="elagage" 
-                               value="{{ old('elagage', $avenant->elagage) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="eclaircie" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Eclaircie</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant de l'éclaircie"></i>
-                        </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="eclaircie" 
-                               name="eclaircie" 
-                               value="{{ old('eclaircie', $avenant->eclaircie) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="rajeunissement_romarin" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Rajeunissement Romarin</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant du rajeunissement du romarin"></i>
-                        </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="rajeunissement_romarin" 
-                               name="rajeunissement_romarin" 
-                               value="{{ old('rajeunissement_romarin', $avenant->rajeunissement_romarin) }}">
-                    </div>
                 </div>
             </div>
 
@@ -410,18 +372,23 @@
                         @foreach($avenant->prestations as $index => $prestation)
                             <div class="prestation-row flex items-center gap-4 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                 <div class="flex-1">
-                                    <input type="text" 
-                                           name="prestations[{{ $index }}][name]" 
-                                           placeholder="Nom de la prestation" 
-                                           value="{{ old("prestations.{$index}.name", $prestation->name) }}"
-                                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                                           required>
+                                    <select name="prestations[{{ $index }}][name]" 
+                                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                                            required>
+                                        <option value="">Sélectionner une prestation</option>
+                                        @foreach($prestations as $p)
+                                            <option value="{{ $p->name }}" {{ old("prestations.{$index}.name", $prestation->name) == $p->name ? 'selected' : '' }}>
+                                                {{ $p->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="w-32">
                                     <input type="number" 
                                            name="prestations[{{ $index }}][quantity]" 
                                            placeholder="Quantité" 
-                                           min="1" 
+                                           min="0.01" 
+                                           step="0.01"
                                            value="{{ old("prestations.{$index}.quantity", $prestation->pivot->quantity ?? $prestation->quantity) }}"
                                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                            required>
@@ -638,7 +605,8 @@ function addPrestation() {
             <input type="number" 
                    name="prestations[${prestationCount}][quantity]" 
                    placeholder="Quantité" 
-                   min="1" 
+                   min="0.01" 
+                   step="0.01"
                    value="1"
                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                    required>

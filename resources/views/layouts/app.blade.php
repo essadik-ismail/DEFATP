@@ -2193,13 +2193,7 @@
                         Plan DFC
                     </a>
                 </div> -->
-               
-                <div class="nav-item">
-                    <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') ? 'active' : '' }}">
-                        <i class="fas fa-database"></i>
-                        Données des Entités
-                    </a>
-                </div>
+                
                 
                 <div class="nav-item">
                     <a href="{{ route('financial-data.index') }}" class="nav-link {{ request()->routeIs('financial-data.*') ? 'active' : '' }}">
@@ -2208,6 +2202,12 @@
                     </a>
                 </div>
             
+                <div class="nav-item">
+                    <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') || request()->routeIs('essences.*') || request()->routeIs('forets.*') || request()->routeIs('localisations.*') || request()->routeIs('situations.*') || request()->routeIs('natures.*') || request()->routeIs('vocations.*') || request()->routeIs('coperatives.*') || request()->routeIs('odf-entites.*') || request()->routeIs('products.*') || request()->routeIs('prestations.*') ? 'active' : '' }}">
+                        <i class="fas fa-database"></i>
+                        Données des Entités
+                    </a>
+                </div>
 
             </nav>
         </aside>
@@ -3114,13 +3114,6 @@
         });
 
         // Global unhandled promise rejection handling
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('Unhandled promise rejection:', e.reason);
-            UXUtils.showToast('Une erreur réseau s\'est produite', 'error');
-        });
-    </script>
-</body>
-</html> 
         window.addEventListener('unhandledrejection', function(e) {
             console.error('Unhandled promise rejection:', e.reason);
             UXUtils.showToast('Une erreur réseau s\'est produite', 'error');

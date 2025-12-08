@@ -287,27 +287,52 @@ function importLocalisations(input) {
 <script>
 // Auto-initialize DataTables for entity-data tabs
 $(document).ready(function() {
+    // Helper function to initialize a DataTable with empty state handling
+    function initializeDataTable(tableId) {
+        if (!tableId || $.fn.DataTable.isDataTable('#' + tableId)) {
+            return;
+        }
+        
+        const table = $('#' + tableId);
+        const tbodyRows = table.find('tbody tr');
+        
+        // Check if table has data rows (not just empty state with colspan)
+        const hasDataRows = tbodyRows.length > 0 && 
+                           !tbodyRows.first().find('td[colspan]').length;
+        
+        // If table only has empty state with colspan, remove it
+        // DataTables will show its own empty message
+        if (!hasDataRows && tbodyRows.length > 0) {
+            const emptyRow = tbodyRows.first();
+            if (emptyRow.find('td[colspan]').length) {
+                emptyRow.remove();
+            }
+        }
+        
+        // Initialize DataTables
+        $('#' + tableId).DataTable({
+            processing: false,
+            serverSide: false,
+            order: [[0, 'desc']],
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json',
+                emptyTable: 'Aucune donnée disponible dans le tableau'
+            }
+        });
+        
+        if (typeof ExcelFilters !== 'undefined') {
+            ExcelFilters.init(tableId);
+        }
+    }
+    
     // Initialize tables when tabs are shown
     $('.tab-button').on('click', function() {
         var tabId = $(this).data('tab');
         setTimeout(function() {
             var tableId = getTableIdForTab(tabId);
-            if (tableId && !$.fn.DataTable.isDataTable('#' + tableId)) {
-                var table = $('#' + tableId).DataTable({
-                    processing: false,
-                    serverSide: false,
-                    order: [[0, 'desc']],
-                    pageLength: 25,
-                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
-                    language: {
-                        url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
-                    }
-                });
-                
-                if (typeof ExcelFilters !== 'undefined') {
-                    ExcelFilters.init(tableId);
-                }
-            }
+            initializeDataTable(tableId);
         }, 300);
     });
     
@@ -316,22 +341,7 @@ $(document).ready(function() {
     if (activeTab) {
         setTimeout(function() {
             var tableId = getTableIdForTab(activeTab);
-            if (tableId && !$.fn.DataTable.isDataTable('#' + tableId)) {
-                var table = $('#' + tableId).DataTable({
-                    processing: false,
-                    serverSide: false,
-                    order: [[0, 'desc']],
-                    pageLength: 25,
-                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
-                    language: {
-                        url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
-                    }
-                });
-                
-                if (typeof ExcelFilters !== 'undefined') {
-                    ExcelFilters.init(tableId);
-                }
-            }
+            initializeDataTable(tableId);
         }, 500);
     }
     

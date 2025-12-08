@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             OdfEntiteSeeder::class,
             ExploitantSeeder::class,
             ProductSeeder::class,
+            PrestationSeeder::class,
             ArticleSeeder::class,
             VocationSeeder::class,
             CoperativeSeeder::class,

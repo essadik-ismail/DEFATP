@@ -378,32 +378,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="elagage" class="block text-sm font-semibold text-gray-700 mb-2">Elagage</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="elagage" 
-                               name="elagage" 
-                               value="{{ old('elagage', $contract->elagage) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="eclaircie" class="block text-sm font-semibold text-gray-700 mb-2">Eclaircie</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="eclaircie" 
-                               name="eclaircie" 
-                               value="{{ old('eclaircie', $contract->eclaircie) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="rajeunissement_romarin" class="block text-sm font-semibold text-gray-700 mb-2">Rajeunissement Romarin</label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="rajeunissement_romarin" 
-                               name="rajeunissement_romarin" 
-                               value="{{ old('rajeunissement_romarin', $contract->rajeunissement_romarin) }}">
-                    </div>
                 </div>
             </div>
 
@@ -745,7 +719,8 @@ function addPrestation() {
             <input type="number" 
                    name="prestations[${prestationCount}][quantity]" 
                    placeholder="Quantité" 
-                   min="1" 
+                   min="0.01" 
+                   step="0.01"
                    value="1"
                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                    required>

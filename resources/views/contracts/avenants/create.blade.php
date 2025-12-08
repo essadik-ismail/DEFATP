@@ -107,9 +107,6 @@
                                         data-prevention-incendies-nbjour="{{ $contract->prevention_incendies_nbjour ?? '' }}"
                                         data-prevention-incendies-superficie="{{ $contract->prevention_incendies_superficie ?? '' }}"
                                         data-prevention-incendies-parcelle="{{ $contract->prevention_incendies_parcelle ?? '' }}"
-                                        data-elagage="{{ $contract->elagage ?? '' }}"
-                                        data-eclaircie="{{ $contract->eclaircie ?? '' }}"
-                                        data-rajeunissement-romarin="{{ $contract->rajeunissement_romarin ?? '' }}"
                                         data-bo-m3="{{ $contract->bo_m3 ?? '' }}"
                                         data-bi-m3="{{ $contract->bi_m3 ?? '' }}"
                                         data-bf-st="{{ $contract->bf_st ?? '' }}"
@@ -319,44 +316,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="elagage" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Elagage</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant de l'élagage"></i>
-                        </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="elagage" 
-                               name="elagage" 
-                               value="{{ old('elagage') }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="eclaircie" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Eclaircie</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant de l'éclaircie"></i>
-                        </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="eclaircie" 
-                               name="eclaircie" 
-                               value="{{ old('eclaircie') }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="rajeunissement_romarin" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Rajeunissement Romarin</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Montant du rajeunissement du romarin"></i>
-                        </label>
-                        <input type="number" 
-                               step="0.01"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="rajeunissement_romarin" 
-                               name="rajeunissement_romarin" 
-                               value="{{ old('rajeunissement_romarin') }}">
-                    </div>
                 </div>
             </div>
 
@@ -608,7 +567,8 @@ function addPrestation() {
             <input type="number" 
                    name="prestations[${prestationCount}][quantity]" 
                    placeholder="Quantité" 
-                   min="1" 
+                   min="0.01" 
+                   step="0.01"
                    value="1"
                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                    required>
@@ -659,9 +619,6 @@ function loadContractData(contractId) {
     const preventionIncendiesNbjour = selectedOption.getAttribute('data-prevention-incendies-nbjour');
     const preventionIncendiesSuperficie = selectedOption.getAttribute('data-prevention-incendies-superficie');
     const preventionIncendiesParcelle = selectedOption.getAttribute('data-prevention-incendies-parcelle');
-    const elagage = selectedOption.getAttribute('data-elagage');
-    const eclaircie = selectedOption.getAttribute('data-eclaircie');
-    const rajeunissementRomarin = selectedOption.getAttribute('data-rajeunissement-romarin');
     
     if (gardiennageNbjour) document.getElementById('gardiennage_nbjour').value = gardiennageNbjour;
     if (gardiennageSuperficie) document.getElementById('gardiennage_superficie').value = gardiennageSuperficie;
@@ -669,9 +626,6 @@ function loadContractData(contractId) {
     if (preventionIncendiesNbjour) document.getElementById('prevention_incendies_nbjour').value = preventionIncendiesNbjour;
     if (preventionIncendiesSuperficie) document.getElementById('prevention_incendies_superficie').value = preventionIncendiesSuperficie;
     if (preventionIncendiesParcelle) document.getElementById('prevention_incendies_parcelle').value = preventionIncendiesParcelle;
-    if (elagage) document.getElementById('elagage').value = elagage;
-    if (eclaircie) document.getElementById('eclaircie').value = eclaircie;
-    if (rajeunissementRomarin) document.getElementById('rajeunissement_romarin').value = rajeunissementRomarin;
     
     // Load products quantities
     const boM3 = selectedOption.getAttribute('data-bo-m3');
