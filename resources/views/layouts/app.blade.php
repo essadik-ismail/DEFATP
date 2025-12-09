@@ -2187,18 +2187,25 @@
                     </a>
                 </div>
 
-                <!-- <div class="nav-item">
+                <div class="nav-item">
                     <a href="{{ route('pdfcs.index') }}" class="nav-link {{ request()->routeIs('pdfcs.*') ? 'active' : '' }}">
                         <i class="fas fa-project-diagram"></i>
                         Plan DFC
                     </a>
-                </div> -->
+                </div>
                 
                 
                 <div class="nav-item">
                     <a href="{{ route('financial-data.index') }}" class="nav-link {{ request()->routeIs('financial-data.*') ? 'active' : '' }}">
                         <i class="fas fa-money-bill-wave"></i>
                         Recette
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('partenariats.index') }}" class="nav-link {{ request()->routeIs('partenariats.*') ? 'active' : '' }}">
+                        <i class="fas fa-handshake"></i>
+                        Partenariats
                     </a>
                 </div>
             

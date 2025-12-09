@@ -134,31 +134,63 @@
                 </div>
             </div>
 
-            <!-- Part État et CAS -->
+            <!-- Recette Items -->
             <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Part État et CAS</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">les compte spéciaux</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="part_etat" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Part État (DH)
+                        <label for="lf_2009" class="block text-sm font-semibold text-gray-700 mb-2">
+                            LF_2009 (DH)
                         </label>
-                        <input type="number" name="part_etat" id="part_etat" value="{{ old('part_etat', $nationalSummary->part_etat ?? 0) }}" 
+                        <input type="number" name="lf_2009" id="lf_2009" value="{{ old('lf_2009', $nationalSummary->lf_2009 ?? 0) }}" 
                                step="0.01" min="0"
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div>
-                        <label for="cas_fnf_total" class="block text-sm font-semibold text-gray-700 mb-2">
-                            CAS FNF Total (DH)
+                        <label for="remboursement_drs" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Remboursement_DRS (DH)
                         </label>
-                        <input type="number" name="cas_fnf_total" id="cas_fnf_total" value="{{ old('cas_fnf_total', $nationalSummary->cas_fnf_total ?? 0) }}" 
+                        <input type="number" name="remboursement_drs" id="remboursement_drs" value="{{ old('remboursement_drs', $nationalSummary->remboursement_drs ?? 0) }}" 
                                step="0.01" min="0"
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div>
-                        <label for="cas_chasse_peche_total" class="block text-sm font-semibold text-gray-700 mb-2">
-                            CAS Chasse/Pêche Total (DH)
+                        <label for="remboursement_fnf_et_autres" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Remboursement_FNF_et_autres (DH)
                         </label>
-                        <input type="number" name="cas_chasse_peche_total" id="cas_chasse_peche_total" value="{{ old('cas_chasse_peche_total', $nationalSummary->cas_chasse_peche_total ?? 0) }}" 
+                        <input type="number" name="remboursement_fnf_et_autres" id="remboursement_fnf_et_autres" value="{{ old('remboursement_fnf_et_autres', $nationalSummary->remboursement_fnf_et_autres ?? 0) }}" 
+                               step="0.01" min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="taxe_fnf_20_percent" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Taxe_FNF_20% (DH)
+                        </label>
+                        <input type="number" name="taxe_fnf_20_percent" id="taxe_fnf_20_percent" value="{{ old('taxe_fnf_20_percent', $nationalSummary->taxe_fnf_20_percent ?? 0) }}" 
+                               step="0.01" min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="taxe_de_mise_en_charge" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Taxe_de_mise_en_charge (DH)
+                        </label>
+                        <input type="number" name="taxe_de_mise_en_charge" id="taxe_de_mise_en_charge" value="{{ old('taxe_de_mise_en_charge', $nationalSummary->taxe_de_mise_en_charge ?? 0) }}" 
+                               step="0.01" min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="total_fnf" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Total_FNF (DH)
+                        </label>
+                        <input type="number" name="total_fnf" id="total_fnf" value="{{ old('total_fnf', $nationalSummary->total_fnf ?? 0) }}" 
+                               step="0.01" min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="chasse_et_peche" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Chasse_et_pêche (DH)
+                        </label>
+                        <input type="number" name="chasse_et_peche" id="chasse_et_peche" value="{{ old('chasse_et_peche', $nationalSummary->chasse_et_peche ?? 0) }}" 
                                step="0.01" min="0"
                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
@@ -167,7 +199,7 @@
 
             <!-- Communes -->
             <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Communes</h3>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">par des comumnes</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="communes_bois_tanin" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -230,7 +262,7 @@
 
             <!-- Provinces -->
             <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Provinces</h3>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">par des Provinces</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="provinces_liege" class="block text-sm font-semibold text-gray-700 mb-2">

@@ -81,6 +81,12 @@
                     Recette
                 </a>
                 
+                <a href="{{ route('partenariats.index') }}" 
+                   class="mobile-nav-item {{ request()->routeIs('partenariats.*') ? 'active' : '' }}">
+                    <i class="fas fa-handshake me-3"></i>
+                    Partenariats
+                </a>
+                
                 <a href="{{ route('settings.index') }}" 
                    class="mobile-nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                     <i class="fas fa-cog me-3"></i>

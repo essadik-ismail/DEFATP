@@ -226,10 +226,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [App\Http\Controllers\FinancialDataController::class, 'index'])->name('index');
         Route::get('/create', [App\Http\Controllers\FinancialDataController::class, 'create'])->name('create');
         Route::post('/', [App\Http\Controllers\FinancialDataController::class, 'store'])->name('store');
+        Route::get('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'show'])->name('show');
         Route::get('/{nationalSummary}/edit', [App\Http\Controllers\FinancialDataController::class, 'edit'])->name('edit');
         Route::put('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'update'])->name('update');
         Route::delete('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'destroy'])->name('destroy');
     });
+
+    // Partenariats Management
+    Route::resource('partenariats', App\Http\Controllers\PartenariatController::class);
+
+    // Suivi Contract Programmes Management
+    Route::resource('suivi-contract-programmes', App\Http\Controllers\SuiviContractProgrammeController::class);
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [SettingsController::class, 'index'])->name('index');

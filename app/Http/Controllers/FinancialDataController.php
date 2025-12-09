@@ -73,6 +73,13 @@ class FinancialDataController extends Controller
             'part_etat' => 'nullable|numeric|min:0',
             'cas_fnf_total' => 'nullable|numeric|min:0',
             'cas_chasse_peche_total' => 'nullable|numeric|min:0',
+            'lf_2009' => 'nullable|numeric|min:0',
+            'remboursement_drs' => 'nullable|numeric|min:0',
+            'remboursement_fnf_et_autres' => 'nullable|numeric|min:0',
+            'taxe_fnf_20_percent' => 'nullable|numeric|min:0',
+            'taxe_de_mise_en_charge' => 'nullable|numeric|min:0',
+            'total_fnf' => 'nullable|numeric|min:0',
+            'chasse_et_peche' => 'nullable|numeric|min:0',
             'communes_bois_tanin' => 'nullable|numeric|min:0',
             'communes_liege' => 'nullable|numeric|min:0',
             'communes_pam_produits_divers' => 'nullable|numeric|min:0',
@@ -95,6 +102,15 @@ class FinancialDataController extends Controller
 
         return redirect()->route('financial-data.index')
             ->with('success', 'Résumé national créé avec succès.');
+    }
+
+    /**
+     * Display the specified national summary.
+     */
+    public function show(NationalSummary $nationalSummary): View
+    {
+        $nationalSummary->load(['situationAdministrative', 'localisation']);
+        return view('financial-data.show', compact('nationalSummary'));
     }
 
     /**
@@ -122,6 +138,13 @@ class FinancialDataController extends Controller
             'part_etat' => 'nullable|numeric|min:0',
             'cas_fnf_total' => 'nullable|numeric|min:0',
             'cas_chasse_peche_total' => 'nullable|numeric|min:0',
+            'lf_2009' => 'nullable|numeric|min:0',
+            'remboursement_drs' => 'nullable|numeric|min:0',
+            'remboursement_fnf_et_autres' => 'nullable|numeric|min:0',
+            'taxe_fnf_20_percent' => 'nullable|numeric|min:0',
+            'taxe_de_mise_en_charge' => 'nullable|numeric|min:0',
+            'total_fnf' => 'nullable|numeric|min:0',
+            'chasse_et_peche' => 'nullable|numeric|min:0',
             'communes_bois_tanin' => 'nullable|numeric|min:0',
             'communes_liege' => 'nullable|numeric|min:0',
             'communes_pam_produits_divers' => 'nullable|numeric|min:0',

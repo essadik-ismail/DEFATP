@@ -35,4 +35,12 @@ class Foret extends Model
         return $this->belongsToMany(Contract::class, 'contact_foret', 'foret_id', 'contact_id')
             ->withTimestamps();
     }
+
+    /**
+     * Get the suivi contract programmes for this foret.
+     */
+    public function suiviContractProgrammes(): HasMany
+    {
+        return $this->hasMany(SuiviContractProgramme::class);
+    }
 }

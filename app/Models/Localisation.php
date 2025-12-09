@@ -50,4 +50,20 @@ class Localisation extends Model
     {
         return $this->hasMany(Exploitant::class);
     }
+
+    /**
+     * Get the partenariats for this localisation.
+     */
+    public function partenariats(): HasMany
+    {
+        return $this->hasMany(Partenariat::class);
+    }
+
+    /**
+     * Get the suivi contract programmes for this localisation.
+     */
+    public function suiviContractProgrammes(): HasMany
+    {
+        return $this->hasMany(SuiviContractProgramme::class);
+    }
 }

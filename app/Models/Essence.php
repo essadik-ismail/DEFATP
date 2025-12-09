@@ -33,4 +33,12 @@ class Essence extends Model
         return $this->belongsToMany(Contract::class, 'contact_essence', 'essence_id', 'contact_id')
             ->withTimestamps();
     }
+
+    /**
+     * Get the partenariats for this essence.
+     */
+    public function partenariats(): HasMany
+    {
+        return $this->hasMany(Partenariat::class);
+    }
 }
