@@ -72,9 +72,9 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Localisation</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Localisation (DRANEF - DPANEF - ENTITE)</label>
                             <div class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-800 font-medium">
-                                {{ $partenariat->localisation ? $partenariat->localisation->CODE . ' - ' . $partenariat->localisation->ENTITE : 'N/A' }}
+                                {{ $partenariat->localisation ? $partenariat->localisation->DRANEF . ' - ' . $partenariat->localisation->DPANEF . ' - ' . $partenariat->localisation->ENTITE : 'N/A' }}
                             </div>
                         </div>
                     </div>

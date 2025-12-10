@@ -60,7 +60,7 @@
                     <tr>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nom Association</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Localisation</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Localisation (DRANEF - DPANEF - ENTITE)</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Essence</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Numéro Contrat</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Superficie (ha)</th>
@@ -77,7 +77,7 @@
                             {{ $partenariat->nom_association ?? 'N/A' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $partenariat->localisation ? $partenariat->localisation->CODE . ' - ' . $partenariat->localisation->ENTITE : 'N/A' }}
+                            {{ $partenariat->localisation ? $partenariat->localisation->DRANEF . ' - ' . $partenariat->localisation->DPANEF . ' - ' . $partenariat->localisation->ENTITE : 'N/A' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $partenariat->essence ? $partenariat->essence->essence : 'N/A' }}

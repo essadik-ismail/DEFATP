@@ -61,14 +61,14 @@
                     </div>
                     <div>
                         <label for="localisation_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Localisation
+                            Localisation (DRANEF - DPANEF - ENTITE)
                         </label>
                         <select name="localisation_id" id="localisation_id" 
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="">Sélectionner</option>
                             @foreach($localisations as $localisation)
                                 <option value="{{ $localisation->id }}" {{ old('localisation_id', $suiviContractProgramme->localisation_id) == $localisation->id ? 'selected' : '' }}>
-                                    {{ $localisation->CODE }} - {{ $localisation->ENTITE }}
+                                    {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
                                 </option>
                             @endforeach
                         </select>
