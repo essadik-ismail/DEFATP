@@ -108,50 +108,6 @@
                 <p class="text-gray-600">Générez un rapport complet des articles avec statistiques détaillées</p>
             </div> -->
 
-            <!-- Legacy Quantities Charts -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.legacy-quantities-charts') }}'">
-                <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-chart-bar text-white text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles Historiques</h3>
-                <p class="text-gray-600">Consultez les rapports des articles historiques avec analyses approfondies</p>
-            </div>
-
-            <!-- Article Quantities Charts -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.article-quantities-charts') }}'">
-                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-chart-bar text-white text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Articles</h3>
-                <p class="text-gray-600">Analysez les articles actuels avec graphiques et statistiques détaillées</p>
-            </div>
-
-            <!-- Contracts Report -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.contracts') }}'">
-                <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-handshake text-white text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Contrats</h3>
-                <p class="text-gray-600">Analysez les contrats de partenariat avec statistiques détaillées par année, localisation et situation</p>
-            </div>
-
-            <!-- Exploitants Report -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.exploitants') }}'">
-                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-user-tie text-white text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des Exploitants</h3>
-                <p class="text-gray-600">Analysez les exploitants avec statistiques par catégorie, activité, localisation et qualification</p>
-            </div>
-
-            <!-- ODFs Report -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.odfs') }}'">
-                <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-users text-white text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport des ODFs</h3>
-                <p class="text-gray-600">Analysez les Organisations de la Femme avec statistiques par localisation, situation administrative et type de membre</p>
-            </div>
 
             <!-- Products Report -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer" onclick="window.location.href='{{ route('reports.products') }}'">
