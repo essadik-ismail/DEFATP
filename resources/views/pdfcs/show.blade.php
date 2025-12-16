@@ -164,6 +164,96 @@
             </div>
             @endif
 
+            <!-- Étapes PDFC (13 étapes nommées) -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-fuchsia-100">
+                            <i class="fas fa-stream text-fuchsia-600"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900">Étapes du PDFC</h2>
+                    </div>
+                </div>
+
+                @php
+                    $stepsDefinitions = [
+                        1 => ['label' => 'Diagnostic de la commune', 'relation' => 'etape1DiagnosticCommune'],
+                        2 => ['label' => 'Diagnostic de la situation forestière', 'relation' => 'etape2DiagnosticSituationForestiere'],
+                        3 => ['label' => 'Analyse des usagers des forêts', 'relation' => 'etape3AnalyseUsagersForet'],
+                        4 => ['label' => 'Analyse du degré d’acceptation', 'relation' => 'etape4AnalyseDegreAcceptation'],
+                        5 => ['label' => 'Analyse des programmes antérieurs', 'relation' => 'etape5AnalyseProgrammesAnterieur'],
+                        6 => ['label' => 'Élaboration du projet / programme', 'relation' => 'etape6ElaborationProjetProgramme'],
+                        7 => ['label' => 'Concertation avec la population', 'relation' => 'etape7ConcertationPopulation'],
+                        8 => ['label' => 'Validation DPANEF', 'relation' => 'etape8ValidationDPANEF'],
+                        9 => ['label' => 'Validation finale par la population', 'relation' => 'etape9ValidationFinalePopulation'],
+                        10 => ['label' => 'Finalisation du PCFC', 'relation' => 'etape10FinalisationPCFC'],
+                        11 => ['label' => 'Validation du Conseil Communal', 'relation' => 'etape11ValidationConseilCommunal'],
+                        12 => ['label' => 'Mise en œuvre du PCFC', 'relation' => 'etape12MiseEnOeuvrePCFC'],
+                        13 => ['label' => 'Suivi de la mise en œuvre', 'relation' => 'etape13SuiviMiseEnOeuvre'],
+                    ];
+                @endphp
+
+                <div class="space-y-4">
+                    @foreach($stepsDefinitions as $num => $step)
+                        @php
+                            $stepModel = $pdfc->{$step['relation']};
+                        @endphp
+                        <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <span class="w-8 h-8 rounded-full flex items-center justify-center bg-fuchsia-600 text-white text-sm font-bold mt-1">
+                                    {{ $num }}
+                                </span>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">
+                                        {{ $step['label'] }}
+                                    </h3>
+                                    @if($stepModel)
+                                        <p class="text-sm text-gray-700 mt-1">
+                                            <span class="font-semibold">Titre :</span>
+                                            {{ $stepModel->titre ?? '—' }}
+                                        </p>
+                                        @if($stepModel->description)
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                {{ Str::limit($stepModel->description, 160) }}
+                                            </p>
+                                        @endif
+                                        <div class="mt-2 flex items-center gap-3 text-xs text-gray-500">
+                                            @if($stepModel->document)
+                                                <a href="{{ asset('storage/'.$stepModel->document) }}" target="_blank" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                                                    <i class="fas fa-file-alt"></i>
+                                                    Voir le document
+                                                </a>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 text-gray-400">
+                                                    <i class="fas fa-file"></i>
+                                                    Aucun document
+                                                </span>
+                                            @endif
+                                            @if($stepModel->user)
+                                                <span class="inline-flex items-center gap-1">
+                                                    <i class="fas fa-user-circle"></i>
+                                                    {{ $stepModel->user->name }}
+                                                </span>
+                                            @endif
+                                            @if($stepModel->created_at)
+                                                <span class="inline-flex items-center gap-1">
+                                                    <i class="fas fa-clock"></i>
+                                                    {{ $stepModel->created_at->format('d/m/Y') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <p class="text-sm text-gray-400 mt-1">
+                                            Aucune information renseignée pour cette étape.
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
             <!-- Phases -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
                 <div class="flex items-center justify-between mb-6">

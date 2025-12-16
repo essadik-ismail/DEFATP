@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pdfc;
 use App\Models\User;
 use App\Services\ActivityLogger;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -100,12 +101,69 @@ class PdfcController extends Controller
             'user_id' => 'nullable|exists:users,id',
             'localisation_id' => 'nullable|exists:localisations,id',
             'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
+            'steps.*.titre' => 'nullable|string|max:255',
+            'steps.*.description' => 'nullable|string',
+            'steps.*.document' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
         ]);
 
         // Set default state - always start with "Non élaboré"
         $validated['etat'] = 'Non élaboré';
 
+        // Remove steps from main validated array before creating PDFC
+        $stepsInput = $request->input('steps', []);
+        unset(
+            $validated['steps']
+        );
+
         $pdfc = Pdfc::create($validated);
+
+        // Map step number to model class
+        $stepModels = [
+            1 => \App\Models\Etape1DiagnosticCommune::class,
+            2 => \App\Models\Etape2DiagnosticSituationForestiere::class,
+            3 => \App\Models\Etape3AnalyseUsagersForet::class,
+            4 => \App\Models\Etape4AnalyseDegreAcceptation::class,
+            5 => \App\Models\Etape5AnalyseProgrammesAnterieur::class,
+            6 => \App\Models\Etape6ElaborationProjetProgramme::class,
+            7 => \App\Models\Etape7ConcertationPopulation::class,
+            8 => \App\Models\Etape8ValidationDPANEF::class,
+            9 => \App\Models\Etape9ValidationFinalePopulation::class,
+            10 => \App\Models\Etape10FinalisationPCFC::class,
+            11 => \App\Models\Etape11ValidationConseilCommunal::class,
+            12 => \App\Models\Etape12MiseEnOeuvrePCFC::class,
+            13 => \App\Models\Etape13SuiviMiseEnOeuvre::class,
+        ];
+
+        // Create step records if any data provided
+        foreach ($stepsInput as $num => $stepData) {
+            $modelClass = $stepModels[$num] ?? null;
+            if (!$modelClass) {
+                continue;
+            }
+
+            $titre = $stepData['titre'] ?? null;
+            $description = $stepData['description'] ?? null;
+            $file = $request->file("steps.$num.document");
+
+            if (!$titre && !$description && !$file) {
+                continue; // nothing to save for this step
+            }
+
+            $data = [
+                'pdfc_id' => $pdfc->id,
+                'user_id' => auth()->id(),
+                'titre' => $titre,
+                'description' => $description,
+            ];
+
+            if ($file) {
+                $filename = time() . "_step{$num}_" . $file->getClientOriginalName();
+                $path = $file->storeAs('pdfcs/steps', $filename, 'public');
+                $data['document'] = $path;
+            }
+
+            $modelClass::create($data);
+        }
 
         ActivityLogger::logCreate(
             Pdfc::class,
@@ -123,7 +181,23 @@ class PdfcController extends Controller
      */
     public function show(Pdfc $pdfc): View
     {
-        $pdfc->load('user', 'phases.etapes');
+        $pdfc->load([
+            'user',
+            'phases.etapes',
+            'etape1DiagnosticCommune',
+            'etape2DiagnosticSituationForestiere',
+            'etape3AnalyseUsagersForet',
+            'etape4AnalyseDegreAcceptation',
+            'etape5AnalyseProgrammesAnterieur',
+            'etape6ElaborationProjetProgramme',
+            'etape7ConcertationPopulation',
+            'etape8ValidationDPANEF',
+            'etape9ValidationFinalePopulation',
+            'etape10FinalisationPCFC',
+            'etape11ValidationConseilCommunal',
+            'etape12MiseEnOeuvrePCFC',
+            'etape13SuiviMiseEnOeuvre',
+        ]);
         
         ActivityLogger::logView(
             Pdfc::class,
@@ -140,6 +214,22 @@ class PdfcController extends Controller
      */
     public function edit(Pdfc $pdfc): View
     {
+        $pdfc->load([
+            'etape1DiagnosticCommune',
+            'etape2DiagnosticSituationForestiere',
+            'etape3AnalyseUsagersForet',
+            'etape4AnalyseDegreAcceptation',
+            'etape5AnalyseProgrammesAnterieur',
+            'etape6ElaborationProjetProgramme',
+            'etape7ConcertationPopulation',
+            'etape8ValidationDPANEF',
+            'etape9ValidationFinalePopulation',
+            'etape10FinalisationPCFC',
+            'etape11ValidationConseilCommunal',
+            'etape12MiseEnOeuvrePCFC',
+            'etape13SuiviMiseEnOeuvre',
+        ]);
+
         $users = User::where('is_deleted', false)->orderBy('name')->get();
         $localisations = \App\Models\Localisation::orderBy('CODE')->get();
         $situationAdministratives = \App\Models\SituationAdministrative::orderBy('commune')->get();
@@ -158,6 +248,9 @@ class PdfcController extends Controller
             'user_id' => 'nullable|exists:users,id',
             'localisation_id' => 'nullable|exists:localisations,id',
             'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
+            'steps.*.titre' => 'nullable|string|max:255',
+            'steps.*.description' => 'nullable|string',
+            'steps.*.document' => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
         ]);
 
         $oldValues = $pdfc->only(['date_de_début', 'date_de_fin', 'etat', 'user_id', 'localisation_id', 'situation_administrative_id']);
@@ -168,6 +261,73 @@ class PdfcController extends Controller
         $validated['etat'] = $pdfc->etat;
         
         $pdfc->update($validated);
+
+        // Handle steps update / creation
+        $stepsInput = $request->input('steps', []);
+
+        $stepModels = [
+            1 => \App\Models\Etape1DiagnosticCommune::class,
+            2 => \App\Models\Etape2DiagnosticSituationForestiere::class,
+            3 => \App\Models\Etape3AnalyseUsagersForet::class,
+            4 => \App\Models\Etape4AnalyseDegreAcceptation::class,
+            5 => \App\Models\Etape5AnalyseProgrammesAnterieur::class,
+            6 => \App\Models\Etape6ElaborationProjetProgramme::class,
+            7 => \App\Models\Etape7ConcertationPopulation::class,
+            8 => \App\Models\Etape8ValidationDPANEF::class,
+            9 => \App\Models\Etape9ValidationFinalePopulation::class,
+            10 => \App\Models\Etape10FinalisationPCFC::class,
+            11 => \App\Models\Etape11ValidationConseilCommunal::class,
+            12 => \App\Models\Etape12MiseEnOeuvrePCFC::class,
+            13 => \App\Models\Etape13SuiviMiseEnOeuvre::class,
+        ];
+
+        foreach ($stepModels as $num => $modelClass) {
+            $stepData = $stepsInput[$num] ?? [];
+            $titre = $stepData['titre'] ?? null;
+            $description = $stepData['description'] ?? null;
+            $file = $request->file("steps.$num.document");
+
+            /** @var \Illuminate\Database\Eloquent\Model|null $existing */
+            $existing = $modelClass::where('pdfc_id', $pdfc->id)->first();
+
+            if (!$titre && !$description && !$file) {
+                // If there is no new data and no existing step, nothing to do.
+                // (We keep existing data unless user explicitly edits it.)
+                continue;
+            }
+
+            if ($existing) {
+                $existing->titre = $titre;
+                $existing->description = $description;
+
+                if ($file) {
+                    if ($existing->document && Storage::disk('public')->exists($existing->document)) {
+                        Storage::disk('public')->delete($existing->document);
+                    }
+                    $filename = time() . "_step{$num}_" . $file->getClientOriginalName();
+                    $path = $file->storeAs('pdfcs/steps', $filename, 'public');
+                    $existing->document = $path;
+                }
+
+                $existing->user_id = $existing->user_id ?? auth()->id();
+                $existing->save();
+            } else {
+                $data = [
+                    'pdfc_id' => $pdfc->id,
+                    'user_id' => auth()->id(),
+                    'titre' => $titre,
+                    'description' => $description,
+                ];
+
+                if ($file) {
+                    $filename = time() . "_step{$num}_" . $file->getClientOriginalName();
+                    $path = $file->storeAs('pdfcs/steps', $filename, 'public');
+                    $data['document'] = $path;
+                }
+
+                $modelClass::create($data);
+            }
+        }
         
         // Auto-transition: If dates are set and state is "Non élaboré", move to "élaboré"
         if ($pdfc->date_de_début && $pdfc->date_de_fin && $pdfc->etat == 'Non élaboré') {

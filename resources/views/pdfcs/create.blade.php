@@ -58,11 +58,39 @@
             </div>
         </div>
 
-        <form action="{{ route('pdfcs.store') }}" method="POST" class="space-y-8">
+        <!-- Multi-step progress -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 flex items-center">
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold step-indicator bg-green-600 text-white" data-step="1">
+                            1
+                        </div>
+                        <span class="mt-1 text-xs font-medium text-gray-700">Informations</span>
+                    </div>
+                    <div class="flex-1 h-1 mx-2 bg-green-500 step-line" data-step="1"></div>
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold step-indicator bg-gray-200 text-gray-600" data-step="2">
+                            2
+                        </div>
+                        <span class="mt-1 text-xs font-medium text-gray-500">Localisation</span>
+                    </div>
+                    <div class="flex-1 h-1 mx-2 bg-gray-200 step-line" data-step="2"></div>
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold step-indicator bg-gray-200 text-gray-600" data-step="3">
+                            3
+                        </div>
+                        <span class="mt-1 text-xs font-medium text-gray-500">Étapes PDFC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form action="{{ route('pdfcs.store') }}" method="POST" class="space-y-8" enctype="multipart/form-data" id="pdfcCreateForm">
             @csrf
             
-            <!-- Section 1: Informations de Base -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+            <!-- Step 1: Informations de Base -->
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200 wizard-step" data-step="1">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #059669);">
                         <i class="fas fa-info-circle text-white"></i>
@@ -130,8 +158,8 @@
                 </div>
             </div>
 
-            <!-- Section 2: Localisation et Situation Administrative -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+            <!-- Step 2: Localisation et Situation Administrative -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200 wizard-step hidden" data-step="2">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
                         <i class="fas fa-map-marker-alt text-white"></i>
@@ -187,15 +215,111 @@
                 </div>
             </div>
 
-            <!-- Form Actions -->
-            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
-                <a href="{{ route('pdfcs.index') }}" class="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl">
+            <!-- Step 3: Étapes du PDFC -->
+            <div class="bg-gradient-to-r from-purple-50 to-fuchsia-50 rounded-2xl p-6 border border-purple-200 wizard-step hidden" data-step="3">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-600 text-white">
+                        <i class="fas fa-stream"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-purple-700">Étapes du PDFC</h3>
+                </div>
+
+                @php
+                    $steps = [
+                        1 => 'Diagnostic de la commune',
+                        2 => 'Diagnostic de la situation forestière',
+                        3 => 'Analyse des usagers des forêts',
+                        4 => 'Analyse du degré d’acceptation',
+                        5 => 'Analyse des programmes antérieurs',
+                        6 => 'Élaboration du projet / programme',
+                        7 => 'Concertation avec la population',
+                        8 => 'Validation DPANEF',
+                        9 => 'Validation finale par la population',
+                        10 => 'Finalisation du PCFC',
+                        11 => 'Validation du Conseil Communal',
+                        12 => 'Mise en œuvre du PCFC',
+                        13 => 'Suivi de la mise en œuvre',
+                    ];
+                @endphp
+
+                <div class="space-y-6">
+                    @foreach($steps as $num => $label)
+                        <div class="bg-white rounded-2xl border border-purple-100 p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-8 h-8 rounded-full flex items-center justify-center bg-purple-600 text-white text-sm font-bold">
+                                        {{ $num }}
+                                    </span>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">{{ $label }}</h4>
+                                        <p class="text-xs text-gray-500">Titre, description et document pour cette étape</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                        Titre de l'étape
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="steps[{{ $num }}][titre]"
+                                        value="{{ old('steps.'.$num.'.titre') }}"
+                                        class="form-input w-full px-4 py-2 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                                        placeholder="Titre pour {{ strtolower($label) }}"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                        Document (optionnel)
+                                    </label>
+                                    <input
+                                        type="file"
+                                        name="steps[{{ $num }}][document]"
+                                        class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                                    >
+                                </div>
+                                <div class="form-group md:col-span-2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                        Description
+                                    </label>
+                                    <textarea
+                                        name="steps[{{ $num }}][description]"
+                                        rows="3"
+                                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400"
+                                        placeholder="Décrire le contenu de cette étape...">{{ old('steps.'.$num.'.description') }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <p class="text-xs text-gray-500 mt-2">
+                        Toutes les étapes sont facultatives à la création : vous pouvez les compléter plus tard depuis la fiche du PDFC.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Wizard Actions -->
+            <div class="flex items-center justify-between gap-4 pt-6 border-t border-gray-200">
+                <a href="{{ route('pdfcs.index') }}" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300 shadow-sm hover:shadow flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i>
                     Annuler
                 </a>
-                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
-                    <i class="fas fa-save"></i>
-                    Enregistrer
-                </button>
+                <div class="flex gap-3">
+                    <button type="button" id="wizardPrevCreate" class="hidden px-6 py-3 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition-all duration-300 flex items-center gap-2">
+                        <i class="fas fa-chevron-left"></i>
+                        Précédent
+                    </button>
+                    <button type="button" id="wizardNextCreate" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <span>Suivant</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button type="submit" id="wizardSubmitCreate" class="hidden px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                        <i class="fas fa-save"></i>
+                        Enregistrer
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -214,6 +338,66 @@
             this.value = '';
         }
     });
+
+    // Simple multi-step wizard for create
+    (function () {
+        const steps = [1, 2, 3];
+        let currentStep = 1;
+
+        const stepElements = document.querySelectorAll('.wizard-step');
+        const indicators = document.querySelectorAll('.step-indicator');
+        const lines = document.querySelectorAll('.step-line');
+        const prevBtn = document.getElementById('wizardPrevCreate');
+        const nextBtn = document.getElementById('wizardNextCreate');
+        const submitBtn = document.getElementById('wizardSubmitCreate');
+
+        function updateView() {
+            stepElements.forEach(el => {
+                const step = parseInt(el.getAttribute('data-step'));
+                el.classList.toggle('hidden', step !== currentStep);
+            });
+
+            indicators.forEach(el => {
+                const step = parseInt(el.getAttribute('data-step'));
+                if (step === currentStep) {
+                    el.classList.remove('bg-gray-200', 'text-gray-600');
+                    el.classList.add('bg-green-600', 'text-white');
+                } else if (step < currentStep) {
+                    el.classList.remove('bg-gray-200', 'text-gray-600');
+                    el.classList.add('bg-green-500', 'text-white');
+                } else {
+                    el.classList.add('bg-gray-200', 'text-gray-600');
+                    el.classList.remove('bg-green-600', 'bg-green-500', 'text-white');
+                }
+            });
+
+            lines.forEach(el => {
+                const step = parseInt(el.getAttribute('data-step'));
+                el.classList.toggle('bg-green-500', step < currentStep);
+                el.classList.toggle('bg-gray-200', step >= currentStep);
+            });
+
+            prevBtn.classList.toggle('hidden', currentStep === 1);
+            nextBtn.classList.toggle('hidden', currentStep === steps.length);
+            submitBtn.classList.toggle('hidden', currentStep !== steps.length);
+        }
+
+        prevBtn?.addEventListener('click', function () {
+            if (currentStep > 1) {
+                currentStep--;
+                updateView();
+            }
+        });
+
+        nextBtn?.addEventListener('click', function () {
+            if (currentStep < steps.length) {
+                currentStep++;
+                updateView();
+            }
+        });
+
+        updateView();
+    })();
 </script>
 @endpush
 
