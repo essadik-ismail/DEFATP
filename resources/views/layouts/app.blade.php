@@ -2203,6 +2203,13 @@
                 </div>
 
                 <div class="nav-item">
+                    <a href="{{ route('archives.index') }}" class="nav-link {{ request()->routeIs('archives.*') ? 'active' : '' }}">
+                        <i class="fas fa-archive"></i>
+                        Archives
+                    </a>
+                </div>
+
+                <div class="nav-item">
                     <a href="{{ route('partenariats.index') }}" class="nav-link {{ request()->routeIs('partenariats.*') ? 'active' : '' }}">
                         <i class="fas fa-handshake"></i>
                         Partenariats

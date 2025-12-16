@@ -20,6 +20,7 @@ class Archive extends Model
         'object',
         'departement',
         'service',
+        'placement',
         'suite',
     ];
 

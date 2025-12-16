@@ -9,6 +9,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\OdfController;
@@ -52,6 +54,11 @@ Route::middleware('auth')->group(function () {
     
     // Activity Journals Routes
     Route::resource('activity-journals', \App\Http\Controllers\ActivityJournalController::class);
+
+    // Archives
+    Route::resource('archives', ArchiveController::class);
+    Route::post('archives/{archive}/documents', [DocumentController::class, 'store'])->name('archives.documents.store');
+    Route::delete('archives/{archive}/documents/{document}', [DocumentController::class, 'destroy'])->name('archives.documents.destroy');
     
     // User Management Routes (Legacy - AuthController)
     Route::prefix('users')->name('auth.users.')->group(function () {
