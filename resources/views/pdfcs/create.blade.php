@@ -58,39 +58,11 @@
             </div>
         </div>
 
-        <!-- Multi-step progress -->
-        <div class="mb-6">
-            <div class="flex items-center justify-between">
-                <div class="flex-1 flex items-center">
-                    <div class="flex flex-col items-center flex-1">
-                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold step-indicator bg-green-600 text-white" data-step="1">
-                            1
-                        </div>
-                        <span class="mt-1 text-xs font-medium text-gray-700">Informations</span>
-                    </div>
-                    <div class="flex-1 h-1 mx-2 bg-green-500 step-line" data-step="1"></div>
-                    <div class="flex flex-col items-center flex-1">
-                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold step-indicator bg-gray-200 text-gray-600" data-step="2">
-                            2
-                        </div>
-                        <span class="mt-1 text-xs font-medium text-gray-500">Localisation</span>
-                    </div>
-                    <div class="flex-1 h-1 mx-2 bg-gray-200 step-line" data-step="2"></div>
-                    <div class="flex flex-col items-center flex-1">
-                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold step-indicator bg-gray-200 text-gray-600" data-step="3">
-                            3
-                        </div>
-                        <span class="mt-1 text-xs font-medium text-gray-500">Étapes PDFC</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <form action="{{ route('pdfcs.store') }}" method="POST" class="space-y-8" enctype="multipart/form-data" id="pdfcCreateForm">
+        <form action="{{ route('pdfcs.store') }}" method="POST" class="space-y-8" enctype="multipart/form-data">
             @csrf
             
-            <!-- Step 1: Informations de Base -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200 wizard-step" data-step="1">
+            <!-- Section 1: Informations de Base -->
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #10b981, #059669);">
                         <i class="fas fa-info-circle text-white"></i>
@@ -158,8 +130,8 @@
                 </div>
             </div>
 
-            <!-- Step 2: Localisation et Situation Administrative -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200 wizard-step hidden" data-step="2">
+            <!-- Section 2: Localisation et Situation Administrative -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
                         <i class="fas fa-map-marker-alt text-white"></i>
@@ -215,8 +187,8 @@
                 </div>
             </div>
 
-            <!-- Step 3: Étapes du PDFC -->
-            <div class="bg-gradient-to-r from-purple-50 to-fuchsia-50 rounded-2xl p-6 border border-purple-200 wizard-step hidden" data-step="3">
+            <!-- Section 3: Étapes du PDFC -->
+            <div class="bg-gradient-to-r from-purple-50 to-fuchsia-50 rounded-2xl p-6 border border-purple-200">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-600 text-white">
                         <i class="fas fa-stream"></i>
@@ -300,26 +272,15 @@
                 </div>
             </div>
 
-            <!-- Wizard Actions -->
-            <div class="flex items-center justify-between gap-4 pt-6 border-t border-gray-200">
-                <a href="{{ route('pdfcs.index') }}" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300 shadow-sm hover:shadow flex items-center gap-2">
-                    <i class="fas fa-arrow-left"></i>
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
+                <a href="{{ route('pdfcs.index') }}" class="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl">
                     Annuler
                 </a>
-                <div class="flex gap-3">
-                    <button type="button" id="wizardPrevCreate" class="hidden px-6 py-3 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300 transition-all duration-300 flex items-center gap-2">
-                        <i class="fas fa-chevron-left"></i>
-                        Précédent
-                    </button>
-                    <button type="button" id="wizardNextCreate" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
-                        <span>Suivant</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                    <button type="submit" id="wizardSubmitCreate" class="hidden px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
-                        <i class="fas fa-save"></i>
-                        Enregistrer
-                    </button>
-                </div>
+                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
+                    <i class="fas fa-save"></i>
+                    Enregistrer
+                </button>
             </div>
         </form>
     </div>
@@ -338,66 +299,5 @@
             this.value = '';
         }
     });
-
-    // Simple multi-step wizard for create
-    (function () {
-        const steps = [1, 2, 3];
-        let currentStep = 1;
-
-        const stepElements = document.querySelectorAll('.wizard-step');
-        const indicators = document.querySelectorAll('.step-indicator');
-        const lines = document.querySelectorAll('.step-line');
-        const prevBtn = document.getElementById('wizardPrevCreate');
-        const nextBtn = document.getElementById('wizardNextCreate');
-        const submitBtn = document.getElementById('wizardSubmitCreate');
-
-        function updateView() {
-            stepElements.forEach(el => {
-                const step = parseInt(el.getAttribute('data-step'));
-                el.classList.toggle('hidden', step !== currentStep);
-            });
-
-            indicators.forEach(el => {
-                const step = parseInt(el.getAttribute('data-step'));
-                if (step === currentStep) {
-                    el.classList.remove('bg-gray-200', 'text-gray-600');
-                    el.classList.add('bg-green-600', 'text-white');
-                } else if (step < currentStep) {
-                    el.classList.remove('bg-gray-200', 'text-gray-600');
-                    el.classList.add('bg-green-500', 'text-white');
-                } else {
-                    el.classList.add('bg-gray-200', 'text-gray-600');
-                    el.classList.remove('bg-green-600', 'bg-green-500', 'text-white');
-                }
-            });
-
-            lines.forEach(el => {
-                const step = parseInt(el.getAttribute('data-step'));
-                el.classList.toggle('bg-green-500', step < currentStep);
-                el.classList.toggle('bg-gray-200', step >= currentStep);
-            });
-
-            prevBtn.classList.toggle('hidden', currentStep === 1);
-            nextBtn.classList.toggle('hidden', currentStep === steps.length);
-            submitBtn.classList.toggle('hidden', currentStep !== steps.length);
-        }
-
-        prevBtn?.addEventListener('click', function () {
-            if (currentStep > 1) {
-                currentStep--;
-                updateView();
-            }
-        });
-
-        nextBtn?.addEventListener('click', function () {
-            if (currentStep < steps.length) {
-                currentStep++;
-                updateView();
-            }
-        });
-
-        updateView();
-    })();
 </script>
 @endpush
-
