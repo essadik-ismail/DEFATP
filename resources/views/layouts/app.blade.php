@@ -2178,9 +2178,7 @@
                     </a>
                 </div>
                 
-               
-                
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="{{ route('odfs.index') }}" class="nav-link {{ request()->routeIs('odfs.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         ODF
@@ -2203,16 +2201,23 @@
                 </div>
 
                 <div class="nav-item">
-                    <a href="{{ route('archives.index') }}" class="nav-link {{ request()->routeIs('archives.*') ? 'active' : '' }}">
-                        <i class="fas fa-archive"></i>
-                        Archives
+                    <a href="{{ route('partenariats.index') }}" class="nav-link {{ request()->routeIs('partenariats.*') ? 'active' : '' }}">
+                        <i class="fas fa-handshake"></i>
+                        Partenariats
+                    </a>
+                </div> -->
+
+                <div class="nav-item">
+                    <a href="{{ route('activity-logs.index') }}" class="nav-link {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
+                        <i class="fas fa-history"></i>
+                        Journal d'Activités
                     </a>
                 </div>
 
                 <div class="nav-item">
-                    <a href="{{ route('partenariats.index') }}" class="nav-link {{ request()->routeIs('partenariats.*') ? 'active' : '' }}">
-                        <i class="fas fa-handshake"></i>
-                        Partenariats
+                    <a href="{{ route('archives.index') }}" class="nav-link {{ request()->routeIs('archives.*') ? 'active' : '' }}">
+                        <i class="fas fa-archive"></i>
+                        Archives
                     </a>
                 </div>
             

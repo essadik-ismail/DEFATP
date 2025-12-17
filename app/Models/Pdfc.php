@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pdfc extends Model
@@ -103,67 +104,67 @@ class Pdfc extends Model
     /**
      * PDFC specific, named steps (Étapes 1 à 13)
      */
-    public function etape1DiagnosticCommune(): BelongsTo
+    public function etape1DiagnosticCommune(): HasOne
     {
         return $this->hasOne(Etape1DiagnosticCommune::class);
     }
 
-    public function etape2DiagnosticSituationForestiere(): BelongsTo
+    public function etape2DiagnosticSituationForestiere(): HasOne
     {
         return $this->hasOne(Etape2DiagnosticSituationForestiere::class);
     }
 
-    public function etape3AnalyseUsagersForet(): BelongsTo
+    public function etape3AnalyseUsagersForet(): HasOne
     {
         return $this->hasOne(Etape3AnalyseUsagersForet::class);
     }
 
-    public function etape4AnalyseDegreAcceptation(): BelongsTo
+    public function etape4AnalyseDegreAcceptation(): HasOne
     {
         return $this->hasOne(Etape4AnalyseDegreAcceptation::class);
     }
 
-    public function etape5AnalyseProgrammesAnterieur(): BelongsTo
+    public function etape5AnalyseProgrammesAnterieur(): HasOne
     {
         return $this->hasOne(Etape5AnalyseProgrammesAnterieur::class);
     }
 
-    public function etape6ElaborationProjetProgramme(): BelongsTo
+    public function etape6ElaborationProjetProgramme(): HasOne
     {
         return $this->hasOne(Etape6ElaborationProjetProgramme::class);
     }
 
-    public function etape7ConcertationPopulation(): BelongsTo
+    public function etape7ConcertationPopulation(): HasOne
     {
         return $this->hasOne(Etape7ConcertationPopulation::class);
     }
 
-    public function etape8ValidationDPANEF(): BelongsTo
+    public function etape8ValidationDPANEF(): HasOne
     {
         return $this->hasOne(Etape8ValidationDPANEF::class);
     }
 
-    public function etape9ValidationFinalePopulation(): BelongsTo
+    public function etape9ValidationFinalePopulation(): HasOne
     {
         return $this->hasOne(Etape9ValidationFinalePopulation::class);
     }
 
-    public function etape10FinalisationPCFC(): BelongsTo
+    public function etape10FinalisationPCFC(): HasOne
     {
         return $this->hasOne(Etape10FinalisationPCFC::class);
     }
 
-    public function etape11ValidationConseilCommunal(): BelongsTo
+    public function etape11ValidationConseilCommunal(): HasOne
     {
         return $this->hasOne(Etape11ValidationConseilCommunal::class);
     }
 
-    public function etape12MiseEnOeuvrePCFC(): BelongsTo
+    public function etape12MiseEnOeuvrePCFC(): HasOne
     {
         return $this->hasOne(Etape12MiseEnOeuvrePCFC::class);
     }
 
-    public function etape13SuiviMiseEnOeuvre(): BelongsTo
+    public function etape13SuiviMiseEnOeuvre(): HasOne
     {
         return $this->hasOne(Etape13SuiviMiseEnOeuvre::class);
     }

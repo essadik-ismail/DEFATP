@@ -164,14 +164,17 @@
             </div>
             @endif
 
-            <!-- Étapes PDFC (13 étapes nommées) -->
+            <!-- Étapes PDFC (13 étapes nommées, affichées une par une) -->
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-fuchsia-100">
                             <i class="fas fa-stream text-fuchsia-600"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900">Étapes du PDFC</h2>
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900">Étapes du PDFC</h2>
+                            <p class="text-xs text-gray-500">Parcourir les étapes une par une dans l'ordre.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -191,20 +194,21 @@
                         12 => ['label' => 'Mise en œuvre du PCFC', 'relation' => 'etape12MiseEnOeuvrePCFC'],
                         13 => ['label' => 'Suivi de la mise en œuvre', 'relation' => 'etape13SuiviMiseEnOeuvre'],
                     ];
+                    $totalSteps = count($stepsDefinitions);
                 @endphp
 
-                <div class="space-y-4">
+                <div id="pdfcStepsContainer" class="space-y-4">
                     @foreach($stepsDefinitions as $num => $step)
                         @php
                             $stepModel = $pdfc->{$step['relation']};
                         @endphp
-                        <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="pdfc-step-card bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200 p-4 flex flex-col gap-4 {{ $num === 1 ? '' : 'hidden' }}" data-step="{{ $num }}">
                             <div class="flex items-start gap-3">
                                 <span class="w-8 h-8 rounded-full flex items-center justify-center bg-fuchsia-600 text-white text-sm font-bold mt-1">
                                     {{ $num }}
                                 </span>
-                                <div>
-                                    <h3 class="font-semibold text-gray-900">
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-gray-900 mb-1">
                                         {{ $step['label'] }}
                                     </h3>
                                     @if($stepModel)
@@ -214,10 +218,10 @@
                                         </p>
                                         @if($stepModel->description)
                                             <p class="text-xs text-gray-600 mt-1">
-                                                {{ Str::limit($stepModel->description, 160) }}
+                                                {{ Str::limit($stepModel->description, 200) }}
                                             </p>
                                         @endif
-                                        <div class="mt-2 flex items-center gap-3 text-xs text-gray-500">
+                                        <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500">
                                             @if($stepModel->document)
                                                 <a href="{{ asset('storage/'.$stepModel->document) }}" target="_blank" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800">
                                                     <i class="fas fa-file-alt"></i>
@@ -251,6 +255,24 @@
                             </div>
                         </div>
                     @endforeach
+                </div>
+
+                <div class="mt-5 flex items-center justify-between border-t border-gray-200 pt-4">
+                    <button id="pdfcStepPrev"
+                            type="button"
+                            class="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left text-xs"></i>
+                        Précédent
+                    </button>
+                    <div class="text-xs text-gray-500">
+                        Étape <span id="pdfcStepCurrent">1</span> / {{ $totalSteps }}
+                    </div>
+                    <button id="pdfcStepNext"
+                            type="button"
+                            class="px-4 py-2 rounded-lg bg-fuchsia-600 text-white hover:bg-fuchsia-700 transition-colors text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Suivant
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </button>
                 </div>
             </div>
 
@@ -567,6 +589,56 @@ function showRejectModal(etapeId, etapeName, phaseId) {
     const modal = new bootstrap.Modal(document.getElementById('rejectEtapeModal'));
     modal.show();
 }
+
+// Navigation entre les étapes PDFC (affichage une par une)
+document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.querySelectorAll('.pdfc-step-card');
+    if (!cards.length) return;
+
+    let currentStep = 1;
+    const totalSteps = cards.length;
+    const currentSpan = document.getElementById('pdfcStepCurrent');
+    const prevBtn = document.getElementById('pdfcStepPrev');
+    const nextBtn = document.getElementById('pdfcStepNext');
+
+    function updateView() {
+        cards.forEach(card => {
+            const step = parseInt(card.getAttribute('data-step'));
+            card.classList.toggle('hidden', step !== currentStep);
+        });
+
+        if (currentSpan) {
+            currentSpan.textContent = currentStep;
+        }
+
+        if (prevBtn) {
+            prevBtn.disabled = currentStep === 1;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = currentStep === totalSteps;
+        }
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function () {
+            if (currentStep > 1) {
+                currentStep--;
+                updateView();
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateView();
+            }
+        });
+    }
+
+    updateView();
+});
 </script>
 @endpush
 

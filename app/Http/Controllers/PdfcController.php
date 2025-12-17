@@ -134,7 +134,10 @@ class PdfcController extends Controller
             13 => \App\Models\Etape13SuiviMiseEnOeuvre::class,
         ];
 
-        // Create step records if any data provided
+        // Create step records if any data provided, enforcing sequential order (1 -> 13)
+        ksort($stepsInput);
+        $previousCompleted = true; // step 1 has no dependency
+
         foreach ($stepsInput as $num => $stepData) {
             $modelClass = $stepModels[$num] ?? null;
             if (!$modelClass) {
@@ -147,6 +150,16 @@ class PdfcController extends Controller
 
             if (!$titre && !$description && !$file) {
                 continue; // nothing to save for this step
+            }
+
+            // Enforce that step N cannot be created if step N-1 is not completed
+            if ($num > 1 && !$previousCompleted) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors([
+                        "steps.$num" => "Vous devez d'abord compléter l'étape " . ($num - 1) . " avant de pouvoir renseigner l'étape $num.",
+                    ]);
             }
 
             $data = [
@@ -163,6 +176,8 @@ class PdfcController extends Controller
             }
 
             $modelClass::create($data);
+
+            $previousCompleted = true;
         }
 
         ActivityLogger::logCreate(
@@ -294,6 +309,21 @@ class PdfcController extends Controller
                 // If there is no new data and no existing step, nothing to do.
                 // (We keep existing data unless user explicitly edits it.)
                 continue;
+            }
+
+            // Enforce sequential dependency: step N requires step N-1 completed (existing record)
+            if ($num > 1) {
+                $previousModelClass = $stepModels[$num - 1];
+                $previousExists = $previousModelClass::where('pdfc_id', $pdfc->id)->exists();
+
+                if (!$previousExists) {
+                    return redirect()
+                        ->back()
+                        ->withInput()
+                        ->withErrors([
+                            "steps.$num" => "Vous devez d'abord compléter l'étape " . ($num - 1) . " avant de pouvoir modifier l'étape $num.",
+                        ]);
+                }
             }
 
             if ($existing) {
