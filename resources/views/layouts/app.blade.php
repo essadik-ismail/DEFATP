@@ -2160,7 +2160,7 @@
                 <div class="nav-item">
                     <a href="{{ route('articles.index') }}" class="nav-link {{ request()->routeIs('articles.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
-                        Exploitation régulière
+                        Exploitation
                     </a>
                 </div>
 
@@ -2175,6 +2175,13 @@
                     <a href="{{ route('exploitants.index') }}" class="nav-link {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         Exploitant Forêstier
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('financial-data.index') }}" class="nav-link {{ request()->routeIs('financial-data.*') ? 'active' : '' }}">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Recette
                     </a>
                 </div>
                 
@@ -2193,12 +2200,7 @@
                 </div>
                 
                 
-                <div class="nav-item">
-                    <a href="{{ route('financial-data.index') }}" class="nav-link {{ request()->routeIs('financial-data.*') ? 'active' : '' }}">
-                        <i class="fas fa-money-bill-wave"></i>
-                        Recette
-                    </a>
-                </div>
+                
 
                 <div class="nav-item">
                     <a href="{{ route('partenariats.index') }}" class="nav-link {{ request()->routeIs('partenariats.*') ? 'active' : '' }}">
@@ -2269,11 +2271,10 @@
                 </div>
                 
                 <div class="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-                    <!-- Notifications -->
-                    <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
-                        <i class="fas fa-bell text-lg sm:text-xl"></i>
-                        <span class="sr-only">Notifications</span>
-                    </button>
+                    <!-- Notifications Dropdown -->
+                    @auth
+                        @include('components.notifications-dropdown')
+                    @endauth
                     
                     <!-- User menu -->
                     <div class="relative" x-data="{ open: false }">

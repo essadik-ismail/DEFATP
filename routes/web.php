@@ -33,6 +33,29 @@ Route::middleware('guest')->group(function () {
 Route::get('/verify-exploitant/{exploitant}', [SettingsController::class, 'verifyExploitant'])->name('verify-exploitant');
 Route::get('/verify-exploitant/{exploitant}/image', [SettingsController::class, 'serveExploitantImagePublic'])->name('verify-exploitant.image');
 
+// Test notification route (remove in production)
+Route::get('/test-notification', function () {
+    $user = auth()->user();
+    
+    // Create a test notification
+    $notification = new \App\Models\AppNotification([
+        'type' => 'test',
+        'title' => 'Test Notification',
+        'message' => 'This is a test notification.',
+        'user_id' => $user->id,
+        'notifiable_type' => get_class($user),
+        'notifiable_id' => $user->id,
+        'action_url' => '/notifications',
+        'icon' => 'fas fa-bell',
+        'color' => 'primary',
+        'priority' => 'medium'
+    ]);
+    
+    $notification->save();
+    
+    return redirect()->back()->with('success', 'Test notification created!');
+})->middleware('auth')->name('test.notification');
+
 // Notification routes
 Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {
     Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('index');
