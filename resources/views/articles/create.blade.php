@@ -168,24 +168,6 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                         <div class="form-group">
-                            <label for="date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                <span>Date d'Adjudication <span class="text-red-500">*</span></span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
-                            </label>
-                            <input type="date" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                id="date_adjudication" name="date_adjudication" 
-                                value="{{ old('date_adjudication') }}" 
-                                placeholder="jj/mm/aaaa"
-                                required>
-                            @error('date_adjudication')
-                                <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
                             <label for="numero" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                 <span>Numéro d'Article <span class="text-red-500">*</span></span>
                                 <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro unique de l'article"></i>

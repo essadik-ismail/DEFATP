@@ -25,7 +25,6 @@ class UpdateArticleRequest extends FormRequest
         return [
             'annee' => ['required', 'integer', 'min:2000', 'max:2100'],
             'numero' => ['nullable', 'string', 'max:255'],
-            'date_adjudication' => ['required', 'date'],
             'numero_adjudication' => ['nullable', 'string', 'max:255'],
             'lot' => ['nullable', 'string', 'max:255'],
             'type' => ['required', 'in:appel_doffre,adjudication,marche_negocié'],
@@ -77,8 +76,6 @@ class UpdateArticleRequest extends FormRequest
             'annee.integer' => 'L\'année doit être un nombre entier.',
             'annee.min' => 'L\'année doit être supérieure ou égale à 2000.',
             'annee.max' => 'L\'année doit être inférieure ou égale à 2100.',
-            'date_adjudication.required' => 'La date d\'adjudication est requise.',
-            'date_adjudication.date' => 'La date d\'adjudication doit être une date valide.',
             'type.required' => 'Le type est requis.',
             'type.in' => 'Le type doit être "appel_doffre", "adjudication" ou "marche_negocié".',
             'exploitant_id.exists' => 'L\'exploitant sélectionné n\'existe pas.',

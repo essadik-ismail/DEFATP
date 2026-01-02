@@ -8,6 +8,7 @@ use App\Models\Foret;
 use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\Exploitant;
+use App\Models\ContractVente;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Requests\IndexArticleRequest;
@@ -29,10 +30,6 @@ class ArticleController extends Controller
         // Log view action
         ActivityLogger::log('view', 'Consultation de la liste des articles', Article::class);
         
-        // Get date filters from request (for date_adjudication)
-        $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : null;
-        $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : null;
-        
         // Build base query
         $articlesQuery = Article::where('is_deleted', false)
             ->with(['exploitant', 'products', 'locations', 'forets', 'essences', 'situationsAdministratives', 'naturesDeCoupe']);
@@ -50,15 +47,6 @@ class ArticleController extends Controller
                           $essenceQuery->where('essence', 'like', '%' . $request->search . '%');
                       });
                 });
-            })
-            ->when($startDate || $endDate, function($query) use ($startDate, $endDate) {
-                if ($startDate && $endDate) {
-                    $query->whereBetween('date_adjudication', [$startDate, $endDate]);
-                } elseif ($startDate) {
-                    $query->where('date_adjudication', '>=', $startDate);
-                } elseif ($endDate) {
-                    $query->where('date_adjudication', '<=', $endDate);
-                }
             })
             ->when($request->filled('years'), function($query) use ($request) {
                 $years = is_array($request->years) ? $request->years : [$request->years];
@@ -92,16 +80,6 @@ class ArticleController extends Controller
                       $essenceQuery->where('essence', 'like', '%' . $request->search . '%');
                   });
             });
-        }
-        
-        if ($startDate || $endDate) {
-            if ($startDate && $endDate) {
-                $filteredQuery->whereBetween('date_adjudication', [$startDate, $endDate]);
-            } elseif ($startDate) {
-                $filteredQuery->where('date_adjudication', '>=', $startDate);
-            } elseif ($endDate) {
-                $filteredQuery->where('date_adjudication', '<=', $endDate);
-            }
         }
         
         if ($request->filled('years')) {
@@ -200,7 +178,7 @@ class ArticleController extends Controller
         try {
             // Prepare article data with new field structure (aligned with ERD)
             $articleData = $request->only([
-                'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
+                'annee', 'numero', 'numero_adjudication', 'lot', 'type',
                 'exploitant_id', 'parcelle', 'superficie', 'fourniture_mise_charge',
                 'taxe_refection_chemins', 'service_rendu_anef', 'bois_chauffage_volume', 'bois_chauffage_destination',
                 'date_payement_service_anef', 'date_livaison_mise_en_charge_bf', 'zdtf_id'
@@ -208,6 +186,8 @@ class ArticleController extends Controller
 
 
             // Create the article
+            // Set initial step when creating article
+            $articleData['current_step'] = 'cahier_affiche';
             $article = Article::create($articleData);
 
             // Handle products if provided
@@ -325,10 +305,20 @@ class ArticleController extends Controller
         $article->load([
             'exploitant',
             'products',
-            'locations'
+            'locations',
+            'forets',
+            'essences',
+            'situationsAdministratives',
+            'naturesDeCoupe',
+            'modeExploitations',
+            'zdtf',
+            'contractVentes.exploitant'
         ]);
 
-        return view('articles.show', compact('article'));
+        $contractVente = $article->contractVentes()->first();
+        $exploitants = \App\Models\Exploitant::orderBy('nom_complet')->get();
+
+        return view('articles.show', compact('article', 'contractVente', 'exploitants'));
     }
 
     public function edit(Article $article): View
@@ -361,7 +351,7 @@ class ArticleController extends Controller
     public function update(UpdateArticleRequest $request, Article $article): RedirectResponse
     {
         $oldData = $article->only([
-            'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
+            'annee', 'numero', 'numero_adjudication', 'lot', 'type',
             'exploitant_id', 'parcelle', 'superficie', 'nommer_a_la_vente', 'fourniture_mise_charge',
             'taxe_refection_chemins', 'service_rendu_anef', 'bois_chauffage_volume', 'bois_chauffage_destination',
             'date_payement_service_anef', 'date_livaison_mise_en_charge_bf', 'zdtf_id'
@@ -369,7 +359,7 @@ class ArticleController extends Controller
 
         // Update article data (aligned with ERD)
         $articleData = $request->only([
-            'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
+            'annee', 'numero', 'numero_adjudication', 'lot', 'type',
             'exploitant_id', 'parcelle', 'superficie', 'nommer_a_la_vente', 'fourniture_mise_charge',
             'taxe_refection_chemins', 'service_rendu_anef', 'bois_chauffage_volume', 'bois_chauffage_destination',
             'date_payement_service_anef', 'date_livaison_mise_en_charge_bf', 'zdtf_id'
@@ -648,5 +638,70 @@ class ArticleController extends Controller
     public function downloadTemplate()
     {
         return Excel::download(new ArticlesTemplateExport, 'template_article_creation.xlsx');
+    }
+
+    /**
+     * Store a contract vente for an article.
+     */
+    public function storeContractVente(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'article_id' => 'required|exists:articles,id',
+            'date_adjudication' => 'required|date',
+            'exploitant_id' => 'nullable|exists:exploitants,id',
+            'prix_vente' => 'nullable|numeric|min:0',
+            'prix_de_retrait' => 'nullable|numeric|min:0',
+            'nombre_tranche' => 'nullable|integer|in:1,2,4',
+            'date_de_decheance' => 'nullable|date',
+            'id_decheance' => 'nullable|string|max:255',
+            'date_de_resiliation' => 'nullable|date',
+            'is_resiliation' => 'nullable|boolean',
+        ]);
+
+        $article = Article::findOrFail($validated['article_id']);
+        
+        // Check if contract already exists
+        $contractVente = $article->contractVentes()->first();
+        
+        if ($contractVente) {
+            // Update existing contract
+            $contractVente->update($validated);
+            $message = 'Contrat de vente mis à jour avec succès.';
+        } else {
+            // Create new contract
+            $contractVente = ContractVente::create($validated);
+            $message = 'Contrat de vente créé avec succès.';
+            // Update article step to "contrat_vente"
+            $article->update(['current_step' => 'contrat_vente']);
+        }
+
+        ActivityLogger::log('create', "Contrat de vente créé/mis à jour pour l'article {$article->numero}", ContractVente::class);
+
+        return redirect()->route('articles.show', $article)
+            ->with('success', $message);
+    }
+
+    /**
+     * Update a contract vente.
+     */
+    public function updateContractVente(Request $request, ContractVente $contractVente): RedirectResponse
+    {
+        $validated = $request->validate([
+            'exploitant_id' => 'nullable|exists:exploitants,id',
+            'prix_vente' => 'nullable|numeric|min:0',
+            'prix_de_retrait' => 'nullable|numeric|min:0',
+            'nombre_tranche' => 'nullable|integer|in:1,2,4',
+            'date_de_decheance' => 'nullable|date',
+            'id_decheance' => 'nullable|string|max:255',
+            'date_de_resiliation' => 'nullable|date',
+            'is_resiliation' => 'nullable|boolean',
+        ]);
+
+        $contractVente->update($validated);
+
+        ActivityLogger::log('update', "Contrat de vente mis à jour", ContractVente::class);
+
+        return redirect()->route('articles.show', $contractVente->article)
+            ->with('success', 'Contrat de vente mis à jour avec succès.');
     }
 } 

@@ -58,9 +58,6 @@ return new class extends Migration
             // Removed situation_administrative_id index - this is a many-to-many relationship via pivot table
             // Removed nature_de_coupe_id index - this is a many-to-many relationship via pivot table
             // Date-based indexes for reporting
-            if (!$this->indexExists('articles', 'articles_date_adjudication_idx')) {
-                $table->index(['date_adjudication'], 'articles_date_adjudication_idx');
-            }
             if (!$this->indexExists('articles', 'articles_created_updated_idx')) {
                 $table->index(['created_at', 'updated_at'], 'articles_created_updated_idx');
             }
@@ -169,7 +166,6 @@ return new class extends Migration
             // Removed localisation_id index - this is a many-to-many relationship via pivot table
             // Removed situation_administrative_id index - this is a many-to-many relationship via pivot table
             // Removed nature_de_coupe_id index - this is a many-to-many relationship via pivot table
-            $table->dropIndex('articles_date_adjudication_idx');
             $table->dropIndex('articles_created_updated_idx');
         });
 

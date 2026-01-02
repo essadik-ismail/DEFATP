@@ -196,7 +196,7 @@
     @php
         $headers = ['ID', 'Numéro', 'Date', 'Forêts', 'Essences', 'Exploitant', 'Validation', 'Vente', 'Prix de Vente', 'Actions'];
         $rows = $articles->map(function ($article) {
-            $date = optional($article->date_adjudication)->format('d/m/Y') ?: 'N/A';
+            $date = 'N/A';
             $forets = method_exists($article, 'forets') && $article->forets && $article->forets->count()
                 ? $article->forets->map(fn($f) => '<span class="badge bg-emerald-100 text-emerald-800 rounded px-2 py-0.5">'.e($f->foret).'</span>')->implode(' ')
                 : 'N/A';

@@ -46,7 +46,7 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             $query->where('invendu', $this->filters['invendu']);
         }
 
-        return $query->orderBy('date_adjudication', 'desc')->get();
+        return $query->orderBy('created_at', 'desc')->get();
     }
 
     public function headings(): array
@@ -55,7 +55,6 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             'ID',
             'Année',
             'Numéro',
-            'Date d\'Adjudication',
             'Numéro d\'Adjudication',
             'Lot',
             'Type',
@@ -95,7 +94,6 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             $article->id,
             $article->annee,
             $article->numero,
-            $article->date_adjudication ? $article->date_adjudication->format('d/m/Y') : 'N/A',
             $article->numero_adjudication ?? 'N/A',
             $article->lot ?? 'N/A',
             $article->type == 'appel_doffre' ? 'Appel d\'Offre' : 'Adjudication',

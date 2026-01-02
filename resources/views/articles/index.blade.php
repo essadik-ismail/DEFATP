@@ -382,11 +382,7 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($article->date_adjudication)
-                                        {{ $article->date_adjudication->format('d/m/Y') }}
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
+                                    <span class="text-muted">-</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <!-- Removed: Prix de retrait - column was removed -->

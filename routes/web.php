@@ -351,6 +351,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/{article}/edit', [ArticleController::class, 'edit'])->name('edit');
         Route::put('/{article}', [ArticleController::class, 'update'])->name('update');
         Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
+    });
+
+    // Contract Ventes Routes
+    Route::prefix('contract-ventes')->name('contract-ventes.')->group(function () {
+        Route::post('/', [ArticleController::class, 'storeContractVente'])->name('store');
+        Route::put('/{contractVente}', [ArticleController::class, 'updateContractVente'])->name('update');
         Route::post('/{article}/import-locations', [ArticleController::class, 'importLocations'])->name('import-locations');
     });
 

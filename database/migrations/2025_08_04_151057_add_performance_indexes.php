@@ -62,9 +62,6 @@ return new class extends Migration
                 if (!$this->indexExists('articles', 'articles_numero_annee_idx')) {
                     $table->index(['numero', 'annee'], 'articles_numero_annee_idx');
                 }
-                if (!$this->indexExists('articles', 'articles_date_adjudication_idx')) {
-                    $table->index(['date_adjudication'], 'articles_date_adjudication_idx');
-                }
                 // Removed articles_prix_vente_idx - prix_vente column was removed
             });
         }

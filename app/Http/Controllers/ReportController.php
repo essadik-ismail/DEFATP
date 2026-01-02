@@ -600,7 +600,7 @@ class ReportController extends Controller
             'exploitant'
         ])
         ->where('annee', $year)
-        ->orderBy('date_adjudication', 'desc')
+        ->orderBy('created_at', 'desc')
         ->paginate(15);
 
         $annees = Article::select('annee')->distinct()->orderBy('annee', 'desc')->get();
@@ -781,7 +781,7 @@ class ReportController extends Controller
             'exploitant',
         ])
         ->where('invendu', true)
-        ->orderBy('date_adjudication', 'desc')
+        ->orderBy('created_at', 'desc')
         ->get();
 
         $stats = [
@@ -808,7 +808,7 @@ class ReportController extends Controller
             'exploitant',
         ])
         ->where('invendu', false)
-        ->orderBy('date_adjudication', 'desc')
+        ->orderBy('created_at', 'desc')
         ->get();
 
         $stats = [
@@ -2369,7 +2369,7 @@ class ReportController extends Controller
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
         
-        if (in_array($sortBy, ['numero', 'annee', 'prix_vente', 'bo_m3', 'date_adjudication'])) {
+        if (in_array($sortBy, ['numero', 'annee', 'prix_vente', 'bo_m3'])) {
             $currentQuery->orderBy($sortBy, $sortOrder);
         } else {
             $currentQuery->orderBy('created_at', 'desc');

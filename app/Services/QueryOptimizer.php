@@ -52,7 +52,7 @@ class QueryOptimizer
         
         return Cache::remember($cacheKey, 120, function () use ($filters, $perPage) {
             $query = Article::select([
-                'id', 'numero', 'annee', 'date_adjudication', 'invendu', 'prix_vente', 
+                'id', 'numero', 'annee', 'invendu', 'prix_vente', 
                 'prix_de_retrait', 'foret_id', 'essence_id', 'localisation_id', 
                 'situation_administrative_id', 'exploitant_id', 'nature_de_coupe_id',
                 'created_at', 'updated_at', 'is_validated', 'type'

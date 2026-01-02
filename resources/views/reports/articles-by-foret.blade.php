@@ -223,7 +223,7 @@
                 e($article->id),
                 e($article->annee),
                 e($article->numero),
-                e(optional($article->date_adjudication)->format('d/m/Y') ?: 'N/A'),
+                'N/A',
                 $status,
                 $forets,
                 $essences,

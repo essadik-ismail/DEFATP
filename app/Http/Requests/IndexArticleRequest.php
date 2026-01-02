@@ -39,7 +39,7 @@ class IndexArticleRequest extends FormRequest
             'date_to' => ['nullable', 'date'],
             'prix_min' => ['nullable', 'numeric', 'min:0'],
             'prix_max' => ['nullable', 'numeric', 'min:0'],
-            'sort' => ['nullable', 'string', 'in:annee,numero,date_adjudication,prix_vente,created_at,updated_at'],
+            'sort' => ['nullable', 'string', 'in:annee,numero,created_at,updated_at'],
             'direction' => ['nullable', 'string', 'in:asc,desc'],
             'per_page' => ['nullable', 'integer', 'in:10,15,25,50,100'],
         ];

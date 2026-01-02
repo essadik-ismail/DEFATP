@@ -16,7 +16,6 @@ class Article extends Model
     protected $fillable = [
         'annee',
         'numero',
-        'date_adjudication',
         'numero_adjudication',
         'lot',
         'type',
@@ -35,10 +34,10 @@ class Article extends Model
         'date_payement_service_anef',
         'date_livaison_mise_en_charge_bf',
         'zdtf_id',
+        'current_step',
     ];
 
     protected $casts = [
-        'date_adjudication' => 'date',
         'date_payement_service_anef' => 'date',
         'date_livaison_mise_en_charge_bf' => 'date',
         'ps_t' => 'decimal:2',
@@ -134,6 +133,14 @@ class Article extends Model
     }
 
     /**
+     * Get the contract ventes for this article.
+     */
+    public function contractVentes(): HasMany
+    {
+        return $this->hasMany(ContractVente::class, 'article_id');
+    }
+
+    /**
      * Get the total volume of the article.
      */
     public function getTotalVolumeAttribute(): float
@@ -211,15 +218,15 @@ class Article extends Model
     // Removed scopePriceRange - prix_vente column was removed
 
     /**
-     * Scope for articles by date range.
+     * Scope for articles by date range (based on created_at).
      */
     public function scopeDateRange(Builder $query, string $startDate = null, string $endDate = null): Builder
     {
         if ($startDate) {
-            $query->where('date_adjudication', '>=', $startDate);
+            $query->where('created_at', '>=', $startDate);
         }
         if ($endDate) {
-            $query->where('date_adjudication', '<=', $endDate);
+            $query->where('created_at', '<=', $endDate);
         }
         return $query;
     }
