@@ -47,9 +47,7 @@ return new class extends Migration
                 $table->index(['annee', 'is_validated'], 'articles_year_status_idx');
             }
             // Removed foret_id and essence_id indexes - these are many-to-many relationships via pivot tables
-            if (!$this->indexExists('articles', 'articles_price_status_idx')) {
-                $table->index(['prix_vente', 'invendu'], 'articles_price_status_idx');
-            }
+            // Removed articles_price_status_idx - prix_vente and invendu columns were removed
             if (!$this->indexExists('articles', 'articles_type_year_idx')) {
                 $table->index(['type', 'annee'], 'articles_type_year_idx');
             }
@@ -119,22 +117,6 @@ return new class extends Migration
             }
         });
 
-        // Localisations table - additional indexes
-        Schema::table('localisations', function (Blueprint $table) {
-            if (!$this->indexExists('localisations', 'localisations_code_idx')) {
-                $table->index(['CODE'], 'localisations_code_idx');
-            }
-            if (!$this->indexExists('localisations', 'localisations_dranef_idx')) {
-                $table->index(['DRANEF'], 'localisations_dranef_idx');
-            }
-            if (!$this->indexExists('localisations', 'localisations_entite_idx')) {
-                $table->index(['ENTITE'], 'localisations_entite_idx');
-            }
-            if (!$this->indexExists('localisations', 'localisations_deleted_created_idx')) {
-                $table->index(['is_deleted', 'created_at'], 'localisations_deleted_created_idx');
-            }
-        });
-
         // Situation Administratives table - additional indexes
         Schema::table('situation_administratives', function (Blueprint $table) {
             if (!$this->indexExists('situation_administratives', 'situation_admin_commune_idx')) {
@@ -181,7 +163,7 @@ return new class extends Migration
         Schema::table('articles', function (Blueprint $table) {
             $table->dropIndex('articles_year_status_idx');
             // Removed foret_id and essence_id indexes - these are many-to-many relationships via pivot tables
-            $table->dropIndex('articles_price_status_idx');
+            // Removed articles_price_status_idx - prix_vente and invendu columns were removed
             $table->dropIndex('articles_type_year_idx');
             $table->dropIndex('articles_exploitant_created_idx');
             // Removed localisation_id index - this is a many-to-many relationship via pivot table
@@ -217,14 +199,6 @@ return new class extends Migration
         Schema::table('forets', function (Blueprint $table) {
             $table->dropIndex('forets_deleted_created_idx');
             $table->dropIndex('forets_foret_deleted_idx');
-        });
-
-        // Localisations table indexes
-        Schema::table('localisations', function (Blueprint $table) {
-            $table->dropIndex('localisations_code_idx');
-            $table->dropIndex('localisations_dranef_idx');
-            $table->dropIndex('localisations_entite_idx');
-            $table->dropIndex('localisations_deleted_created_idx');
         });
 
         // Situation Administratives table indexes

@@ -44,13 +44,11 @@ return new class extends Migration
             $table->decimal('provinces_total', 15, 2)->default(0);
             $table->decimal('total_general', 15, 2)->default(0);
             $table->foreignId('situation_administrative_id')->nullable()->constrained('situation_administratives')->onDelete('set null');
-            $table->foreignId('localisation_id')->nullable()->constrained('localisations')->onDelete('set null');
             $table->timestamps();
             
             // Indexes
             $table->index(['year', 'month']);
             $table->index('situation_administrative_id');
-            $table->index('localisation_id');
         });
     }
 

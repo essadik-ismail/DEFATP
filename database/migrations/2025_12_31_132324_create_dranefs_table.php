@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('forets', function (Blueprint $table) {
+        Schema::create('dranefs', function (Blueprint $table) {
             $table->id();
-            $table->string('foret');
-            $table->string('lat')->nullable();
-            $table->string('log')->nullable();
-            $table->boolean('is_deleted')->default(false);
+            $table->string('dranef');
+            $table->text('adresse')->nullable();
+            $table->string('tel')->nullable();
+            $table->string('fax')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('forets');
+        Schema::dropIfExists('dranefs');
     }
 };

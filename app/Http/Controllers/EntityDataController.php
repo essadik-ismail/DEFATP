@@ -4,15 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Essence;
 use App\Models\Foret;
-use App\Models\Localisation;
 use App\Models\SituationAdministrative;
 use App\Models\NatureDeCoupe;
 use App\Models\Exploitant;
 use App\Models\Coperative;
 use App\Models\Vocation;
-use App\Models\OdfEntite;
 use App\Models\Product;
 use App\Models\Prestation;
+use App\Models\ModeExploitation;
+use App\Models\Dranef;
+use App\Models\Dpanef;
+use App\Models\Zdtf;
+use App\Models\Canton;
+use App\Models\Parcelle;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -38,16 +42,6 @@ class EntityDataController extends Controller
             ->orderBy('foret')
             ->paginate(10, ['*'], 'forets_page');
 
-        $localisations = Localisation::where('is_deleted', false)
-            ->when($request->filled('localisation_search'), function($query) use ($request) {
-                $query->where(function($q) use ($request) {
-                    $q->where('CODE', 'like', '%' . $request->localisation_search . '%')
-                      ->orWhere('DRANEF', 'like', '%' . $request->localisation_search . '%')
-                      ->orWhere('ENTITE', 'like', '%' . $request->localisation_search . '%');
-                });
-            })
-            ->orderBy('CODE')
-            ->paginate(10, ['*'], 'localisations_page');
 
         $situationsAdministratives = SituationAdministrative::all();
 
@@ -80,13 +74,6 @@ class EntityDataController extends Controller
             ->orderBy('name')
             ->paginate(10, ['*'], 'vocations_page');
 
-        $odfEntites = OdfEntite::with(['localisation', 'situationAdministrative'])
-            ->when($request->filled('odf_entite_search'), function($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->odf_entite_search . '%');
-            })
-            ->orderBy('name')
-            ->paginate(10, ['*'], 'odf_entites_page');
-
         $products = Product::with(['articles', 'contracts', 'avenants'])
             ->when($request->filled('product_search'), function($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->product_search . '%');
@@ -101,18 +88,62 @@ class EntityDataController extends Controller
             ->orderBy('name')
             ->paginate(10, ['*'], 'prestations_page');
 
+        $modeExploitations = ModeExploitation::when($request->filled('mode_exploitation_search'), function($query) use ($request) {
+                $query->where('mode_exploiattion', 'like', '%' . $request->mode_exploitation_search . '%');
+            })
+            ->orderBy('mode_exploiattion')
+            ->paginate(10, ['*'], 'mode_exploitations_page');
+
+        $dranefs = Dranef::when($request->filled('dranef_search'), function($query) use ($request) {
+                $query->where('dranef', 'like', '%' . $request->dranef_search . '%');
+            })
+            ->orderBy('dranef')
+            ->paginate(10, ['*'], 'dranefs_page');
+
+        $dpanefs = Dpanef::with('dranef')
+            ->when($request->filled('dpanef_search'), function($query) use ($request) {
+                $query->where('dpanef', 'like', '%' . $request->dpanef_search . '%');
+            })
+            ->orderBy('dpanef')
+            ->paginate(10, ['*'], 'dpanefs_page');
+
+        $zdtfs = Zdtf::with('dpanef.dranef')
+            ->when($request->filled('zdtf_search'), function($query) use ($request) {
+                $query->where('sdtf', 'like', '%' . $request->zdtf_search . '%');
+            })
+            ->orderBy('sdtf')
+            ->paginate(10, ['*'], 'zdtfs_page');
+
+        $cantons = Canton::with('foret')
+            ->when($request->filled('canton_search'), function($query) use ($request) {
+                $query->where('canton', 'like', '%' . $request->canton_search . '%');
+            })
+            ->orderBy('canton')
+            ->paginate(10, ['*'], 'cantons_page');
+
+        $parcelles = Parcelle::with(['foret', 'canton'])
+            ->when($request->filled('parcelle_search'), function($query) use ($request) {
+                $query->where('parcelle', 'like', '%' . $request->parcelle_search . '%');
+            })
+            ->orderBy('parcelle')
+            ->paginate(10, ['*'], 'parcelles_page');
+
         return view('entity-data.index', compact(
             'essences',
             'forets',
-            'localisations',
             'situationsAdministratives',
             'natureDeCoupes',
             'exploitants',
             'coperatives',
             'vocations',
-            'odfEntites',
             'products',
-            'prestations'
+            'prestations',
+            'modeExploitations',
+            'dranefs',
+            'dpanefs',
+            'zdtfs',
+            'cantons',
+            'parcelles'
         ));
     }
 }

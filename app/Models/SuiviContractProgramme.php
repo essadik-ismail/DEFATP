@@ -37,13 +37,6 @@ class SuiviContractProgramme extends Model
         'Superficie_non_payée' => 'decimal:2',
     ];
 
-    /**
-     * Get the localisation for this suivi contract programme.
-     */
-    public function localisation(): BelongsTo
-    {
-        return $this->belongsTo(Localisation::class);
-    }
 
     /**
      * Get the foret for this suivi contract programme.

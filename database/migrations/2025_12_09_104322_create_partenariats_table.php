@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('partenariats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('localisation_id')->nullable()->constrained('localisations')->onDelete('set null');
             $table->string('nom_association')->nullable();
             $table->integer('nombre_adherents_association')->nullable();
             $table->date('date_creation_association')->nullable();
@@ -38,7 +37,6 @@ return new class extends Migration
             $table->timestamps();
             
             // Indexes
-            $table->index('localisation_id');
             $table->index('essence_id');
             $table->index('num_contract');
         });

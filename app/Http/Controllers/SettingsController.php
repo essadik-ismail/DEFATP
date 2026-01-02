@@ -13,17 +13,13 @@ use App\Http\Requests\StoreSituationAdministrativeRequest;
 use App\Http\Requests\UpdateSituationAdministrativeRequest;
 use App\Http\Requests\StoreExploitantRequest;
 use App\Http\Requests\UpdateExploitantRequest;
-use App\Http\Requests\StoreLocalisationRequest;
-use App\Http\Requests\UpdateLocalisationRequest;
 use App\Models\Essence;
 use App\Models\Foret;
 use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\Exploitant;
-use App\Models\Localisation;
 use App\Models\Coperative;
 use App\Models\Vocation;
-use App\Models\OdfEntite;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -36,13 +32,11 @@ use App\Exports\ForetsExport;
 use App\Exports\NatureDeCoupesExport;
 use App\Exports\SituationAdministrativesExport;
 use App\Exports\ExploitantsExport;
-use App\Exports\LocalisationsExport;
 use App\Imports\EssencesImport;
 use App\Imports\ForetsImport;
 use App\Imports\NatureDeCoupesImport;
 use App\Imports\SituationAdministrativesImport;
 use App\Imports\ExploitantsImport;
-use App\Imports\LocalisationsImport;
 
 class SettingsController extends Controller
 {
@@ -182,23 +176,25 @@ class SettingsController extends Controller
 
     public function createForet(): View
     {
-        return view('settings.forets.create');
+        $dpanefs = \App\Models\Dpanef::with('dranef')->orderBy('name')->get();
+        return view('settings.forets.create', compact('dpanefs'));
     }
 
     public function storeForet(Request $request): RedirectResponse
     {
-        Foret::create($request->only(['foret', 'lat', 'log', 'province']));
+        Foret::create($request->only(['foret', 'lat', 'log', 'province', 'nature_juridique', 'dpanef_id']));
         return redirect()->route('articles.index')->with('success', 'Forêt ajoutée avec succès.');
     }
 
     public function editForet(Foret $foret): View
     {
-        return view('settings.forets.edit', compact('foret'));
+        $dpanefs = \App\Models\Dpanef::with('dranef')->orderBy('name')->get();
+        return view('settings.forets.edit', compact('foret', 'dpanefs'));
     }
 
     public function updateForet(UpdateForetRequest $request, Foret $foret): RedirectResponse
     {
-        $foret->update($request->only(['foret', 'lat', 'log', 'province']));
+        $foret->update($request->only(['foret', 'lat', 'log', 'province', 'nature_juridique', 'dpanef_id']));
         return redirect()->route('articles.index')->with('success', 'Forêt mise à jour avec succès.');
     }
 
@@ -647,11 +643,7 @@ class SettingsController extends Controller
 
     public function createExploitant(): View
     {
-        $localisations = Localisation::selectRaw('MIN(id) as id, DRANEF')
-            ->groupBy('DRANEF')
-            ->orderBy('DRANEF')
-            ->get();
-        return view('settings.exploitants.create', compact('localisations'));
+        return view('settings.exploitants.create');
     }
 
     public function storeExploitant(StoreExploitantRequest $request)
@@ -732,31 +724,7 @@ class SettingsController extends Controller
     public function editExploitant(Exploitant $exploitant): View
     {
         // Get distinct DRANEF values with MIN(id) for each
-        $localisations = Localisation::selectRaw('MIN(id) as id, DRANEF')
-            ->groupBy('DRANEF')
-            ->orderBy('DRANEF')
-            ->get();
-        
-        // If the exploitant has a localisation, ensure it's in the list for proper selection
-        if ($exploitant->localisation_id) {
-            $currentLocalisation = Localisation::find($exploitant->localisation_id);
-            if ($currentLocalisation) {
-                // Find if this DRANEF already exists in the list
-                $existingIndex = $localisations->search(function($loc) use ($currentLocalisation) {
-                    return $loc->DRANEF === $currentLocalisation->DRANEF;
-                });
-                
-                if ($existingIndex !== false) {
-                    // Replace with the current localisation to preserve the selection
-                    $localisations[$existingIndex] = $currentLocalisation;
-                } else {
-                    // Add the current localisation if DRANEF doesn't exist
-                    $localisations->push($currentLocalisation);
-                }
-            }
-        }
-        
-        return view('settings.exploitants.edit', compact('exploitant', 'localisations'));
+        return view('settings.exploitants.edit', compact('exploitant'));
     }
 
     public function updateExploitant(UpdateExploitantRequest $request, Exploitant $exploitant): RedirectResponse
@@ -872,291 +840,21 @@ class SettingsController extends Controller
         ]);
     }
 
-    // Localisations Management
-    public function localisations(Request $request): View
-    {
-        // Log localisations view
-        ActivityLogger::log('view', 'Consultation de la liste des localisations', Localisation::class);
-        
-        $query = Localisation::query();
-
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->get('search');
-            $query->where(function($q) use ($search) {
-                $q->where('CODE', 'like', "%{$search}%")
-                  ->orWhere('DRANEF', 'like', "%{$search}%")
-                  ->orWhere('ENTITE', 'like', "%{$search}%");
-            });
-        }
-
-        // Province filter
-        if ($request->filled('province')) {
-            $query->where('DRANEF', $request->get('province'));
-        }
-
-        // Region filter
-        if ($request->filled('region')) {
-            $query->where('DRANEF', 'like', $request->get('region') . '%');
-        }
-
-        // Status filter
-        if ($request->filled('status')) {
-            switch ($request->get('status')) {
-                case 'active':
-                    $query->whereNull('deleted_at');
-                    break;
-                case 'deleted':
-                    $query->onlyTrashed();
-                    break;
-                case 'recent':
-                    $query->where('created_at', '>=', now()->subDays(30));
-                    break;
-            }
-        }
-
-        // Date range filter
-        if ($request->filled('date_from')) {
-            $query->where('created_at', '>=', $request->get('date_from'));
-        }
-        if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->get('date_to') . ' 23:59:59');
-        }
-
-        // Sorting
-        $sortField = $request->get('sort', 'CODE');
-        $sortDirection = $request->get('direction', 'asc');
-        
-        $allowedSortFields = ['id', 'CODE', 'DRANEF', 'ENTITE', 'created_at', 'updated_at'];
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        }
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $allowedPerPage = [10, 15, 25, 50, 100];
-        if (!in_array($perPage, $allowedPerPage)) {
-            $perPage = 15;
-        }
-
-        $localisations = $query->paginate($perPage);
-
-        // Get statistics for the current filtered results
-        $stats = [
-            'total' => $query->count(),
-            'active' => $query->whereNull('deleted_at')->count(),
-            'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
-            'unique' => $query->distinct('CODE')->count(),
-        ];
-
-        return view('settings.localisations.index', compact('localisations', 'stats'));
-    }
-
-    public function createLocalisation(): View
-    {
-        return view('settings.localisations.create');
-    }
-
-    public function storeLocalisation(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'CODE' => 'required|string|max:255',
-            'DRANEF' => 'required|string|max:255',
-            'ENTITE' => 'required|string|max:255',
-        ]);
-
-        $localisation = Localisation::create([
-            'CODE' => $request->CODE,
-            'DRANEF' => $request->DRANEF,
-            'ENTITE' => $request->ENTITE,
-        ]);
-        
-        // Log localisation creation
-        ActivityLogger::logCreate(
-            Localisation::class,
-            $localisation->id,
-            "Localisation {$localisation->CODE}",
-            $request
-        );
-
-        return redirect()->route('articles.index')->with('success', 'Localisation ajoutée avec succès.');
-    }
-
-    public function editLocalisation(Localisation $localisation): View
-    {
-        // Log localisation edit view
-        ActivityLogger::logView(
-            Localisation::class,
-            $localisation->id,
-            "Localisation {$localisation->CODE}",
-            request()
-        );
-        
-        return view('settings.localisations.edit', compact('localisation'));
-    }
-
-    public function updateLocalisation(Request $request, Localisation $localisation): RedirectResponse
-    {
-        $oldData = $localisation->only(['CODE', 'DRANEF', 'ENTITE']);
-        $localisation->update([
-            'CODE' => $request->CODE,
-            'DRANEF' => $request->DRANEF,
-            'ENTITE' => $request->ENTITE,
-        ]);
-        
-        // Log localisation update
-        $changes = array_diff_assoc($localisation->fresh()->only(['CODE', 'DRANEF', 'ENTITE']), $oldData);
-        ActivityLogger::logUpdate(
-            Localisation::class,
-            $localisation->id,
-            "Localisation {$localisation->CODE}",
-            $changes,
-            $request
-        );
-        
-        return redirect()->route('articles.index')->with('success', 'Localisation mise à jour avec succès.');
-    }
-
-    public function destroyLocalisation(Localisation $localisation): RedirectResponse
-    {
-        $localisationCode = $localisation->CODE;
-        $localisation->delete(); // Soft delete
-        
-        // Log localisation deletion
-        ActivityLogger::logDelete(
-            Localisation::class,
-            $localisation->id,
-            "Localisation {$localisationCode}",
-            request()
-        );
-        
-        return redirect()->route('settings.localisations')->with('success', 'Localisation supprimée avec succès.');
-    }
-
-    // ODF Entités Management
-    public function odfEntites(Request $request): View
-    {
-        ActivityLogger::log('view', 'Consultation de la liste des ODF Entités', OdfEntite::class);
-        
-        $query = OdfEntite::with(['localisation', 'situationAdministrative']);
-
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->get('search');
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        // Status filter
-        if ($request->filled('status')) {
-            switch ($request->get('status')) {
-                case 'active':
-                    $query->whereNull('deleted_at');
-                    break;
-                case 'deleted':
-                    $query->onlyTrashed();
-                    break;
-                case 'recent':
-                    $query->where('created_at', '>=', now()->subDays(30));
-                    break;
-            }
-        }
-
-        // Sorting
-        $sortField = $request->get('sort', 'name');
-        $sortDirection = $request->get('direction', 'asc');
-        
-        $allowedSortFields = ['id', 'name', 'created_at', 'updated_at'];
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        }
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $allowedPerPage = [10, 15, 25, 50, 100];
-        if (!in_array($perPage, $allowedPerPage)) {
-            $perPage = 15;
-        }
-
-        $odfEntites = $query->paginate($perPage);
-
-        $localisations = Localisation::orderBy('CODE')->get();
-        $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
-
-        return view('settings.odf-entites.index', compact('odfEntites', 'localisations', 'situationAdministratives'));
-    }
-
-    public function createOdfEntite(): View
-    {
-        $localisations = Localisation::orderBy('CODE')->get();
-        $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
-        
-        return view('settings.odf-entites.create', compact('localisations', 'situationAdministratives'));
-    }
-
-    public function storeOdfEntite(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'localisation_id' => 'nullable|exists:localisations,id',
-            'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
-        ]);
-
-        $odfEntite = OdfEntite::create($validated);
-
-        ActivityLogger::log('create', 'Création d\'une nouvelle ODF Entité', OdfEntite::class, $odfEntite->id);
-
-        return redirect()->route('entity-data.index', ['tab' => 'odf-entites'])
-            ->with('success', 'ODF Entité créée avec succès.');
-    }
-
-    public function editOdfEntite(OdfEntite $odfEntite): View
-    {
-        $localisations = Localisation::orderBy('CODE')->get();
-        $situationAdministratives = SituationAdministrative::orderBy('commune')->get();
-        
-        return view('settings.odf-entites.edit', compact('odfEntite', 'localisations', 'situationAdministratives'));
-    }
-
-    public function updateOdfEntite(Request $request, OdfEntite $odfEntite): RedirectResponse
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'localisation_id' => 'nullable|exists:localisations,id',
-            'situation_administrative_id' => 'nullable|exists:situation_administratives,id',
-        ]);
-
-        $odfEntite->update($validated);
-
-        ActivityLogger::log('update', 'Modification d\'une ODF Entité', OdfEntite::class, $odfEntite->id);
-
-        return redirect()->route('entity-data.index', ['tab' => 'odf-entites'])
-            ->with('success', 'ODF Entité mise à jour avec succès.');
-    }
-
-    public function destroyOdfEntite(OdfEntite $odfEntite): RedirectResponse
-    {
-        $odfEntiteName = $odfEntite->name;
-        $odfEntiteId = $odfEntite->id;
-        $odfEntite->delete();
-
-        ActivityLogger::log('delete', 'Suppression d\'une ODF Entité', OdfEntite::class, $odfEntiteId);
-
-        return redirect()->route('entity-data.index', ['tab' => 'odf-entites'])
-            ->with('success', 'ODF Entité supprimée avec succès.');
-    }
-
     // ZDTF Management
     public function zdtfs(Request $request): View
     {
         // Log ZDTF view
-        ActivityLogger::log('view', 'Consultation de la liste des ZDTF', null);
+        ActivityLogger::log('view', 'Consultation de la liste des ZDTF', Zdtf::class);
         
-        $query = ZDTF::query();
+        $query = Zdtf::with('dpanef.dranef');
 
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->get('search');
-            $query->where('zdtf', 'like', "%{$search}%");
+            $query->where('sdtf', 'like', "%{$search}%")
+                  ->orWhereHas('dpanef', function($q) use ($search) {
+                      $q->where('dpanef', 'like', "%{$search}%");
+                  });
         }
 
         // Status filter
@@ -1174,22 +872,10 @@ class SettingsController extends Controller
             }
         }
 
-        // Date range filter
-        if ($request->filled('date_from')) {
-            $query->where('created_at', '>=', $request->get('date_from'));
-        }
-        if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->get('date_to') . ' 23:59:59');
-        }
-
         // Sorting
-        $sortField = $request->get('sort', 'zdtf');
+        $sortField = $request->get('sort', 'sdtf');
         $sortDirection = $request->get('direction', 'asc');
-        
-        $allowedSortFields = ['id', 'zdtf', 'created_at', 'updated_at'];
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        }
+        $query->orderBy($sortField, $sortDirection);
 
         // Pagination
         $perPage = $request->get('per_page', 15);
@@ -1199,84 +885,194 @@ class SettingsController extends Controller
         }
 
         $zdtfs = $query->paginate($perPage);
+        $dpanefs = Dpanef::with('dranef')->orderBy('dpanef')->get();
 
-        // Get statistics for the current filtered results
-        $stats = [
-            'total' => $query->count(),
-            'active' => $query->whereNull('deleted_at')->count(),
-            'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
-            'unique' => $query->distinct('zdtf')->count(),
-        ];
-
-        return view('settings.zdtfs.index', compact('zdtfs', 'stats'));
+        return view('settings.zdtfs.index', compact('zdtfs', 'dpanefs'));
     }
 
-    public function storeZdtf(StoreZdtfRequest $request): RedirectResponse
+    public function createZdtf(): View
     {
-        ZDTF::create($request->only('zdtf'));
-        return redirect()->route('settings.zdtfs')->with('success', 'ZDTF ajoutée avec succès.');
+        $dpanefs = Dpanef::with('dranef')->orderBy('dpanef')->get();
+        return view('settings.zdtfs.create', compact('dpanefs'));
     }
 
-    public function updateZdtf(UpdateZdtfRequest $request, ZDTF $zdtf): RedirectResponse
+    public function storeZdtf(Request $request): RedirectResponse
     {
-        $zdtf->update($request->only('zdtf'));
-        return redirect()->route('settings.zdtfs')->with('success', 'ZDTF mise à jour avec succès.');
+        $request->validate([
+            'dpanef_id' => 'required|exists:dpanefs,id',
+            'sdtf' => 'required|string|max:255',
+        ]);
+
+        $zdtf = Zdtf::create($request->only(['dpanef_id', 'sdtf']));
+        ActivityLogger::log('create', 'Création d\'un ZDTF', Zdtf::class, $zdtf->id);
+
+        return redirect()->route('settings.zdtfs')->with('success', 'ZDTF créé avec succès.');
     }
 
-    public function destroyZdtf(ZDTF $zdtf): RedirectResponse
+    public function editZdtf(Zdtf $zdtf): View
+    {
+        $dpanefs = Dpanef::with('dranef')->orderBy('dpanef')->get();
+        return view('settings.zdtfs.edit', compact('zdtf', 'dpanefs'));
+    }
+
+    public function updateZdtf(Request $request, Zdtf $zdtf): RedirectResponse
+    {
+        $request->validate([
+            'dpanef_id' => 'required|exists:dpanefs,id',
+            'sdtf' => 'required|string|max:255',
+        ]);
+
+        $zdtf->update($request->only(['dpanef_id', 'sdtf']));
+        ActivityLogger::log('update', 'Modification d\'un ZDTF', Zdtf::class, $zdtf->id);
+
+        return redirect()->route('settings.zdtfs')->with('success', 'ZDTF mis à jour avec succès.');
+    }
+
+    public function destroyZdtf(Zdtf $zdtf): RedirectResponse
     {
         $zdtf->delete();
-        return redirect()->route('settings.zdtfs')->with('success', 'ZDTF supprimée avec succès.');
+        ActivityLogger::log('delete', 'Suppression d\'un ZDTF', Zdtf::class, $zdtf->id);
+
+        return redirect()->route('settings.zdtfs')->with('success', 'ZDTF supprimé avec succès.');
     }
 
     // DPANEFs Management
-    public function dpanefs(): View
+    public function dpanefs(Request $request): View
     {
-        $dpanefs = DPANEF::orderBy('nom')->paginate(20);
-        return view('settings.dpanefs.index', compact('dpanefs'));
+        $query = Dpanef::with('dranef');
+
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where('dpanef', 'like', "%{$search}%")
+                  ->orWhereHas('dranef', function($q) use ($search) {
+                      $q->where('dranef', 'like', "%{$search}%");
+                  });
+        }
+
+        $sortField = $request->get('sort', 'dpanef');
+        $sortDirection = $request->get('direction', 'asc');
+        $query->orderBy($sortField, $sortDirection);
+
+        $perPage = $request->get('per_page', 15);
+        $dpanefs = $query->paginate($perPage);
+        $dranefs = Dranef::orderBy('dranef')->get();
+
+        return view('settings.dpanefs.index', compact('dpanefs', 'dranefs'));
     }
 
-    public function storeDpanef(StoreDpanefRequest $request): RedirectResponse
+    public function createDpanef(): View
     {
-        DPANEF::create($request->only('dpanef'));
-        return redirect()->route('settings.dpanefs')->with('success', 'DPANEF ajoutée avec succès.');
+        $dranefs = Dranef::orderBy('dranef')->get();
+        return view('settings.dpanefs.create', compact('dranefs'));
     }
 
-    public function updateDpanef(UpdateDpanefRequest $request, DPANEF $dpanef): RedirectResponse
+    public function storeDpanef(Request $request): RedirectResponse
     {
-        $dpanef->update($request->only('dpanef'));
-        return redirect()->route('settings.dpanefs')->with('success', 'DPANEF mise à jour avec succès.');
+        $request->validate([
+            'dranef_id' => 'required|exists:dranefs,id',
+            'dpanef' => 'required|string|max:255',
+        ]);
+
+        $dpanef = Dpanef::create($request->only(['dranef_id', 'dpanef']));
+        ActivityLogger::log('create', 'Création d\'un DPANEF', Dpanef::class, $dpanef->id);
+
+        return redirect()->route('settings.dpanefs')->with('success', 'DPANEF créé avec succès.');
     }
 
-    public function destroyDpanef(DPANEF $dpanef): RedirectResponse
+    public function editDpanef(Dpanef $dpanef): View
+    {
+        $dranefs = Dranef::orderBy('dranef')->get();
+        return view('settings.dpanefs.edit', compact('dpanef', 'dranefs'));
+    }
+
+    public function updateDpanef(Request $request, Dpanef $dpanef): RedirectResponse
+    {
+        $request->validate([
+            'dranef_id' => 'required|exists:dranefs,id',
+            'dpanef' => 'required|string|max:255',
+        ]);
+
+        $dpanef->update($request->only(['dranef_id', 'dpanef']));
+        ActivityLogger::log('update', 'Modification d\'un DPANEF', Dpanef::class, $dpanef->id);
+
+        return redirect()->route('settings.dpanefs')->with('success', 'DPANEF mis à jour avec succès.');
+    }
+
+    public function destroyDpanef(Dpanef $dpanef): RedirectResponse
     {
         $dpanef->delete();
-        return redirect()->route('settings.dpanefs')->with('success', 'DPANEF supprimée avec succès.');
+        ActivityLogger::log('delete', 'Suppression d\'un DPANEF', Dpanef::class, $dpanef->id);
+
+        return redirect()->route('settings.dpanefs')->with('success', 'DPANEF supprimé avec succès.');
     }
 
     // DRANEFs Management
-    public function dranefs(): View
+    public function dranefs(Request $request): View
     {
-        $dranefs = DRANEF::orderBy('nom')->paginate(20);
+        $query = Dranef::query();
+
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where('dranef', 'like', "%{$search}%")
+                  ->orWhere('adresse', 'like', "%{$search}%");
+        }
+
+        $sortField = $request->get('sort', 'dranef');
+        $sortDirection = $request->get('direction', 'asc');
+        $query->orderBy($sortField, $sortDirection);
+
+        $perPage = $request->get('per_page', 15);
+        $dranefs = $query->paginate($perPage);
+
         return view('settings.dranefs.index', compact('dranefs'));
     }
 
-    public function storeDranef(StoreDranefRequest $request): RedirectResponse
+    public function createDranef(): View
     {
-        DRANEF::create($request->only('dranef'));
-        return redirect()->route('settings.dranefs')->with('success', 'DRANEF ajoutée avec succès.');
+        return view('settings.dranefs.create');
     }
 
-    public function updateDranef(UpdateDranefRequest $request, DRANEF $dranef): RedirectResponse
+    public function storeDranef(Request $request): RedirectResponse
     {
-        $dranef->update($request->only('dranef'));
-        return redirect()->route('settings.dranefs')->with('success', 'DRANEF mise à jour avec succès.');
+        $request->validate([
+            'dranef' => 'required|string|max:255',
+            'adresse' => 'nullable|string',
+            'tel' => 'nullable|string|max:255',
+            'fax' => 'nullable|string|max:255',
+        ]);
+
+        $dranef = Dranef::create($request->only(['dranef', 'adresse', 'tel', 'fax']));
+        ActivityLogger::log('create', 'Création d\'un DRANEF', Dranef::class, $dranef->id);
+
+        return redirect()->route('settings.dranefs')->with('success', 'DRANEF créé avec succès.');
     }
 
-    public function destroyDranef(DRANEF $dranef): RedirectResponse
+    public function editDranef(Dranef $dranef): View
+    {
+        return view('settings.dranefs.edit', compact('dranef'));
+    }
+
+    public function updateDranef(Request $request, Dranef $dranef): RedirectResponse
+    {
+        $request->validate([
+            'dranef' => 'required|string|max:255',
+            'adresse' => 'nullable|string',
+            'tel' => 'nullable|string|max:255',
+            'fax' => 'nullable|string|max:255',
+        ]);
+
+        $dranef->update($request->only(['dranef', 'adresse', 'tel', 'fax']));
+        ActivityLogger::log('update', 'Modification d\'un DRANEF', Dranef::class, $dranef->id);
+
+        return redirect()->route('settings.dranefs')->with('success', 'DRANEF mis à jour avec succès.');
+    }
+
+    public function destroyDranef(Dranef $dranef): RedirectResponse
     {
         $dranef->delete();
-        return redirect()->route('settings.dranefs')->with('success', 'DRANEF supprimée avec succès.');
+        ActivityLogger::log('delete', 'Suppression d\'un DRANEF', Dranef::class, $dranef->id);
+
+        return redirect()->route('settings.dranefs')->with('success', 'DRANEF supprimé avec succès.');
     }
 
     // Situation Forestieres Management
@@ -1284,9 +1080,9 @@ class SettingsController extends Controller
     {
         $situationForestieres = SituationForestiere::with(['annee', 'zdtf', 'dpanef', 'dranef'])->paginate(20);
         $annees = Annee::getYearsForSelect();
-        $zdtfs = ZDTF::orderBy('nom')->get();
-        $dpanefs = DPANEF::orderBy('nom')->get();
-        $dranefs = DRANEF::orderBy('nom')->get();
+        $zdtfs = Zdtf::with('dpanef.dranef')->orderBy('sdtf')->get();
+        $dpanefs = Dpanef::with('dranef')->orderBy('dpanef')->get();
+        $dranefs = Dranef::orderBy('dranef')->get();
         
         return view('settings.situation-forestieres.index', compact('situationForestieres', 'annees', 'zdtfs', 'dpanefs', 'dranefs'));
     }
@@ -1373,11 +1169,6 @@ class SettingsController extends Controller
 
 
 
-    public function exportLocalisations(Request $request)
-    {
-        $filters = $request->only(['search', 'province', 'region', 'status', 'date_from', 'date_to', 'sort', 'direction']);
-        return Excel::download(new LocalisationsExport($filters), 'localisations_' . date('Y-m-d_H-i-s') . '.xlsx');
-    }
 
     // Import methods
     public function importEssences(Request $request)
@@ -1510,31 +1301,6 @@ class SettingsController extends Controller
         }
     }
 
-    public function importLocalisations(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
-        ]);
-
-        try {
-            $filename = $request->file('file')->getClientOriginalName();
-            $import = new LocalisationsImport;
-            
-            Excel::import($import, $request->file('file'));
-            
-            // Log import action
-            ActivityLogger::logImport(
-                'Localisations',
-                $filename,
-                $import->getRowCount(),
-                $request
-            );
-            
-            return redirect()->route('settings.localisations')->with('success', 'Localisations importées avec succès.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
-        }
-    }
 
     // Coperatives Management
     public function coperatives(Request $request): View

@@ -118,14 +118,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-balance-scale text-gray-500 mr-2"></i>Nature Juridique
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                {{ $article->nature_juridique ?? 'Non spécifiée' }}
-                            </div>
-                        </div>
+                        <!-- Removed: Nature Juridique - column was removed -->
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 <i class="fas fa-calendar-edit text-gray-500 mr-2"></i>Dernière modification
@@ -138,36 +131,16 @@
                 </div>
             </div>
 
-            <!-- Section 2: Localisation et Forêt -->
+            <!-- Section 2: Forêt -->
             <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
                 <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                        <i class="fas fa-map-marker-alt"></i>
-                        Section 2: Localisation et Forêt
+                        <i class="fas fa-tree"></i>
+                        Section 2: Forêt
                     </h2>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-map text-green-500 mr-2"></i>Localisation
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->localisations && $article->localisations->count())
-                                    <div class="space-y-2">
-                                        @foreach($article->localisations as $localisation)
-                                            <div class="border-b border-gray-200 pb-2 last:border-b-0">
-                                                <div><strong>Code:</strong> {{ $localisation->CODE }}</div>
-                                                <div><strong>DRANEF:</strong> {{ $localisation->DRANEF ?? 'N/A' }}</div>
-                                                <div><strong>Entité:</strong> {{ $localisation->ENTITE ?? 'N/A' }}</div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <span class="text-gray-500">Non spécifiée</span>
-                                @endif
-                            </div>
-                        </div>
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 <i class="fas fa-building text-green-500 mr-2"></i>Situation Administrative
@@ -332,6 +305,80 @@
                                 {{ $article->fourniture_mise_charge ? number_format($article->fourniture_mise_charge, 2) : 'Non spécifiée' }}
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-road text-purple-500 mr-2"></i>Taxe refection chemins
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->taxe_refection_chemins ? number_format($article->taxe_refection_chemins, 2) : 'Non spécifiée' }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-handshake text-purple-500 mr-2"></i>Service rendu ANEF
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->service_rendu_anef ? number_format($article->service_rendu_anef, 2) : 'Non spécifiée' }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-fire text-purple-500 mr-2"></i>Bois chauffage volume
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->bois_chauffage_volume ? number_format($article->bois_chauffage_volume, 2) : 'Non spécifiée' }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt text-purple-500 mr-2"></i>Bois chauffage destination
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->bois_chauffage_destination ?? 'Non spécifiée' }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-calendar-check text-purple-500 mr-2"></i>Date payement service ANEF
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->date_payement_service_anef ? $article->date_payement_service_anef->format('d/m/Y') : 'Non spécifiée' }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-truck text-purple-500 mr-2"></i>Date livraison mise en charge BF
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->date_livaison_mise_en_charge_bf ? $article->date_livaison_mise_en_charge_bf->format('d/m/Y') : 'Non spécifiée' }}
+                            </div>
+                        </div>
+                        @if($article->zdtf)
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-map text-purple-500 mr-2"></i>ZDTF
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
+                                {{ $article->zdtf->name }}@if($article->zdtf->dpanef) - {{ $article->zdtf->dpanef->name }}@endif
+                            </div>
+                        </div>
+                        @endif
+                        @if($article->modeExploitations && $article->modeExploitations->count() > 0)
+                        <div class="form-group">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-tools text-purple-500 mr-2"></i>Mode d'Exploitation
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($article->modeExploitations as $modeExploitation)
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                            {{ $modeExploitation->name }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
 
                     <!-- Produits -->
@@ -376,50 +423,7 @@
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-tag text-yellow-500 mr-2"></i>Prix de Retrait
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->prix_de_retrait)
-                                    <span class="text-lg font-bold text-green-600">
-                                        {{ number_format($article->prix_de_retrait, 2) }} DH
-                                    </span>
-                                @else
-                                    <span class="text-gray-500">Non spécifié</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-dollar-sign text-yellow-500 mr-2"></i>Prix de Vente
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->prix_vente)
-                                    <span class="text-lg font-bold text-green-600">
-                                        {{ number_format($article->prix_vente, 2) }} DH
-                                    </span>
-                                @else
-                                    <span class="text-gray-500">Non spécifié</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-shopping-cart text-yellow-500 mr-2"></i>Statut de Vente
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->invendu)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                        <i class="fas fa-times-circle mr-1"></i>Invendu
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check-circle mr-1"></i>Vendu
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
+                        <!-- Removed: Prix de Retrait, Prix de Vente, Statut de Vente - columns were removed -->
                     </div>
                 </div>
             </div>
@@ -508,38 +512,7 @@
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-check-circle text-gray-500 mr-2"></i>DC
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->dc)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check mr-1"></i>Oui
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                        <i class="fas fa-times mr-1"></i>Non
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-check-circle text-gray-500 mr-2"></i>RC
-                            </label>
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium">
-                                @if($article->rc)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check mr-1"></i>Oui
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                        <i class="fas fa-times mr-1"></i>Non
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
+                        <!-- Removed: DC, RC - columns were removed -->
                         <div class="form-group">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 <i class="fas fa-trash text-gray-500 mr-2"></i>Supprimé

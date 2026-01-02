@@ -12,13 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('articles', function (Blueprint $table) {
-            // Update any null values to false
-            DB::table('articles')->whereNull('invendu')->update(['invendu' => false]);
-            
-            // Ensure the column has default(false) and is not nullable
-            $table->boolean('invendu')->default(false)->change();
-        });
+        // Column was removed from articles table, so this migration is now a no-op
+        if (Schema::hasColumn('articles', 'invendu')) {
+            Schema::table('articles', function (Blueprint $table) {
+                // Update any null values to false
+                DB::table('articles')->whereNull('invendu')->update(['invendu' => false]);
+                
+                // Ensure the column has default(false) and is not nullable
+                $table->boolean('invendu')->default(false)->change();
+            });
+        }
     }
 
     /**
@@ -26,9 +29,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('articles', function (Blueprint $table) {
-            // Revert to nullable if needed
-            $table->boolean('invendu')->nullable()->default(false)->change();
-        });
+        // Column was removed from articles table, so this migration is now a no-op
+        if (Schema::hasColumn('articles', 'invendu')) {
+            Schema::table('articles', function (Blueprint $table) {
+                // Revert to nullable if needed
+                $table->boolean('invendu')->nullable()->default(false)->change();
+            });
+        }
     }
 };

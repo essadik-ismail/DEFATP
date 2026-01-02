@@ -24,13 +24,10 @@ class PermissionsSeeder extends Seeder
             'avenants' => ['view', 'create', 'update', 'delete'],
             'exploitants' => ['view', 'create', 'update', 'delete', 'export', 'import'],
             'coperatives' => ['view', 'create', 'update', 'delete', 'export', 'import'],
-            'odfs' => ['view', 'create', 'update', 'delete'],
-            'pdfcs' => ['view', 'create', 'update', 'delete'],
             
             // Entity Data Resources
             'essences' => ['view', 'create', 'update', 'delete', 'export', 'import'],
             'forets' => ['view', 'create', 'update', 'delete', 'export', 'import'],
-            'localisations' => ['view', 'create', 'update', 'delete', 'export', 'import'],
             'situation-administratives' => ['view', 'create', 'update', 'delete', 'export', 'import'],
             'nature-de-coupes' => ['view', 'create', 'update', 'delete', 'export', 'import'],
             'especes' => ['view', 'create', 'update', 'delete'],

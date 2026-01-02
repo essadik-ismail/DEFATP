@@ -20,7 +20,7 @@
                            data-tooltip="Cette page vous permet de créer un article rapidement en utilisant soit le formulaire simplifié, soit en important un fichier Excel. Remplissez les champs requis et cliquez sur 'Créer l'Article' pour enregistrer."></i>
                     </div>
                 </div>
-                <p class="text-gray-600 text-lg mt-2">Créez un article rapidement avec Excel ou le formulaire simplifié</p>
+                <p class="text-gray-600 text-lg mt-2">Sélectionnez les relations et importez vos articles via Excel</p>
             </div>
         </div>
     </div>
@@ -108,8 +108,8 @@
                 <i class="fas fa-plus text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="text-2xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">2. Créer l'Article</h2>
-                <p class="text-gray-600">Utilisez le formulaire simplifié ou importez votre fichier Excel</p>
+                <h2 class="text-2xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">2. Sélectionner les Relations et Importer</h2>
+                <p class="text-gray-600">Sélectionnez les relations et importez votre fichier Excel avec les données des articles</p>
             </div>
         </div>
 
@@ -117,48 +117,39 @@
             @csrf
 
             <!-- Multiple Selects Section -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200 mb-6">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
                         <i class="fas fa-list text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-green-900">Sélections Multiples</h3>
+                    <h3 class="text-xl font-bold text-green-900">Relations (Sélections Requises)</h3>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                    <p class="text-sm text-blue-800">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Note:</strong> Ces relations seront appliquées à tous les articles importés depuis le fichier Excel.
+                    </p>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                     <div class="form-group">
-                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Type <span class="text-red-500">*</span>
+                        <label for="exploitant_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Exploitant <span class="text-red-500">*</span>
                         </label>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'exploitant_id')">
                         <select required
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                                id="type" name="type"
-                                onchange="toggleNumeroAdjudication()">
-                            <option value="">Sélectionner un type</option>
-                            <option value="appel_doffre" {{ old('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'offre</option>
-                            <option value="adjudication" {{ old('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
-                            <option value="marche_negocié" {{ old('type') == 'marche_negocié' ? 'selected' : '' }}>Marche Negocié</option>
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+                                id="exploitant_id" name="exploitant_id">
+                            <option value="">Sélectionner un exploitant</option>
+                            @foreach($exploitants as $exploitant)
+                                <option value="{{ $exploitant->id }}" {{ old('exploitant_id') == $exploitant->id ? 'selected' : '' }}>
+                                    {{ $exploitant->nom_complet }}
+                                </option>
+                            @endforeach
                         </select>
-                        @error('type')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group" id="numero_adjudication_group" style="display: {{ old('type') == 'appel_doffre' ? 'block' : 'none' }};">
-                        <label for="numero_adjudication" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Numéro Adjudication</span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Numéro juridique de l'adjudication"></i>
-                        </label>
-                        <input type="number" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" 
-                               id="numero_adjudication" name="numero_adjudication" 
-                               value="{{ old('numero_adjudication') }}" 
-                               placeholder="Numéro juridique">
-                        @error('numero_adjudication')
+                        @error('exploitant_id')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -203,28 +194,6 @@
                             @endforeach
                         </select>
                         @error('essence_ids')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Localisations <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
-                        <select multiple required
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="localisation_ids" name="localisation_ids[]">
-                            @foreach($localisations as $localisation)
-                                <option value="{{ $localisation->id }}" {{ collect(old('localisation_ids', []))->contains($localisation->id) ? 'selected' : '' }}>
-                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('localisation_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}
@@ -278,28 +247,64 @@
                 </div>
             </div>
 
+            <!-- Products Section (Optional) -->
+            <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200 mb-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-box text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-amber-900">Produits (Optionnel)</h3>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4 mb-4 border border-amber-200">
+                    <p class="text-sm text-amber-800">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Note:</strong> Les produits sélectionnés seront appliqués à tous les articles importés. Les quantités peuvent également être spécifiées dans le fichier Excel.
+                    </p>
+                </div>
+
+                <div id="products-container">
+                    <!-- Products will be added dynamically here -->
+                </div>
+
+                <button 
+                    type="button" 
+                    id="add-product-btn"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-300 text-sm">
+                    <i class="fas fa-plus"></i>
+                    <span>Ajouter un Produit</span>
+                </button>
+            </div>
+
             <!-- Excel Import Section -->
             <div class="bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
                         <i class="fas fa-upload text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-purple-900">Import Excel (Optionnel)</h3>
+                    <h3 class="text-xl font-bold text-purple-900">Import Excel <span class="text-red-500">*</span></h3>
                 </div>
                 
                 <div class="bg-white rounded-xl p-6 border border-purple-200">
                     <div class="mb-4">
                         <label for="excel_file" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Fichier Excel des Articles
+                            Fichier Excel des Articles <span class="text-red-500">*</span>
                         </label>
                         <input type="file" 
+                               required
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
                                id="excel_file" name="excel_file" 
                                accept=".xlsx,.xls,.csv">
                         <p class="text-sm text-gray-500 mt-2">
                             <i class="fas fa-info-circle mr-1"></i>
-                            Utilisez le modèle téléchargé ci-dessus. Le fichier sera traité après la création de l'article.
+                            Utilisez le modèle téléchargé ci-dessus. Toutes les données des articles (année, numéro, dates, prix, etc.) doivent être dans ce fichier Excel.
                         </p>
+                        @error('excel_file')
+                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -311,8 +316,8 @@
                     id="submitBtn"
                     class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
-                    <i class="fas fa-save"></i>
-                    <span class="font-semibold">Créer l'Article</span>
+                    <i class="fas fa-upload"></i>
+                    <span class="font-semibold">Importer les Articles</span>
                 </button>
                 
                 <a 
@@ -358,30 +363,9 @@
 
 @push('scripts')
 <script>
-// Toggle numero_adjudication field based on type selection
-function toggleNumeroAdjudication() {
-    const typeSelect = document.getElementById('type');
-    const numeroAdjudicationGroup = document.getElementById('numero_adjudication_group');
-    
-    if (typeSelect && numeroAdjudicationGroup) {
-        if (typeSelect.value === 'appel_doffre') {
-            numeroAdjudicationGroup.style.display = 'block';
-        } else {
-            numeroAdjudicationGroup.style.display = 'none';
-            const numeroAdjudicationInput = document.getElementById('numero_adjudication');
-            if (numeroAdjudicationInput) {
-                numeroAdjudicationInput.value = '';
-            }
-        }
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('simpleArticleForm');
     const submitBtn = document.getElementById('submitBtn');
-    
-    // Initialize numero_adjudication toggle
-    toggleNumeroAdjudication();
     
     // Simple field validation
     function validateField(field) {
@@ -458,6 +442,65 @@ document.addEventListener('DOMContentLoaded', function() {
             opt.style.display = match ? '' : 'none';
         });
     };
+
+    // Products management
+    let productCount = 0;
+    const products = @json($products ?? []);
+
+    // Add new product row
+    function addProduct() {
+        productCount++;
+        const container = document.getElementById('products-container');
+        
+        const productRow = document.createElement('div');
+        productRow.className = 'product-row flex items-center gap-4 mb-4 p-4 bg-white rounded-xl border border-amber-200';
+        
+        let productOptions = '<option value="">Sélectionner un produit</option>';
+        products.forEach(product => {
+            productOptions += `<option value="${product.name}">${product.name}</option>`;
+        });
+        
+        productRow.innerHTML = `
+            <div class="flex-1">
+                <select name="products[${productCount}][name]" 
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 hover:border-gray-400">
+                    ${productOptions}
+                </select>
+            </div>
+            <div class="w-32">
+                <input type="number" 
+                    name="products[${productCount}][quantity]" 
+                    placeholder="Quantité" 
+                    min="0.01" 
+                    step="0.01"
+                    value="1"
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 hover:border-gray-400">
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" 
+                        onclick="removeProduct(this)" 
+                        class="inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(productRow);
+    }
+
+    // Remove product row
+    window.removeProduct = function(button) {
+        const productRow = button.closest('.product-row');
+        if (productRow) {
+            productRow.remove();
+        }
+    };
+
+    // Add product button event listener
+    const addProductBtn = document.getElementById('add-product-btn');
+    if (addProductBtn) {
+        addProductBtn.addEventListener('click', addProduct);
+    }
 });
 </script>
 @endpush

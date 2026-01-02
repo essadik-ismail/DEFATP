@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Article;
 use App\Models\Exploitant;
+use App\Models\Product;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -12,28 +13,74 @@ use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use Illuminate\Database\Eloquent\Model;
 
-class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBatchInserts, WithChunkReading, SkipsOnError
+class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBatchInserts, WithChunkReading, SkipsOnError, WithEvents
 {
     use Importable, SkipsErrors;
 
     protected $rowCount = 0;
+    protected $exploitantId;
+    protected $foretIds;
+    protected $essenceIds;
+    protected $situationAdministrativeIds;
+    protected $natureDeCoupeIds;
+    protected $modeExploitationIds;
+    protected $zdtfId;
+    protected $productsData;
+    protected $createdArticleKeys = [];
+
+    /**
+     * Constructor to accept relationship IDs and products
+     */
+    public function __construct(
+        $exploitantId = null,
+        $foretIds = [],
+        $essenceIds = [],
+        $situationAdministrativeIds = [],
+        $natureDeCoupeIds = [],
+        $modeExploitationIds = [],
+        $zdtfId = null,
+        $productsData = []
+    ) {
+        $this->exploitantId = $exploitantId;
+        $this->foretIds = $foretIds;
+        $this->essenceIds = $essenceIds;
+        $this->situationAdministrativeIds = $situationAdministrativeIds;
+        $this->natureDeCoupeIds = $natureDeCoupeIds;
+        $this->modeExploitationIds = $modeExploitationIds;
+        $this->zdtfId = $zdtfId;
+        $this->productsData = $productsData;
+    }
 
     public function model(array $row)
     {
         $this->rowCount++;
 
-        // Resolve exploitant id if provided as name
-        $exploitantId = $row['exploitant_id'] ?? $row['Exploitant ID'] ?? $row['exploitant'] ?? $row['Exploitant'] ?? null;
-        if (!is_null($exploitantId) && !is_numeric($exploitantId)) {
-            $byName = Exploitant::where('nom_complet', trim($exploitantId))->first();
-            $exploitantId = $byName?->id;
+        // Use exploitant_id from form if provided, otherwise try to resolve from Excel
+        $exploitantId = $this->exploitantId;
+        if (is_null($exploitantId)) {
+            $exploitantId = $row['exploitant_id'] ?? $row['Exploitant ID'] ?? $row['exploitant'] ?? $row['Exploitant'] ?? null;
+            if (!is_null($exploitantId) && !is_numeric($exploitantId)) {
+                $byName = Exploitant::where('nom_complet', trim($exploitantId))->first();
+                $exploitantId = $byName?->id;
+            }
         }
 
-        return new Article([
+        $numero = $row['numero'] ?? $row["Numéro"] ?? $row["Numéro d'Article"] ?? null;
+        $annee = $row['annee'] ?? $row['Année'] ?? null;
+
+        // Store article key for relationship syncing
+        if ($numero && $annee) {
+            $this->createdArticleKeys[] = ['numero' => $numero, 'annee' => $annee];
+        }
+
+        $article = new Article([
             'type' => $row['type'] ?? $row['Type'] ?? null,
-            'annee' => $row['annee'] ?? $row['Année'] ?? null,
-            'numero' => $row['numero'] ?? $row["Numéro"] ?? $row["Numéro d'Article"] ?? null,
+            'annee' => $annee,
+            'numero' => $numero,
             'date_adjudication' => $row['date_adjudication'] ?? $row['date'] ?? $row['Date'] ?? $row["Date d'adjudication"] ?? $row["Date d'Adjudication"] ?? null,
             'numero_adjudication' => $row['numero_adjudication'] ?? $row["Numéro d'adjudication"] ?? $row['Numéro Juridique'] ?? null,
             'exploitant_id' => $exploitantId,
@@ -47,6 +94,13 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'prix_vente' => $row['prix_vente'] ?? $row['Prix de vente'] ?? null,
             'invendu' => $this->parseBoolean($row['invendu'] ?? $row['Invendu'] ?? false),
             'fourniture_mise_charge' => $row['fourniture_mise_charge'] ?? $row['Fourniture mise en charge'] ?? null,
+            'taxe_refection_chemins' => $row['taxe_refection_chemins'] ?? $row['Taxe refection chemins'] ?? null,
+            'service_rendu_anef' => $row['service_rendu_anef'] ?? $row['Service rendu ANEF'] ?? null,
+            'bois_chauffage_volume' => $row['bois_chauffage_volume'] ?? $row['Bois chauffage volume'] ?? null,
+            'bois_chauffage_destination' => $row['bois_chauffage_destination'] ?? $row['Bois chauffage destination'] ?? null,
+            'date_payement_service_anef' => $row['date_payement_service_anef'] ?? $row['Date payement service ANEF'] ?? null,
+            'date_livaison_mise_en_charge_bf' => $row['date_livaison_mise_en_charge_bf'] ?? $row['Date livraison mise en charge BF'] ?? null,
+            'zdtf_id' => $this->zdtfId ?? ($row['zdtf_id'] ?? $row['ZDTF ID'] ?? null),
             'bo_m3' => $row['bo_m3'] ?? $row['BO (m³)'] ?? null,
             'bi_m3' => $row['bi_m3'] ?? $row['BI (m³)'] ?? null,
             'bf_st' => $row['bf_st'] ?? $row['BF (st)'] ?? null,
@@ -58,12 +112,62 @@ class ArticlesImport implements ToModel, WithHeadingRow, WithValidation, WithBat
             'liége_st' => $row['liége_st'] ?? $row['liege_st'] ?? $row['Liège (st)'] ?? null,
             'charbon_bois_ox' => $row['charbon_bois_ox'] ?? $row['Charbon Bois (ox)'] ?? null,
         ]);
+
+        return $article;
+    }
+
+    /**
+     * Register events to sync relationships after articles are created
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                // Sync relationships for all created articles
+                foreach ($this->createdArticleKeys as $key) {
+                    $article = Article::where('numero', $key['numero'])
+                                     ->where('annee', $key['annee'])
+                                     ->first();
+                    
+                    if ($article) {
+                        // Sync relationships from form selections
+                        if (!empty($this->foretIds)) {
+                            $article->forets()->sync($this->foretIds);
+                        }
+                        if (!empty($this->essenceIds)) {
+                            $article->essences()->sync($this->essenceIds);
+                        }
+                        if (!empty($this->situationAdministrativeIds)) {
+                            $article->situationsAdministratives()->sync($this->situationAdministrativeIds);
+                        }
+                        if (!empty($this->natureDeCoupeIds)) {
+                            $article->naturesDeCoupe()->sync($this->natureDeCoupeIds);
+                        }
+                        if (!empty($this->modeExploitationIds)) {
+                            $article->modeExploitations()->sync($this->modeExploitationIds);
+                        }
+
+                        // Sync products from form selections
+                        if (!empty($this->productsData)) {
+                            $productSync = [];
+                            foreach ($this->productsData as $productData) {
+                                $product = Product::firstOrCreate(['name' => $productData['name']]);
+                                $productSync[$product->id] = ['quantity' => $productData['quantity']];
+                            }
+                            if (!empty($productSync)) {
+                                $article->products()->sync($productSync);
+                            }
+                        }
+                    }
+                }
+            },
+        ];
     }
 
     public function rules(): array
     {
         return [
-            'type' => 'nullable|string|in:appel_doffre,adjudication',
+            'type' => 'nullable|string|in:appel_doffre,adjudication,marche_negocié',
             'annee' => 'required|integer|min:1900|max:2100',
             'numero' => 'required|string|max:255',
             'date_adjudication' => 'required|date',

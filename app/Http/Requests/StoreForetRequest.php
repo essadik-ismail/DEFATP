@@ -25,6 +25,8 @@ class StoreForetRequest extends FormRequest
             'foret' => ['required', 'string', 'max:255'],
             'lat' => ['nullable', 'string', 'max:255'],
             'log' => ['nullable', 'string', 'max:255'],
+            'nature_juridique' => ['nullable', 'string', 'max:255'],
+            'dpanef_id' => ['nullable', 'exists:dpanefs,id'],
         ];
     }
 

@@ -58,18 +58,14 @@ return new class extends Migration
                 if (!$this->indexExists('articles', 'articles_exploitant_deleted_idx')) {
                     $table->index(['exploitant_id', 'is_deleted'], 'articles_exploitant_deleted_idx');
                 }
-                if (!$this->indexExists('articles', 'articles_invendu_deleted_idx')) {
-                    $table->index(['invendu', 'is_deleted'], 'articles_invendu_deleted_idx');
-                }
+                // Removed articles_invendu_deleted_idx - invendu column was removed
                 if (!$this->indexExists('articles', 'articles_numero_annee_idx')) {
                     $table->index(['numero', 'annee'], 'articles_numero_annee_idx');
                 }
                 if (!$this->indexExists('articles', 'articles_date_adjudication_idx')) {
                     $table->index(['date_adjudication'], 'articles_date_adjudication_idx');
                 }
-                if (!$this->indexExists('articles', 'articles_prix_vente_idx')) {
-                    $table->index(['prix_vente'], 'articles_prix_vente_idx');
-                }
+                // Removed articles_prix_vente_idx - prix_vente column was removed
             });
         }
 
@@ -160,18 +156,14 @@ return new class extends Migration
                 try {
                     $table->dropIndex('articles_exploitant_deleted_idx');
                 } catch (\Exception $e) {}
-                try {
-                    $table->dropIndex('articles_invendu_deleted_idx');
-                } catch (\Exception $e) {}
+                // Removed articles_invendu_deleted_idx - invendu column was removed
                 try {
                     $table->dropIndex('articles_numero_annee_idx');
                 } catch (\Exception $e) {}
                 try {
                     $table->dropIndex('articles_date_adjudication_idx');
                 } catch (\Exception $e) {}
-                try {
-                    $table->dropIndex('articles_prix_vente_idx');
-                } catch (\Exception $e) {}
+                // Removed articles_prix_vente_idx - prix_vente column was removed
             });
         }
 

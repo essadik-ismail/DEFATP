@@ -21,35 +21,32 @@ class Article extends Model
         'lot',
         'type',
         'exploitant_id',
-        'nature_juridique',
         'parcelle',
         'lat',
         'log',
         'superficie',
         'ps_t',
-        'prix_de_retrait',
-        'prix_vente',
-        'invendu',
-        'dc',
-        'rc',
         'nommer_a_la_vente',
         'fourniture_mise_charge',
-        'date_de_resiliation',
-        'date_de_decheance',
+        'taxe_refection_chemins',
+        'service_rendu_anef',
+        'bois_chauffage_volume',
+        'bois_chauffage_destination',
+        'date_payement_service_anef',
+        'date_livaison_mise_en_charge_bf',
+        'zdtf_id',
     ];
 
     protected $casts = [
         'date_adjudication' => 'date',
-        'date_de_resiliation' => 'date',
-        'date_de_decheance' => 'date',
+        'date_payement_service_anef' => 'date',
+        'date_livaison_mise_en_charge_bf' => 'date',
         'ps_t' => 'decimal:2',
-        'prix_de_retrait' => 'decimal:2',
-        'prix_vente' => 'decimal:2',
         'fourniture_mise_charge' => 'decimal:2',
+        'taxe_refection_chemins' => 'decimal:2',
+        'service_rendu_anef' => 'decimal:2',
+        'bois_chauffage_volume' => 'decimal:2',
         'superficie' => 'decimal:2',
-        'invendu' => 'boolean',
-        'dc' => 'boolean',
-        'rc' => 'boolean',
         'nommer_a_la_vente' => 'boolean',
     ];
 
@@ -65,10 +62,12 @@ class Article extends Model
 
     /**
      * Many-to-many: this article may be linked to multiple essences.
+     * The pivot table can also include product_id and quantity.
      */
     public function essences(): BelongsToMany
     {
         return $this->belongsToMany(Essence::class, 'article_essence', 'article_id', 'essence_id')
+            ->withPivot('product_id', 'quantity')
             ->withTimestamps();
     }
 
@@ -90,15 +89,15 @@ class Article extends Model
             ->withTimestamps();
     }
 
-
     /**
-     * Many-to-many: this article may be linked to multiple localisations.
+     * Many-to-many: this article may be linked to multiple mode exploitations.
      */
-    public function localisations(): BelongsToMany
+    public function modeExploitations(): BelongsToMany
     {
-        return $this->belongsToMany(Localisation::class, 'article_localisation', 'article_id', 'localisation_id')
+        return $this->belongsToMany(ModeExploitation::class, 'article_mode_exploitation', 'article_id', 'mode_exploitation_id')
             ->withTimestamps();
     }
+
 
     /**
      * Get the operator for this article.
@@ -124,6 +123,14 @@ class Article extends Model
     public function locations(): HasMany
     {
         return $this->hasMany(Location::class);
+    }
+
+    /**
+     * Get the zdtf for this article.
+     */
+    public function zdtf(): BelongsTo
+    {
+        return $this->belongsTo(Zdtf::class, 'zdtf_id');
     }
 
     /**
@@ -163,21 +170,7 @@ class Article extends Model
     }
 
 
-    /**
-     * Scope for sold articles.
-     */
-    public function scopeSold(Builder $query): Builder
-    {
-        return $query->where('invendu', false);
-    }
-
-    /**
-     * Scope for unsold articles.
-     */
-    public function scopeUnsold(Builder $query): Builder
-    {
-        return $query->where('invendu', true);
-    }
+    // Removed scopeSold and scopeUnsold - invendu column was removed
 
     /**
      * Scope for articles by year.
@@ -215,19 +208,7 @@ class Article extends Model
         return $query->where('type', $type);
     }
 
-    /**
-     * Scope for articles with price range.
-     */
-    public function scopePriceRange(Builder $query, float $minPrice = null, float $maxPrice = null): Builder
-    {
-        if ($minPrice !== null) {
-            $query->where('prix_vente', '>=', $minPrice);
-        }
-        if ($maxPrice !== null) {
-            $query->where('prix_vente', '<=', $maxPrice);
-        }
-        return $query;
-    }
+    // Removed scopePriceRange - prix_vente column was removed
 
     /**
      * Scope for articles by date range.
@@ -251,11 +232,5 @@ class Article extends Model
         return $query->where('created_at', '>=', now()->subDays($days));
     }
 
-    /**
-     * Scope for articles with high value.
-     */
-    public function scopeHighValue(Builder $query, float $threshold = 10000): Builder
-    {
-        return $query->where('prix_vente', '>=', $threshold);
-    }
+    // Removed scopeHighValue - prix_vente column was removed
 }

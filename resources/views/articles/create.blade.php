@@ -104,44 +104,6 @@
 
             <form action="{{ route('articles.store') }}" method="POST" id="articleForm" class="space-y-8" data-server-validation enctype="multipart/form-data">
                 @csrf
-                
-                <!-- Progress Bar -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2">
-                            <div class="step-indicator active" data-step="1">
-                                <div class="step-number">1</div>
-                                <div class="step-label">Informations de Base</div>
-                            </div>
-                            <div class="step-line"></div>
-                            <div class="step-indicator" data-step="2">
-                                <div class="step-number">2</div>
-                                <div class="step-label">Localisation</div>
-                            </div>
-                            <div class="step-line"></div>
-                            <div class="step-indicator" data-step="3">
-                                <div class="step-number">3</div>
-                                <div class="step-label">Détails Techniques</div>
-                            </div>
-                            <div class="step-line"></div>
-                            <div class="step-indicator" data-step="4">
-                                <div class="step-number">4</div>
-                                <div class="step-label">Plan du Situation</div>
-                            </div>
-                            <div class="step-line"></div>
-                            <div class="step-indicator" data-step="5">
-                                <div class="step-number">5</div>
-                                <div class="step-label">Suivi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300" id="progress-bar" style="width: 25%"></div>
-                    </div>
-                </div>
-                
-                <!-- Step 1: Informations de Base -->
-                <div class="step-content" data-step="1">
                 <!-- Section 1: Informations de Base -->
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
                     <div class="flex items-center gap-3 mb-6">
@@ -257,42 +219,15 @@
                         </div>
                     </div>
                 </div>
-                </div>
-                <!-- End Step 1 -->
-
-                <!-- Step 2: Localisation -->
-                <div class="step-content hidden" data-step="2">
-                <!-- Section 2: Localisation -->
+                <!-- Section 2: Informations -->
                 <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
                             <i class="fas fa-map-marker-alt text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">Section 2: Localisation</h3>
+                        <h3 class="text-xl font-bold" style="color: #059669;">Section 2: Informations</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="form-group">
-                            <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                <span>Localisations (DRANEF - DPANEF - ENTITE) <span class="text-red-500">*</span></span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs localisations"></i>
-                            </label>
-                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
-                            <select multiple required
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                    id="localisation_ids" name="localisation_ids[]">
-                                @foreach($localisations as $localisation)
-                                    <option value="{{ $localisation->id }}" {{ collect(old('localisation_ids', []))->contains($localisation->id) ? 'selected' : '' }}>
-                                        {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('localisation_ids')
-                                <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
                         <div class="form-group">
                             <label for="situation_administrative_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                 <span>Situation Administrative (commune - province) <span class="text-red-500">*</span></span>
@@ -309,6 +244,27 @@
                                 @endforeach
                             </select>
                             @error('situation_administrative_ids')
+                                <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        <!-- ZDTF -->
+                        <div class="form-group">
+                            <label for="zdtf_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <span>ZDTF</span>
+                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez un ZDTF"></i>
+                            </label>
+                            <select id="zdtf_id" name="zdtf_id" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400">
+                                <option value="">Sélectionner un ZDTF</option>
+                                @foreach($zdtfs as $zdtf)
+                                    <option value="{{ $zdtf->id }}" {{ old('zdtf_id') == $zdtf->id ? 'selected' : '' }}>
+                                        {{ $zdtf->sdtf }}@if($zdtf->dpanef) - {{ $zdtf->dpanef->dpanef }}@endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('zdtf_id')
                                 <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                     <i class="fas fa-exclamation-circle"></i>
                                     {{ $message }}
@@ -385,16 +341,21 @@
                                 </div>
                             @enderror
                         </div>
+                        <!-- Mode d'Exploitation -->
                         <div class="form-group">
-                            <label for="nature_juridique" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                <span>Nature Juridique</span>
-                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nature juridique de l'article"></i>
+                            <label for="mode_exploitation_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <span>Mode d'Exploitation</span>
+                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez un ou plusieurs modes d'exploitation"></i>
                             </label>
-                            <input type="text" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="nature_juridique" name="nature_juridique" value="{{ old('nature_juridique') }}" 
-                                placeholder="Nature juridique">
-                            @error('nature_juridique')
+                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'mode_exploitation_ids')">
+                            <select multiple id="mode_exploitation_ids" name="mode_exploitation_ids[]" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400">
+                                @foreach($modeExploitations as $modeExploitation)
+                                    <option value="{{ $modeExploitation->id }}" {{ collect(old('mode_exploitation_ids', []))->contains($modeExploitation->id) ? 'selected' : '' }}>
+                                        {{ $modeExploitation->mode_exploiattion }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('mode_exploitation_ids')
                                 <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                     <i class="fas fa-exclamation-circle"></i>
                                     {{ $message }}
@@ -402,7 +363,7 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <div class="form-group">
                             <label for="parcelle" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                                 <span>Parcelle</span>
@@ -419,43 +380,27 @@
                                 </div>
                             @enderror
                         </div>
-                        <!-- <div class="form-group">
-                            <label for="lat" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Latitude
+                        <!-- Exploitant -->
+                        <div class="form-group">
+                            <label for="exploitant_id" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <span>Exploitant</span>
+                                <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez un exploitant"></i>
                             </label>
-                            <input type="text" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="lat" name="lat" value="{{ old('lat') }}" 
-                                placeholder="Latitude">
-                            @error('lat')
+                            <select id="exploitant_id" name="exploitant_id" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400">
+                                <option value="">Sélectionner un exploitant</option>
+                                @foreach($exploitants as $exploitant)
+                                    <option value="{{ $exploitant->id }}" {{ old('exploitant_id') == $exploitant->id ? 'selected' : '' }}>{{ $exploitant->nom_complet ?? $exploitant->nom }}</option>
+                                @endforeach
+                            </select>
+                            @error('exploitant_id')
                                 <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                     <i class="fas fa-exclamation-circle"></i>
                                     {{ $message }}
                                 </div>
                             @enderror
                         </div>
-                        <div class="form-group">
-                            <label for="log" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Longitude
-                            </label>
-                            <input type="text" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="log" name="log" value="{{ old('log') }}" 
-                                placeholder="Longitude">
-                            @error('log')
-                                <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div> -->
                     </div>
                 </div>
-                </div>
-                <!-- End Step 2 -->
-
-                <!-- Step 3: Détails Techniques -->
-                <div class="step-content hidden" data-step="3">
                 <!-- Section 3: Détails Techniques -->
                 <div class="bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
                     <div class="flex items-center gap-3 mb-6">
@@ -526,11 +471,75 @@
                         </div>
                     </div>
                 </div>
-                </div>
-                <!-- End Step 3 -->
 
-                <!-- Step 4: Plan du Situation -->
-                <div class="step-content hidden" data-step="4">
+                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                            <i class="fas fa-clipboard-check text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold" style="color: #059669;">Les taxes d'article</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Taxe refection chemins -->
+                        <div class="form-group">
+                            <label for="taxe_refection_chemins" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Taxe refection chemins
+                            </label>
+                            <input type="number" id="taxe_refection_chemins" name="taxe_refection_chemins" value="{{ old('taxe_refection_chemins') }}" 
+                                step="0.01" min="0" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <!-- Service rendu ANEF -->
+                        <div class="form-group">
+                            <label for="service_rendu_anef" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Service rendu ANEF
+                            </label>
+                            <input type="number" id="service_rendu_anef" name="service_rendu_anef" value="{{ old('service_rendu_anef') }}" 
+                                step="0.01" min="0" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <!-- Bois chauffage volume -->
+                        <div class="form-group">
+                            <label for="bois_chauffage_volume" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Bois chauffage volume
+                            </label>
+                            <input type="number" id="bois_chauffage_volume" name="bois_chauffage_volume" value="{{ old('bois_chauffage_volume') }}" 
+                                step="0.01" min="0" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <!-- Bois chauffage destination -->
+                        <div class="form-group">
+                            <label for="bois_chauffage_destination" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Bois chauffage destination
+                            </label>
+                            <input type="text" id="bois_chauffage_destination" name="bois_chauffage_destination" value="{{ old('bois_chauffage_destination') }}" 
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <!-- Date payement service ANEF -->
+                        <div class="form-group">
+                            <label for="date_payement_service_anef" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Date payement service ANEF
+                            </label>
+                            <input type="date" id="date_payement_service_anef" name="date_payement_service_anef" value="{{ old('date_payement_service_anef') }}" 
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="jj/mm/aaaa">
+                        </div>
+
+                        <!-- Date livraison mise en charge BF -->
+                        <div class="form-group">
+                            <label for="date_livaison_mise_en_charge_bf" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Date livraison mise en charge BF
+                            </label>
+                            <input type="date" id="date_livaison_mise_en_charge_bf" name="date_livaison_mise_en_charge_bf" value="{{ old('date_livaison_mise_en_charge_bf') }}" 
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="jj/mm/aaaa">
+                        </div>
+
+                    </div>
+                </div>
+
                 <!-- Section 4: Plan du Situation -->
                 <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200">
                     <div class="flex items-center gap-3 mb-6">
@@ -578,192 +587,26 @@
                         </div>
                     </div>
                 </div>
-                </div>
-                <!-- End Step 4 -->
 
-                <!-- Step 5: Suivi -->
-                <div class="step-content hidden" data-step="5">
-                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                            <i class="fas fa-clipboard-check text-white"></i>
-                        </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">Suivi de l'Article</h3>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Nommer à la vente -->
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Nommer à la vente
-                            </label>
-                            <div class="flex items-center space-x-4">
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="a_vendre" value="0" class="form-radio text-indigo-600" checked>
-                                    <span class="ml-2">Non</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="a_vendre" value="1" class="form-radio text-indigo-600">
-                                    <span class="ml-2">Oui</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Invendu -->
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Invendu
-                            </label>
-                            <div class="flex items-center space-x-4">
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="invendu" value="0" class="form-radio text-indigo-600" checked>
-                                    <span class="ml-2">Non</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="invendu" value="1" class="form-radio text-indigo-600">
-                                    <span class="ml-2">Oui</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Exploitant -->
-                        <div class="form-group">
-                            <label for="exploitant" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Exploitant
-                            </label>
-                            <select id="exploitant" name="exploitant" class="form-select w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                <option value="">Sélectionner un exploitant</option>
-                                @foreach($exploitants as $exploitant)
-                                    <option value="{{ $exploitant->id }}">{{ $exploitant->nom }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        
-                        <!-- Prix de vente -->
-                        <div class="form-group">
-                            <label for="prix_vente" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Prix de vente
-                            </label>
-                            <div class="relative">
-                                <input type="number" id="prix_vente" name="prix_vente" 
-                                    class="form-input w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    step="0.01" min="0">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500">DH</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Déchéance -->
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Déchéance
-                            </label>
-                            <div class="flex items-center space-x-4">
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="decheance" value="0" class="form-radio text-indigo-600" checked>
-                                    <span class="ml-2">Non</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="decheance" value="1" class="form-radio text-indigo-600">
-                                    <span class="ml-2">Oui</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Date de déchéance -->
-                        <div class="form-group">
-                            <label for="date_decheance" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Date de déchéance
-                            </label>
-                            <input type="date" id="date_decheance" name="date_decheance" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="jj/mm/aaaa">
-                        </div>
-                        
-                        <!-- Prix de retrait -->
-                        <div class="form-group">
-                            <label for="prix_retrait" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Prix de retrait
-                            </label>
-                            <div class="relative">
-                                <input type="number" id="prix_retrait" name="prix_retrait" 
-                                    class="form-input w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                    step="0.01" min="0">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500">DH</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Résiliation -->
-                        <div class="form-group">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Résiliation
-                            </label>
-                            <div class="flex items-center space-x-4">
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="resiliation" value="0" class="form-radio text-indigo-600" checked>
-                                    <span class="ml-2">Non</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="resiliation" value="1" class="form-radio text-indigo-600">
-                                    <span class="ml-2">Oui</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Date de résiliation -->
-                        <div class="form-group">
-                            <label for="date_resiliation" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Date de résiliation
-                            </label>
-                            <input type="date" id="date_resiliation" name="date_resiliation" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="jj/mm/aaaa">
-                        </div>
-                    </div>
-                </div>
-                </div>
-                <!-- End Step 5 -->
-
-                <!-- Navigation Buttons -->
-                <div class="flex items-center justify-between pt-6 border-t border-gray-200 mt-8 sticky bottom-0 bg-white pb-4 z-10">
-                    <div>
-                        <button type="button" 
-                                id="prevBtn" 
-                                onclick="changeStep(-1)"
-                                class="hidden inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                            <i class="fas fa-arrow-left"></i>
-                            <span>Précédent</span>
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <a href="{{ route('articles.index') }}" 
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 mt-8">
+                    <a href="{{ route('articles.index') }}" 
                         class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                            <i class="fas fa-times"></i>
-                            <span>Annuler</span>
-                        </a>
-                        <button type="button" 
-                                id="saveDraftBtn"
-                                onclick="saveAsDraft()"
-                                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Enregistrer comme brouillon</span>
-                        </button>
-                        <button type="button" 
-                                id="nextBtn" 
-                                onclick="changeStep(1)"
-                                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                                style="display: inline-flex !important; visibility: visible !important; opacity: 1 !important;">
-                            <span>Suivant</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </button>
-                        <button type="submit" 
-                                id="submitBtn"
-                                class="hidden inline-flex items-center gap-3 px-6 py-3 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-                                style="background: linear-gradient(to right, #059669, #047857);"
-                                onmouseover="this.style.background='linear-gradient(to right, #047857, #065f46)'"
+                        <i class="fas fa-times"></i>
+                        <span>Annuler</span>
+                    </a>
+                    <button type="button" 
+                            id="saveDraftBtn"
+                            onclick="saveAsDraft()"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Enregistrer comme brouillon</span>
+                    </button>
+                    <button type="submit" 
+                            id="submitBtn"
+                            class="inline-flex items-center gap-3 px-6 py-3 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                            style="background: linear-gradient(to right, #059669, #047857);"
+                            onmouseover="this.style.background='linear-gradient(to right, #047857, #065f46)'"
                                 onmouseout="this.style.background='linear-gradient(to right, #059669, #047857)'">
                             <i class="fas fa-save"></i>
                             <span class="font-semibold">Créer l'Article</span>
@@ -946,7 +789,7 @@
             const filter = inputEl.value.toLowerCase();
             const select = document.getElementById(selectId);
             if (!select) return;
-            const totalSteps = 5;
+            // Removed: totalSteps - multistep removed
             Array.from(select.options).forEach(function(opt) {
                 const text = (opt.text || '').toLowerCase();
                 const match = text.indexOf(filter) !== -1;
@@ -955,96 +798,12 @@
         };
     });
 
-    // Multi-step form functionality
-    let currentStep = 1;
-    const totalSteps = 4;
-
-    function showStep(step) {
-        // Hide all steps
-        document.querySelectorAll('.step-content').forEach(content => {
-            content.classList.add('hidden');
-        });
+    // Form validation function
+    function validateForm() {
+        const form = document.getElementById('articleForm');
+        if (!form) return true;
         
-        // Show current step
-        const currentStepContent = document.querySelector(`.step-content[data-step="${step}"]`);
-        if (currentStepContent) {
-            currentStepContent.classList.remove('hidden');
-        }
-        
-        // Update step indicators
-        document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
-            const stepNum = index + 1;
-            if (stepNum < step) {
-                indicator.classList.add('completed');
-                indicator.classList.remove('active');
-            } else if (stepNum === step) {
-                indicator.classList.add('active');
-                indicator.classList.remove('completed');
-            } else {
-                indicator.classList.remove('active', 'completed');
-            }
-        });
-        
-        // Update progress bar
-        const progressBar = document.getElementById('progress-bar');
-        if (progressBar) {
-            const progress = (step / totalSteps) * 100;
-            progressBar.style.width = progress + '%';
-        }
-        
-        // Update navigation buttons
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        if (!prevBtn || !nextBtn || !submitBtn) {
-            console.error('Navigation buttons not found', { prevBtn, nextBtn, submitBtn });
-            return;
-        }
-        
-        if (step === 1) {
-            prevBtn.classList.add('hidden');
-        } else {
-            prevBtn.classList.remove('hidden');
-        }
-        
-        if (step === totalSteps) {
-            nextBtn.classList.add('hidden');
-            nextBtn.style.display = 'none';
-            submitBtn.classList.remove('hidden');
-            submitBtn.style.display = 'inline-flex';
-        } else {
-            nextBtn.classList.remove('hidden');
-            nextBtn.style.display = 'inline-flex';
-            submitBtn.classList.add('hidden');
-            submitBtn.style.display = 'none';
-        }
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function changeStep(direction) {
-        const newStep = currentStep + direction;
-        
-        if (newStep < 1 || newStep > totalSteps) {
-            return;
-        }
-        
-        // Validate current step before moving
-        if (direction > 0 && !validateStep(currentStep)) {
-            return;
-        }
-        
-        currentStep = newStep;
-        showStep(currentStep);
-    }
-
-    function validateStep(step) {
-        const stepContent = document.querySelector(`.step-content[data-step="${step}"]`);
-        if (!stepContent) return true;
-        
-        const requiredFields = stepContent.querySelectorAll('[required]');
+        const requiredFields = form.querySelectorAll('[required]');
         let isValid = true;
         
         requiredFields.forEach(field => {
@@ -1062,7 +821,7 @@
         });
         
         if (!isValid) {
-            alert('Veuillez remplir tous les champs obligatoires avant de continuer.');
+            alert('Veuillez remplir tous les champs obligatoires.');
         }
         
         return isValid;
@@ -1135,8 +894,7 @@
             draftData.products = products;
         }
         
-        // Save current step
-        draftData.currentStep = currentStep;
+        // Removed: currentStep tracking - multistep removed
         
         return draftData;
     }
@@ -1242,9 +1000,7 @@
             const option = document.createElement('option');
             option.value = draft.id;
             option.textContent = `${draft.name || 'Brouillon'} - ${dateStr}`;
-            if (draft.currentStep) {
-                option.textContent += ` (Étape ${draft.currentStep}/4)`;
-            }
+            // Removed: step indicator in draft name
             dropdown.appendChild(option);
         });
     }
@@ -1268,7 +1024,7 @@
         
         // Restore form fields
         Object.keys(draftData).forEach(key => {
-            if (key === 'products' || key === 'currentStep' || key === 'savedAt' || key === 'name' || key === 'id') {
+            if (key === 'products' || key === 'savedAt' || key === 'name' || key === 'id') {
                 return; // Skip special fields
             }
             
@@ -1321,13 +1077,7 @@
             });
         }
         
-        // Restore current step
-        if (draftData.currentStep) {
-            currentStep = draftData.currentStep;
-            if (typeof showStep === 'function') {
-                showStep(currentStep);
-            }
-        }
+        // Removed: step restoration - multistep removed
         
         // Reset dropdown
         const dropdown = document.getElementById('draftsDropdown');
@@ -1369,20 +1119,7 @@
         // Check if drafts exist
         checkDraftsExists();
         
-        // Ensure next button is visible first
-        const nextBtn = document.getElementById('nextBtn');
-        if (nextBtn) {
-            nextBtn.classList.remove('hidden');
-            nextBtn.style.display = 'inline-flex';
-            nextBtn.style.visibility = 'visible';
-        }
-        
-        // Initialize form steps
-        if (typeof showStep === 'function') {
-            showStep(1);
-        } else {
-            console.error('showStep function not found');
-        }
+        // Form initialization - multistep removed
         
         // Initialize numero_adjudication toggle
         if (typeof toggleNumeroAdjudication === 'function') {
@@ -1393,7 +1130,7 @@
         const articleForm = document.getElementById('articleForm');
         if (articleForm) {
             articleForm.addEventListener('submit', function(e) {
-                if (!validateStep(currentStep)) {
+                if (!validateForm()) {
                     e.preventDefault();
                     return false;
                 }
@@ -1402,109 +1139,11 @@
             });
         }
         
-        // Double check next button visibility after a short delay
-        setTimeout(function() {
-            const nextBtnCheck = document.getElementById('nextBtn');
-            if (nextBtnCheck) {
-                nextBtnCheck.classList.remove('hidden');
-                nextBtnCheck.style.display = 'inline-flex';
-                nextBtnCheck.style.visibility = 'visible';
-            }
-        }, 200);
-        
         // Modal event listeners are now handled by modal.js globally
     });
     </script>
 
     <style>
-    .step-indicator {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        flex: 1;
-        position: relative;
-    }
-
-    .step-number {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #e5e7eb;
-        color: #6b7280;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        border: 2px solid #e5e7eb;
-    }
-
-    .step-indicator.active .step-number {
-        background: linear-gradient(to bottom right, #059669, #047857);
-        color: white;
-        border-color: #059669;
-        transform: scale(1.1);
-    }
-
-    .step-indicator.completed .step-number {
-        background: linear-gradient(to bottom right, #10b981, #059669);
-        color: white;
-        border-color: #10b981;
-    }
-
-    .step-label {
-        margin-top: 8px;
-        font-size: 0.75rem;
-        color: #6b7280;
-        text-align: center;
-        font-weight: 500;
-    }
-
-    .step-indicator.active .step-label {
-        color: #059669;
-        font-weight: 600;
-    }
-
-    .step-indicator.completed .step-label {
-        color: #10b981;
-    }
-
-    .step-line {
-        flex: 1;
-        height: 2px;
-        background: #e5e7eb;
-        margin: 0 8px;
-        margin-top: -20px;
-        z-index: -1;
-    }
-
-    .step-content {
-        animation: fadeIn 0.3s ease-in;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .step-indicator {
-            flex: 0 0 auto;
-        }
-        
-        .step-label {
-            display: none;
-        }
-        
-        .step-line {
-            display: none;
-        }
-    }
+    /* Removed: step indicator styles - multistep removed */
     </style>
 @endpush

@@ -29,189 +29,189 @@ class EssenceSeeder extends Seeder
     private function getEssencesData(): array
     {
         $json = <<<'JSON'
-[
- {
-  "Clé": "32",
-  "Essence": "Romarin"
- },
- {
-  "Clé": "33",
-  "Essence": "Thym"
- },
- {
-  "Clé": "34",
-  "Essence": "Pin maritime"
- },
- {
-  "Clé": "35",
-  "Essence": "Chène zeen"
- },
- {
-  "Clé": "36",
-  "Essence": "Canon de liège"
- },
- {
-  "Clé": "37",
-  "Essence": "feuilles sèches de palmier nain"
- },
- {
-  "Clé": "38",
-  "Essence": "plantes de tighacht"
- },
- {
-  "Clé": "42",
-  "Essence": "Grevillea"
- },
- {
-  "Clé": "43",
-  "Essence": "Pin Pignon"
- },
- {
-  "Clé": "44",
-  "Essence": "Mûrier"
- },
- {
-  "Clé": "45",
-  "Essence": "Arbousier"
- },
- {
-  "Clé": "46",
-  "Essence": "Lichen"
- },
- {
-  "Clé": "47",
-  "Essence": "Bruyère"
- },
- {
-  "Clé": "48",
-  "Essence": "Genévrier Thurifère"
- },
- {
-  "Clé": "49",
-  "Essence": "Pin Radiata"
- },
- {
-  "Clé": "51",
-  "Essence": "Essences secondaires"
- },
- {
-  "Clé": "52",
-  "Essence": "Eucalyptus robusta"
- },
- {
-  "Clé": "1",
-  "Essence": "Eucalyptus camaldulensis"
- },
- {
-  "Clé": "2",
-  "Essence": "Eucalyptus grandis"
- },
- {
-  "Clé": "3",
-  "Essence": "Eucalyptus clonal"
- },
- {
-  "Clé": "4",
-  "Essence": "Fleurs d'acacia"
- },
- {
-  "Clé": "5",
-  "Essence": "Chêne liège"
- },
- {
-  "Clé": "6",
-  "Essence": "Eucalyptus gomphocephala"
- },
- {
-  "Clé": "7",
-  "Essence": "Pinus halepensis"
- },
- {
-  "Clé": "8",
-  "Essence": "Pinus brutia"
- },
- {
-  "Clé": "9",
-  "Essence": "Acacia cyclops"
- },
- {
-  "Clé": "10",
-  "Essence": "Eucalyptus sidéroxylon"
- },
- {
-  "Clé": "11",
-  "Essence": "Thuya"
- },
- {
-  "Clé": "12",
-  "Essence": "Lentisque"
- },
- {
-  "Clé": "13",
-  "Essence": "Acacia mernsii"
- },
- {
-  "Clé": "14",
-  "Essence": "Eucalyptus"
- },
- {
-  "Clé": "15",
-  "Essence": "pin de canarie"
- },
- {
-  "Clé": "16",
-  "Essence": "cyprès"
- },
- {
-  "Clé": "17",
-  "Essence": "Acacia"
- },
- {
-  "Clé": "18",
-  "Essence": "charbon de bois"
- },
- {
-  "Clé": "19",
-  "Essence": "Pin divers"
- },
- {
-  "Clé": "20",
-  "Essence": "Eucalyptus cladocalyx"
- },
- {
-  "Clé": "21",
-  "Essence": "Genevrier oxycèdre"
- },
- {
-  "Clé": "22",
-  "Essence": "Genevrier rouge"
- },
- {
-  "Clé": "23",
-  "Essence": "Chène vert"
- },
- {
-  "Clé": "24",
-  "Essence": "Oléastre"
- },
- {
-  "Clé": "25",
-  "Essence": "Caroubier"
- },
- {
-  "Clé": "26",
-  "Essence": "Cyprès de l'Atlas"
- },
- {
-  "Clé": "27",
-  "Essence": "Génévrier"
- },
- {
-  "Clé": "29",
-  "Essence": "cèdre de l'atlas"
- }
-]
-JSON;
+                [
+                {
+                "Clé": "32",
+                "Essence": "Romarin"
+                },
+                {
+                "Clé": "33",
+                "Essence": "Thym"
+                },
+                {
+                "Clé": "34",
+                "Essence": "Pin maritime"
+                },
+                {
+                "Clé": "35",
+                "Essence": "Chène zeen"
+                },
+                {
+                "Clé": "36",
+                "Essence": "Canon de liège"
+                },
+                {
+                "Clé": "37",
+                "Essence": "feuilles sèches de palmier nain"
+                },
+                {
+                "Clé": "38",
+                "Essence": "plantes de tighacht"
+                },
+                {
+                "Clé": "42",
+                "Essence": "Grevillea"
+                },
+                {
+                "Clé": "43",
+                "Essence": "Pin Pignon"
+                },
+                {
+                "Clé": "44",
+                "Essence": "Mûrier"
+                },
+                {
+                "Clé": "45",
+                "Essence": "Arbousier"
+                },
+                {
+                "Clé": "46",
+                "Essence": "Lichen"
+                },
+                {
+                "Clé": "47",
+                "Essence": "Bruyère"
+                },
+                {
+                "Clé": "48",
+                "Essence": "Genévrier Thurifère"
+                },
+                {
+                "Clé": "49",
+                "Essence": "Pin Radiata"
+                },
+                {
+                "Clé": "51",
+                "Essence": "Essences secondaires"
+                },
+                {
+                "Clé": "52",
+                "Essence": "Eucalyptus robusta"
+                },
+                {
+                "Clé": "1",
+                "Essence": "Eucalyptus camaldulensis"
+                },
+                {
+                "Clé": "2",
+                "Essence": "Eucalyptus grandis"
+                },
+                {
+                "Clé": "3",
+                "Essence": "Eucalyptus clonal"
+                },
+                {
+                "Clé": "4",
+                "Essence": "Fleurs d'acacia"
+                },
+                {
+                "Clé": "5",
+                "Essence": "Chêne liège"
+                },
+                {
+                "Clé": "6",
+                "Essence": "Eucalyptus gomphocephala"
+                },
+                {
+                "Clé": "7",
+                "Essence": "Pinus halepensis"
+                },
+                {
+                "Clé": "8",
+                "Essence": "Pinus brutia"
+                },
+                {
+                "Clé": "9",
+                "Essence": "Acacia cyclops"
+                },
+                {
+                "Clé": "10",
+                "Essence": "Eucalyptus sidéroxylon"
+                },
+                {
+                "Clé": "11",
+                "Essence": "Thuya"
+                },
+                {
+                "Clé": "12",
+                "Essence": "Lentisque"
+                },
+                {
+                "Clé": "13",
+                "Essence": "Acacia mernsii"
+                },
+                {
+                "Clé": "14",
+                "Essence": "Eucalyptus"
+                },
+                {
+                "Clé": "15",
+                "Essence": "pin de canarie"
+                },
+                {
+                "Clé": "16",
+                "Essence": "cyprès"
+                },
+                {
+                "Clé": "17",
+                "Essence": "Acacia"
+                },
+                {
+                "Clé": "18",
+                "Essence": "charbon de bois"
+                },
+                {
+                "Clé": "19",
+                "Essence": "Pin divers"
+                },
+                {
+                "Clé": "20",
+                "Essence": "Eucalyptus cladocalyx"
+                },
+                {
+                "Clé": "21",
+                "Essence": "Genevrier oxycèdre"
+                },
+                {
+                "Clé": "22",
+                "Essence": "Genevrier rouge"
+                },
+                {
+                "Clé": "23",
+                "Essence": "Chène vert"
+                },
+                {
+                "Clé": "24",
+                "Essence": "Oléastre"
+                },
+                {
+                "Clé": "25",
+                "Essence": "Caroubier"
+                },
+                {
+                "Clé": "26",
+                "Essence": "Cyprès de l'Atlas"
+                },
+                {
+                "Clé": "27",
+                "Essence": "Génévrier"
+                },
+                {
+                "Clé": "29",
+                "Essence": "cèdre de l'atlas"
+                }
+                ]
+                JSON;
         return json_decode($json, true);
     }
 }

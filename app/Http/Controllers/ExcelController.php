@@ -8,14 +8,12 @@ use App\Exports\ForetsExport;
 use App\Exports\NatureDeCoupesExport;
 use App\Exports\SituationAdministrativesExport;
 use App\Exports\ExploitantsExport;
-use App\Exports\LocalisationsExport;
 use App\Imports\ArticlesImport;
 use App\Imports\EssencesImport;
 use App\Imports\ForetsImport;
 use App\Imports\NatureDeCoupesImport;
 use App\Imports\SituationAdministrativesImport;
 use App\Imports\ExploitantsImport;
-use App\Imports\LocalisationsImport;
 use App\Services\ActivityLogger;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -71,13 +69,6 @@ class ExcelController extends Controller
             'name' => 'Exploitants',
             'filename' => 'exploitants',
             'keywords' => ['exploitants', 'exploitant'],
-        ],
-        'localisations' => [
-            'export_class' => LocalisationsExport::class,
-            'import_class' => LocalisationsImport::class,
-            'name' => 'Localisations',
-            'filename' => 'localisations',
-            'keywords' => ['localisations', 'localisation'],
         ],
     ];
 

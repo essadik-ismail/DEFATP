@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->integer('annee');
             $table->integer('contarct'); // Note: keeping original typo as per schema
-            $table->foreignId('localisation_id')->constrained('localisations')->onDelete('cascade');
             $table->foreignId('situation_administrative_id')->constrained('situation_administratives')->onDelete('cascade');
             $table->foreignId('foret_id')->constrained()->onDelete('cascade');
             $table->foreignId('coperative_id')->constrained('coperatives')->onDelete('cascade');

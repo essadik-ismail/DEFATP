@@ -6,8 +6,6 @@ use App\Models\Article;
 use App\Models\Foret;
 use App\Models\Exploitant;
 use App\Models\Contract;
-use App\Models\Odf;
-use App\Models\Pdfc;
 use App\Services\ActivityLogger;
 use Illuminate\View\View;
 
@@ -30,10 +28,12 @@ class DashboardController extends Controller
         
         // Get statistics with date filtering
         $totalArticles = $articlesQuery->count();
-        $vendus = (clone $articlesQuery)->where('invendu', false)->count();
-        $invendus = (clone $articlesQuery)->where('invendu', true)->count();
-        $totalPrixVente = (clone $articlesQuery)->sum('prix_vente');
-        $totalPrixRetrait = (clone $articlesQuery)->sum('prix_de_retrait');
+        // Removed vendus/invendus statistics - invendu column was removed
+        $vendus = 0;
+        $invendus = 0;
+        // Removed prix_vente and prix_de_retrait statistics - columns were removed
+        $totalPrixVente = 0;
+        $totalPrixRetrait = 0;
         
         // Get volume statistics from products
         $articles = (clone $articlesQuery)->with('products')->get();
@@ -52,7 +52,6 @@ class DashboardController extends Controller
         $totalForets = Foret::count();
         $totalExploitants = Exploitant::count();
         $totalEssences = \App\Models\Essence::count();
-        $totalLocalisations = \App\Models\Localisation::count();
         $totalUsers = \App\Models\User::count();
         $activeExploitants = Exploitant::where('is_deleted', false)->count();
 
@@ -71,88 +70,11 @@ class DashboardController extends Controller
         // Get actions required
         $actionsRequired = [];
         
-        // 1. Articles invendus
-        $unpaidArticles = Article::where('invendu', true)->count();
-        if ($unpaidArticles > 0) {
-            $actionsRequired[] = [
-                'type' => 'articles_invendus',
-                'title' => 'Articles Invendus',
-                'count' => $unpaidArticles,
-                'description' => 'Articles qui n\'ont pas encore été vendus',
-                'icon' => 'fa-shopping-cart',
-                'color' => 'from-orange-500 to-red-600',
-                'route' => route('articles.index', ['invendu' => 1]),
-                'priority' => 'high'
-            ];
-        }
+        // Removed articles invendus check - invendu column was removed
+        // Removed articles résiliation check - date_de_resiliation column was removed
+        // Removed articles déchéance check - date_de_decheance column was removed
         
-        // 2. Articles avec dates de résiliation proches (dans les 30 prochains jours)
-        $upcomingResiliations = Article::whereNotNull('date_de_resiliation')
-            ->where('date_de_resiliation', '>=', now())
-            ->where('date_de_resiliation', '<=', now()->addDays(30))
-            ->count();
-        if ($upcomingResiliations > 0) {
-            $actionsRequired[] = [
-                'type' => 'articles_resiliation',
-                'title' => 'Résiliations Prochaines',
-                'count' => $upcomingResiliations,
-                'description' => 'Articles avec résiliation dans les 30 prochains jours',
-                'icon' => 'fa-calendar-times',
-                'color' => 'from-yellow-500 to-orange-600',
-                'route' => route('articles.index'),
-                'priority' => 'medium'
-            ];
-        }
-        
-        // 3. Articles avec dates de déchéance proches (dans les 30 prochains jours)
-        $upcomingDecheances = Article::whereNotNull('date_de_decheance')
-            ->where('date_de_decheance', '>=', now())
-            ->where('date_de_decheance', '<=', now()->addDays(30))
-            ->count();
-        if ($upcomingDecheances > 0) {
-            $actionsRequired[] = [
-                'type' => 'articles_decheance',
-                'title' => 'Déchéances Prochaines',
-                'count' => $upcomingDecheances,
-                'description' => 'Articles avec déchéance dans les 30 prochains jours',
-                'icon' => 'fa-exclamation-triangle',
-                'color' => 'from-red-500 to-pink-600',
-                'route' => route('articles.index'),
-                'priority' => 'high'
-            ];
-        }
-        
-        // 4. PDFCs non validés
-        $unvalidatedPdfcs = Pdfc::where('etat', '!=', 'validé C.C')->count();
-        if ($unvalidatedPdfcs > 0) {
-            $actionsRequired[] = [
-                'type' => 'pdfcs_non_valides',
-                'title' => 'PDFCs Non Validés',
-                'count' => $unvalidatedPdfcs,
-                'description' => 'PDFCs en attente de validation',
-                'icon' => 'fa-file-alt',
-                'color' => 'from-blue-500 to-indigo-600',
-                'route' => route('pdfcs.index'),
-                'priority' => 'medium'
-            ];
-        }
-        
-        // 5. ODFs sans constitution
-        $odfsWithoutConstitution = Odf::where('constitution', false)->count();
-        if ($odfsWithoutConstitution > 0) {
-            $actionsRequired[] = [
-                'type' => 'odfs_sans_constitution',
-                'title' => 'ODFs Sans Constitution',
-                'count' => $odfsWithoutConstitution,
-                'description' => 'ODFs qui n\'ont pas encore été constitués',
-                'icon' => 'fa-folder-open',
-                'color' => 'from-purple-500 to-pink-600',
-                'route' => route('odfs.index'),
-                'priority' => 'medium'
-            ];
-        }
-        
-        // 6. Exploitants avec permis expirés
+        // Exploitants avec permis expirés
         $expiredPermits = Exploitant::where('is_deleted', false)
             ->whereNotNull('duree_validite')
             ->where('duree_validite', '<=', now())
@@ -205,7 +127,6 @@ class DashboardController extends Controller
             'totalVolume' => $totalVolume,
             'totalForests' => $totalForets,
             'totalEssences' => $totalEssences,
-            'totalLocalisations' => $totalLocalisations,
             'totalExploitants' => $totalExploitants,
             'activeExploitants' => $activeExploitants,
             'totalUsers' => $totalUsers,

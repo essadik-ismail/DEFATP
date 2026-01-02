@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('forets', function (Blueprint $table) {
+        Schema::create('parcelles', function (Blueprint $table) {
             $table->id();
-            $table->string('foret');
-            $table->string('lat')->nullable();
-            $table->string('log')->nullable();
-            $table->boolean('is_deleted')->default(false);
+            $table->foreignId('foret_id')->constrained('forets')->onDelete('cascade');
+            $table->foreignId('canton_id')->constrained('cantons')->onDelete('cascade');
+            $table->string('parcelle');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('forets');
+        Schema::dropIfExists('parcelles');
     }
 };

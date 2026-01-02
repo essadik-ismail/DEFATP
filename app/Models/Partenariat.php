@@ -46,13 +46,6 @@ class Partenariat extends Model
         'nombre_avenant' => 'integer',
     ];
 
-    /**
-     * Get the localisation for this partenariat.
-     */
-    public function localisation(): BelongsTo
-    {
-        return $this->belongsTo(Localisation::class);
-    }
 
     /**
      * Get the essence for this partenariat.

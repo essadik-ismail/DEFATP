@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('contacts', function (Blueprint $table) {
             // Add foreign key columns if they don't exist
             if (!Schema::hasColumn('contacts', 'situation_administrative_id')) {
-                $table->foreignId('situation_administrative_id')->nullable()->constrained('situation_administratives')->onDelete('cascade')->after('localisation_id');
+                $table->foreignId('situation_administrative_id')->nullable()->constrained('situation_administratives')->onDelete('cascade')->after('contarct');
             }
 
             // Add the named columns if they don't exist (mapping to replace attributes if needed)

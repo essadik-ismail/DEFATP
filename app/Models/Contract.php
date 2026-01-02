@@ -42,13 +42,6 @@ class Contract extends Model
         'date_resiliation' => 'date',
     ];
 
-    /**
-     * Get the localisation for this contract.
-     */
-    public function localisation(): BelongsTo
-    {
-        return $this->belongsTo(Localisation::class, 'localisation_id');
-    }
 
     /**
      * Get the situation administrative for this contract.

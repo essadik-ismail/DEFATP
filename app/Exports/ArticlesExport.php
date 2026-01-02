@@ -24,7 +24,9 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
         $query = Article::with([
             'exploitant',
             'products',
-            'locations'
+            'locations',
+            'zdtf',
+            'modeExploitations'
         ]);
 
         // Apply filters
@@ -74,6 +76,14 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             'Romarin (t)',
             'Liège (st)',
             'Charbon Bois (ox)',
+            'Taxe refection chemins',
+            'Service rendu ANEF',
+            'Bois chauffage volume',
+            'Bois chauffage destination',
+            'Date payement service ANEF',
+            'Date livraison mise en charge BF',
+            'ZDTF',
+            'Mode d\'Exploitation',
             'Produits',
             'Emplacements'
         ];
@@ -106,8 +116,16 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
             $article->romarin_t ?? 'N/A',
             $article->liége_st ?? 'N/A',
             $article->charbon_bois_ox ?? 'N/A',
+            $article->taxe_refection_chemins ?? 'N/A',
+            $article->service_rendu_anef ?? 'N/A',
+            $article->bois_chauffage_volume ?? 'N/A',
+            $article->bois_chauffage_destination ?? 'N/A',
+            $article->date_payement_service_anef ? $article->date_payement_service_anef->format('d/m/Y') : 'N/A',
+            $article->date_livaison_mise_en_charge_bf ? $article->date_livaison_mise_en_charge_bf->format('d/m/Y') : 'N/A',
+            $article->zdtf?->name ?? 'N/A',
+            $article->modeExploitations->pluck('name')->join(', ') ?: 'N/A',
             $article->products->map(function($product) {
-                return $product->name . ' (x' . $product->quantity . ')';
+                return $product->name . ' (x' . ($product->pivot->quantity ?? $product->quantity ?? 0) . ')';
             })->join(', '),
             $article->locations->map(function($location) {
                 $parts = [];

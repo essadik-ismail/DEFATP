@@ -8,10 +8,8 @@ use App\Models\Foret;
 use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\Exploitant;
-use App\Models\Localisation;
 use App\Models\LegacyArticle;
 use App\Models\Contract;
-use App\Models\Odf;
 use App\Models\Product;
 use App\Services\ActivityLogger;
 use App\Http\Requests\ArticlesByYearRequest;
@@ -150,20 +148,6 @@ class ReportController extends Controller
             ->limit(8)
             ->get();
 
-        $byLocalisation = (clone $baseQuery)
-            ->join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
-            ->join('localisations', 'article_localisation.localisation_id', '=', 'localisations.id')
-            ->leftJoin('article_product', 'articles.id', '=', 'article_product.article_id')
-            ->leftJoin('products', function($join) {
-                $join->on('article_product.product_id', '=', 'products.id')
-                     ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
-            })
-            ->selectRaw('localisations.DRANEF as label, COUNT(DISTINCT articles.id) as total, COALESCE(SUM(article_product.quantity), 0) as volume')
-            ->where('localisations.is_deleted', false)
-            ->groupBy('localisations.id', 'localisations.DRANEF')
-            ->orderByDesc('total')
-            ->limit(8)
-            ->get();
 
         if (Schema::hasColumn('articles', 'is_validated')) {
             $byValidation = (clone $baseQuery)
@@ -184,7 +168,7 @@ class ReportController extends Controller
         }
         
         return view('reports.index', compact(
-            'byYear', 'byForet', 'byEssence', 'byExploitant', 'byNature', 'byLocalisation', 'byValidation'
+            'byYear', 'byForet', 'byEssence', 'byExploitant', 'byNature', 'byValidation'
         ));
     }
 
@@ -196,7 +180,7 @@ class ReportController extends Controller
         // Log report generation
         ActivityLogger::log('view', 'Consultation du rapport des produits', null);
         
-        $groupBy = $request->get('group_by', 'product'); // product, article, contract, localisation, foret, essence, exploitant
+        $groupBy = $request->get('group_by', 'product'); // product, article, contract, foret, essence, exploitant
         $productId = $request->get('product_id');
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
@@ -319,45 +303,6 @@ class ReportController extends Controller
                             'contract' => $contract,
                             'products' => $contractProducts,
                             'total_quantity' => $totalQuantity,
-                        ];
-                    }
-                }
-                break;
-                
-            case 'localisation':
-                // Group by localisation - show products by localisation
-                $localisations = Localisation::where('is_deleted', false)->orderBy('DRANEF')->get();
-                foreach ($localisations as $localisation) {
-                    $localisationProducts = [];
-                    
-                    $articles = Article::where('is_deleted', false)
-                        ->whereHas('localisations', function($q) use ($localisation) {
-                            $q->where('localisations.id', $localisation->id);
-                        })
-                        ->with('products')
-                        ->get();
-                    
-                    $productQuantities = [];
-                    foreach ($articles as $article) {
-                        foreach ($article->products as $product) {
-                            if (!$productId || $product->id == $productId) {
-                                $quantity = $product->pivot->quantity ?? 0;
-                                if (!isset($productQuantities[$product->id])) {
-                                    $productQuantities[$product->id] = [
-                                        'product' => $product,
-                                        'quantity' => 0,
-                                    ];
-                                }
-                                $productQuantities[$product->id]['quantity'] += $quantity;
-                            }
-                        }
-                    }
-                    
-                    if (count($productQuantities) > 0) {
-                        $data[] = [
-                            'localisation' => $localisation,
-                            'products' => array_values($productQuantities),
-                            'total_quantity' => array_sum(array_column($productQuantities, 'quantity')),
                         ];
                     }
                 }
@@ -502,7 +447,7 @@ class ReportController extends Controller
     }
 
     /**
-     * Products Development Chart - Show product development by year and localisation
+     * Products Development Chart - Show product development by year
      */
     public function productsDevelopmentChart(Request $request): View
     {
@@ -510,13 +455,11 @@ class ReportController extends Controller
         ActivityLogger::log('view', 'Consultation du graphique de développement des produits', null);
         
         $productId = $request->get('product_id');
-        $localisationId = $request->get('localisation_id');
         $startYear = $request->get('start_year');
         $endYear = $request->get('end_year');
         
-        // Get all products and localisations for filters
+        // Get all products for filters
         $allProducts = Product::orderBy('name')->get();
-        $allLocalisations = Localisation::where('is_deleted', false)->orderBy('DRANEF')->get();
         
         // Get all years from articles and legacy articles
         $articleYears = Article::where('is_deleted', false)
@@ -634,83 +577,11 @@ class ReportController extends Controller
             $chartDataByYear[$year][$row->product_name] += (float) $row->total_quantity;
         }
         
-        // Calculate data by localisation - optimized query
-        $chartDataByLocalisation = [];
-        
-        $localisationsToAnalyze = $localisationId
-            ? Localisation::where('id', $localisationId)->where('is_deleted', false)->get()
-            : Localisation::where('is_deleted', false)->orderBy('DRANEF')->get();
-        
-        $localisationIds = $localisationsToAnalyze->pluck('id')->toArray();
-        
-        $articlesByLocalisation = DB::table('article_product')
-            ->join('articles', 'article_product.article_id', '=', 'articles.id')
-            ->join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
-            ->join('localisations', 'article_localisation.localisation_id', '=', 'localisations.id')
-            ->join('products', 'article_product.product_id', '=', 'products.id')
-            ->where('articles.is_deleted', false)
-            ->where('localisations.is_deleted', false)
-            ->whereIn('article_product.product_id', $productIds)
-            ->whereIn('article_localisation.localisation_id', $localisationIds)
-            ->selectRaw('localisations.DRANEF as localisation, products.name as product_name, SUM(article_product.quantity) as total_quantity')
-            ->groupBy('localisations.id', 'localisations.DRANEF', 'products.id', 'products.name')
-            ->get();
-        
-        foreach ($articlesByLocalisation as $row) {
-            if (!isset($chartDataByLocalisation[$row->localisation])) {
-                $chartDataByLocalisation[$row->localisation] = [];
-            }
-            $chartDataByLocalisation[$row->localisation][$row->product_name] = (float) $row->total_quantity;
-        }
-        
-        // Calculate data by year and localisation (combined) - optimized query
-        $chartDataByYearAndLocalisation = [];
-        
-        $articlesByYearAndLocalisation = DB::table('article_product')
-            ->join('articles', 'article_product.article_id', '=', 'articles.id')
-            ->join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
-            ->join('localisations', 'article_localisation.localisation_id', '=', 'localisations.id')
-            ->join('products', 'article_product.product_id', '=', 'products.id')
-            ->where('articles.is_deleted', false)
-            ->where('localisations.is_deleted', false)
-            ->whereIn('article_product.product_id', $productIds)
-            ->whereIn('article_localisation.localisation_id', $localisationIds)
-            ->when($startYear, function($q) use ($startYear) {
-                $q->where('articles.annee', '>=', $startYear);
-            })
-            ->when($endYear, function($q) use ($endYear) {
-                $q->where('articles.annee', '<=', $endYear);
-            })
-            ->selectRaw('
-                articles.annee as year,
-                localisations.DRANEF as localisation,
-                products.name as product_name,
-                SUM(article_product.quantity) as total_quantity
-            ')
-            ->groupBy('articles.annee', 'localisations.id', 'localisations.DRANEF', 'products.id', 'products.name')
-            ->get();
-        
-        foreach ($articlesByYearAndLocalisation as $row) {
-            $key = $row->year . ' - ' . $row->localisation;
-            if (!isset($chartDataByYearAndLocalisation[$key])) {
-                $chartDataByYearAndLocalisation[$key] = [
-                    'year' => $row->year,
-                    'localisation' => $row->localisation,
-                    'products' => []
-                ];
-            }
-            $chartDataByYearAndLocalisation[$key]['products'][$row->product_name] = (float) $row->total_quantity;
-        }
-        
         return view('reports.products-development-chart', compact(
             'chartDataByYear',
-            'chartDataByLocalisation',
-            'chartDataByYearAndLocalisation',
             'allProducts',
-            'allLocalisations',
             'allYears',
             'productId',
-            'localisationId',
             'startYear',
             'endYear'
         ));
@@ -726,7 +597,7 @@ class ReportController extends Controller
         $articles = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'exploitant', 'localisation'
+            'exploitant'
         ])
         ->where('annee', $year)
         ->orderBy('date_adjudication', 'desc')
@@ -766,7 +637,7 @@ class ReportController extends Controller
         $query = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'exploitant', 'localisation'
+            'exploitant'
         ]);
 
         if ($foretId) {
@@ -810,7 +681,7 @@ class ReportController extends Controller
         $query = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'exploitant', 'localisation'
+            'exploitant'
         ]);
 
         if ($essenceId) {
@@ -866,7 +737,7 @@ class ReportController extends Controller
         $query = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'exploitant', 'localisation'
+            'exploitant'
         ]);
 
         if ($exploitantId) {
@@ -908,7 +779,6 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'localisation'
         ])
         ->where('invendu', true)
         ->orderBy('date_adjudication', 'desc')
@@ -936,7 +806,6 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'localisation'
         ])
         ->where('invendu', false)
         ->orderBy('date_adjudication', 'desc')
@@ -1034,23 +903,6 @@ class ReportController extends Controller
                 return $item;
             });
 
-        // Get statistics by localisation
-        $statsByLocalisation = Article::join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
-            ->join('localisations', 'article_localisation.localisation_id', '=', 'localisations.id')
-            ->selectRaw('localisations.DRANEF, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
-            ->where('localisations.is_deleted', false)
-            ->groupBy('localisations.id', 'localisations.DRANEF')
-            ->orderBy('localisations.DRANEF')
-            ->get()
-            ->map(function($item) {
-                $localisationId = DB::table('localisations')->where('DRANEF', $item->DRANEF)->value('id');
-                $articleIds = DB::table('article_localisation')
-                    ->where('localisation_id', $localisationId)
-                    ->pluck('article_id')
-                    ->toArray();
-                $item->total_volume = $this->calculateArticleVolume($articleIds);
-                return $item;
-            });
 
         $summary = [
             'total_articles' => $totalArticles,
@@ -1063,7 +915,6 @@ class ReportController extends Controller
             'stats_by_foret' => $statsByForet,
             'stats_by_essence' => $statsByEssence,
             'stats_by_exploitant' => $statsByExploitant,
-            'stats_by_localisation' => $statsByLocalisation,
         ];
 
         return view('reports.summary', compact('summary'));
@@ -1093,7 +944,7 @@ class ReportController extends Controller
         $query = Article::with([
             'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
             'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'exploitant', 'localisation'
+            'exploitant'
         ]);
 
         if ($natureDeCoupeId) {
@@ -1129,50 +980,6 @@ class ReportController extends Controller
         return view('reports.articles-by-nature-de-coupe', compact('articles', 'natureDeCoupes', 'natureDeCoupeId', 'stats'));
     }
 
-    public function articlesByLocalisation(Request $request): View
-    {
-        $localisationId = $request->get('localisation_id');
-        
-        // Log report generation
-        $localisationName = $localisationId ? Localisation::find($localisationId)->ENTITE ?? 'Toutes' : 'Toutes';
-        ActivityLogger::log('view', "Génération du rapport des articles par localisation: {$localisationName}", Article::class);
-        
-        $query = Article::with([
-            'situationAdministrative',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'exploitant',
-            'localisation'
-        ]);
-
-        if ($localisationId) {
-            $query->where('localisation_id', $localisationId);
-        }
-
-        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
-        $localisations = Localisation::orderBy('ENTITE')->get();
-
-        // Calculate stats from all articles (not just paginated ones)
-        $allArticles = $query->get();
-        $stats = [
-            'total' => $allArticles->count(),
-            'vendus' => $allArticles->where('invendu', false)->count(),
-            'invendus' => $allArticles->where('invendu', true)->count(),
-            'total_prix_vente' => $allArticles->sum('prix_vente'),
-            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
-            'total_volume' => $allArticles->sum(function($article) {
-                $article->load('products');
-                $boProduct = $article->products->firstWhere('name', 'BO (m³)');
-                $biProduct = $article->products->firstWhere('name', 'BI (m³)');
-                $boQuantity = $boProduct ? ($boProduct->pivot->quantity ?? 0) : 0;
-                $biQuantity = $biProduct ? ($biProduct->pivot->quantity ?? 0) : 0;
-                return $boQuantity + $biQuantity;
-            }),
-        ];
-
-        return view('reports.articles-by-localisation', compact('articles', 'localisations', 'localisationId', 'stats'));
-    }
 
     public function articlesByValidationStatus(Request $request): View
     {
@@ -1188,7 +995,6 @@ class ReportController extends Controller
             'essence',
             'natureDeCoupe',
             'exploitant',
-            'localisation'
         ]);
 
         if ($status) {
@@ -2186,7 +1992,6 @@ class ReportController extends Controller
                         }
                     }
                     $localisationData[$localisation->id] = [
-                        'localisation' => $localisation,
                         'data' => $localisationYearlyData
                     ];
                 }
@@ -2225,7 +2030,6 @@ class ReportController extends Controller
                         ];
                     }
                     $localisationData[$localisation->id] = [
-                        'localisation' => $localisation,
                         'data' => $localisationYearlyData
                     ];
                 }
@@ -2463,7 +2267,6 @@ class ReportController extends Controller
                         }
                     }
                     $localisationData[$localisation->id] = [
-                        'localisation' => $localisation,
                         'data' => $localisationYearlyData
                     ];
                 }
@@ -2479,7 +2282,6 @@ class ReportController extends Controller
                         ];
                     }
                     $localisationData[$localisation->id] = [
-                        'localisation' => $localisation,
                         'data' => $localisationYearlyData
                     ];
                 }
@@ -2958,159 +2760,5 @@ class ReportController extends Controller
         ];
         
         return view('reports.exploitants', compact('exploitants', 'stats', 'localisations', 'categories', 'activites', 'qualifications'));
-    }
-
-    /**
-     * Display ODFs report
-     */
-    public function odfsReport(Request $request): View
-    {
-        // Log report generation
-        ActivityLogger::log('view', 'Génération du rapport des ODFs', Odf::class);
-        
-        // Build base query
-        $query = Odf::with(['localisation', 'situationAdministrative', 'members', 'activities']);
-        
-        // Apply filters
-        if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
-        }
-        
-        if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
-        }
-        
-        if ($request->filled('localisation_id')) {
-            $query->where('localisation_id', $request->localisation_id);
-        }
-        
-        if ($request->filled('situation_administrative_id')) {
-            $query->where('situation_administrative_id', $request->situation_administrative_id);
-        }
-        
-        // Get statistics
-        $totalOdfs = (clone $query)->count();
-        $totalWithMembers = (clone $query)->has('members')->count();
-        $totalWithActivities = (clone $query)->has('activities')->count();
-        $totalWithLocalisation = (clone $query)->whereNotNull('localisation_id')->count();
-        $totalWithSituation = (clone $query)->whereNotNull('situation_administrative_id')->count();
-        
-        // Statistics by localisation
-        $byLocalisationQuery = Odf::withoutGlobalScopes();
-        
-        // Apply the same filters
-        if ($request->filled('start_date')) {
-            $byLocalisationQuery->whereDate('odfs.created_at', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $byLocalisationQuery->whereDate('odfs.created_at', '<=', $request->end_date);
-        }
-        if ($request->filled('situation_administrative_id')) {
-            $byLocalisationQuery->where('odfs.situation_administrative_id', $request->situation_administrative_id);
-        }
-        
-        $byLocalisation = $byLocalisationQuery
-            ->join('localisations', 'odfs.localisation_id', '=', 'localisations.id')
-            ->selectRaw('localisations.DRANEF as label, COUNT(*) as total')
-            ->where('odfs.deleted_at', null)
-            ->where('localisations.is_deleted', false)
-            ->whereNotNull('localisations.DRANEF');
-        
-        if ($request->filled('localisation_id')) {
-            $byLocalisation->where('odfs.localisation_id', $request->localisation_id);
-        }
-        
-        $byLocalisation = $byLocalisation
-            ->groupBy('localisations.id', 'localisations.DRANEF')
-            ->orderByDesc('total')
-            ->limit(10)
-            ->get();
-        
-        // Statistics by situation administrative
-        $bySituationQuery = Odf::withoutGlobalScopes();
-        
-        // Apply the same filters
-        if ($request->filled('start_date')) {
-            $bySituationQuery->whereDate('odfs.created_at', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $bySituationQuery->whereDate('odfs.created_at', '<=', $request->end_date);
-        }
-        if ($request->filled('localisation_id')) {
-            $bySituationQuery->where('odfs.localisation_id', $request->localisation_id);
-        }
-        
-        $bySituation = $bySituationQuery
-            ->join('situation_administratives', 'odfs.situation_administrative_id', '=', 'situation_administratives.id')
-            ->selectRaw('CONCAT(situation_administratives.commune, " - ", situation_administratives.province) as label, COUNT(*) as total')
-            ->where('odfs.deleted_at', null)
-            ->whereNotNull('situation_administratives.commune');
-        
-        if ($request->filled('situation_administrative_id')) {
-            $bySituation->where('odfs.situation_administrative_id', $request->situation_administrative_id);
-        }
-        
-        $bySituation = $bySituation
-            ->groupBy('situation_administratives.id', 'situation_administratives.commune', 'situation_administratives.province')
-            ->orderByDesc('total')
-            ->limit(10)
-            ->get();
-        
-        // Statistics by member type
-        $byMemberTypeQuery = DB::table('members')
-            ->join('odfs', 'members.odf_id', '=', 'odfs.id')
-            ->selectRaw('members.type as label, COUNT(DISTINCT odfs.id) as total')
-            ->where('members.deleted_at', null)
-            ->where('odfs.deleted_at', null)
-            ->whereNotNull('members.type');
-        
-        // Apply the same filters
-        if ($request->filled('start_date')) {
-            $byMemberTypeQuery->whereDate('odfs.created_at', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $byMemberTypeQuery->whereDate('odfs.created_at', '<=', $request->end_date);
-        }
-        if ($request->filled('localisation_id')) {
-            $byMemberTypeQuery->where('odfs.localisation_id', $request->localisation_id);
-        }
-        if ($request->filled('situation_administrative_id')) {
-            $byMemberTypeQuery->where('odfs.situation_administrative_id', $request->situation_administrative_id);
-        }
-        
-        $byMemberType = $byMemberTypeQuery
-            ->groupBy('members.type')
-            ->orderByDesc('total')
-            ->get();
-        
-        // Statistics by year (created_at)
-        $byYear = (clone $query)
-            ->selectRaw('YEAR(created_at) as year, COUNT(*) as total')
-            ->whereNotNull('created_at')
-            ->groupBy('year')
-            ->orderBy('year', 'desc')
-            ->get();
-        
-        // Get ODFs with pagination
-        $odfs = $query->orderBy('created_at', 'desc')->paginate(20);
-        
-        // Get filter options
-        $localisations = Localisation::orderBy('CODE')->get();
-        $situations = SituationAdministrative::orderBy('commune')->get();
-        $memberTypes = ['Association', 'Coopérative', 'Entreprise', 'Élu', 'Citoyen'];
-        
-        $stats = [
-            'total_odfs' => $totalOdfs,
-            'total_with_members' => $totalWithMembers,
-            'total_with_activities' => $totalWithActivities,
-            'total_with_localisation' => $totalWithLocalisation,
-            'total_with_situation' => $totalWithSituation,
-            'by_localisation' => $byLocalisation,
-            'by_situation' => $bySituation,
-            'by_member_type' => $byMemberType,
-            'by_year' => $byYear,
-        ];
-        
-        return view('reports.odfs', compact('odfs', 'stats', 'localisations', 'situations', 'memberTypes'));
     }
 } 

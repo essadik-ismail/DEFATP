@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,6 +17,8 @@ class Foret extends Model
         'foret',
         'lat',
         'log',
+        'nature_juridique',
+        'dpanef_id',
     ];
 
     /**
@@ -42,5 +45,29 @@ class Foret extends Model
     public function suiviContractProgrammes(): HasMany
     {
         return $this->hasMany(SuiviContractProgramme::class);
+    }
+
+    /**
+     * Get the dpanef for this foret.
+     */
+    public function dpanef(): BelongsTo
+    {
+        return $this->belongsTo(Dpanef::class, 'dpanef_id');
+    }
+
+    /**
+     * Get the cantons for this foret.
+     */
+    public function cantons(): HasMany
+    {
+        return $this->hasMany(Canton::class, 'foret_id');
+    }
+
+    /**
+     * Get the parcelles for this foret.
+     */
+    public function parcelles(): HasMany
+    {
+        return $this->hasMany(Parcelle::class, 'foret_id');
     }
 }

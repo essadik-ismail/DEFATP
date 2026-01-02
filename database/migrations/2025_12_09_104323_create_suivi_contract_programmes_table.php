@@ -15,7 +15,6 @@ return new class extends Migration
         
         Schema::create('suivi_contract_programmes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('localisation_id')->nullable()->constrained('localisations')->onDelete('set null');
             $table->foreignId('foret_id')->nullable()->constrained('forets')->onDelete('set null');
             $table->foreignId('partenariat_id')->nullable()->constrained('partenariats')->onDelete('cascade');
             $table->string('CT')->nullable();
@@ -34,7 +33,6 @@ return new class extends Migration
             $table->timestamps();
             
             // Indexes
-            $table->index('localisation_id');
             $table->index('foret_id');
             $table->index('partenariat_id');
             $table->index('Année');

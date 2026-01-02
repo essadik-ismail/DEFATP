@@ -57,20 +57,8 @@
                     Coopératives
                 </a>
                 
-                <a href="{{ route('odfs.index') }}" 
-                   class="mobile-nav-item {{ request()->routeIs('odfs.*') ? 'active' : '' }}">
-                    <i class="fas fa-users me-3"></i>
-                    ODFs
-                </a>
-                
-                <a href="{{ route('pdfcs.index') }}" 
-                   class="mobile-nav-item {{ request()->routeIs('pdfcs.*') ? 'active' : '' }}">
-                    <i class="fas fa-project-diagram me-3"></i>
-                    PDFCs
-                </a>
-                
                 <a href="{{ route('entity-data.index') }}" 
-                   class="mobile-nav-item {{ request()->routeIs('entity-data.*') || request()->routeIs('essences.*') || request()->routeIs('forets.*') || request()->routeIs('localisations.*') || request()->routeIs('situations.*') || request()->routeIs('natures.*') || request()->routeIs('vocations.*') || request()->routeIs('coperatives.*') || request()->routeIs('odf-entites.*') || request()->routeIs('products.*') || request()->routeIs('prestations.*') ? 'active' : '' }}">
+                   class="mobile-nav-item {{ request()->routeIs('entity-data.*') || request()->routeIs('essences.*') || request()->routeIs('forets.*') || request()->routeIs('situations.*') || request()->routeIs('natures.*') || request()->routeIs('vocations.*') || request()->routeIs('coperatives.*') || request()->routeIs('products.*') || request()->routeIs('prestations.*') ? 'active' : '' }}">
                     <i class="fas fa-database me-3"></i>
                     Données des Entités
                 </a>

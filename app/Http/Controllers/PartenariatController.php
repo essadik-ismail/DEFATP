@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Partenariat;
-use App\Models\Localisation;
 use App\Models\Essence;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,16 +15,12 @@ class PartenariatController extends Controller
      */
     public function index(Request $request): View
     {
-        $partenariats = Partenariat::with(['localisation', 'essence'])
+        $partenariats = Partenariat::with(['essence'])
             ->when($request->filled('search'), function($query) use ($request) {
                 $search = $request->search;
                 $query->where('nom_association', 'like', '%' . $search . '%')
                       ->orWhere('num_contract', 'like', '%' . $search . '%')
                       ->orWhere('nom_périmètre', 'like', '%' . $search . '%')
-                      ->orWhereHas('localisation', function($q) use ($search) {
-                          $q->where('CODE', 'like', '%' . $search . '%')
-                            ->orWhere('ENTITE', 'like', '%' . $search . '%');
-                      })
                       ->orWhereHas('essence', function($q) use ($search) {
                           $q->where('essence', 'like', '%' . $search . '%');
                       });
@@ -41,9 +36,8 @@ class PartenariatController extends Controller
      */
     public function create(): View
     {
-        $localisations = Localisation::orderBy('CODE')->get();
         $essences = Essence::orderBy('essence')->get();
-        return view('partenariats.create', compact('localisations', 'essences'));
+        return view('partenariats.create', compact('essences'));
     }
 
     /**
@@ -52,7 +46,6 @@ class PartenariatController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'localisation_id' => 'nullable|exists:localisations,id',
             'nom_association' => 'nullable|string|max:255',
             'nombre_adherents_association' => 'nullable|integer|min:0',
             'date_creation_association' => 'nullable|date',
@@ -87,7 +80,7 @@ class PartenariatController extends Controller
      */
     public function show(Partenariat $partenariat): View
     {
-        $partenariat->load(['localisation', 'essence', 'suiviContractProgrammes.foret', 'suiviContractProgrammes.localisation']);
+        $partenariat->load(['essence', 'suiviContractProgrammes.foret']);
         return view('partenariats.show', compact('partenariat'));
     }
 
@@ -96,9 +89,8 @@ class PartenariatController extends Controller
      */
     public function edit(Partenariat $partenariat): View
     {
-        $localisations = Localisation::orderBy('CODE')->get();
         $essences = Essence::orderBy('essence')->get();
-        return view('partenariats.edit', compact('partenariat', 'localisations', 'essences'));
+        return view('partenariats.edit', compact('partenariat', 'essences'));
     }
 
     /**
@@ -107,7 +99,6 @@ class PartenariatController extends Controller
     public function update(Request $request, Partenariat $partenariat): RedirectResponse
     {
         $validated = $request->validate([
-            'localisation_id' => 'nullable|exists:localisations,id',
             'nom_association' => 'nullable|string|max:255',
             'nombre_adherents_association' => 'nullable|integer|min:0',
             'date_creation_association' => 'nullable|date',

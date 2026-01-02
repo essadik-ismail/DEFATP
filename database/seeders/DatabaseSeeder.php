@@ -15,21 +15,20 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            LocalisationSeeder::class,
             EssenceSeeder::class,
             ForetSeeder::class,
             NatureDeCoupeSeeder::class,
             SituationAdministrativeSeeder::class,
-            OdfEntiteSeeder::class,
+            // OdfEntiteSee9der::class,
             ExploitantSeeder::class,
             ProductSeeder::class,
             PrestationSeeder::class,
-            ArticleSeeder::class,
+            // ArticleSeeder::class,
             VocationSeeder::class,
             CoperativeSeeder::class,
-            ContractSeeder::class,
-            AvenantSeeder::class,
-            LegacyArticlesSeeder::class,
+            // ContractSeeder::class,
+            // AvenantSeeder::class,
+            // LegacyArticlesSeeder::class,
         ]);
     }
 

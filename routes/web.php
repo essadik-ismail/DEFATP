@@ -13,10 +13,6 @@ use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\ContractController;
-use App\Http\Controllers\OdfController;
-use App\Http\Controllers\PdfcController;
-use App\Http\Controllers\PhaseController;
-use App\Http\Controllers\EtapeController;
 
 // Health Check Routes
 Route::get('/health', [HealthController::class, 'index'])->name('health');
@@ -139,114 +135,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [SettingsController::class, 'coperatives'])->name('index');
     });
     
-    // ODF Routes
-    Route::prefix('odfs')->name('odfs.')->group(function () {
-        Route::get('/', [OdfController::class, 'index'])->name('index');
-
-        // New multi-step creation wizard
-        Route::get('/create', [OdfController::class, 'createStep1'])->name('create');
-        Route::get('/create/step1', [OdfController::class, 'createStep1'])->name('create.step1');
-        Route::post('/create/step1', [OdfController::class, 'storeStep1'])->name('store.step1');
-
-        Route::get('/{odf}/create/step2', [OdfController::class, 'createStep2'])->name('create.step2');
-        Route::post('/{odf}/create/step2', [OdfController::class, 'storeStep2'])->name('store.step2');
-
-        Route::get('/{odf}/create/step3', [OdfController::class, 'createStep3'])->name('create.step3');
-        Route::post('/{odf}/create/step3', [OdfController::class, 'storeStep3'])->name('store.step3');
-
-        Route::get('/{odf}/create/step4', [OdfController::class, 'createStep4'])->name('create.step4');
-        Route::post('/{odf}/create/step4', [OdfController::class, 'storeStep4'])->name('store.step4');
-
-        Route::get('/{odf}/create/step5', [OdfController::class, 'createStep5'])->name('create.step5');
-        Route::post('/{odf}/create/step5', [OdfController::class, 'storeStep5'])->name('store.step5');
-
-        // Legacy single-step store route (kept for safety, but wizard uses the step routes)
-        Route::post('/', [OdfController::class, 'store'])->name('store');
-        Route::get('/{odf}', [OdfController::class, 'show'])->name('show');
-        Route::get('/{odf}/edit', [OdfController::class, 'edit'])->name('edit');
-        
-        // Multi-step edit routes
-        Route::get('/{odf}/edit/step1', [OdfController::class, 'editStep1'])->name('edit.step1');
-        Route::put('/{odf}/edit/step1', [OdfController::class, 'updateStep1'])->name('update.step1');
-        
-        Route::get('/{odf}/edit/step2', [OdfController::class, 'editStep2'])->name('edit.step2');
-        Route::put('/{odf}/edit/step2', [OdfController::class, 'updateStep2'])->name('update.step2');
-        
-        Route::get('/{odf}/edit/step3', [OdfController::class, 'editStep3'])->name('edit.step3');
-        Route::put('/{odf}/edit/step3', [OdfController::class, 'updateStep3'])->name('update.step3');
-        
-        Route::get('/{odf}/edit/step4', [OdfController::class, 'editStep4'])->name('edit.step4');
-        Route::put('/{odf}/edit/step4', [OdfController::class, 'updateStep4'])->name('update.step4');
-        
-        Route::get('/{odf}/edit/step5', [OdfController::class, 'editStep5'])->name('edit.step5');
-        Route::put('/{odf}/edit/step5', [OdfController::class, 'updateStep5'])->name('update.step5');
-        
-        Route::put('/{odf}', [OdfController::class, 'update'])->name('update');
-        Route::delete('/{odf}', [OdfController::class, 'destroy'])->name('destroy');
-        
-        // Members routes
-        Route::post('/{odf}/members', [OdfController::class, 'storeMember'])->name('members.store');
-        Route::put('/{odf}/members/{member}', [OdfController::class, 'updateMember'])->name('members.update');
-        Route::delete('/{odf}/members/{member}', [OdfController::class, 'destroyMember'])->name('members.destroy');
-        
-        // Activities routes
-        Route::post('/{odf}/activities', [OdfController::class, 'storeActivity'])->name('activities.store');
-        Route::put('/{odf}/activities/{activity}', [OdfController::class, 'updateActivity'])->name('activities.update');
-        Route::delete('/{odf}/activities/{activity}', [OdfController::class, 'destroyActivity'])->name('activities.destroy');
-        
-        // ODF Etaps routes
-        Route::get('/{odf}/odf-etaps/{odfEtap}', [OdfController::class, 'getOdfEtap'])->name('odf-etaps.show');
-        Route::post('/{odf}/odf-etaps', [OdfController::class, 'storeOdfEtap'])->name('odf-etaps.store');
-        Route::put('/{odf}/odf-etaps/{odfEtap}', [OdfController::class, 'updateOdfEtap'])->name('odf-etaps.update');
-        Route::delete('/{odf}/odf-etaps/{odfEtap}', [OdfController::class, 'destroyOdfEtap'])->name('odf-etaps.destroy');
-        
-        // Contract ODF routes
-        Route::post('/{odf}/contract-odf', [OdfController::class, 'storeContractOdf'])->name('contract-odf.store');
-        Route::put('/{odf}/contract-odf/{contractOdf}', [OdfController::class, 'updateContractOdf'])->name('contract-odf.update');
-        Route::delete('/{odf}/contract-odf/{contractOdf}', [OdfController::class, 'destroyContractOdf'])->name('contract-odf.destroy');
-        
-        // ODF Modifications routes
-        Route::post('/{odf}/odf-modifications', [OdfController::class, 'storeOdfModification'])->name('odf-modifications.store');
-        Route::put('/{odf}/odf-modifications/{odfModification}', [OdfController::class, 'updateOdfModification'])->name('odf-modifications.update');
-        Route::delete('/{odf}/odf-modifications/{odfModification}', [OdfController::class, 'destroyOdfModification'])->name('odf-modifications.destroy');
-    });
-    
-    // ODF Entité API route
-    Route::get('/api/odf-entites/{odfEntite}', [OdfController::class, 'getOdfEntite'])->name('api.odf-entites.show');
-    
-    // PDFC Routes
-    Route::prefix('pdfcs')->name('pdfcs.')->group(function () {
-        Route::get('/', [PdfcController::class, 'index'])->name('index');
-        Route::get('/create', [PdfcController::class, 'create'])->name('create');
-        Route::post('/', [PdfcController::class, 'store'])->name('store');
-        Route::get('/{pdfc}', [PdfcController::class, 'show'])->name('show');
-        Route::get('/{pdfc}/edit', [PdfcController::class, 'edit'])->name('edit');
-        Route::put('/{pdfc}', [PdfcController::class, 'update'])->name('update');
-        Route::post('/{pdfc}/transition-state', [PdfcController::class, 'transitionState'])->name('transition-state');
-        Route::delete('/{pdfc}', [PdfcController::class, 'destroy'])->name('destroy');
-        
-        // Phase Routes
-        Route::prefix('{pdfc}/phases')->name('phases.')->group(function () {
-            Route::get('/create', [PhaseController::class, 'create'])->name('create');
-            Route::post('/', [PhaseController::class, 'store'])->name('store');
-            Route::get('/{phase}/edit', [PhaseController::class, 'edit'])->name('edit');
-            Route::put('/{phase}', [PhaseController::class, 'update'])->name('update');
-            Route::delete('/{phase}', [PhaseController::class, 'destroy'])->name('destroy');
-            Route::post('/{phase}/validate', [PhaseController::class, 'validatePhase'])->name('validate');
-        });
-        
-        // Etape Routes
-        Route::prefix('{pdfc}/phases/{phase}/etapes')->name('etapes.')->group(function () {
-            Route::get('/create', [EtapeController::class, 'create'])->name('create');
-            Route::post('/', [EtapeController::class, 'store'])->name('store');
-            Route::get('/{etape}/edit', [EtapeController::class, 'edit'])->name('edit');
-            Route::put('/{etape}', [EtapeController::class, 'update'])->name('update');
-            Route::delete('/{etape}', [EtapeController::class, 'destroy'])->name('destroy');
-            Route::post('/{etape}/validate', [EtapeController::class, 'validateEtape'])->name('validate');
-            Route::post('/{etape}/reject', [EtapeController::class, 'rejectEtape'])->name('reject');
-        });
-    });
-    
     // Settings Routes
     // Unified Entity Data Management
     Route::get('/entity-data', [App\Http\Controllers\EntityDataController::class, 'index'])->name('entity-data.index');
@@ -320,27 +208,66 @@ Route::middleware('auth')->group(function () {
             Route::post('/import', [SettingsController::class, 'importSituationAdministratives'])->name('import');
         });
         
-        // Localisations
-        Route::prefix('localisations')->name('localisations.')->group(function () {
-            Route::get('/', [SettingsController::class, 'localisations'])->name('index');
-            Route::get('/create', [SettingsController::class, 'createLocalisation'])->name('create');
-            Route::post('/', [SettingsController::class, 'storeLocalisation'])->name('store');
-            Route::get('/{localisation}/edit', [SettingsController::class, 'editLocalisation'])->name('edit');
-            Route::put('/{localisation}', [SettingsController::class, 'updateLocalisation'])->name('update');
-            Route::delete('/{localisation}', [SettingsController::class, 'destroyLocalisation'])->name('destroy');
-            Route::get('/export', [SettingsController::class, 'exportLocalisations'])->name('export');
-            Route::post('/import', [SettingsController::class, 'importLocalisations'])->name('import');
+        // Mode Exploitations
+        Route::prefix('mode-exploitations')->name('mode-exploitations.')->group(function () {
+            Route::get('/', [SettingsController::class, 'modeExploitations'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createModeExploitation'])->name('create');
+            Route::post('/', [SettingsController::class, 'storeModeExploitation'])->name('store');
+            Route::get('/{modeExploitation}/edit', [SettingsController::class, 'editModeExploitation'])->name('edit');
+            Route::put('/{modeExploitation}', [SettingsController::class, 'updateModeExploitation'])->name('update');
+            Route::delete('/{modeExploitation}', [SettingsController::class, 'destroyModeExploitation'])->name('destroy');
         });
         
-        // ODF Entités
-        Route::prefix('odf-entites')->name('odf-entites.')->group(function () {
-            Route::get('/', [SettingsController::class, 'odfEntites'])->name('index');
-            Route::get('/create', [SettingsController::class, 'createOdfEntite'])->name('create');
-            Route::post('/', [SettingsController::class, 'storeOdfEntite'])->name('store');
-            Route::get('/{odfEntite}/edit', [SettingsController::class, 'editOdfEntite'])->name('edit');
-            Route::put('/{odfEntite}', [SettingsController::class, 'updateOdfEntite'])->name('update');
-            Route::delete('/{odfEntite}', [SettingsController::class, 'destroyOdfEntite'])->name('destroy');
+        // DRANEFs
+        Route::prefix('dranefs')->name('dranefs.')->group(function () {
+            Route::get('/', [SettingsController::class, 'dranefs'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createDranef'])->name('create');
+            Route::post('/', [SettingsController::class, 'storeDranef'])->name('store');
+            Route::get('/{dranef}/edit', [SettingsController::class, 'editDranef'])->name('edit');
+            Route::put('/{dranef}', [SettingsController::class, 'updateDranef'])->name('update');
+            Route::delete('/{dranef}', [SettingsController::class, 'destroyDranef'])->name('destroy');
         });
+        
+        // DPANEFs
+        Route::prefix('dpanefs')->name('dpanefs.')->group(function () {
+            Route::get('/', [SettingsController::class, 'dpanefs'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createDpanef'])->name('create');
+            Route::post('/', [SettingsController::class, 'storeDpanef'])->name('store');
+            Route::get('/{dpanef}/edit', [SettingsController::class, 'editDpanef'])->name('edit');
+            Route::put('/{dpanef}', [SettingsController::class, 'updateDpanef'])->name('update');
+            Route::delete('/{dpanef}', [SettingsController::class, 'destroyDpanef'])->name('destroy');
+        });
+        
+        // ZDTFs
+        Route::prefix('zdtfs')->name('zdtfs.')->group(function () {
+            Route::get('/', [SettingsController::class, 'zdtfs'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createZdtf'])->name('create');
+            Route::post('/', [SettingsController::class, 'storeZdtf'])->name('store');
+            Route::get('/{zdtf}/edit', [SettingsController::class, 'editZdtf'])->name('edit');
+            Route::put('/{zdtf}', [SettingsController::class, 'updateZdtf'])->name('update');
+            Route::delete('/{zdtf}', [SettingsController::class, 'destroyZdtf'])->name('destroy');
+        });
+        
+        // Cantons
+        Route::prefix('cantons')->name('cantons.')->group(function () {
+            Route::get('/', [SettingsController::class, 'cantons'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createCanton'])->name('create');
+            Route::post('/', [SettingsController::class, 'storeCanton'])->name('store');
+            Route::get('/{canton}/edit', [SettingsController::class, 'editCanton'])->name('edit');
+            Route::put('/{canton}', [SettingsController::class, 'updateCanton'])->name('update');
+            Route::delete('/{canton}', [SettingsController::class, 'destroyCanton'])->name('destroy');
+        });
+        
+        // Parcelles
+        Route::prefix('parcelles')->name('parcelles.')->group(function () {
+            Route::get('/', [SettingsController::class, 'parcelles'])->name('index');
+            Route::get('/create', [SettingsController::class, 'createParcelle'])->name('create');
+            Route::post('/', [SettingsController::class, 'storeParcelle'])->name('store');
+            Route::get('/{parcelle}/edit', [SettingsController::class, 'editParcelle'])->name('edit');
+            Route::put('/{parcelle}', [SettingsController::class, 'updateParcelle'])->name('update');
+            Route::delete('/{parcelle}', [SettingsController::class, 'destroyParcelle'])->name('destroy');
+        });
+        
     });
 
     // Excel Import/Export Routes
@@ -356,8 +283,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/export/nature-de-coupes', [ExcelController::class, 'exportNatureDeCoupes'])->name('export.nature-de-coupes');
         Route::get('/export/situation-administratives', [ExcelController::class, 'exportSituationAdministratives'])->name('export.situation-administratives');
         Route::get('/export/exploitants', [ExcelController::class, 'exportExploitants'])->name('export.exploitants');
-        Route::get('/export/localisations', [ExcelController::class, 'exportLocalisations'])->name('export.localisations');
-        
         // Individual imports
         Route::post('/import/articles', [ExcelController::class, 'importArticles'])->name('import.articles');
         Route::post('/import/essences', [ExcelController::class, 'importEssences'])->name('import.essences');
@@ -365,7 +290,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/import/nature-de-coupes', [ExcelController::class, 'importNatureDeCoupes'])->name('import.nature-de-coupes');
         Route::post('/import/situation-administratives', [ExcelController::class, 'importSituationAdministratives'])->name('import.situation-administratives');
         Route::post('/import/exploitants', [ExcelController::class, 'importExploitants'])->name('import.exploitants');
-        Route::post('/import/localisations', [ExcelController::class, 'importLocalisations'])->name('import.localisations');
     });
 
     // Contracts Routes
@@ -440,7 +364,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/articles-by-essence', [ReportController::class, 'articlesByEssence'])->name('articles-by-essence');
         Route::get('/articles-by-exploitant', [ReportController::class, 'articlesByExploitant'])->name('articles-by-exploitant');
         Route::get('/articles-by-nature-de-coupe', [ReportController::class, 'articlesByNatureDeCoupe'])->name('articles-by-nature-de-coupe');
-        Route::get('/articles-by-localisation', [ReportController::class, 'articlesByLocalisation'])->name('articles-by-localisation');
         Route::get('/articles-by-validation-status', [ReportController::class, 'articlesByValidationStatus'])->name('articles-by-validation-status');
         Route::get('/invendus', [ReportController::class, 'invendus'])->name('invendus');
         Route::get('/vendus', [ReportController::class, 'vendus'])->name('vendus');
@@ -456,7 +379,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/unified-table', [ReportController::class, 'unifiedTable'])->name('unified-table');
         Route::get('/contracts', [ReportController::class, 'contractsReport'])->name('contracts');
         Route::get('/exploitants', [ReportController::class, 'exploitantsReport'])->name('exploitants');
-        Route::get('/odfs', [ReportController::class, 'odfsReport'])->name('odfs');
         Route::get('/products', [ReportController::class, 'productsReport'])->name('products');
         Route::get('/products-development-chart', [ReportController::class, 'productsDevelopmentChart'])->name('products-development-chart');
     });

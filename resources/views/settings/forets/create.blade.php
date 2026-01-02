@@ -81,6 +81,52 @@
                 @enderror
             </div>
 
+            <!-- Nature Juridique -->
+            <div class="form-group">
+                <label for="nature_juridique" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Nature Juridique
+                </label>
+                <input 
+                    type="text" 
+                    name="nature_juridique" 
+                    id="nature_juridique" 
+                    value="{{ old('nature_juridique') }}"
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400"
+                    placeholder="Entrez la nature juridique"
+                >
+                @error('nature_juridique')
+                    <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
+            <!-- DPANEF -->
+            <div class="form-group">
+                <label for="dpanef_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                    DPANEF
+                </label>
+                <select 
+                    name="dpanef_id" 
+                    id="dpanef_id" 
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400"
+                >
+                    <option value="">Sélectionner un DPANEF</option>
+                    @foreach($dpanefs as $dpanef)
+                        <option value="{{ $dpanef->id }}" {{ old('dpanef_id') == $dpanef->id ? 'selected' : '' }}>
+                            {{ $dpanef->name }}@if($dpanef->dranef) - {{ $dpanef->dranef->name }}@endif
+                        </option>
+                    @endforeach
+                </select>
+                @error('dpanef_id')
+                    <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
             <!-- Form Actions -->
             <div class="flex items-center gap-4 pt-6 border-t border-gray-200">
                 <button 

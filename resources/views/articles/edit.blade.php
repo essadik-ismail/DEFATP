@@ -185,29 +185,6 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="form-group">
-                        <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Localisations <span class="text-red-500">*</span></span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs localisations"></i>
-                        </label>
-                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'localisation_ids')">
-                        <select multiple
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="localisation_ids" name="localisation_ids[]">
-                            @php($selectedLocalisations = old('localisation_ids', optional($article->localisations)->pluck('id')->toArray() ?? []))
-                            @foreach($localisations as $localisation)
-                                <option value="{{ $localisation->id }}" {{ in_array($localisation->id, $selectedLocalisations) ? 'selected' : '' }}>
-                                    {{ $localisation->CODE }} - {{ $localisation->DRANEF }} - {{ $localisation->ENTITE }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('localisation_ids')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
                         <label for="situation_administrative_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                             <span>Situations Administratives <span class="text-red-500">*</span></span>
                             <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs situations administratives"></i>
@@ -308,16 +285,7 @@
                             <span>Nature Juridique</span>
                             <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Nature juridique de l'article"></i>
                         </label>
-                        <input type="text" 
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                               id="nature_juridique" name="nature_juridique" value="{{ old('nature_juridique', $article->nature_juridique) }}" 
-                               placeholder="Nature juridique">
-                        @error('nature_juridique')
-                            <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                                <i class="fas fa-exclamation-circle"></i>
-                                {{ $message }}
-                            </div>
-                        @enderror
+                        <!-- Removed: Nature Juridique - column was removed -->
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -573,23 +541,7 @@
                     </div>
 
 
-                    <!-- Invendu -->
-                    <div class="form-group">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-times-circle text-orange-500 mr-2"></i>Invendu
-                        </label>
-                        <div class="flex items-center space-x-4">
-                            <label class="flex items-center">
-                                <input type="radio" name="invendu" value="0" {{ old('invendu', $article->invendu ?? 0) == 0 ? 'checked' : '' }} class="form-radio text-orange-500">
-                                <span class="ml-2 text-gray-700">Non</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="invendu" value="1" {{ old('invendu', $article->invendu ?? 0) == 1 ? 'checked' : '' }} class="form-radio text-orange-500">
-                                <span class="ml-2 text-gray-700">Oui</span>
-                            </label>
-                        </div>
-                    </div>
-
+                    <!-- Removed: Invendu - column was removed -->
 
                     <!-- Exploitant -->
                     <div class="form-group">
@@ -607,78 +559,91 @@
                     </div>                    
                     
 
-                    <!-- Prix de vente -->
+                    <!-- Removed: Prix de vente, DC, Date de déchéance, Prix de retrait, RC, Date de résiliation - columns were removed -->
+
+                    <!-- Taxe refection chemins -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-tag text-orange-500 mr-2"></i>Prix de vente
+                            <i class="fas fa-road text-orange-500 mr-2"></i>Taxe refection chemins
                         </label>
-                        <input type="number" name="prix_vente" value="{{ old('prix_vente', $article->prix_vente) }}" 
-                               step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                        <input type="number" name="taxe_refection_chemins" value="{{ old('taxe_refection_chemins', $article->taxe_refection_chemins) }}" 
+                               step="0.01" min="0" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                     </div>
 
-                    <!-- DC -->
+                    <!-- Service rendu ANEF -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-check-circle text-orange-500 mr-2"></i>déchéance
+                            <i class="fas fa-handshake text-orange-500 mr-2"></i>Service rendu ANEF
                         </label>
-                        <div class="flex items-center space-x-4">
-                            <label class="flex items-center">
-                                <input type="radio" name="dc" value="0" {{ old('dc', $article->dc) == 0 ? 'checked' : '' }} class="form-radio text-orange-500">
-                                <span class="ml-2 text-gray-700">Non</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="dc" value="1" {{ old('dc', $article->dc) == 1 ? 'checked' : '' }} class="form-radio text-orange-500">
-                                <span class="ml-2 text-gray-700">Oui</span>
-                            </label>
-                        </div>
+                        <input type="number" name="service_rendu_anef" value="{{ old('service_rendu_anef', $article->service_rendu_anef) }}" 
+                               step="0.01" min="0" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                     </div>
 
-                    <!-- Date de déchéance -->
+                    <!-- Bois chauffage volume -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-exclamation text-orange-500 mr-2"></i>Date de déchéance
-                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
+                            <i class="fas fa-fire text-orange-500 mr-2"></i>Bois chauffage volume
                         </label>
-                        <input type="date" name="date_de_decheance" value="{{ old('date_de_decheance', $article->date_de_decheance) }}" 
+                        <input type="number" name="bois_chauffage_volume" value="{{ old('bois_chauffage_volume', $article->bois_chauffage_volume) }}" 
+                               step="0.01" min="0" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+
+                    <!-- Bois chauffage destination -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt text-orange-500 mr-2"></i>Bois chauffage destination
+                        </label>
+                        <input type="text" name="bois_chauffage_destination" value="{{ old('bois_chauffage_destination', $article->bois_chauffage_destination) }}" 
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    </div>
+
+                    <!-- Date payement service ANEF -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-check text-orange-500 mr-2"></i>Date payement service ANEF
+                        </label>
+                        <input type="date" name="date_payement_service_anef" value="{{ old('date_payement_service_anef', $article->date_payement_service_anef) }}" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                placeholder="jj/mm/aaaa">
                     </div>
 
-                    <!-- Prix de retrait -->
+                    <!-- Date livraison mise en charge BF -->
                     <div class="form-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-money-bill-wave text-orange-500 mr-2"></i>Prix de retrait
+                            <i class="fas fa-truck text-orange-500 mr-2"></i>Date livraison mise en charge BF
                         </label>
-                        <input type="number" name="prix_de_retrait" value="{{ old('prix_de_retrait', $article->prix_de_retrait) }}" 
-                               step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                    </div>
-
-                    <!-- RC -->
-                    <div class="form-group">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-shield-alt text-orange-500 mr-2"></i>résiliation
-                        </label>
-                        <div class="flex items-center space-x-4">
-                            <label class="flex items-center">
-                                <input type="radio" name="rc" value="0" {{ old('rc', $article->rc) == 0 ? 'checked' : '' }} class="form-radio text-orange-500">
-                                <span class="ml-2 text-gray-700">Non</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="rc" value="1" {{ old('rc', $article->rc) == 1 ? 'checked' : '' }} class="form-radio text-orange-500">
-                                <span class="ml-2 text-gray-700">Oui</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Date de résiliation -->
-                    <div class="form-group">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-times text-orange-500 mr-2"></i>Date de résiliation
-                            <i class="fas fa-question-circle mx-1 text-gray-400" title="Format: jj/mm/aaaa (ex: 01/01/2024)"></i>
-                        </label>
-                        <input type="date" name="date_de_resiliation" value="{{ old('date_de_resiliation', $article->date_de_resiliation) }}" 
+                        <input type="date" name="date_livaison_mise_en_charge_bf" value="{{ old('date_livaison_mise_en_charge_bf', $article->date_livaison_mise_en_charge_bf) }}" 
                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                placeholder="jj/mm/aaaa">
+                    </div>
+
+                    <!-- ZDTF -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-map text-orange-500 mr-2"></i>ZDTF
+                        </label>
+                        <select name="zdtf_id" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            <option value="">Sélectionner un ZDTF</option>
+                            @foreach($zdtfs as $zdtf)
+                                <option value="{{ $zdtf->id }}" {{ old('zdtf_id', $article->zdtf_id) == $zdtf->id ? 'selected' : '' }}>
+                                    {{ $zdtf->name }}@if($zdtf->dpanef) - {{ $zdtf->dpanef->name }}@endif
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Mode Exploitations -->
+                    <div class="form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-tools text-orange-500 mr-2"></i>Mode d'Exploitation
+                        </label>
+                        <select multiple name="mode_exploitation_ids[]" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            @foreach($modeExploitations as $modeExploitation)
+                                <option value="{{ $modeExploitation->id }}" {{ collect(old('mode_exploitation_ids', $article->modeExploitations->pluck('id')->toArray()))->contains($modeExploitation->id) ? 'selected' : '' }}>
+                                    {{ $modeExploitation->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
 
                 </div>

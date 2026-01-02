@@ -83,11 +83,4 @@ class NationalSummary extends Model
         return $this->belongsTo(SituationAdministrative::class, 'situation_administrative_id');
     }
 
-    /**
-     * Get the localisation for this national summary.
-     */
-    public function localisation(): BelongsTo
-    {
-        return $this->belongsTo(Localisation::class, 'localisation_id');
-    }
 }

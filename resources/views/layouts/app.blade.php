@@ -1611,7 +1611,6 @@
 
         .quick-create-icon.essence { background: #d1fae5; color: #059669; }
         .quick-create-icon.foret { background: #fef3c7; color: #7c2d12; }
-        .quick-create-icon.localisation { background: #bbf7d0; color: #16a34a; }
         .quick-create-icon.situation { background: #fef3c7; color: #ca8a04; }
         .quick-create-icon.exploitant { background: #fce7f3; color: #dc2626; }
         .quick-create-icon.nature { background: #d1fae5; color: #0891b2; }
@@ -2164,12 +2163,12 @@
                     </a>
                 </div>
 
-                <div class="nav-item {{ request()->routeIs('contracts.*') ? 'has-submenu' : '' }}">
+                <!-- <div class="nav-item {{ request()->routeIs('contracts.*') ? 'has-submenu' : '' }}">
                     <a href="{{ route('contracts.index') }}" class="nav-link {{ request()->routeIs('contracts.*') ? 'active' : '' }}">
                         <i class="fas fa-handshake"></i>
                         Contrat de Partenariat
                     </a>
-                </div>
+                </div> -->
 
                 <div class="nav-item">
                     <a href="{{ route('exploitants.index') }}" class="nav-link {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
@@ -2178,29 +2177,12 @@
                     </a>
                 </div>
 
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="{{ route('financial-data.index') }}" class="nav-link {{ request()->routeIs('financial-data.*') ? 'active' : '' }}">
                         <i class="fas fa-money-bill-wave"></i>
                         Recette
                     </a>
                 </div>
-                
-                <!-- <div class="nav-item">
-                    <a href="{{ route('odfs.index') }}" class="nav-link {{ request()->routeIs('odfs.*') ? 'active' : '' }}">
-                        <i class="fas fa-users"></i>
-                        ODF
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="{{ route('pdfcs.index') }}" class="nav-link {{ request()->routeIs('pdfcs.*') ? 'active' : '' }}">
-                        <i class="fas fa-project-diagram"></i>
-                        Plan DFC
-                    </a>
-                </div>
-                
-                
-                
 
                 <div class="nav-item">
                     <a href="{{ route('partenariats.index') }}" class="nav-link {{ request()->routeIs('partenariats.*') ? 'active' : '' }}">
@@ -2209,7 +2191,7 @@
                     </a>
                 </div> -->
 
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="{{ route('activity-logs.index') }}" class="nav-link {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
                         <i class="fas fa-history"></i>
                         Journal d'Activités
@@ -2221,10 +2203,10 @@
                         <i class="fas fa-archive"></i>
                         Archives
                     </a>
-                </div>
+                </div> -->
             
                 <div class="nav-item">
-                    <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') || request()->routeIs('essences.*') || request()->routeIs('forets.*') || request()->routeIs('localisations.*') || request()->routeIs('situations.*') || request()->routeIs('natures.*') || request()->routeIs('vocations.*') || request()->routeIs('coperatives.*') || request()->routeIs('odf-entites.*') || request()->routeIs('products.*') || request()->routeIs('prestations.*') ? 'active' : '' }}">
+                    <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') || request()->routeIs('essences.*') || request()->routeIs('forets.*') || request()->routeIs('situations.*') || request()->routeIs('natures.*') || request()->routeIs('vocations.*') || request()->routeIs('coperatives.*') || request()->routeIs('products.*') || request()->routeIs('prestations.*') ? 'active' : '' }}">
                         <i class="fas fa-database"></i>
                         Données des Entités
                     </a>

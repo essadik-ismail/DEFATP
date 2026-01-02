@@ -47,16 +47,6 @@
                             </div>
                             <div class="tab-indicator"></div>
                         </button>
-                        <button class="tab-button group" data-tab="localisations">
-                            <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                                <i class="fas fa-map-marker-alt text-white text-sm"></i>
-                            </div>
-                            <div class="text-left">
-                                <span class="block font-semibold">Localisations</span>
-                                <span class="text-xs text-gray-500 group-hover:text-gray-700">Articles</span>
-                            </div>
-                            <div class="tab-indicator"></div>
-                        </button>
                         <button class="tab-button group" data-tab="situations">
                             <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                                 <i class="fas fa-building text-white text-sm"></i>
@@ -98,13 +88,6 @@
                             </div>
                             <div class="tab-indicator"></div>
                         </button>
-                        <!-- ODF Entities Tab -->
-                        <button class="tab-button group" data-tab="odf-entites">
-                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                                <i class="fas fa-users text-white text-sm"></i>
-                            </div>
-                            <div class="text-left">
-                                <span class="block font-semibold">ODF Entités</span>
                                 <span class="text-xs text-gray-500 group-hover:text-gray-700">ODF</span>
                             </div>
                             <div class="tab-indicator"></div>
@@ -137,12 +120,10 @@
                     <div class="tab-content" id="entitiesTabContent">
                         @include('entity-data.partials.essences-tab')
                         @include('entity-data.partials.forets-tab')
-                        @include('entity-data.partials.localisations-tab')
                         @include('entity-data.partials.situations-tab')
                         @include('entity-data.partials.natures-coupe-tab')
                         @include('entity-data.partials.vocations-tab')
                         @include('entity-data.partials.coperatives-tab')
-                        @include('entity-data.partials.odf-entites-tab')
                         @include('entity-data.partials.products-tab')
                         @include('entity-data.partials.prestations-tab')
                     </div>
@@ -192,38 +173,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Function to handle localisation import
-function importLocalisations(input) {
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        fetch('{{ route("settings.localisations.import") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Import réussi ! ' + data.message);
-                location.reload();
-            } else {
-                alert('Erreur lors de l\'import : ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Erreur lors de l\'import');
-        });
-        
-        // Reset input
-        input.value = '';
-    }
-}
 </script>
 @endpush
 
@@ -349,13 +298,11 @@ $(document).ready(function() {
         var tableIdMap = {
             'essences': 'essencesTable',
             'forets': 'foretsTable',
-            'localisations': 'localisationsTable',
             'situations': 'situationsTable',
             'vocations': 'vocationsTable',
             'coperatives': 'coperativesTable',
             'avenants': 'avenantsTable',
             'natures-coupe': 'naturesCoupeTable',
-            'odf-entites': 'odfEntitesTable',
             'exploitants': 'entityExploitantsTable',
             'products': 'productsTable',
             'prestations': 'prestationsTable'

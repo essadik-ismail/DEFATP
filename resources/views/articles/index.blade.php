@@ -88,15 +88,6 @@
                         </button>
                     </span>
                 @endif
-                @if(request('localisation_ids'))
-                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
-                        <i class="fas fa-map-marker-alt text-xs"></i>
-                        Localisations: {{ count(request('localisation_ids', [])) }} sélectionnée(s)
-                        <button type="button" onclick="removeFilter('localisation_ids')" class="ml-1 hover:text-indigo-900">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </span>
-                @endif
                 @if(request('years'))
                     <span class="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
                         <i class="fas fa-calendar text-xs"></i>
@@ -189,52 +180,6 @@
                                 <option value="adjudication" {{ request('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
                                 <option value="marche_negocié" {{ request('type') == 'marche_negocié' ? 'selected' : '' }}>Marché Négocié</option>
                             </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="localisation_ids" class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="fas fa-map-marker-alt text-indigo-500 mr-1"></i>Localisations
-                                <span class="text-xs text-gray-500 font-normal" id="localisation_count">({{ count(request('localisation_ids', [])) }} sélectionnée(s))</span>
-                            </label>
-                            <div class="relative">
-                                <input type="text" 
-                                       placeholder="Rechercher..." 
-                                       class="form-input w-full mb-2 px-4 py-2 pr-8 border border-gray-300 rounded-lg" 
-                                       id="localisation_search"
-                                       onkeyup="enhancedFilterSelectOptions(this, 'localisation_ids')">
-                                <button type="button" 
-                                        onclick="clearSelectFilter('localisation_search', 'localisation_ids')"
-                                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <div class="flex gap-2 mb-2">
-                                <button type="button" 
-                                        onclick="selectAllOptions('localisation_ids')"
-                                        class="flex-1 px-2 py-1 text-xs bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100 transition-colors">
-                                    <i class="fas fa-check-double mr-1"></i>Tout sélectionner
-                                </button>
-                                <button type="button" 
-                                        onclick="deselectAllOptions('localisation_ids')"
-                                        class="flex-1 px-2 py-1 text-xs bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors">
-                                    <i class="fas fa-times mr-1"></i>Tout désélectionner
-                                </button>
-                            </div>
-                            <select multiple
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-gray-400" 
-                                    name="localisation_ids[]" 
-                                    id="localisation_ids"
-                                    onchange="updateSelectCount('localisation_ids', 'localisation_count')"
-                                    size="5">
-                                @foreach($allLocalisations ?? [] as $localisation)
-                                    <option value="{{ $localisation->id }}" {{ in_array($localisation->id, request('localisation_ids', [])) ? 'selected' : '' }}>
-                                        {{ $localisation->DRANEF }} - {{ $localisation->DPANEF }} - {{ $localisation->ENTITE }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">
-                                <span id="localisation_filtered_count">{{ count($allLocalisations ?? []) }}</span> résultat(s) | Maintenez Ctrl/Cmd pour sélectionner plusieurs
-                            </p>
                         </div>
                         
                         <div class="form-group">
@@ -444,22 +389,12 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($article->prix_de_retrait)
-                                        <span class="badge bg-warning text-dark">
-                                            {{ number_format($article->prix_de_retrait, 2) }} DH
-                                        </span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
+                                    <!-- Removed: Prix de retrait - column was removed -->
+                                    <span class="text-muted">-</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($article->prix_vente)
-                                        <span class="badge bg-success">
-                                            {{ number_format($article->prix_vente, 2) }} DH
-                                        </span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
+                                    <!-- Removed: Prix de vente - column was removed -->
+                                    <span class="text-muted">-</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if($article->type)
@@ -556,14 +491,6 @@
                 </div>
                 <h4>Nouvelle Forêt</h4>
                 <p>Ajouter une zone forestière</p>
-            </a>
-            
-            <a href="{{ route('settings.localisations.index') }}" class="quick-create-card">
-                <div class="quick-create-icon localisation">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <h4>Nouvelle Localisation</h4>
-                <p>Ajouter une zone géographique</p>
             </a>
             
             <a href="{{ route('settings.situation-administratives.index') }}" class="quick-create-card">
@@ -1031,17 +958,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize enhanced filters
 function initializeEnhancedFilters() {
     // Initialize select counts
-    updateSelectCount('localisation_ids', 'localisation_count');
     updateSelectCount('years', 'years_count');
-    
-    // Initialize filtered counts
-    const localisationSelect = document.getElementById('localisation_ids');
-    if (localisationSelect) {
-        const localisationCount = document.getElementById('localisation_ids_filtered_count');
-        if (localisationCount) {
-            localisationCount.textContent = Array.from(localisationSelect.options).length;
-        }
-    }
     
     const yearsSelect = document.getElementById('years');
     if (yearsSelect) {
@@ -1252,38 +1169,6 @@ function filterTableByColumns() {
     }
 }
 
-// Function to handle localisation import
-function importLocalisations(input) {
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        fetch('{{ route("settings.localisations.import") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Import réussi ! ' + data.message);
-                location.reload();
-            } else {
-                alert('Erreur lors de l\'import : ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Erreur lors de l\'import');
-        });
-        
-        // Reset input
-        input.value = '';
-    }
-}
 
 // Articles table functionality
 function initializeTableFilters() {
@@ -1743,12 +1628,6 @@ function removeFilter(filterName) {
         document.getElementById('search').value = '';
     } else if (filterName === 'type') {
         document.getElementById('type').value = '';
-    } else if (filterName === 'localisation_ids') {
-        const select = document.getElementById('localisation_ids');
-        if (select) {
-            Array.from(select.options).forEach(opt => opt.selected = false);
-            updateSelectCount('localisation_ids', 'localisation_count');
-        }
     } else if (filterName === 'years') {
         const select = document.getElementById('years');
         if (select) {
@@ -1814,18 +1693,6 @@ function clearFilters() {
     const typeSelect = document.getElementById('type');
     if (typeSelect) typeSelect.value = '';
     
-    // Clear localisations
-    const localisationSelect = document.getElementById('localisation_ids');
-    if (localisationSelect) {
-        Array.from(localisationSelect.options).forEach(opt => opt.selected = false);
-        updateSelectCount('localisation_ids', 'localisation_count');
-    }
-    const localisationSearch = document.getElementById('localisation_search');
-    if (localisationSearch) {
-        localisationSearch.value = '';
-        enhancedFilterSelectOptions(localisationSearch, 'localisation_ids');
-    }
-    
     // Clear years
     const yearsSelect = document.getElementById('years');
     if (yearsSelect) {
@@ -1866,7 +1733,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search');
     const statusFilter = document.getElementById('status');
     const typeFilter = document.getElementById('type');
-    const localisationSelect = document.getElementById('localisation_ids');
     const yearsSelect = document.getElementById('years');
     const table = document.querySelector('.table');
     
@@ -1892,12 +1758,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Handle multiple select changes - submit on change
-    if (localisationSelect) {
-        localisationSelect.addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
-        });
-    }
-    
     if (yearsSelect) {
         yearsSelect.addEventListener('change', function() {
             document.getElementById('filterForm').submit();

@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('exploitants', function (Blueprint $table) {
-            $table->string('etat_validite')->nullable()->after('duree_validite');
+        Schema::create('dpanefs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('dranef_id')->constrained('dranefs')->onDelete('cascade');
+            $table->string('dpanef');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('exploitants', function (Blueprint $table) {
-            $table->dropColumn(['etat_validite']);
-        });
+        Schema::dropIfExists('dpanefs');
     }
 };

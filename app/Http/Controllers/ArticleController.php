@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Essence;
 use App\Models\Foret;
-use App\Models\Localisation;
 use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\Exploitant;
@@ -36,7 +35,7 @@ class ArticleController extends Controller
         
         // Build base query
         $articlesQuery = Article::where('is_deleted', false)
-            ->with(['exploitant', 'products', 'locations', 'forets', 'essences', 'situationsAdministratives', 'naturesDeCoupe', 'localisations']);
+            ->with(['exploitant', 'products', 'locations', 'forets', 'essences', 'situationsAdministratives', 'naturesDeCoupe']);
             
         // Get articles with enhanced pagination and filtering
         $articles = $articlesQuery
@@ -60,12 +59,6 @@ class ArticleController extends Controller
                 } elseif ($endDate) {
                     $query->where('date_adjudication', '<=', $endDate);
                 }
-            })
-            ->when($request->filled('localisation_ids'), function($query) use ($request) {
-                $localisationIds = is_array($request->localisation_ids) ? $request->localisation_ids : [$request->localisation_ids];
-                $query->whereHas('localisations', function($q) use ($localisationIds) {
-                    $q->whereIn('localisations.id', $localisationIds);
-                });
             })
             ->when($request->filled('years'), function($query) use ($request) {
                 $years = is_array($request->years) ? $request->years : [$request->years];
@@ -111,13 +104,6 @@ class ArticleController extends Controller
             }
         }
         
-        if ($request->filled('localisation_ids')) {
-            $localisationIds = is_array($request->localisation_ids) ? $request->localisation_ids : [$request->localisation_ids];
-            $filteredQuery->whereHas('localisations', function($q) use ($localisationIds) {
-                $q->whereIn('localisations.id', $localisationIds);
-            });
-        }
-        
         if ($request->filled('years')) {
             $years = is_array($request->years) ? $request->years : [$request->years];
             $filteredQuery->whereIn('annee', $years);
@@ -129,14 +115,15 @@ class ArticleController extends Controller
         
         $stats = [
             'total_articles' => $articles->total(),
-            'sold_articles' => (clone $filteredQuery)->where('invendu', false)->count(),
-            'unsold_articles' => (clone $filteredQuery)->where('invendu', true)->count(),
-            'total_revenue' => (clone $filteredQuery)->sum('prix_vente'),
-            'total_retrait' => (clone $filteredQuery)->sum('prix_de_retrait'),
+            // Removed sold_articles/unsold_articles - invendu column was removed
+            'sold_articles' => 0,
+            'unsold_articles' => 0,
+            // Removed total_revenue/total_retrait - prix_vente and prix_de_retrait columns were removed
+            'total_revenue' => 0,
+            'total_retrait' => 0,
             'total_volume' => $this->calculateTotalVolume($filteredQuery),
             'total_forets' => Foret::where('is_deleted', false)->count(),
             'total_essences' => Essence::where('is_deleted', false)->count(),
-            'total_localisations' => Localisation::where('is_deleted', false)->count(),
             'total_exploitants' => Exploitant::where('is_deleted', false)->count(),
             'articles_by_type' => [
                 'appel_doffre' => (clone $filteredQuery)->where('type', 'appel_doffre')->count(),
@@ -166,20 +153,6 @@ class ArticleController extends Controller
             ->orderBy('foret')
             ->paginate(10, ['*'], 'forets_page');
 
-        // Provide localisations list for the localisations table section
-        $localisations = Localisation::where('is_deleted', false)
-            ->when($request->filled('localisation_search'), function($query) use ($request) {
-                $query->where('CODE', 'like', '%' . $request->localisation_search . '%')
-                      ->orWhere('DRANEF', 'like', '%' . $request->localisation_search . '%')
-                      ->orWhere('ENTITE', 'like', '%' . $request->localisation_search . '%');
-            })
-            ->orderBy('CODE')
-            ->paginate(10, ['*'], 'localisations_page');
-
-        // Get all localisations for filter dropdown
-        $allLocalisations = Localisation::where('is_deleted', false)
-            ->orderBy('CODE')
-            ->get();
 
         // Provide natures de coupe list for the natures table section
         $natureDeCoupes = NatureDeCoupe::where('is_deleted', false)
@@ -195,8 +168,6 @@ class ArticleController extends Controller
             'stats',
             'essences',
             'forets',
-            'localisations',
-            'allLocalisations',
             'natureDeCoupes'
         ));
     }
@@ -208,8 +179,9 @@ class ArticleController extends Controller
         $essences = Essence::orderBy('essence')->get();
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
         $exploitants = Exploitant::orderBy('nom_complet')->get();
-        $localisations = Localisation::orderBy('CODE')->get();
         $products = \App\Models\Product::orderBy('name')->get();
+        $modeExploitations = \App\Models\ModeExploitation::orderBy('mode_exploiattion')->get();
+        $zdtfs = \App\Models\Zdtf::with('dpanef.dranef')->orderBy('sdtf')->get();
 
         return view('articles.create', compact(
             'situationAdministratives',
@@ -217,20 +189,21 @@ class ArticleController extends Controller
             'essences',
             'natureDeCoupes',
             'exploitants',
-            'localisations',
-            'products'
+            'products',
+            'modeExploitations',
+            'zdtfs'
         ));
     }
 
     public function store(StoreArticleRequest $request): RedirectResponse
     {
         try {
-            // Prepare article data with new field structure
+            // Prepare article data with new field structure (aligned with ERD)
             $articleData = $request->only([
                 'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
-                'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
-                'superficie', 'ps_t', 'prix_de_retrait', 'prix_vente',
-                'invendu', 'dc', 'rc', 'nommer_a_la_vente', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
+                'exploitant_id', 'parcelle', 'superficie', 'fourniture_mise_charge',
+                'taxe_refection_chemins', 'service_rendu_anef', 'bois_chauffage_volume', 'bois_chauffage_destination',
+                'date_payement_service_anef', 'date_livaison_mise_en_charge_bf', 'zdtf_id'
             ]);
 
 
@@ -262,6 +235,7 @@ class ArticleController extends Controller
             $situationIds = $request->input('situation_administrative_ids', []);
             $natureIds = $request->input('nature_de_coupe_ids', []);
             $localisationIds = $request->input('localisation_ids', []);
+            $modeExploitationIds = $request->input('mode_exploitation_ids', []);
 
             if (!empty($foretIds)) {
                 $article->forets()->sync($foretIds);
@@ -277,6 +251,9 @@ class ArticleController extends Controller
             }
             if (!empty($localisationIds)) {
                 $article->localisations()->sync($localisationIds);
+            }
+            if (!empty($modeExploitationIds)) {
+                $article->modeExploitations()->sync($modeExploitationIds);
             }
 
             // Handle locations if provided
@@ -361,11 +338,11 @@ class ArticleController extends Controller
         $essences = Essence::orderBy('essence')->get();
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
         $exploitants = Exploitant::orderBy('nom_complet')->get();
-        $localisations = Localisation::orderBy('CODE')->get();
-
         // Load products and locations for the article
-        $article->load(['products', 'locations']);
+        $article->load(['products', 'locations', 'modeExploitations', 'zdtf']);
         $products = \App\Models\Product::orderBy('name')->get();
+        $modeExploitations = \App\Models\ModeExploitation::orderBy('mode_exploiattion')->get();
+        $zdtfs = \App\Models\Zdtf::with('dpanef.dranef')->orderBy('sdtf')->get();
 
         return view('articles.edit', compact(
             'article',
@@ -375,7 +352,9 @@ class ArticleController extends Controller
             'natureDeCoupes',
             'exploitants',
             'localisations',
-            'products'
+            'products',
+            'modeExploitations',
+            'zdtfs'
         ));
     }
 
@@ -383,17 +362,17 @@ class ArticleController extends Controller
     {
         $oldData = $article->only([
             'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
-            'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
-            'superficie', 'ps_t', 'prix_de_retrait', 'prix_vente',
-            'invendu', 'dc', 'rc', 'nommer_a_la_vente', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
+            'exploitant_id', 'parcelle', 'superficie', 'nommer_a_la_vente', 'fourniture_mise_charge',
+            'taxe_refection_chemins', 'service_rendu_anef', 'bois_chauffage_volume', 'bois_chauffage_destination',
+            'date_payement_service_anef', 'date_livaison_mise_en_charge_bf', 'zdtf_id'
         ]);
 
-        // Update article data
+        // Update article data (aligned with ERD)
         $articleData = $request->only([
             'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
-            'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
-            'superficie', 'ps_t', 'prix_de_retrait', 'prix_vente',
-            'invendu', 'dc', 'rc', 'nommer_a_la_vente', 'fourniture_mise_charge', 'date_de_resiliation', 'date_de_decheance'
+            'exploitant_id', 'parcelle', 'superficie', 'nommer_a_la_vente', 'fourniture_mise_charge',
+            'taxe_refection_chemins', 'service_rendu_anef', 'bois_chauffage_volume', 'bois_chauffage_destination',
+            'date_payement_service_anef', 'date_livaison_mise_en_charge_bf', 'zdtf_id'
         ]);
 
         $article->update($articleData);
@@ -425,12 +404,14 @@ class ArticleController extends Controller
         $situationIds = $request->input('situation_administrative_ids', []);
         $natureIds = $request->input('nature_de_coupe_ids', []);
         $localisationIds = $request->input('localisation_ids', []);
+        $modeExploitationIds = $request->input('mode_exploitation_ids', []);
 
         $article->forets()->sync($foretIds);
         $article->essences()->sync($essenceIds);
         $article->situationsAdministratives()->sync($situationIds);
         $article->naturesDeCoupe()->sync($natureIds);
         $article->localisations()->sync($localisationIds);
+        $article->modeExploitations()->sync($modeExploitationIds);
 
         // Handle locations update
         if ($request->has('locations') && is_array($request->locations)) {
@@ -481,7 +462,7 @@ class ArticleController extends Controller
 
     public function export(ExportArticleRequest $request)
     {
-        $filters = $request->only(['annee', 'foret_id', 'essence_id', 'invendu']);
+        $filters = $request->only(['annee', 'foret_id', 'essence_id']);
         
         // Log export action
         ActivityLogger::logExport(
@@ -554,7 +535,9 @@ class ArticleController extends Controller
         $essences = Essence::orderBy('essence')->get();
         $natureDeCoupes = NatureDeCoupe::orderBy('nature_de_coupe')->get();
         $exploitants = Exploitant::orderBy('nom_complet')->get();
-        $localisations = Localisation::orderBy('CODE')->get();
+        $products = \App\Models\Product::orderBy('name')->get();
+        $modeExploitations = \App\Models\ModeExploitation::orderBy('mode_exploiattion')->get();
+        $zdtfs = \App\Models\Zdtf::with('dpanef.dranef')->orderBy('sdtf')->get();
 
         return view('articles.create-simple', compact(
             'situationAdministratives',
@@ -562,77 +545,79 @@ class ArticleController extends Controller
             'essences',
             'natureDeCoupes',
             'exploitants',
-            'localisations'
+            'products',
+            'modeExploitations',
+            'zdtfs'
         ));
     }
 
     /**
-     * Store article from simple form
+     * Store article from simple form - only handles selects and Excel import
      */
     public function storeSimple(Request $request): RedirectResponse
     {
         $request->validate([
-            'type' => 'required|in:appel_doffre,adjudication',
-            'annee' => 'required|integer|min:2000|max:2100',
-            'numero' => 'required|string|max:255',
-            'date_adjudication' => 'required|date',
-            'numero_adjudication' => 'nullable|string|max:255',
-            'lot' => 'nullable|integer|min:0',
             'exploitant_id' => 'required|exists:exploitants,id',
             'foret_ids' => 'required|array|min:1',
             'foret_ids.*' => 'exists:forets,id',
             'essence_ids' => 'required|array|min:1',
             'essence_ids.*' => 'exists:essences,id',
-            'localisation_ids' => 'required|array|min:1',
-            'localisation_ids.*' => 'exists:localisations,id',
             'situation_administrative_ids' => 'required|array|min:1',
             'situation_administrative_ids.*' => 'exists:situation_administratives,id',
             'nature_de_coupe_ids' => 'required|array|min:1',
             'nature_de_coupe_ids.*' => 'exists:nature_de_coupes,id',
-            'excel_file' => 'nullable|file|mimes:xlsx,xls,csv|max:10240'
+            'products' => 'nullable|array',
+            'products.*.name' => 'required_with:products|string|max:255',
+            'products.*.quantity' => 'nullable|numeric|min:0.01',
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240'
         ]);
 
         try {
-            // Prepare article data
-            $articleData = $request->only([
-                'annee', 'numero', 'date_adjudication', 'numero_adjudication', 'lot', 'type',
-                'exploitant_id', 'nature_juridique', 'parcelle', 'lat', 'log',
-                'superficie', 'ps_t', 'prix_de_retrait', 'prix_vente'
-            ]);
-
-            // Create the article
-            $article = Article::create($articleData);
-
-            // Sync many-to-many relations
-            $article->forets()->sync($request->foret_ids);
-            $article->essences()->sync($request->essence_ids);
-            $article->situationsAdministratives()->sync($request->situation_administrative_ids);
-            $article->naturesDeCoupe()->sync($request->nature_de_coupe_ids);
-            $article->localisations()->sync($request->localisation_ids);
-
-            // Handle Excel file import if provided
-            if ($request->hasFile('excel_file')) {
-                try {
-                    Excel::import(new ArticlesImport, $request->file('excel_file'));
-                } catch (\Exception $e) {
-                    \Log::error('Error importing Excel file: ' . $e->getMessage());
+            // Prepare products array for import
+            $productsData = [];
+            if ($request->has('products') && is_array($request->products)) {
+                foreach ($request->products as $product) {
+                    if (!empty($product['name'])) {
+                        $productsData[] = [
+                            'name' => trim($product['name']),
+                            'quantity' => isset($product['quantity']) && $product['quantity'] > 0 ? (float)$product['quantity'] : 1
+                        ];
+                    }
                 }
             }
 
-            // Log article creation
-            ActivityLogger::logCreate(
-                Article::class,
-                $article->id,
-                "Article {$article->numero} ({$article->annee})",
+            // Create import instance with relationship IDs and products
+            $import = new ArticlesImport(
+                $request->exploitant_id,
+                $request->foret_ids,
+                $request->essence_ids,
+                $request->situation_administrative_ids,
+                $request->nature_de_coupe_ids,
+                $request->mode_exploitation_ids ?? [],
+                $request->zdtf_id ?? null,
+                $productsData
+            );
+
+            // Import articles from Excel
+            Excel::import($import, $request->file('excel_file'));
+
+            $rowCount = $import->getRowCount();
+
+            // Log import action
+            ActivityLogger::logImport(
+                'Articles',
+                $request->file('excel_file')->getClientOriginalName(),
+                $rowCount,
                 $request
             );
 
-            return redirect()->route('articles.index')->with('success', 'Article créé avec succès via le formulaire simplifié.');
+            return redirect()->route('articles.index')->with('success', "{$rowCount} article(s) importé(s) avec succès.");
             
         } catch (\Exception $e) {
+            \Log::error('Error importing articles: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Erreur lors de la création de l\'article: ' . $e->getMessage());
+                ->with('error', 'Erreur lors de l\'importation: ' . $e->getMessage());
         }
     }
 
