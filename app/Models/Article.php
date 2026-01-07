@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Article extends Model
@@ -14,18 +13,11 @@ class Article extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'annee',
         'numero',
-        'numero_adjudication',
+        'annee',
         'lot',
-        'type',
-        'exploitant_id',
         'parcelle',
-        'lat',
-        'log',
         'superficie',
-        'ps_t',
-        'nommer_a_la_vente',
         'fourniture_mise_charge',
         'taxe_refection_chemins',
         'service_rendu_anef',
@@ -33,104 +25,24 @@ class Article extends Model
         'bois_chauffage_destination',
         'date_payement_service_anef',
         'date_livaison_mise_en_charge_bf',
-        'zdtf_id',
-        'current_step',
+        'invandu',
+        'dranef_code',
+        'dpanef_code',
+        'zdtf_code',
+        'dfp_code',
     ];
 
     protected $casts = [
-        'date_payement_service_anef' => 'date',
-        'date_livaison_mise_en_charge_bf' => 'date',
-        'ps_t' => 'decimal:2',
+        'annee' => 'integer',
+        'superficie' => 'decimal:2',
         'fourniture_mise_charge' => 'decimal:2',
         'taxe_refection_chemins' => 'decimal:2',
         'service_rendu_anef' => 'decimal:2',
         'bois_chauffage_volume' => 'decimal:2',
-        'superficie' => 'decimal:2',
-        'nommer_a_la_vente' => 'boolean',
+        'date_payement_service_anef' => 'date',
+        'date_livaison_mise_en_charge_bf' => 'date',
+        'invandu' => 'boolean',
     ];
-
-
-    /**
-     * Many-to-many: this article may be linked to multiple forests.
-     */
-    public function forets(): BelongsToMany
-    {
-        return $this->belongsToMany(Foret::class, 'article_foret', 'article_id', 'foret_id')
-            ->withTimestamps();
-    }
-
-    /**
-     * Many-to-many: this article may be linked to multiple essences.
-     * The pivot table can also include product_id and quantity.
-     */
-    public function essences(): BelongsToMany
-    {
-        return $this->belongsToMany(Essence::class, 'article_essence', 'article_id', 'essence_id')
-            ->withPivot('product_id', 'quantity')
-            ->withTimestamps();
-    }
-
-    /**
-     * Many-to-many: this article may be linked to multiple administrative situations.
-     */
-    public function situationsAdministratives(): BelongsToMany
-    {
-        return $this->belongsToMany(SituationAdministrative::class, 'article_situation_administrative', 'article_id', 'situation_administrative_id')
-            ->withTimestamps();
-    }
-
-    /**
-     * Many-to-many: this article may be linked to multiple natures de coupe.
-     */
-    public function naturesDeCoupe(): BelongsToMany
-    {
-        return $this->belongsToMany(NatureDeCoupe::class, 'article_nature_de_coupe', 'article_id', 'nature_de_coupe_id')
-            ->withTimestamps();
-    }
-
-    /**
-     * Many-to-many: this article may be linked to multiple mode exploitations.
-     */
-    public function modeExploitations(): BelongsToMany
-    {
-        return $this->belongsToMany(ModeExploitation::class, 'article_mode_exploitation', 'article_id', 'mode_exploitation_id')
-            ->withTimestamps();
-    }
-
-
-    /**
-     * Get the operator for this article.
-     */
-    public function exploitant(): BelongsTo
-    {
-        return $this->belongsTo(Exploitant::class, 'exploitant_id');
-    }
-
-    /**
-     * Get the products for this article (many-to-many relationship).
-     */
-    public function products(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class, 'article_product', 'article_id', 'product_id')
-            ->withPivot('quantity')
-            ->withTimestamps();
-    }
-
-    /**
-     * Get the locations for this article.
-     */
-    public function locations(): HasMany
-    {
-        return $this->hasMany(Location::class);
-    }
-
-    /**
-     * Get the zdtf for this article.
-     */
-    public function zdtf(): BelongsTo
-    {
-        return $this->belongsTo(Zdtf::class, 'zdtf_id');
-    }
 
     /**
      * Get the contract ventes for this article.
@@ -141,103 +53,117 @@ class Article extends Model
     }
 
     /**
-     * Get the total volume of the article.
+     * Get the locations for this article.
      */
-    public function getTotalVolumeAttribute(): float
+    public function locations(): HasMany
     {
-        // Calculate total volume from products
-        $boProduct = $this->products()->where('name', 'BO (m³)')->first();
-        $biProduct = $this->products()->where('name', 'BI (m³)')->first();
-        
-        $boQuantity = $boProduct ? $boProduct->pivot->quantity : 0;
-        $biQuantity = $biProduct ? $biProduct->pivot->quantity : 0;
-        
-        return $boQuantity + $biQuantity;
+        return $this->hasMany(Location::class, 'article_id');
     }
 
     /**
-     * Get the formatted total volume.
+     * Many-to-many: mode exploitations.
      */
-    public function getFormattedTotalVolumeAttribute(): string
+    public function modeExploitations(): BelongsToMany
     {
-        return number_format($this->total_volume, 2) . ' m³';
-    }
-
-
-    /**
-     * Get the type badge for the article.
-     */
-    public function getTypeBadgeAttribute(): string
-    {
-        $type = $this->type ?? '';
-        if ($type === 'appel_doffre') {
-            return '<span class="badge bg-info">Appel d\'Offre</span>';
-        }
-        return '<span class="badge bg-primary">Adjudication</span>';
-    }
-
-
-    // Removed scopeSold and scopeUnsold - invendu column was removed
-
-    /**
-     * Scope for articles by year.
-     */
-    public function scopeByYear(Builder $query, int $year): Builder
-    {
-        return $query->where('annee', $year);
+        return $this->belongsToMany(ModeExploitation::class, 'article_mode_exploitation', 'article_id', 'mode_exploitation_id')
+            ->withTimestamps();
     }
 
     /**
-     * Scope for articles by forest.
+     * Many-to-many: nature de coupes.
      */
-    public function scopeByForest(Builder $query, int $forestId): Builder
+    public function natureDeCoupes(): BelongsToMany
     {
-        return $query->whereHas('forets', function ($q) use ($forestId) {
-            $q->where('forets.id', $forestId);
-        });
+        return $this->belongsToMany(NatureDeCoupe::class, 'article_nature_de_coupe', 'article_id', 'nature_de_coupe_id')
+            ->withTimestamps();
     }
 
     /**
-     * Scope for articles by essence.
+     * Many-to-many: essences and products.
      */
-    public function scopeByEssence(Builder $query, int $essenceId): Builder
+    public function essences(): BelongsToMany
     {
-        return $query->whereHas('essences', function ($q) use ($essenceId) {
-            $q->where('essences.id', $essenceId);
-        });
+        return $this->belongsToMany(Essence::class, 'article_essence', 'article_id', 'essence_id')
+            ->withPivot('product_id', 'quantity')
+            ->withTimestamps();
     }
 
     /**
-     * Scope for articles by type.
+     * Many-to-many: products through essences.
      */
-    public function scopeByType(Builder $query, string $type): Builder
+    public function products(): BelongsToMany
     {
-        return $query->where('type', $type);
-    }
-
-    // Removed scopePriceRange - prix_vente column was removed
-
-    /**
-     * Scope for articles by date range (based on created_at).
-     */
-    public function scopeDateRange(Builder $query, string $startDate = null, string $endDate = null): Builder
-    {
-        if ($startDate) {
-            $query->where('created_at', '>=', $startDate);
-        }
-        if ($endDate) {
-            $query->where('created_at', '<=', $endDate);
-        }
-        return $query;
+        return $this->belongsToMany(Product::class, 'article_essence', 'article_id', 'product_id')
+            ->withPivot('essence_id', 'quantity')
+            ->withTimestamps();
     }
 
     /**
-     * Scope for recent articles.
+     * Many-to-many: provinces.
      */
-    public function scopeRecent(Builder $query, int $days = 30): Builder
+    public function provinces(): BelongsToMany
     {
-        return $query->where('created_at', '>=', now()->subDays($days));
+        return $this->belongsToMany(Province::class, 'article_province', 'article_id', 'province_id')
+            ->withTimestamps();
     }
 
-    // Removed scopeHighValue - prix_vente column was removed
+    /**
+     * Many-to-many: forets.
+     */
+    public function forets(): BelongsToMany
+    {
+        return $this->belongsToMany(Foret::class, 'article_foret', 'article_id', 'foret_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many: parcelles.
+     */
+    public function parcelles(): BelongsToMany
+    {
+        return $this->belongsToMany(Parcelle::class, 'article_parcelle', 'idarticle', 'idparcelle')
+            ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many: depots.
+     */
+    public function depots(): BelongsToMany
+    {
+        return $this->belongsToMany(Depot::class, 'depot_article', 'id_article', 'id_depot')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the dranef for this article (by code).
+     */
+    public function dranef(): BelongsTo
+    {
+        return $this->belongsTo(Dranef::class, 'dranef_code', 'code');
+    }
+
+    /**
+     * Get the dpanef for this article (by code).
+     */
+    public function dpanef(): BelongsTo
+    {
+        return $this->belongsTo(Dpanef::class, 'dpanef_code', 'code');
+    }
+
+    /**
+     * Get the zdtf for this article (by code).
+     */
+    public function zdtf(): BelongsTo
+    {
+        return $this->belongsTo(Zdtf::class, 'zdtf_code', 'code');
+    }
+
+    /**
+     * Get the dfp for this article (by code).
+     */
+    public function dfp(): BelongsTo
+    {
+        return $this->belongsTo(Dfp::class, 'dfp_code', 'code');
+    }
 }
+

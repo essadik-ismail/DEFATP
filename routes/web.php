@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
@@ -13,6 +12,7 @@ use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\ContractController;
+use App\Http\Controllers\ArticleController;
 
 // Health Check Routes
 Route::get('/health', [HealthController::class, 'index'])->name('health');
@@ -117,6 +117,28 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Articles Routes
+    Route::prefix('articles')->name('articles.')->group(function () {
+        Route::get('/', [ArticleController::class, 'index'])->name('index');
+        Route::get('/create', [ArticleController::class, 'create'])->name('create');
+        Route::post('/', [ArticleController::class, 'store'])->name('store');
+        Route::get('/{article}', [ArticleController::class, 'show'])->name('show');
+        Route::get('/{article}/edit', [ArticleController::class, 'edit'])->name('edit');
+        Route::put('/{article}', [ArticleController::class, 'update'])->name('update');
+        Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
+    });
+
+    // Contract Ventes Routes
+    Route::prefix('articles/{article}/contract-ventes')->name('contract-ventes.')->group(function () {
+        Route::get('/create', [App\Http\Controllers\ContractVenteController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\ContractVenteController::class, 'store'])->name('store');
+        Route::get('/{contractVente}/edit', [App\Http\Controllers\ContractVenteController::class, 'edit'])->name('edit');
+        Route::put('/{contractVente}', [App\Http\Controllers\ContractVenteController::class, 'update'])->name('update');
+    });
+
+    // AJAX route for exploitant details
+    Route::get('/api/exploitants/{exploitant}', [App\Http\Controllers\ContractVenteController::class, 'getExploitant'])->name('api.exploitants.show');
+
     Route::prefix('exploitants')->name('exploitants.')->group(function () {
         Route::get('/', [SettingsController::class, 'exploitants'])->name('index');
         Route::get('/create', [SettingsController::class, 'createExploitant'])->name('create');
@@ -135,7 +157,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [SettingsController::class, 'coperatives'])->name('index');
     });
     
-    // Settings Routes
     // Unified Entity Data Management
     Route::get('/entity-data', [App\Http\Controllers\EntityDataController::class, 'index'])->name('entity-data.index');
     
@@ -149,9 +170,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'update'])->name('update');
         Route::delete('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'destroy'])->name('destroy');
     });
-
-    // Partenariats Management
-    Route::resource('partenariats', App\Http\Controllers\PartenariatController::class);
 
     // Suivi Contract Programmes Management
     Route::resource('suivi-contract-programmes', App\Http\Controllers\SuiviContractProgrammeController::class);
@@ -277,14 +295,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/import-all', [ExcelController::class, 'importAll'])->name('import-all');
         
         // Individual exports
-        Route::get('/export/articles', [ExcelController::class, 'exportArticles'])->name('export.articles');
         Route::get('/export/essences', [ExcelController::class, 'exportEssences'])->name('export.essences');
         Route::get('/export/forets', [ExcelController::class, 'exportForets'])->name('export.forets');
         Route::get('/export/nature-de-coupes', [ExcelController::class, 'exportNatureDeCoupes'])->name('export.nature-de-coupes');
         Route::get('/export/situation-administratives', [ExcelController::class, 'exportSituationAdministratives'])->name('export.situation-administratives');
         Route::get('/export/exploitants', [ExcelController::class, 'exportExploitants'])->name('export.exploitants');
         // Individual imports
-        Route::post('/import/articles', [ExcelController::class, 'importArticles'])->name('import.articles');
         Route::post('/import/essences', [ExcelController::class, 'importEssences'])->name('import.essences');
         Route::post('/import/forets', [ExcelController::class, 'importForets'])->name('import.forets');
         Route::post('/import/nature-de-coupes', [ExcelController::class, 'importNatureDeCoupes'])->name('import.nature-de-coupes');
@@ -331,56 +347,13 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    // Articles Routes
-    Route::prefix('articles')->name('articles.')->group(function () {
-        Route::get('/', [ArticleController::class, 'index'])->name('index');
-        Route::get('/create', [ArticleController::class, 'create'])->name('create');
-        Route::post('/', [ArticleController::class, 'store'])->name('store');
-        Route::get('/export', [ArticleController::class, 'export'])->name('export');
-        Route::post('/import', [ArticleController::class, 'import'])->name('import');
-        
-        // Simple Article Creation Routes
-        Route::get('/create/simple', [ArticleController::class, 'createSimple'])->name('create.simple');
-        Route::post('/store/simple', [ArticleController::class, 'storeSimple'])->name('store.simple');
-        Route::get('/template/download', [ArticleController::class, 'downloadTemplate'])->name('template.download');
-        
-        // Legacy Articles Route (must be before /{article} route)
-        Route::get('/legacy-articles', [\App\Http\Controllers\ReportController::class, 'legacyArticles'])->name('legacy-articles');
-        
-        Route::get('/{article}', [ArticleController::class, 'show'])->name('show');
-        Route::get('/{article}/edit', [ArticleController::class, 'edit'])->name('edit');
-        Route::put('/{article}', [ArticleController::class, 'update'])->name('update');
-        Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
-    });
-
-    // Contract Ventes Routes
-    Route::prefix('contract-ventes')->name('contract-ventes.')->group(function () {
-        Route::post('/', [ArticleController::class, 'storeContractVente'])->name('store');
-        Route::put('/{contractVente}', [ArticleController::class, 'updateContractVente'])->name('update');
-        Route::post('/{article}/import-locations', [ArticleController::class, 'importLocations'])->name('import-locations');
-    });
-
     // Reports Routes
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/summary', [ReportController::class, 'summary'])->name('summary');
         Route::get('/summary/export', [ReportController::class, 'exportSummary'])->name('summary.export');
-        Route::get('/articles-by-year', [ReportController::class, 'articlesByYear'])->name('articles-by-year');
-        Route::get('/articles-by-foret', [ReportController::class, 'articlesByForet'])->name('articles-by-foret');
-        Route::get('/articles-by-essence', [ReportController::class, 'articlesByEssence'])->name('articles-by-essence');
-        Route::get('/articles-by-exploitant', [ReportController::class, 'articlesByExploitant'])->name('articles-by-exploitant');
-        Route::get('/articles-by-nature-de-coupe', [ReportController::class, 'articlesByNatureDeCoupe'])->name('articles-by-nature-de-coupe');
-        Route::get('/articles-by-validation-status', [ReportController::class, 'articlesByValidationStatus'])->name('articles-by-validation-status');
-        Route::get('/invendus', [ReportController::class, 'invendus'])->name('invendus');
-        Route::get('/vendus', [ReportController::class, 'vendus'])->name('vendus');
-        Route::get('/legacy-articles', [ReportController::class, 'legacyArticles'])->name('legacy-articles');
-        Route::get('/legacy-articles-table', [ReportController::class, 'legacyArticlesTable'])->name('legacy-articles-table');
-        Route::get('/legacy-articles-by-year', [ReportController::class, 'legacyArticlesByYear'])->name('legacy-articles-by-year');
-        Route::get('/legacy-articles-by-province', [ReportController::class, 'legacyArticlesByProvince'])->name('legacy-articles-by-province');
-        Route::get('/legacy-articles-by-essence', [ReportController::class, 'legacyArticlesByEssence'])->name('legacy-articles-by-essence');
         Route::get('/product-quantities-charts', [ReportController::class, 'productQuantitiesCharts'])->name('product-quantities-charts');
         Route::get('/legacy-quantities-charts', [ReportController::class, 'legacyQuantitiesCharts'])->name('legacy-quantities-charts');
-        Route::get('/article-quantities-charts', [ReportController::class, 'articleQuantitiesCharts'])->name('article-quantities-charts');
         Route::get('/unified', [ReportController::class, 'unifiedReports'])->name('unified');
         Route::get('/unified-table', [ReportController::class, 'unifiedTable'])->name('unified-table');
         Route::get('/contracts', [ReportController::class, 'contractsReport'])->name('contracts');

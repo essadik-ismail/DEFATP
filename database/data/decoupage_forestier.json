@@ -1,0 +1,3925 @@
+{
+    "DRANEF":[
+    {
+    "Code DRANEF (pk)": "01",
+    "Nom DRANEF": " Tanger-Tétouan-Al Hoceima",
+    "Abréviation": " TTH"
+    },
+    {
+    "Code DRANEF (pk)": "02",
+    "Nom DRANEF": " Oriental",
+    "Abréviation": " O"
+    },
+    {
+    "Code DRANEF (pk)": "03",
+    "Nom DRANEF": " Fès-Meknès",
+    "Abréviation": " FM"
+    },
+    {
+    "Code DRANEF (pk)": "04",
+    "Nom DRANEF": " Rabat-Salé-Kénitra",
+    "Abréviation": " RSK"
+    },
+    {
+    "Code DRANEF (pk)": "05",
+    "Nom DRANEF": " Beni Mellal-Khénifra",
+    "Abréviation": " BMK"
+    },
+    {
+    "Code DRANEF (pk)": "06",
+    "Nom DRANEF": "Casablanca-Settat",
+    "Abréviation": " CS"
+    },
+    {
+    "Code DRANEF (pk)": "07",
+    "Nom DRANEF": " Marrakech-Safi",
+    "Abréviation": " MS"
+    },
+    {
+    "Code DRANEF (pk)": "08",
+    "Nom DRANEF": " Darâa-Tafilalet",
+    "Abréviation": " DT"
+    },
+    {
+    "Code DRANEF (pk)": "09",
+    "Nom DRANEF": " Souss-Massa",
+    "Abréviation": " SM"
+    },
+    {
+    "Code DRANEF (pk)": "10",
+    "Nom DRANEF": " ​Guelmim-Oued Noun",
+    "Abréviation": " GON"
+    },
+    {
+    "Code DRANEF (pk)": "11",
+    "Nom DRANEF": " Laâyoune-Sakia El Hamra",
+    "Abréviation": " LSH"
+    },
+    {
+    "Code DRANEF (pk)": "12",
+    "Nom DRANEF": "Dakhla-Oued Eddahab",
+    "Abréviation": " DOE"
+    }
+    ],
+    "DPANEF":[
+    {
+    "code dpanef": "01-100",
+    "DPANEF": "Tanger",
+    "code dranef": "01"
+    },
+    {
+    "code dpanef": "01-200",
+    "DPANEF": "Tetouan",
+    "code dranef": "01"
+    },
+    {
+    "code dpanef": "01-500",
+    "DPANEF": "Larache",
+    "code dranef": "01"
+    },
+    {
+    "code dpanef": "01-600",
+    "DPANEF": "AL-Hoceima",
+    "code dranef": "01"
+    },
+    {
+    "code dpanef": "01-700",
+    "DPANEF": "Chefchaouen",
+    "code dranef": "01"
+    },
+    {
+    "code dpanef": "01-800",
+    "DPANEF": "Ouezzane",
+    "code dranef": "01"
+    },
+    {
+    "code dpanef": "02-100",
+    "DPANEF": "Oujda-Angad",
+    "code dranef": "02"
+    },
+    {
+    "code dpanef": "02-200",
+    "DPANEF": "Jerada",
+    "code dranef": "02"
+    },
+    {
+    "code dpanef": "02-300",
+    "DPANEF": "Berkane",
+    "code dranef": "02"
+    },
+    {
+    "code dpanef": "02-400",
+    "DPANEF": "Taourirt",
+    "code dranef": "02"
+    },
+    {
+    "code dpanef": "02-500",
+    "DPANEF": "Figuig",
+    "code dranef": "02"
+    },
+    {
+    "code dpanef": "02-600",
+    "DPANEF": "Guercif",
+    "code dranef": "02"
+    },
+    {
+    "code dpanef": "02-700",
+    "DPANEF": "Nador",
+    "code dranef": "02"
+    },
+    {
+    "code dpanef": "02-800",
+    "DPANEF": "Driouch",
+    "code dranef": "02"
+    },
+    {
+    "code dpanef": "03-100",
+    "DPANEF": "Fès",
+    "code dranef": "03"
+    },
+    {
+    "code dpanef": "03-200",
+    "DPANEF": "Meknès-ElHajeb",
+    "code dranef": "03"
+    },
+    {
+    "code dpanef": "03-300",
+    "DPANEF": "Taza",
+    "code dranef": "03"
+    },
+    {
+    "code dpanef": "03-400",
+    "DPANEF": "Boulemane",
+    "code dranef": "03"
+    },
+    {
+    "code dpanef": "03-500",
+    "DPANEF": "Sefrou",
+    "code dranef": "03"
+    },
+    {
+    "code dpanef": "03-600",
+    "DPANEF": "Taounate",
+    "code dranef": "03"
+    },
+    {
+    "code dpanef": "03-700",
+    "DPANEF": "Ifrane",
+    "code dranef": "03"
+    },
+    {
+    "code dpanef": "04-100",
+    "DPANEF": "Rabat",
+    "code dranef": "04"
+    },
+    {
+    "code dpanef": "04-200",
+    "DPANEF": "Khémisset",
+    "code dranef": "04"
+    },
+    {
+    "code dpanef": "04-300",
+    "DPANEF": "Kénitra",
+    "code dranef": "04"
+    },
+    {
+    "code dpanef": "04-600",
+    "DPANEF": "Sidi Slimane",
+    "code dranef": "04"
+    },
+    {
+    "code dpanef": "05-100",
+    "DPANEF": "Béni-Mellal",
+    "code dranef": "05"
+    },
+    {
+    "code dpanef": "05-200",
+    "DPANEF": "Azilal",
+    "code dranef": "05"
+    },
+    {
+    "code dpanef": "05-300",
+    "DPANEF": "Khénifra",
+    "code dranef": "05"
+    },
+    {
+    "code dpanef": "05-400",
+    "DPANEF": "Khouribga",
+    "code dranef": "05"
+    },
+    {
+    "code dpanef": "06-100",
+    "DPANEF": "Casablanca",
+    "code dranef": "06"
+    },
+    {
+    "code dpanef": "06-200",
+    "DPANEF": "Benslimane",
+    "code dranef": "06"
+    },
+    {
+    "code dpanef": "06-300",
+    "DPANEF": "Settat",
+    "code dranef": "06"
+    },
+    {
+    "code dpanef": "06-400",
+    "DPANEF": "El-Jadida",
+    "code dranef": "06"
+    },
+    {
+    "code dpanef": "07-000",
+    "DPANEF": "PN Toubkal",
+    "code dranef": "07"
+    },
+    {
+    "code dpanef": "07-200",
+    "DPANEF": "Marrakech",
+    "code dranef": "07"
+    },
+    {
+    "code dpanef": "07-300",
+    "DPANEF": "Chichaoua",
+    "code dranef": "07"
+    },
+    {
+    "code dpanef": "07-400",
+    "DPANEF": "Essaouira",
+    "code dranef": "07"
+    },
+    {
+    "code dpanef": "07-600",
+    "DPANEF": "Safi",
+    "code dranef": "07"
+    },
+    {
+    "code dpanef": "07-700",
+    "DPANEF": "El Kelaâ des Sraghna",
+    "code dranef": "07"
+    },
+    {
+    "code dpanef": "07-800",
+    "DPANEF": "Rhamna",
+    "code dranef": "07"
+    },
+    {
+    "code dpanef": "08-100",
+    "DPANEF": "Errachidia",
+    "code dranef": "08"
+    },
+    {
+    "code dpanef": "08-200",
+    "DPANEF": "Midelt",
+    "code dranef": "08"
+    },
+    {
+    "code dpanef": "08-300",
+    "DPANEF": "Ouarzazate",
+    "code dranef": "08"
+    },
+    {
+    "code dpanef": "08-400",
+    "DPANEF": "Tinghir",
+    "code dranef": "08"
+    },
+    {
+    "code dpanef": "08-500",
+    "DPANEF": "Zagora",
+    "code dranef": "08"
+    },
+    {
+    "code dpanef": "09-100",
+    "DPANEF": "Agadir",
+    "code dranef": "09"
+    },
+    {
+    "code dpanef": "09-200",
+    "DPANEF": "Chtouka Ait Baha",
+    "code dranef": "09"
+    },
+    {
+    "code dpanef": "09-300",
+    "DPANEF": "Taroudant",
+    "code dranef": "09"
+    },
+    {
+    "code dpanef": "09-400",
+    "DPANEF": "Tiznit",
+    "code dranef": "09"
+    },
+    {
+    "code dpanef": "09-500",
+    "DPANEF": "Tata",
+    "code dranef": "09"
+    },
+    {
+    "code dpanef": "10-100",
+    "DPANEF": "Guelmim",
+    "code dranef": "10"
+    },
+    {
+    "code dpanef": "10-200",
+    "DPANEF": "Sidi Ifni",
+    "code dranef": "10"
+    },
+    {
+    "code dpanef": "10-300",
+    "DPANEF": "Tan Tan",
+    "code dranef": "10"
+    },
+    {
+    "code dpanef": "10-400",
+    "DPANEF": "Assa Zag",
+    "code dranef": "10"
+    },
+    {
+    "code dpanef": "11-100",
+    "DPANEF": "Laayoune",
+    "code dranef": "11"
+    },
+    {
+    "code dpanef": "11-300",
+    "DPANEF": "Es-Smara",
+    "code dranef": "11"
+    },
+    {
+    "code dpanef": "11-400",
+    "DPANEF": "Boujdour",
+    "code dranef": "11"
+    },
+    {
+    "code dpanef": "12-100",
+    "DPANEF": "Oued Ed-Dahab",
+    "code dranef": "12"
+    }
+    ],
+    "ZDTF":[
+    {
+    "codeZDTF": "01-110",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Assilah",
+    "code dpanef (fk)": "01-100"
+    },
+    {
+    "codeZDTF": "01-310",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Fahs Anjra",
+    "code dpanef (fk)": "01-300"
+    },
+    {
+    "codeZDTF": "01-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tetouan-Ouest",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "codeZDTF": "01-220",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tetouan-Est",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "codeZDTF": "01-410",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Mdiq-Tétouan",
+    "code dpanef (fk)": "01-400"
+    },
+    {
+    "codeZDTF": "01-520",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Béni Arouss",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "codeZDTF": "01-510",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Larache",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "codeZDTF": "01-530",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tatoft",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "codeZDTF": "01-610",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Al Hoceima",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "codeZDTF": "01-630",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Ikaouene",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "codeZDTF": "01-620",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Kétama",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "codeZDTF": "01-640",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Targuist",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "codeZDTF": "01-720",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "codeZDTF": "01-730",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Bab Berred",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "codeZDTF": "01-710",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Chefchaouen Nord",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "codeZDTF": "01-720",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Chefchaouen Sud",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "codeZDTF": "01-740",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Jebha",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "codeZDTF": "01-810",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Mokrisset",
+    "code dpanef (fk)": "01-800"
+    },
+    {
+    "codeZDTF": "01-820",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Ouezzane",
+    "code dpanef (fk)": "01-800"
+    },
+    {
+    "codeZDTF": "02-110",
+    "code dpanef (fk)": "02-100"
+    },
+    {
+    "codeZDTF": "02-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Jerada",
+    "code dpanef (fk)": "02-200"
+    },
+    {
+    "codeZDTF": "02-220",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Ain Beni Mathar",
+    "code dpanef (fk)": "02-200"
+    },
+    {
+    "codeZDTF": "02-310",
+    "code dpanef (fk)": "02-300"
+    },
+    {
+    "codeZDTF": "02-410",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Debdou",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "codeZDTF": "02-420",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Taourirt",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "codeZDTF": "02-430",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "El Ayoune ",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "codeZDTF": "02-510",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Bouarfa",
+    "code dpanef (fk)": "02-500"
+    },
+    {
+    "codeZDTF": "02-520",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Talsint",
+    "code dpanef (fk)": "02-500"
+    },
+    {
+    "codeZDTF": "02-610",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Guercif",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "codeZDTF": "02-620",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tamjilt",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "codeZDTF": "02-630",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Taddart",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "codeZDTF": "02-710",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Nador",
+    "code dpanef (fk)": "02-700"
+    },
+    {
+    "codeZDTF": "02-720",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Zaio",
+    "code dpanef (fk)": "02-700"
+    },
+    {
+    "codeZDTF": "02-810",
+    "code dpanef (fk)": "02-800"
+    },
+    {
+    "codeZDTF": "03-110",
+    "code dpanef (fk)": "03-100"
+    },
+    {
+    "codeZDTF": "03-220",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "ElHajeb",
+    "code dpanef (fk)": "03-200"
+    },
+    {
+    "codeZDTF": "03-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Meknès",
+    "code dpanef (fk)": "03-200"
+    },
+    {
+    "codeZDTF": "03-310",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Aknoul",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "codeZDTF": "03-320",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Maghraoua",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "codeZDTF": "03-330",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tahla",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "codeZDTF": "03-340",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Taïnest",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "codeZDTF": "03-350",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Taza",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "codeZDTF": "03-410",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Boulemane",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "codeZDTF": "03-420",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Imouzzer Marmoucha",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "codeZDTF": "03-430",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Outat El Haj",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "codeZDTF": "03-510",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Ribat El Kheir",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "codeZDTF": "03-520",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Sefrou",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "codeZDTF": "03-530",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Imouzzer Kandar",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "codeZDTF": "03-610",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Ghafsaï",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "codeZDTF": "03-620",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Thar Souk",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "codeZDTF": "03-710",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "codeZDTF": "03-710",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Aïn Leuh",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "codeZDTF": "03-720",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Azrou",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "codeZDTF": "03-730",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Bakrit",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "codeZDTF": "03-740",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Ifrane",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "codeZDTF": "03-750",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Timahdite",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "codeZDTF": "04-110",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "codeZDTF": "04-110",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Rabat-Témara",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "codeZDTF": "04-120",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Salé",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "codeZDTF": "04-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Rommani",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "codeZDTF": "04-220",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Khémisset",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "codeZDTF": "04-230",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Maâziz",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "codeZDTF": "04-240",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Oulmès",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "codeZDTF": "04-250",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Sidi Allal Bahraoui",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "codeZDTF": "04-260",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tiflet",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "codeZDTF": "04-310",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Kénitra",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "codeZDTF": "04-320",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Sidi Yahia Ouest ",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "codeZDTF": "04-410",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Souk El Arbaâ ",
+    "code dpanef (fk)": "04-400"
+    },
+    {
+    "codeZDTF": "04-610",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Sidi Kacem",
+    "code dpanef (fk)": "04-600"
+    },
+    {
+    "codeZDTF": "04-510",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Sidi Slimane ",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "codeZDTF": "04-520",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Sidi Yahya Est",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "codeZDTF": "05-110",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Aghbala",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "codeZDTF": "05-120",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Béni Mellal",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "codeZDTF": "05-130",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "El Ksiba",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "codeZDTF": "05-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Aït Mhammed",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "codeZDTF": "05-220",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Azilal",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "codeZDTF": "05-230",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Demnate",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "codeZDTF": "05-240",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Ouaouizeght",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "codeZDTF": "05-250",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tagleft",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "codeZDTF": "05-360",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "codeZDTF": "05-310",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Ajdir",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "codeZDTF": "05-320",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "El Kbab",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "codeZDTF": "05-330",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Khénifra",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "codeZDTF": "05-340",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Mrirt ",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "codeZDTF": "05-350",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "My Bouazza",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "codeZDTF": "05-360",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Aguelmous",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "codeZDTF": "05-410",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Boujaâd",
+    "code dpanef (fk)": "05-400"
+    },
+    {
+    "codeZDTF": "05-420",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Oued Zem",
+    "code dpanef (fk)": "05-400"
+    },
+    {
+    "codeZDTF": "06-110",
+    "code dpanef (fk)": "06-100"
+    },
+    {
+    "codeZDTF": "06-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Benslimane",
+    "code dpanef (fk)": "06-200"
+    },
+    {
+    "codeZDTF": "06-220",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Sidi Bettach",
+    "code dpanef (fk)": "06-200"
+    },
+    {
+    "codeZDTF": "06-310",
+    "code dpanef (fk)": "06-300"
+    },
+    {
+    "codeZDTF": "06-410",
+    "code dpanef (fk)": "06-400"
+    },
+    {
+    "codeZDTF": "07-010",
+    "code dpanef (fk)": "07-000"
+    },
+    {
+    "codeZDTF": "07-210",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "codeZDTF": "07-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Aît Ourir",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "codeZDTF": "07-220",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Amizmiz",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "codeZDTF": "07-230",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tahanoute",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "codeZDTF": "07-310",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Imintanout",
+    "code dpanef (fk)": "07-300"
+    },
+    {
+    "codeZDTF": "07-320",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Timlilt",
+    "code dpanef (fk)": "07-300"
+    },
+    {
+    "codeZDTF": "07-410",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Essaouira",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "codeZDTF": "07-420",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Smimou",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "codeZDTF": "07-430",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tamanar",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "codeZDTF": "07-610",
+    "code dpanef (fk)": "07-600"
+    },
+    {
+    "codeZDTF": "07-510",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Youssoufia",
+    "code dpanef (fk)": "07-500"
+    },
+    {
+    "codeZDTF": "07-710",
+    "code dpanef (fk)": "07-700"
+    },
+    {
+    "codeZDTF": "07-810",
+    "code dpanef (fk)": "07-800"
+    },
+    {
+    "codeZDTF": "08-110",
+    "code dpanef (fk)": "08-100"
+    },
+    {
+    "codeZDTF": "08-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Agoudim",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "codeZDTF": "08-220",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Itzer",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "codeZDTF": "08-230",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Boumia",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "codeZDTF": "08-240",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Midelt ",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "codeZDTF": "08-250",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Rich",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "codeZDTF": "08-260",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tounfite",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "codeZDTF": "08-310",
+    "code dpanef (fk)": "08-300"
+    },
+    {
+    "codeZDTF": "08-410",
+    "code dpanef (fk)": "08-400"
+    },
+    {
+    "codeZDTF": "08-510",
+    "code dpanef (fk)": "08-500"
+    },
+    {
+    "codeZDTF": "09-110",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "codeZDTF": "09-110",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Agadir-Inezgane",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "codeZDTF": "09-120",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tamri",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "codeZDTF": "09-210",
+    "code dpanef (fk)": "09-200"
+    },
+    {
+    "codeZDTF": "09-310",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Aoulouz",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "codeZDTF": "09-320",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Oulad Taïma",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "codeZDTF": "09-330",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Taroudant",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "codeZDTF": "09-410",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tafraout",
+    "code dpanef (fk)": "09-400"
+    },
+    {
+    "codeZDTF": "09-510",
+    "code dpanef (fk)": "09-500"
+    },
+    {
+    "codeZDTF": "10-110",
+    "code dpanef (fk)": "10-100"
+    },
+    {
+    "codeZDTF": "10-210",
+    "code dpanef (fk)": "10-200"
+    },
+    {
+    "codeZDTF": "10-310",
+    "code dpanef (fk)": "10-300"
+    },
+    {
+    "codeZDTF": "10-410",
+    "code dpanef (fk)": "10-400"
+    },
+    {
+    "codeZDTF": "11-110",
+    "code dpanef (fk)": "11-100"
+    },
+    {
+    "codeZDTF": "11-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Tarfaya",
+    "code dpanef (fk)": "11-200"
+    },
+    {
+    "codeZDTF": "11-310",
+    "code dpanef (fk)": "11-300"
+    },
+    {
+    "codeZDTF": "11-410",
+    "code dpanef (fk)": "11-400"
+    },
+    {
+    "codeZDTF": "12-110",
+    "code dpanef (fk)": "12-100"
+    },
+    {
+    "codeZDTF": "12-210",
+    "ZDTF (Zone de\n Développement  \nTerritorial Forestier)": "Bir Guendouz",
+    "code dpanef (fk)": "12-200"
+    }
+    ],
+    "DFP":[
+    {
+    "Codedfp": "01-111",
+    "DFP": "Assilah",
+    "codeZDTF (fk)": "01-110",
+    "code dpanef (fk)": "01-100"
+    },
+    {
+    "Codedfp": "01-112",
+    "DFP": "Cap Spartel",
+    "codeZDTF (fk)": "01-110",
+    "code dpanef (fk)": "01-100"
+    },
+    {
+    "Codedfp": "01-113",
+    "DFP": "CPFCI Chorf El Aakab",
+    "codeZDTF (fk)": "01-110",
+    "code dpanef (fk)": "01-100"
+    },
+    {
+    "Codedfp": "01-114",
+    "DFP": "Dar chaoui",
+    "codeZDTF (fk)": "01-110",
+    "code dpanef (fk)": "01-100"
+    },
+    {
+    "Codedfp": "01-311",
+    "DFP": "Melloussa",
+    "codeZDTF (fk)": "01-310",
+    "code dpanef (fk)": "01-300"
+    },
+    {
+    "Codedfp": "01-312",
+    "DFP": "Oued Rouz",
+    "codeZDTF (fk)": "01-310",
+    "code dpanef (fk)": "01-300"
+    },
+    {
+    "Codedfp": "01-313",
+    "DFP": "Taghramt",
+    "codeZDTF (fk)": "01-310",
+    "code dpanef (fk)": "01-300"
+    },
+    {
+    "Codedfp": "01-211",
+    "DFP": "Ain Jdida",
+    "codeZDTF (fk)": "01-210",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-212",
+    "DFP": "Beghaghza",
+    "codeZDTF (fk)": "01-210",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-213",
+    "DFP": "Beni Idder",
+    "codeZDTF (fk)": "01-210",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-214",
+    "DFP": "Rihana",
+    "codeZDTF (fk)": "01-210",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-215",
+    "DFP": "CPFCI Ben Karrich",
+    "codeZDTF (fk)": "01-210",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-216",
+    "DFP": "Harcha",
+    "codeZDTF (fk)": "01-210",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-221",
+    "DFP": "Ben Karrich",
+    "codeZDTF (fk)": "01-220",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-222",
+    "DFP": "Beni Hassan",
+    "codeZDTF (fk)": "01-220",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-223",
+    "DFP": "Oued laou",
+    "codeZDTF (fk)": "01-220",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-224",
+    "DFP": "Tamrabte",
+    "codeZDTF (fk)": "01-220",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-225",
+    "DFP": "Torreta",
+    "codeZDTF (fk)": "01-220",
+    "code dpanef (fk)": "01-200"
+    },
+    {
+    "Codedfp": "01-411",
+    "DFP": "Koudiat Taifour",
+    "codeZDTF (fk)": "01-410",
+    "code dpanef (fk)": "01-400"
+    },
+    {
+    "Codedfp": "01-412",
+    "DFP": "Restinga",
+    "codeZDTF (fk)": "01-410",
+    "code dpanef (fk)": "01-400"
+    },
+    {
+    "Codedfp": "01-413",
+    "DFP": "Fnideq",
+    "codeZDTF (fk)": "01-410",
+    "code dpanef (fk)": "01-400"
+    },
+    {
+    "Codedfp": "01-521",
+    "DFP": "Bouhachem",
+    "codeZDTF (fk)": "01-520",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-522",
+    "DFP": "Nouader",
+    "codeZDTF (fk)": "01-520",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-523",
+    "DFP": "Rouaoussa",
+    "codeZDTF (fk)": "01-520",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-524",
+    "DFP": "Tazia",
+    "codeZDTF (fk)": "01-520",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-511",
+    "DFP": "Bousafi",
+    "codeZDTF (fk)": "01-510",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-512",
+    "DFP": "Ghaba Khalifa",
+    "codeZDTF (fk)": "01-510",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-513",
+    "DFP": "Ghaba Larache",
+    "codeZDTF (fk)": "01-510",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-514",
+    "DFP": "Krimda",
+    "codeZDTF (fk)": "01-510",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-531",
+    "DFP": "CPFCI Tattoft",
+    "codeZDTF (fk)": "01-530",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-532",
+    "DFP": "Gharraf",
+    "codeZDTF (fk)": "01-530",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-533",
+    "DFP": "Mechrah",
+    "codeZDTF (fk)": "01-530",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-534",
+    "DFP": "Tattoft",
+    "codeZDTF (fk)": "01-530",
+    "code dpanef (fk)": "01-500"
+    },
+    {
+    "Codedfp": "01-611",
+    "DFP": "Beni Boufrah",
+    "codeZDTF (fk)": "01-610",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-612",
+    "DFP": "Chakrane",
+    "codeZDTF (fk)": "01-610",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-613",
+    "DFP": "Imzourene",
+    "codeZDTF (fk)": "01-610",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-614",
+    "DFP": "Rouadi",
+    "codeZDTF (fk)": "01-610",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-615",
+    "DFP": "Beni Guemil",
+    "codeZDTF (fk)": "01-610",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-631",
+    "DFP": "Aghandrou",
+    "codeZDTF (fk)": "01-630",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-632",
+    "DFP": "Arguiouene",
+    "codeZDTF (fk)": "01-630",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-633",
+    "DFP": "Ikaouene",
+    "codeZDTF (fk)": "01-630",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-634",
+    "DFP": "Taberrante",
+    "codeZDTF (fk)": "01-630",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-621",
+    "DFP": "Azla",
+    "codeZDTF (fk)": "01-620",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-622",
+    "DFP": "Bab Chiker",
+    "codeZDTF (fk)": "01-620",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-623",
+    "DFP": "Issaguen",
+    "codeZDTF (fk)": "01-620",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-624",
+    "DFP": "Ouhachiet",
+    "codeZDTF (fk)": "01-620",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-625",
+    "DFP": "Stah",
+    "codeZDTF (fk)": "01-620",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-626",
+    "DFP": "Tlat Ketama",
+    "codeZDTF (fk)": "01-620",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-641",
+    "DFP": "Beni Ammart",
+    "codeZDTF (fk)": "01-640",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-642",
+    "DFP": "Beni Khannous",
+    "codeZDTF (fk)": "01-640",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-643",
+    "DFP": "Iguermalt",
+    "codeZDTF (fk)": "01-640",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-644",
+    "DFP": "Jbel  Arz",
+    "codeZDTF (fk)": "01-640",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-645",
+    "DFP": "Tizi Ifri",
+    "codeZDTF (fk)": "01-640",
+    "code dpanef (fk)": "01-600"
+    },
+    {
+    "Codedfp": "01-725",
+    "DFP": "R R  Amlay",
+    "codeZDTF (fk)": "01-720",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-731",
+    "DFP": "Bab Berred",
+    "codeZDTF (fk)": "01-730",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-732",
+    "DFP": "Bab Taliounet",
+    "codeZDTF (fk)": "01-730",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-733",
+    "DFP": "Khandak Laanacer 2",
+    "codeZDTF (fk)": "01-730",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-734",
+    "DFP": "Khandak Laanacer 1",
+    "codeZDTF (fk)": "01-730",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-735",
+    "DFP": "Tafira",
+    "codeZDTF (fk)": "01-730",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-736",
+    "DFP": "Tamorot",
+    "codeZDTF (fk)": "01-730",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-711",
+    "DFP": "Bouhmed",
+    "codeZDTF (fk)": "01-710",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-712",
+    "DFP": "Sidi Abdelhamid",
+    "codeZDTF (fk)": "01-710",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-713",
+    "DFP": "Talambote",
+    "codeZDTF (fk)": "01-710",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-714",
+    "DFP": "Talassemtane",
+    "codeZDTF (fk)": "01-710",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-721",
+    "DFP": "Ain Rami",
+    "codeZDTF (fk)": "01-720",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-722",
+    "DFP": "Bab Taza",
+    "codeZDTF (fk)": "01-720",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-723",
+    "DFP": "CPFCI Ain Rami",
+    "codeZDTF (fk)": "01-720",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-724",
+    "DFP": "Khezana",
+    "codeZDTF (fk)": "01-720",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-726",
+    "DFP": "Tanakoub",
+    "codeZDTF (fk)": "01-720",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-741",
+    "DFP": "Assifane",
+    "codeZDTF (fk)": "01-740",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-742",
+    "DFP": "Beni Bouzra",
+    "codeZDTF (fk)": "01-740",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-743",
+    "DFP": "Jebha 1",
+    "codeZDTF (fk)": "01-740",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-744",
+    "DFP": "Jebha 2",
+    "codeZDTF (fk)": "01-740",
+    "code dpanef (fk)": "01-700"
+    },
+    {
+    "Codedfp": "01-811",
+    "DFP": "Bounizer",
+    "codeZDTF (fk)": "01-810",
+    "code dpanef (fk)": "01-800"
+    },
+    {
+    "Codedfp": "01-812",
+    "DFP": "Mokrisset",
+    "codeZDTF (fk)": "01-810",
+    "code dpanef (fk)": "01-800"
+    },
+    {
+    "Codedfp": "01-813",
+    "DFP": "Sidi Ali",
+    "codeZDTF (fk)": "01-810",
+    "code dpanef (fk)": "01-800"
+    },
+    {
+    "Codedfp": "01-824",
+    "DFP": "Bellouta",
+    "codeZDTF (fk)": "01-820",
+    "code dpanef (fk)": "01-800"
+    },
+    {
+    "Codedfp": "01-822",
+    "DFP": "Izaren",
+    "codeZDTF (fk)": "01-820",
+    "code dpanef (fk)": "01-800"
+    },
+    {
+    "Codedfp": "01-823",
+    "DFP": "Kharrouba",
+    "codeZDTF (fk)": "01-820",
+    "code dpanef (fk)": "01-800"
+    },
+    {
+    "Codedfp": "01-821",
+    "DFP": "Ouezzane",
+    "codeZDTF (fk)": "01-820",
+    "code dpanef (fk)": "01-800"
+    },
+    {
+    "Codedfp": "02-111",
+    "DFP": "Metrouh",
+    "codeZDTF (fk)": "02-110",
+    "code dpanef (fk)": "02-100"
+    },
+    {
+    "Codedfp": "02-112",
+    "DFP": "Oujda",
+    "codeZDTF (fk)": "02-110",
+    "code dpanef (fk)": "02-100"
+    },
+    {
+    "Codedfp": "02-113",
+    "DFP": "Aïn Almou",
+    "codeZDTF (fk)": "02-110",
+    "code dpanef (fk)": "02-100"
+    },
+    {
+    "Codedfp": "02-211",
+    "DFP": "Laaouinate",
+    "codeZDTF (fk)": "02-210",
+    "code dpanef (fk)": "02-200"
+    },
+    {
+    "Codedfp": "02-212",
+    "DFP": "Ain Karma",
+    "codeZDTF (fk)": "02-210",
+    "code dpanef (fk)": "02-200"
+    },
+    {
+    "Codedfp": "02-213",
+    "DFP": "Chakhar",
+    "codeZDTF (fk)": "02-210",
+    "code dpanef (fk)": "02-200"
+    },
+    {
+    "Codedfp": "02-221",
+    "DFP": "Lamrija",
+    "codeZDTF (fk)": "02-220",
+    "code dpanef (fk)": "02-200"
+    },
+    {
+    "Codedfp": "02-222",
+    "DFP": "Ain Beni Mathar",
+    "codeZDTF (fk)": "02-220",
+    "code dpanef (fk)": "02-200"
+    },
+    {
+    "Codedfp": "02-311",
+    "DFP": "Berkane",
+    "codeZDTF (fk)": "02-310",
+    "code dpanef (fk)": "02-300"
+    },
+    {
+    "Codedfp": "02-312",
+    "DFP": "Taforalt",
+    "codeZDTF (fk)": "02-310",
+    "code dpanef (fk)": "02-300"
+    },
+    {
+    "Codedfp": "02-313",
+    "DFP": "Tanzarte",
+    "codeZDTF (fk)": "02-310",
+    "code dpanef (fk)": "02-300"
+    },
+    {
+    "Codedfp": "02-314",
+    "DFP": "SIBE Moulouya",
+    "codeZDTF (fk)": "02-310",
+    "code dpanef (fk)": "02-300"
+    },
+    {
+    "Codedfp": "02-411",
+    "DFP": "Ain Tafchna",
+    "codeZDTF (fk)": "02-410",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "Codedfp": "02-412",
+    "DFP": "Aouam",
+    "codeZDTF (fk)": "02-410",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "Codedfp": "02-413",
+    "DFP": "Debdou",
+    "codeZDTF (fk)": "02-410",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "Codedfp": "02-414",
+    "DFP": "El Ateuf",
+    "codeZDTF (fk)": "02-410",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "Codedfp": "02-415",
+    "DFP": "Lalla Mimouna",
+    "codeZDTF (fk)": "02-410",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "Codedfp": "02-421",
+    "DFP": "Taourirt",
+    "codeZDTF (fk)": "02-420",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "Codedfp": "02-422",
+    "DFP": "Ain Serrak",
+    "codeZDTF (fk)": "02-420",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "Codedfp": "02-431",
+    "DFP": "Elayat",
+    "codeZDTF (fk)": "02-430",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "Codedfp": "02-432",
+    "DFP": "Machraa Hammadi Est",
+    "codeZDTF (fk)": "02-430",
+    "code dpanef (fk)": "02-400"
+    },
+    {
+    "Codedfp": "02-511",
+    "DFP": "Bouarfa",
+    "codeZDTF (fk)": "02-510",
+    "code dpanef (fk)": "02-500"
+    },
+    {
+    "Codedfp": "02-512",
+    "DFP": "Jbel Grouz",
+    "codeZDTF (fk)": "02-510",
+    "code dpanef (fk)": "02-500"
+    },
+    {
+    "Codedfp": "02-513",
+    "DFP": "Tandrara",
+    "codeZDTF (fk)": "02-510",
+    "code dpanef (fk)": "02-500"
+    },
+    {
+    "Codedfp": "02-521",
+    "DFP": "Anoual",
+    "codeZDTF (fk)": "02-520",
+    "code dpanef (fk)": "02-500"
+    },
+    {
+    "Codedfp": "02-522",
+    "DFP": "Talsint",
+    "codeZDTF (fk)": "02-520",
+    "code dpanef (fk)": "02-500"
+    },
+    {
+    "Codedfp": "02-611",
+    "DFP": "Guercif",
+    "codeZDTF (fk)": "02-610",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-612",
+    "DFP": "Rechida",
+    "codeZDTF (fk)": "02-610",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-613",
+    "DFP": "Saka",
+    "codeZDTF (fk)": "02-610",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-621",
+    "DFP": "Ain Amellal",
+    "codeZDTF (fk)": "02-620",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-622",
+    "DFP": "Beni Bouilloul",
+    "codeZDTF (fk)": "02-620",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-623",
+    "DFP": "Berkine",
+    "codeZDTF (fk)": "02-620",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-624",
+    "DFP": "Tamjilt",
+    "codeZDTF (fk)": "02-620",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-631",
+    "DFP": "Ras ElKsar",
+    "codeZDTF (fk)": "02-630",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-632",
+    "DFP": "Taddart",
+    "codeZDTF (fk)": "02-630",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-633",
+    "DFP": "Mezguitem",
+    "codeZDTF (fk)": "02-630",
+    "code dpanef (fk)": "02-600"
+    },
+    {
+    "Codedfp": "02-711",
+    "DFP": "Beni Boughafer",
+    "codeZDTF (fk)": "02-710",
+    "code dpanef (fk)": "02-700"
+    },
+    {
+    "Codedfp": "02-712",
+    "DFP": "SIBE Gourougou",
+    "codeZDTF (fk)": "02-710",
+    "code dpanef (fk)": "02-700"
+    },
+    {
+    "Codedfp": "02-713",
+    "DFP": "Zegangan",
+    "codeZDTF (fk)": "02-710",
+    "code dpanef (fk)": "02-700"
+    },
+    {
+    "Codedfp": "02-721",
+    "DFP": "Zaio",
+    "codeZDTF (fk)": "02-720",
+    "code dpanef (fk)": "02-700"
+    },
+    {
+    "Codedfp": "02-722",
+    "DFP": "Hassi Berkane",
+    "codeZDTF (fk)": "02-720",
+    "code dpanef (fk)": "02-700"
+    },
+    {
+    "Codedfp": "02-723",
+    "DFP": "Elaroui ",
+    "codeZDTF (fk)": "02-720",
+    "code dpanef (fk)": "02-700"
+    },
+    {
+    "Codedfp": "02-724",
+    "DFP": "Kariat",
+    "codeZDTF (fk)": "02-720",
+    "code dpanef (fk)": "02-700"
+    },
+    {
+    "Codedfp": "02-811",
+    "DFP": "Ain Zohra",
+    "codeZDTF (fk)": "02-810",
+    "code dpanef (fk)": "02-800"
+    },
+    {
+    "Codedfp": "02-812",
+    "DFP": "Boudinar",
+    "codeZDTF (fk)": "02-810",
+    "code dpanef (fk)": "02-800"
+    },
+    {
+    "Codedfp": "02-813",
+    "DFP": "Driouch",
+    "codeZDTF (fk)": "02-810",
+    "code dpanef (fk)": "02-800"
+    },
+    {
+    "Codedfp": "02-814",
+    "DFP": "Midar",
+    "codeZDTF (fk)": "02-810",
+    "code dpanef (fk)": "02-800"
+    },
+    {
+    "Codedfp": "03-111",
+    "DFP": "Fes-Moulay Yaâcoub",
+    "codeZDTF (fk)": "03-110",
+    "code dpanef (fk)": "03-100"
+    },
+    {
+    "Codedfp": "03-221",
+    "DFP": "Agourai",
+    "codeZDTF (fk)": "03-220",
+    "code dpanef (fk)": "03-200"
+    },
+    {
+    "Codedfp": "03-222",
+    "DFP": "Ahlasse Izem",
+    "codeZDTF (fk)": "03-220",
+    "code dpanef (fk)": "03-200"
+    },
+    {
+    "Codedfp": "03-223",
+    "DFP": "Ras Lektib",
+    "codeZDTF (fk)": "03-220",
+    "code dpanef (fk)": "03-200"
+    },
+    {
+    "Codedfp": "03-211",
+    "DFP": "Meknes",
+    "codeZDTF (fk)": "03-210",
+    "code dpanef (fk)": "03-200"
+    },
+    {
+    "Codedfp": "03-212",
+    "DFP": "Zerhoun",
+    "codeZDTF (fk)": "03-210",
+    "code dpanef (fk)": "03-200"
+    },
+    {
+    "Codedfp": "03-311",
+    "DFP": "Ajdir Taza",
+    "codeZDTF (fk)": "03-310",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-312",
+    "DFP": "Azrou Akechar",
+    "codeZDTF (fk)": "03-310",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-313",
+    "DFP": "Boured",
+    "codeZDTF (fk)": "03-310",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "033-14",
+    "DFP": "El Kifane",
+    "codeZDTF (fk)": "033-10",
+    "code dpanef (fk)": "033-00"
+    },
+    {
+    "Codedfp": "03-315",
+    "DFP": "Mallal",
+    "codeZDTF (fk)": "03-310",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-316",
+    "DFP": "Tighezratine",
+    "codeZDTF (fk)": "03-310",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-317",
+    "DFP": "Tizi Ousli",
+    "codeZDTF (fk)": "03-310",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-321",
+    "DFP": "Aïn Aoussar",
+    "codeZDTF (fk)": "03-320",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-322",
+    "DFP": "Bab Larbaâ",
+    "codeZDTF (fk)": "03-320",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-323",
+    "DFP": "Maghraoua",
+    "codeZDTF (fk)": "03-320",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-324",
+    "DFP": "Tamtrouchte",
+    "codeZDTF (fk)": "03-320",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-325",
+    "DFP": "Afzou",
+    "codeZDTF (fk)": "03-320",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-331",
+    "DFP": "Ain Tislit",
+    "codeZDTF (fk)": "03-330",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-332",
+    "DFP": "Beni Serraj",
+    "codeZDTF (fk)": "03-330",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-333",
+    "DFP": "Kessarat",
+    "codeZDTF (fk)": "03-330",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-341",
+    "DFP": "Ain Telj",
+    "codeZDTF (fk)": "03-340",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-342",
+    "DFP": "Bab Siouana",
+    "codeZDTF (fk)": "03-340",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-343",
+    "DFP": "Echouyab",
+    "codeZDTF (fk)": "03-340",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-344",
+    "DFP": "Taineste",
+    "codeZDTF (fk)": "03-340",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-351",
+    "DFP": "Ain khebab",
+    "codeZDTF (fk)": "03-350",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-352",
+    "DFP": "Bab Azhar",
+    "codeZDTF (fk)": "03-350",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-353",
+    "DFP": "Bab Boudir",
+    "codeZDTF (fk)": "03-350",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-354",
+    "DFP": "Bechyine",
+    "codeZDTF (fk)": "03-350",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-355",
+    "DFP": "Beni Lent",
+    "codeZDTF (fk)": "03-350",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-356",
+    "DFP": "Tazekka",
+    "codeZDTF (fk)": "03-350",
+    "code dpanef (fk)": "03-300"
+    },
+    {
+    "Codedfp": "03-411",
+    "DFP": "Abakhnanas",
+    "codeZDTF (fk)": "03-410",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-412",
+    "DFP": "Ain Nokra",
+    "codeZDTF (fk)": "03-410",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-413",
+    "DFP": "El Achlouj",
+    "codeZDTF (fk)": "03-410",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-414",
+    "DFP": "Sekoura",
+    "codeZDTF (fk)": "03-410",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-415",
+    "DFP": "Tighboula",
+    "codeZDTF (fk)": "03-410",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-421",
+    "DFP": "Elmers",
+    "codeZDTF (fk)": "03-420",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-422",
+    "DFP": "Talzemt",
+    "codeZDTF (fk)": "03-420",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-423",
+    "DFP": "Tizi Ntaida",
+    "codeZDTF (fk)": "03-420",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-424",
+    "DFP": "Imouzzer Marmoucha",
+    "codeZDTF (fk)": "03-420",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-431",
+    "DFP": "Missour",
+    "codeZDTF (fk)": "03-430",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-432",
+    "DFP": "Outat Elhaj",
+    "codeZDTF (fk)": "03-430",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-433",
+    "DFP": "Tendite",
+    "codeZDTF (fk)": "03-430",
+    "code dpanef (fk)": "03-400"
+    },
+    {
+    "Codedfp": "03-533",
+    "DFP": "R R Reggada",
+    "codeZDTF (fk)": "03-530",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-515",
+    "DFP": "R R El Ghomra",
+    "codeZDTF (fk)": "03-510",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-511",
+    "DFP": "Aderj Nord",
+    "codeZDTF (fk)": "03-510",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-512",
+    "DFP": "Aderj sud",
+    "codeZDTF (fk)": "03-510",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-513",
+    "DFP": "Beni Sohane",
+    "codeZDTF (fk)": "03-510",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-514",
+    "DFP": "Elmenzel",
+    "codeZDTF (fk)": "03-510",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-516",
+    "DFP": "Sidi Yahia",
+    "codeZDTF (fk)": "03-510",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-517",
+    "DFP": "Tafferte",
+    "codeZDTF (fk)": "03-510",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-521",
+    "DFP": "Ain Dalia",
+    "codeZDTF (fk)": "03-520",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-522",
+    "DFP": "Bsabis Est",
+    "codeZDTF (fk)": "03-520",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-523",
+    "DFP": "Bsabis Ouest ",
+    "codeZDTF (fk)": "03-520",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-524",
+    "DFP": "Tagnanaite",
+    "codeZDTF (fk)": "03-520",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-525",
+    "DFP": "Takeltount",
+    "codeZDTF (fk)": "03-520",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-531",
+    "DFP": "Elkouf",
+    "codeZDTF (fk)": "03-530",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-532",
+    "DFP": "Imouzzer Kandar",
+    "codeZDTF (fk)": "03-530",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-534",
+    "DFP": "Reggada",
+    "codeZDTF (fk)": "03-530",
+    "code dpanef (fk)": "03-500"
+    },
+    {
+    "Codedfp": "03-611",
+    "DFP": "Alwahda",
+    "codeZDTF (fk)": "03-610",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-612",
+    "DFP": "Ouerdzagh",
+    "codeZDTF (fk)": "03-610",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-613",
+    "DFP": "Oudka",
+    "codeZDTF (fk)": "03-610",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-614",
+    "DFP": "Tabouda",
+    "codeZDTF (fk)": "03-610",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-615",
+    "DFP": "Tafrant",
+    "codeZDTF (fk)": "03-610",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-616",
+    "DFP": "Talensift",
+    "codeZDTF (fk)": "03-610",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-617",
+    "DFP": "Timazgana",
+    "codeZDTF (fk)": "03-610",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-621",
+    "DFP": "Ain Barda",
+    "codeZDTF (fk)": "03-620",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-622",
+    "DFP": "Ain Mediouna",
+    "codeZDTF (fk)": "03-620",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-623",
+    "DFP": "Beni Oulid",
+    "codeZDTF (fk)": "03-620",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-624",
+    "DFP": "Haddada",
+    "codeZDTF (fk)": "03-620",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-625",
+    "DFP": "Zouaoua",
+    "codeZDTF (fk)": "03-620",
+    "code dpanef (fk)": "03-600"
+    },
+    {
+    "Codedfp": "03-715",
+    "DFP": "R R Kissarit",
+    "codeZDTF (fk)": "03-710",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-716",
+    "DFP": "R R Tourtit",
+    "codeZDTF (fk)": "03-710",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-711",
+    "DFP": "Admer Izem",
+    "codeZDTF (fk)": "03-710",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-712",
+    "DFP": "Ain Kehla Est",
+    "codeZDTF (fk)": "03-710",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-713",
+    "DFP": "Ain Kehla Ouest",
+    "codeZDTF (fk)": "03-710",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-714",
+    "DFP": "Ain Leuh",
+    "codeZDTF (fk)": "03-710",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-717",
+    "DFP": "Souk Elhad 0661047342",
+    "codeZDTF (fk)": "03-710",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-718",
+    "DFP": "Tagounite",
+    "codeZDTF (fk)": "03-710",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-721",
+    "DFP": "Azrou",
+    "codeZDTF (fk)": "03-720",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-722",
+    "DFP": "Bensmim",
+    "codeZDTF (fk)": "03-720",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-723",
+    "DFP": "Boutrouba",
+    "codeZDTF (fk)": "03-720",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-724",
+    "DFP": "Ras Elma",
+    "codeZDTF (fk)": "03-720",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-731",
+    "DFP": "Bakrit",
+    "codeZDTF (fk)": "03-730",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-732",
+    "DFP": "Senoual Est",
+    "codeZDTF (fk)": "03-730",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-733",
+    "DFP": "Senoual Ouest",
+    "codeZDTF (fk)": "03-730",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-741",
+    "DFP": "Ain Agumguem",
+    "codeZDTF (fk)": "03-740",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-742",
+    "DFP": "Dayet Aoua",
+    "codeZDTF (fk)": "03-740",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-743",
+    "DFP": "Dayet Hachlaf  Nord",
+    "codeZDTF (fk)": "03-740",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-744",
+    "DFP": "Dayet Hachlaf Sud ",
+    "codeZDTF (fk)": "03-740",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-745",
+    "DFP": "Zerrouka",
+    "codeZDTF (fk)": "03-740",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-751",
+    "DFP": "Aghbalou Larbi",
+    "codeZDTF (fk)": "03-750",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "03-752",
+    "DFP": "Timahdite",
+    "codeZDTF (fk)": "03-750",
+    "code dpanef (fk)": "03-700"
+    },
+    {
+    "Codedfp": "04-114",
+    "DFP": "R R Ain Sferjla",
+    "codeZDTF (fk)": "04-110",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-125",
+    "DFP": "Forêt Urbaine d’Ain Lahouala",
+    "codeZDTF (fk)": "04-120",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-111",
+    "DFP": "Ain Aouda",
+    "codeZDTF (fk)": "04-110",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-112",
+    "DFP": "Ain Sferjla",
+    "codeZDTF (fk)": "04-110",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-113",
+    "DFP": "Dar Essalam",
+    "codeZDTF (fk)": "04-110",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-115",
+    "DFP": "Rabat Temara",
+    "codeZDTF (fk)": "04-110",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-121",
+    "DFP": "Ain Harcha",
+    "codeZDTF (fk)": "04-120",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-122",
+    "DFP": "Bir Lahmer",
+    "codeZDTF (fk)": "04-120",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-123",
+    "DFP": "Bled Dendoun",
+    "codeZDTF (fk)": "04-120",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-124",
+    "DFP": "Sidi Amira",
+    "codeZDTF (fk)": "04-120",
+    "code dpanef (fk)": "04-100"
+    },
+    {
+    "Codedfp": "04-211",
+    "DFP": "Ain Bridila",
+    "codeZDTF (fk)": "04-210",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-212",
+    "DFP": "Ezzhiliga",
+    "codeZDTF (fk)": "04-210",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-213",
+    "DFP": "Had Laghoulem",
+    "codeZDTF (fk)": "04-210",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-214",
+    "DFP": "Ain Harrak",
+    "codeZDTF (fk)": "04-210",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-215",
+    "DFP": "Had brachoua",
+    "codeZDTF (fk)": "04-210",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-216",
+    "DFP": "Lalla Regraga",
+    "codeZDTF (fk)": "04-210",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-221",
+    "DFP": "Bouiguer",
+    "codeZDTF (fk)": "04-220",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-222",
+    "DFP": "Oued Beht",
+    "codeZDTF (fk)": "04-220",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-223",
+    "DFP": "Sidi Chouari",
+    "codeZDTF (fk)": "04-220",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-231",
+    "DFP": "Harcha",
+    "codeZDTF (fk)": "04-230",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-232",
+    "DFP": "Maaziz",
+    "codeZDTF (fk)": "04-230",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-233",
+    "DFP": "Sebt Ait Ikou",
+    "codeZDTF (fk)": "04-230",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-234",
+    "DFP": "Tighza",
+    "codeZDTF (fk)": "04-230",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-235",
+    "DFP": "Timeksaouine",
+    "codeZDTF (fk)": "04-230",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-241",
+    "DFP": "Ain Bouterehla",
+    "codeZDTF (fk)": "04-240",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-242",
+    "DFP": "Assouel",
+    "codeZDTF (fk)": "04-240",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-243",
+    "DFP": "Boukachmir",
+    "codeZDTF (fk)": "04-240",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-244",
+    "DFP": "Dar Laaroussi",
+    "codeZDTF (fk)": "04-240",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-245",
+    "DFP": "Tifoughaline",
+    "codeZDTF (fk)": "04-240",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-246",
+    "DFP": "Tiliouine",
+    "codeZDTF (fk)": "04-240",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-251",
+    "DFP": "Ain Johra",
+    "codeZDTF (fk)": "04-250",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-252",
+    "DFP": "Sidi Allal Bahraoui",
+    "codeZDTF (fk)": "04-250",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-253",
+    "DFP": "Smento",
+    "codeZDTF (fk)": "04-250",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-261",
+    "DFP": "Dar Ben Hcine",
+    "codeZDTF (fk)": "04-260",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-262",
+    "DFP": "Dria",
+    "codeZDTF (fk)": "04-260",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-263",
+    "DFP": "Sidi Ammr Riahi",
+    "codeZDTF (fk)": "04-260",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-264",
+    "DFP": "Tiflet",
+    "codeZDTF (fk)": "04-260",
+    "code dpanef (fk)": "04-200"
+    },
+    {
+    "Codedfp": "04-311",
+    "DFP": "Kenitra",
+    "codeZDTF (fk)": "04-310",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-312",
+    "DFP": "Mechraa ElKetane",
+    "codeZDTF (fk)": "04-310",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-313",
+    "DFP": "Mehdia Mnasra",
+    "codeZDTF (fk)": "04-310",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-314",
+    "DFP": "Taicha",
+    "codeZDTF (fk)": "04-310",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-321",
+    "DFP": "Dar Salem",
+    "codeZDTF (fk)": "04-320",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-322",
+    "DFP": "ElMenzeh",
+    "codeZDTF (fk)": "04-320",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-323",
+    "DFP": "Elmoudzine",
+    "codeZDTF (fk)": "04-320",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-324",
+    "DFP": "Sidi Rabeh",
+    "codeZDTF (fk)": "04-320",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-325",
+    "DFP": "Smento Nord",
+    "codeZDTF (fk)": "04-320",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-326",
+    "DFP": "Aîn kablia",
+    "codeZDTF (fk)": "04-320",
+    "code dpanef (fk)": "04-300"
+    },
+    {
+    "Codedfp": "04-411",
+    "DFP": "Ferjane",
+    "codeZDTF (fk)": "04-410",
+    "code dpanef (fk)": "04-400"
+    },
+    {
+    "Codedfp": "04-412",
+    "DFP": "Merja Zerga",
+    "codeZDTF (fk)": "04-410",
+    "code dpanef (fk)": "04-400"
+    },
+    {
+    "Codedfp": "04-413",
+    "DFP": "Ouguilia",
+    "codeZDTF (fk)": "04-410",
+    "code dpanef (fk)": "04-400"
+    },
+    {
+    "Codedfp": "04-414",
+    "DFP": "Souk Elarbaa Gh",
+    "codeZDTF (fk)": "04-410",
+    "code dpanef (fk)": "04-400"
+    },
+    {
+    "Codedfp": "04-415",
+    "DFP": "Aïn Felfel",
+    "codeZDTF (fk)": "04-410",
+    "code dpanef (fk)": "04-400"
+    },
+    {
+    "Codedfp": "04-612",
+    "DFP": "Ain Dfali",
+    "codeZDTF (fk)": "04-610",
+    "code dpanef (fk)": "04-600"
+    },
+    {
+    "Codedfp": "04-611",
+    "DFP": "Sidi Kacem",
+    "codeZDTF (fk)": "04-610",
+    "code dpanef (fk)": "04-600"
+    },
+    {
+    "Codedfp": "04-512",
+    "DFP": "Drib",
+    "codeZDTF (fk)": "04-510",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "Codedfp": "04-511",
+    "DFP": "Sidi Slimane",
+    "codeZDTF (fk)": "04-510",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "Codedfp": "04-513",
+    "DFP": "Sidi Youssef",
+    "codeZDTF (fk)": "04-510",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "Codedfp": "04-514",
+    "DFP": "Tarharest",
+    "codeZDTF (fk)": "04-510",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "Codedfp": "04-522",
+    "DFP": "Ain Assou",
+    "codeZDTF (fk)": "04-520",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "Codedfp": "04-523",
+    "DFP": "Beni Fdel",
+    "codeZDTF (fk)": "04-520",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "Codedfp": "04-521",
+    "DFP": "Dêpot de bois S.Yahya Gh.",
+    "codeZDTF (fk)": "04-520",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "Codedfp": "04-524",
+    "DFP": "Douagher",
+    "codeZDTF (fk)": "04-520",
+    "code dpanef (fk)": "04-500"
+    },
+    {
+    "Codedfp": "05-111",
+    "DFP": "Boumia",
+    "codeZDTF (fk)": "05-110",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-112",
+    "DFP": "Boutferda",
+    "codeZDTF (fk)": "05-110",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-113",
+    "DFP": "Taadlounte",
+    "codeZDTF (fk)": "05-110",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-114",
+    "DFP": "Tizi N'Isly",
+    "codeZDTF (fk)": "05-110",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-115",
+    "DFP": "Aghbala",
+    "codeZDTF (fk)": "05-110",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-116",
+    "DFP": "Tassent",
+    "codeZDTF (fk)": "05-110",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-121",
+    "DFP": "Deroua",
+    "codeZDTF (fk)": "05-120",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-122",
+    "DFP": "Foum El Anser",
+    "codeZDTF (fk)": "05-120",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-123",
+    "DFP": "Béni Mellal",
+    "codeZDTF (fk)": "05-120",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-124",
+    "DFP": "Moudj",
+    "codeZDTF (fk)": "05-120",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-131",
+    "DFP": "El Ksiba",
+    "codeZDTF (fk)": "05-130",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-132",
+    "DFP": "Koumch",
+    "codeZDTF (fk)": "05-130",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-133",
+    "DFP": "Tagzirt",
+    "codeZDTF (fk)": "05-130",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-134",
+    "DFP": "Naour",
+    "codeZDTF (fk)": "05-130",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-135",
+    "DFP": "Ben Cherrou",
+    "codeZDTF (fk)": "05-130",
+    "code dpanef (fk)": "05-100"
+    },
+    {
+    "Codedfp": "05-211",
+    "DFP": "Ait Mhamed",
+    "codeZDTF (fk)": "05-210",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-212",
+    "DFP": "Tabant",
+    "codeZDTF (fk)": "05-210",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-213",
+    "DFP": "Zaouiat Ahansal",
+    "codeZDTF (fk)": "05-210",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-221",
+    "DFP": "Azilal",
+    "codeZDTF (fk)": "05-220",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-222",
+    "DFP": "Bzou",
+    "codeZDTF (fk)": "05-220",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-223",
+    "DFP": "Ouzoud",
+    "codeZDTF (fk)": "05-220",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-231",
+    "DFP": "Ait Tamellil",
+    "codeZDTF (fk)": "05-230",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-232",
+    "DFP": "Demnate",
+    "codeZDTF (fk)": "05-230",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-233",
+    "DFP": "Ouazent",
+    "codeZDTF (fk)": "05-230",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-234",
+    "DFP": "Ait Ouahmane",
+    "codeZDTF (fk)": "05-230",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-235",
+    "DFP": "Iskt",
+    "codeZDTF (fk)": "05-230",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-241",
+    "DFP": "Bin Elouidane",
+    "codeZDTF (fk)": "05-240",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-242",
+    "DFP": "Ouaouizeght",
+    "codeZDTF (fk)": "05-240",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-243",
+    "DFP": "Tilouguite",
+    "codeZDTF (fk)": "05-240",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-244",
+    "DFP": "Iminouarg Tamga",
+    "codeZDTF (fk)": "05-240",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-251",
+    "DFP": "Arbaâ Ait Oukbli",
+    "codeZDTF (fk)": "05-250",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-252",
+    "DFP": "Tagleft Est",
+    "codeZDTF (fk)": "05-250",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-253",
+    "DFP": "Tagleft Ouest",
+    "codeZDTF (fk)": "05-250",
+    "code dpanef (fk)": "05-200"
+    },
+    {
+    "Codedfp": "05-361",
+    "DFP": "R R Ras Beriakh",
+    "codeZDTF (fk)": "05-360",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-311",
+    "DFP": "Aghbalou N Ikhouane",
+    "codeZDTF (fk)": "05-310",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-312",
+    "DFP": "Aguelmame Aziza",
+    "codeZDTF (fk)": "05-310",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-313",
+    "DFP": "Ajdir",
+    "codeZDTF (fk)": "05-310",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-314",
+    "DFP": "Amandaline",
+    "codeZDTF (fk)": "05-310",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-315",
+    "DFP": "Boumzil",
+    "codeZDTF (fk)": "05-310",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-316",
+    "DFP": "Imiouraghène",
+    "codeZDTF (fk)": "05-310",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-317",
+    "DFP": "Talaghine",
+    "codeZDTF (fk)": "05-310",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-321",
+    "DFP": "Ait Ichou",
+    "codeZDTF (fk)": "05-320",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-322",
+    "DFP": "Azrou Nait Lahcen",
+    "codeZDTF (fk)": "05-320",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-323",
+    "DFP": "Kerrouchene",
+    "codeZDTF (fk)": "05-320",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-324",
+    "DFP": "My Yaakoub",
+    "codeZDTF (fk)": "05-320",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-325",
+    "DFP": "Sidi Said",
+    "codeZDTF (fk)": "05-320",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-331",
+    "DFP": "Khenifra",
+    "codeZDTF (fk)": "05-330",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-332",
+    "DFP": "Tafechna",
+    "codeZDTF (fk)": "05-330",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-333",
+    "DFP": "Taoujguelte Nord",
+    "codeZDTF (fk)": "05-330",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-334",
+    "DFP": "Taoujguelte Sud ",
+    "codeZDTF (fk)": "05-330",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-341",
+    "DFP": "Aghbal",
+    "codeZDTF (fk)": "05-340",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-342",
+    "DFP": "Ain Abelioune",
+    "codeZDTF (fk)": "05-340",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-343",
+    "DFP": "Bouizourane",
+    "codeZDTF (fk)": "05-340",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-344",
+    "DFP": "Ouiouane Nord",
+    "codeZDTF (fk)": "05-340",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-345",
+    "DFP": "Ouiouane Sud",
+    "codeZDTF (fk)": "05-340",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-351",
+    "DFP": "Ain Labiod",
+    "codeZDTF (fk)": "05-350",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-352",
+    "DFP": "Sidi Abid",
+    "codeZDTF (fk)": "05-350",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-353",
+    "DFP": "Bouhssoussen",
+    "codeZDTF (fk)": "05-350",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-362",
+    "DFP": "Ben Haouch",
+    "codeZDTF (fk)": "05-360",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-363",
+    "DFP": "Sidi Ahcine",
+    "codeZDTF (fk)": "05-360",
+    "code dpanef (fk)": "05-300"
+    },
+    {
+    "Codedfp": "05-411",
+    "DFP": "Bir Ettine",
+    "codeZDTF (fk)": "05-410",
+    "code dpanef (fk)": "05-400"
+    },
+    {
+    "Codedfp": "05-412",
+    "DFP": "Bouaacila",
+    "codeZDTF (fk)": "05-410",
+    "code dpanef (fk)": "05-400"
+    },
+    {
+    "Codedfp": "05-413",
+    "DFP": "Boujaad",
+    "codeZDTF (fk)": "05-410",
+    "code dpanef (fk)": "05-400"
+    },
+    {
+    "Codedfp": "05-421",
+    "DFP": "Bir Baiz",
+    "codeZDTF (fk)": "05-420",
+    "code dpanef (fk)": "05-400"
+    },
+    {
+    "Codedfp": "05-422",
+    "DFP": "Feddane Botma",
+    "codeZDTF (fk)": "05-420",
+    "code dpanef (fk)": "05-400"
+    },
+    {
+    "Codedfp": "05-423",
+    "DFP": "Oued Zem",
+    "codeZDTF (fk)": "05-420",
+    "code dpanef (fk)": "05-400"
+    },
+    {
+    "Codedfp": "06-111",
+    "DFP": "Bouskoura",
+    "codeZDTF (fk)": "06-110",
+    "code dpanef (fk)": "06-100"
+    },
+    {
+    "Codedfp": "06-112",
+    "DFP": "Mohammadia",
+    "codeZDTF (fk)": "06-110",
+    "code dpanef (fk)": "06-100"
+    },
+    {
+    "Codedfp": "06-211",
+    "DFP": "Ain Tizgha",
+    "codeZDTF (fk)": "06-210",
+    "code dpanef (fk)": "06-200"
+    },
+    {
+    "Codedfp": "06-212",
+    "DFP": "Dhar Lasara",
+    "codeZDTF (fk)": "06-210",
+    "code dpanef (fk)": "06-200"
+    },
+    {
+    "Codedfp": "06-213",
+    "DFP": "Oued N fifikh",
+    "codeZDTF (fk)": "06-210",
+    "code dpanef (fk)": "06-200"
+    },
+    {
+    "Codedfp": "06-221",
+    "DFP": "Bir El Mekki ",
+    "codeZDTF (fk)": "06-220",
+    "code dpanef (fk)": "06-200"
+    },
+    {
+    "Codedfp": "06-222",
+    "DFP": "Bir Ennacer",
+    "codeZDTF (fk)": "06-220",
+    "code dpanef (fk)": "06-200"
+    },
+    {
+    "Codedfp": "06-223",
+    "DFP": "Bir Guettara",
+    "codeZDTF (fk)": "06-220",
+    "code dpanef (fk)": "06-200"
+    },
+    {
+    "Codedfp": "06-224",
+    "DFP": "Sidi Bettache",
+    "codeZDTF (fk)": "06-220",
+    "code dpanef (fk)": "06-200"
+    },
+    {
+    "Codedfp": "06-311",
+    "DFP": "Machrâa Ben Abbou",
+    "codeZDTF (fk)": "06-310",
+    "code dpanef (fk)": "06-300"
+    },
+    {
+    "Codedfp": "06-312",
+    "DFP": "Settat",
+    "codeZDTF (fk)": "06-310",
+    "code dpanef (fk)": "06-300"
+    },
+    {
+    "Codedfp": "06-313",
+    "DFP": "Sidi Rahal",
+    "codeZDTF (fk)": "06-310",
+    "code dpanef (fk)": "06-300"
+    },
+    {
+    "Codedfp": "06-314",
+    "DFP": "Sidi Sbâa",
+    "codeZDTF (fk)": "06-310",
+    "code dpanef (fk)": "06-300"
+    },
+    {
+    "Codedfp": "06-315",
+    "DFP": "El Khatouat",
+    "codeZDTF (fk)": "06-310",
+    "code dpanef (fk)": "06-300"
+    },
+    {
+    "Codedfp": "06-411",
+    "DFP": "Azemmour ",
+    "codeZDTF (fk)": "06-410",
+    "code dpanef (fk)": "06-400"
+    },
+    {
+    "Codedfp": "06-412",
+    "DFP": "EL-Jadida",
+    "codeZDTF (fk)": "06-410",
+    "code dpanef (fk)": "06-400"
+    },
+    {
+    "Codedfp": "06-511",
+    "DFP": "Oualidia",
+    "codeZDTF (fk)": "06-510",
+    "code dpanef (fk)": "06-500"
+    },
+    {
+    "Codedfp": "07-011",
+    "DFP": "Z P N Stti Fadma",
+    "codeZDTF (fk)": "07-010",
+    "code dpanef (fk)": "07-000"
+    },
+    {
+    "Codedfp": "07-021",
+    "DFP": "Z P N Imlil",
+    "codeZDTF (fk)": "07-020",
+    "code dpanef (fk)": "07-000"
+    },
+    {
+    "Codedfp": "07-031",
+    "DFP": "Z P N Ouirgane",
+    "codeZDTF (fk)": "07-030",
+    "code dpanef (fk)": "07-000"
+    },
+    {
+    "Codedfp": "07-213",
+    "DFP": "R R Grouka",
+    "codeZDTF (fk)": "07-210",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-226",
+    "DFP": "R R d'Imarigha et Rmila",
+    "codeZDTF (fk)": "07-220",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-211",
+    "DFP": "Asloune",
+    "codeZDTF (fk)": "07-210",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-212",
+    "DFP": "Azrif",
+    "codeZDTF (fk)": "07-210",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-214",
+    "DFP": "Toufliht",
+    "codeZDTF (fk)": "07-210",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-215",
+    "DFP": "Taddart",
+    "codeZDTF (fk)": "07-210",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-221",
+    "DFP": "Amizmiz",
+    "codeZDTF (fk)": "07-220",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-222",
+    "DFP": "Idni",
+    "codeZDTF (fk)": "07-220",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-223",
+    "DFP": "Ijoukak",
+    "codeZDTF (fk)": "07-220",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-224",
+    "DFP": "Ouirgane",
+    "codeZDTF (fk)": "07-220",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-225",
+    "DFP": "Tnirte",
+    "codeZDTF (fk)": "07-220",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-231",
+    "DFP": "Agaiouar",
+    "codeZDTF (fk)": "07-230",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-232",
+    "DFP": "Asgaour",
+    "codeZDTF (fk)": "07-230",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-233",
+    "DFP": "Ifghane",
+    "codeZDTF (fk)": "07-230",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-234",
+    "DFP": "Tahannaout",
+    "codeZDTF (fk)": "07-230",
+    "code dpanef (fk)": "07-200"
+    },
+    {
+    "Codedfp": "07-111",
+    "DFP": "Marrakech",
+    "codeZDTF (fk)": "07-110",
+    "code dpanef (fk)": "07-100"
+    },
+    {
+    "Codedfp": "07-311",
+    "DFP": "Imintanout",
+    "codeZDTF (fk)": "07-310",
+    "code dpanef (fk)": "07-300"
+    },
+    {
+    "Codedfp": "07-312",
+    "DFP": "Mzouda",
+    "codeZDTF (fk)": "07-310",
+    "code dpanef (fk)": "07-300"
+    },
+    {
+    "Codedfp": "07-321",
+    "DFP": "Kouzemt",
+    "codeZDTF (fk)": "07-320",
+    "code dpanef (fk)": "07-300"
+    },
+    {
+    "Codedfp": "07-322",
+    "DFP": "Tizi Maachou",
+    "codeZDTF (fk)": "07-320",
+    "code dpanef (fk)": "07-300"
+    },
+    {
+    "Codedfp": "07-411",
+    "DFP": "Bir Kouach",
+    "codeZDTF (fk)": "07-410",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-412",
+    "DFP": "Essaouira",
+    "codeZDTF (fk)": "07-410",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-413",
+    "DFP": "Hanchane",
+    "codeZDTF (fk)": "07-410",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-414",
+    "DFP": "Tafetacht",
+    "codeZDTF (fk)": "07-410",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-415",
+    "DFP": "Talmest",
+    "codeZDTF (fk)": "07-410",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-421",
+    "DFP": "Ait Daoued",
+    "codeZDTF (fk)": "07-420",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-422",
+    "DFP": "Bizdad",
+    "codeZDTF (fk)": "07-420",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-423",
+    "DFP": "Imgrad",
+    "codeZDTF (fk)": "07-420",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-424",
+    "DFP": "Souk Tlata",
+    "codeZDTF (fk)": "07-420",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-425",
+    "DFP": "Takoucht",
+    "codeZDTF (fk)": "07-420",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-431",
+    "DFP": "Adaghass",
+    "codeZDTF (fk)": "07-430",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-432",
+    "DFP": "Ait Aissi",
+    "codeZDTF (fk)": "07-430",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-433",
+    "DFP": "Tamanar",
+    "codeZDTF (fk)": "07-430",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-434",
+    "DFP": "Tanounja",
+    "codeZDTF (fk)": "07-430",
+    "code dpanef (fk)": "07-400"
+    },
+    {
+    "Codedfp": "07-611",
+    "DFP": "Kasba Hmidouche",
+    "codeZDTF (fk)": "07-610",
+    "code dpanef (fk)": "07-600"
+    },
+    {
+    "Codedfp": "07-612",
+    "DFP": "Sidi Msahel",
+    "codeZDTF (fk)": "07-610",
+    "code dpanef (fk)": "07-600"
+    },
+    {
+    "Codedfp": "07-511",
+    "DFP": "Chemaia",
+    "codeZDTF (fk)": "07-510",
+    "code dpanef (fk)": "07-500"
+    },
+    {
+    "Codedfp": "07-512",
+    "DFP": "Réserve Msabih Talâa ",
+    "codeZDTF (fk)": "07-510",
+    "code dpanef (fk)": "07-500"
+    },
+    {
+    "Codedfp": "07-711",
+    "DFP": "Ounasda",
+    "codeZDTF (fk)": "07-710",
+    "code dpanef (fk)": "07-700"
+    },
+    {
+    "Codedfp": "07-811",
+    "DFP": "Jbilet",
+    "codeZDTF (fk)": "07-810",
+    "code dpanef (fk)": "07-800"
+    },
+    {
+    "Codedfp": "07-812",
+    "DFP": "Skhour Rhamna",
+    "codeZDTF (fk)": "07-810",
+    "code dpanef (fk)": "07-800"
+    },
+    {
+    "Codedfp": "08-111",
+    "DFP": "Errachidia",
+    "codeZDTF (fk)": "08-110",
+    "code dpanef (fk)": "08-100"
+    },
+    {
+    "Codedfp": "08-211",
+    "DFP": "Agheddou",
+    "codeZDTF (fk)": "08-210",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-212",
+    "DFP": "Agoudim",
+    "codeZDTF (fk)": "08-210",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-213",
+    "DFP": "Midkane",
+    "codeZDTF (fk)": "08-210",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-214",
+    "DFP": "Tirghiste",
+    "codeZDTF (fk)": "08-210",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-221",
+    "DFP": "Itzer",
+    "codeZDTF (fk)": "08-220",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-222",
+    "DFP": "Tanourdi",
+    "codeZDTF (fk)": "08-220",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-223",
+    "DFP": "Tigulmamine",
+    "codeZDTF (fk)": "08-220",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-224",
+    "DFP": "Aghbalou-Oumlil",
+    "codeZDTF (fk)": "08-220",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-225",
+    "DFP": "Igher N'hass",
+    "codeZDTF (fk)": "08-220",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-231",
+    "DFP": "Tizi Nghachou",
+    "codeZDTF (fk)": "08-230",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-232",
+    "DFP": "Boumia",
+    "codeZDTF (fk)": "08-230",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-233",
+    "DFP": "Idikel",
+    "codeZDTF (fk)": "08-230",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-241",
+    "DFP": "Bouadmame",
+    "codeZDTF (fk)": "08-240",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-242",
+    "DFP": "Midelt",
+    "codeZDTF (fk)": "08-240",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-251",
+    "DFP": "Gourrama",
+    "codeZDTF (fk)": "08-250",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-252",
+    "DFP": "Rich",
+    "codeZDTF (fk)": "08-250",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-253",
+    "DFP": "Tazarine (Rich)",
+    "codeZDTF (fk)": "08-250",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-261",
+    "DFP": "Bouadel",
+    "codeZDTF (fk)": "08-260",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-262",
+    "DFP": "Ifred",
+    "codeZDTF (fk)": "08-260",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-263",
+    "DFP": "Sidi Yahia Ou Youssef",
+    "codeZDTF (fk)": "08-260",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-264",
+    "DFP": "Tounfite",
+    "codeZDTF (fk)": "08-260",
+    "code dpanef (fk)": "08-200"
+    },
+    {
+    "Codedfp": "08-311",
+    "DFP": "Ahl Ouarzazate",
+    "codeZDTF (fk)": "08-310",
+    "code dpanef (fk)": "08-300"
+    },
+    {
+    "Codedfp": "08-312",
+    "DFP": "Ighrem Nougdal",
+    "codeZDTF (fk)": "08-310",
+    "code dpanef (fk)": "08-300"
+    },
+    {
+    "Codedfp": "08-412",
+    "DFP": "Boumalne Dades",
+    "codeZDTF (fk)": "08-410",
+    "code dpanef (fk)": "08-400"
+    },
+    {
+    "Codedfp": "08-413",
+    "DFP": "M'Cissi",
+    "codeZDTF (fk)": "08-410",
+    "code dpanef (fk)": "08-400"
+    },
+    {
+    "Codedfp": "08-411",
+    "DFP": "Tinghir",
+    "codeZDTF (fk)": "08-410",
+    "code dpanef (fk)": "08-400"
+    },
+    {
+    "Codedfp": "08-513",
+    "DFP": "El Mhamid",
+    "codeZDTF (fk)": "08-510",
+    "code dpanef (fk)": "08-500"
+    },
+    {
+    "Codedfp": "08-512",
+    "DFP": "Tazarine (Zagora)",
+    "codeZDTF (fk)": "08-510",
+    "code dpanef (fk)": "08-500"
+    },
+    {
+    "Codedfp": "08-511",
+    "DFP": "Zagora",
+    "codeZDTF (fk)": "08-510",
+    "code dpanef (fk)": "08-500"
+    },
+    {
+    "Codedfp": "09-115",
+    "DFP": "R R Agadir",
+    "codeZDTF (fk)": "09-110",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "Codedfp": "09-111",
+    "DFP": "Admine",
+    "codeZDTF (fk)": "09-110",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "Codedfp": "09-112",
+    "DFP": "Agadir",
+    "codeZDTF (fk)": "09-110",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "Codedfp": "09-113",
+    "DFP": "Amskroud",
+    "codeZDTF (fk)": "09-110",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "Codedfp": "09-114",
+    "DFP": "Drarga",
+    "codeZDTF (fk)": "09-110",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "Codedfp": "09-121",
+    "DFP": "Aghroud",
+    "codeZDTF (fk)": "09-120",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "Codedfp": "09-122",
+    "DFP": "Ain Asmama",
+    "codeZDTF (fk)": "09-120",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "Codedfp": "09-123",
+    "DFP": "Imouzzar",
+    "codeZDTF (fk)": "09-120",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "Codedfp": "09-124",
+    "DFP": "Tamri",
+    "codeZDTF (fk)": "09-120",
+    "code dpanef (fk)": "09-100"
+    },
+    {
+    "Codedfp": "09-211",
+    "DFP": "Biougra",
+    "codeZDTF (fk)": "09-210",
+    "code dpanef (fk)": "09-200"
+    },
+    {
+    "Codedfp": "09-212",
+    "DFP": "Ait Baha",
+    "codeZDTF (fk)": "09-210",
+    "code dpanef (fk)": "09-200"
+    },
+    {
+    "Codedfp": "09-213",
+    "DFP": "Massa",
+    "codeZDTF (fk)": "09-210",
+    "code dpanef (fk)": "09-200"
+    },
+    {
+    "Codedfp": "09-214",
+    "DFP": "Rokein",
+    "codeZDTF (fk)": "09-210",
+    "code dpanef (fk)": "09-200"
+    },
+    {
+    "Codedfp": "09-311",
+    "DFP": "Idergane",
+    "codeZDTF (fk)": "09-310",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-312",
+    "DFP": "Lemdad",
+    "codeZDTF (fk)": "09-310",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-313",
+    "DFP": "Taliouine",
+    "codeZDTF (fk)": "09-310",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-321",
+    "DFP": "Ain Tizouine ",
+    "codeZDTF (fk)": "09-320",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-322",
+    "DFP": "Argana",
+    "codeZDTF (fk)": "09-320",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-323",
+    "DFP": "Ouled Taima",
+    "codeZDTF (fk)": "09-320",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-331",
+    "DFP": "Amagour",
+    "codeZDTF (fk)": "09-330",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-332",
+    "DFP": "Ighrem",
+    "codeZDTF (fk)": "09-330",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-333",
+    "DFP": "Mentaga",
+    "codeZDTF (fk)": "09-330",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-334",
+    "DFP": "Taroudant",
+    "codeZDTF (fk)": "09-330",
+    "code dpanef (fk)": "09-300"
+    },
+    {
+    "Codedfp": "09-411",
+    "DFP": "Anzi",
+    "codeZDTF (fk)": "09-410",
+    "code dpanef (fk)": "09-400"
+    },
+    {
+    "Codedfp": "09-412",
+    "DFP": "Bouchti",
+    "codeZDTF (fk)": "09-410",
+    "code dpanef (fk)": "09-400"
+    },
+    {
+    "Codedfp": "09-413",
+    "DFP": "Tafraout",
+    "codeZDTF (fk)": "09-410",
+    "code dpanef (fk)": "09-400"
+    },
+    {
+    "Codedfp": "09-414",
+    "DFP": "Youssef Ben Tachfine",
+    "codeZDTF (fk)": "09-410",
+    "code dpanef (fk)": "09-400"
+    },
+    {
+    "Codedfp": "09-415",
+    "DFP": "Ida Ousemlal",
+    "codeZDTF (fk)": "09-410",
+    "code dpanef (fk)": "09-400"
+    },
+    {
+    "Codedfp": "09-511",
+    "DFP": "Foum Zguid",
+    "codeZDTF (fk)": "09-510",
+    "code dpanef (fk)": "09-500"
+    },
+    {
+    "Codedfp": "09-512",
+    "DFP": "Tata-Akka",
+    "codeZDTF (fk)": "09-510",
+    "code dpanef (fk)": "09-500"
+    },
+    {
+    "Codedfp": "10-111",
+    "DFP": "Bouizakarne",
+    "codeZDTF (fk)": "10-110",
+    "code dpanef (fk)": "10-100"
+    },
+    {
+    "Codedfp": "10-112",
+    "DFP": "Guelmim",
+    "codeZDTF (fk)": "10-110",
+    "code dpanef (fk)": "10-100"
+    },
+    {
+    "Codedfp": "10-211",
+    "DFP": "Ait Erkha",
+    "codeZDTF (fk)": "10-210",
+    "code dpanef (fk)": "10-200"
+    },
+    {
+    "Codedfp": "10-212",
+    "DFP": "Lakhssas",
+    "codeZDTF (fk)": "10-210",
+    "code dpanef (fk)": "10-200"
+    },
+    {
+    "Codedfp": "10-213",
+    "DFP": "Sidi Ifni",
+    "codeZDTF (fk)": "10-210",
+    "code dpanef (fk)": "10-200"
+    },
+    {
+    "Codedfp": "10-214",
+    "DFP": "Tioughza",
+    "codeZDTF (fk)": "10-210",
+    "code dpanef (fk)": "10-200"
+    },
+    {
+    "Codedfp": "10-311",
+    "DFP": "Tan Tan",
+    "codeZDTF (fk)": "10-310",
+    "code dpanef (fk)": "10-300"
+    },
+    {
+    "Codedfp": "10-411",
+    "DFP": "Assa",
+    "codeZDTF (fk)": "10-410",
+    "code dpanef (fk)": "10-400"
+    },
+    {
+    "Codedfp": "10-412",
+    "DFP": "Zag",
+    "codeZDTF (fk)": "10-410",
+    "code dpanef (fk)": "10-400"
+    },
+    {
+    "Codedfp": "11-111",
+    "DFP": "Laayoune",
+    "codeZDTF (fk)": "11-110",
+    "code dpanef (fk)": "11-100"
+    },
+    {
+    "Codedfp": "11-211",
+    "DFP": "Tarfaya",
+    "codeZDTF (fk)": "11-210",
+    "code dpanef (fk)": "11-200"
+    },
+    {
+    "Codedfp": "11-311",
+    "DFP": "Es-Smara",
+    "codeZDTF (fk)": "11-310",
+    "code dpanef (fk)": "11-300"
+    },
+    {
+    "Codedfp": "11-312",
+    "DFP": "Jdiria Haouza",
+    "codeZDTF (fk)": "11-310",
+    "code dpanef (fk)": "11-300"
+    },
+    {
+    "Codedfp": "11-411",
+    "DFP": "Boujdour",
+    "codeZDTF (fk)": "11-410",
+    "code dpanef (fk)": "11-400"
+    },
+    {
+    "Codedfp": "12-111",
+    "DFP": "Dakhla",
+    "codeZDTF (fk)": "12-110",
+    "code dpanef (fk)": "12-100"
+    },
+    {
+    "Codedfp": "12-211",
+    "DFP": "Aousserd",
+    "codeZDTF (fk)": "12-210",
+    "code dpanef (fk)": "12-200"
+    },
+    {
+    "Codedfp": "12-121",
+    "DFP": "Bir Guendouz",
+    "codeZDTF (fk)": "12-120",
+    "code dpanef (fk)": "12-100"
+    }
+    ]
+}

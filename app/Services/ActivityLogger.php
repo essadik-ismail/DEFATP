@@ -27,12 +27,18 @@ class ActivityLogger
             return null;
         }
 
+        // Truncate description if too long (max 255 characters for VARCHAR)
+        $maxDescriptionLength = 255;
+        $truncatedDescription = mb_strlen($description) > $maxDescriptionLength 
+            ? mb_substr($description, 0, $maxDescriptionLength - 3) . '...' 
+            : $description;
+
         return ActivityLog::create([
             'user_id' => $user->id,
             'action' => $action,
             'model_type' => $modelType,
             'model_id' => $modelId,
-            'description' => $description,
+            'description' => $truncatedDescription,
             'properties' => $properties,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),

@@ -69,11 +69,14 @@
                     Recette
                 </a>
                 
+                {{-- Route removed: partenariats.index --}}
+                {{-- 
                 <a href="{{ route('partenariats.index') }}" 
                    class="mobile-nav-item {{ request()->routeIs('partenariats.*') ? 'active' : '' }}">
                     <i class="fas fa-handshake me-3"></i>
                     Partenariats
                 </a>
+                --}}
                 
                 <a href="{{ route('settings.index') }}" 
                    class="mobile-nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">

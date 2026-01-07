@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Parcelle extends Model
@@ -30,5 +31,14 @@ class Parcelle extends Model
     public function canton(): BelongsTo
     {
         return $this->belongsTo(Canton::class, 'canton_id');
+    }
+
+    /**
+     * Many-to-many: articles.
+     */
+    public function articles(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'article_parcelle', 'idparcelle', 'idarticle')
+            ->withTimestamps();
     }
 }

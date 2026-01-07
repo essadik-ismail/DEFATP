@@ -167,22 +167,26 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="form-group">
-                        <label for="situation_administrative_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <span>Situations Administratives <span class="text-red-500">*</span></span>
-                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs situations administratives"></i>
+                        <label for="province_ids" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>Provinces <span class="text-red-500">*</span></span>
+                            <i class="fas fa-question-circle text-amber-600 text-sm cursor-help" title="Sélectionnez une ou plusieurs provinces"></i>
                         </label>
-                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'situation_administrative_ids')">
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'province_ids')">
                         <select multiple
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
-                                id="situation_administrative_ids" name="situation_administrative_ids[]">
-                            @php($selectedSituations = old('situation_administrative_ids', optional($article->situationsAdministratives)->pluck('id')->toArray() ?? []))
-                            @foreach($situationAdministratives as $situation)
-                                <option value="{{ $situation->id }}" {{ in_array($situation->id, $selectedSituations) ? 'selected' : '' }}>
-                                    {{ $situation->commune }} - {{ $situation->province }}
-                                </option>
+                                id="province_ids" name="province_ids[]">
+                            @php($selectedProvinces = old('province_ids', optional($article->provinces)->pluck('id')->toArray() ?? []))
+                            @foreach($communes ?? [] as $commune)
+                                <optgroup label="{{ $commune->nom }}">
+                                    @foreach($commune->provinces ?? [] as $province)
+                                        <option value="{{ $province->id }}" {{ in_array($province->id, $selectedProvinces) ? 'selected' : '' }}>
+                                            {{ $province->nom }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
                             @endforeach
                         </select>
-                        @error('situation_administrative_ids')
+                        @error('province_ids')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
                                 <i class="fas fa-exclamation-circle"></i>
                                 {{ $message }}

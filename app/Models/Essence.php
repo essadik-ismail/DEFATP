@@ -22,6 +22,7 @@ class Essence extends Model
     public function articles(): BelongsToMany
     {
         return $this->belongsToMany(Article::class, 'article_essence', 'essence_id', 'article_id')
+            ->withPivot('product_id', 'quantity')
             ->withTimestamps();
     }
 
@@ -40,5 +41,25 @@ class Essence extends Model
     public function partenariats(): HasMany
     {
         return $this->hasMany(Partenariat::class);
+    }
+
+    /**
+     * Many-to-many: permi enlevers through permisenlever_product.
+     */
+    public function permiEnlevers(): BelongsToMany
+    {
+        return $this->belongsToMany(PermiEnlever::class, 'permisenlever_product', 'id_essence', 'permis_id')
+            ->withPivot('product_id', 'quantity')
+            ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many: permi enlevers through colportage_enlever.
+     */
+    public function colportageEnlevers(): BelongsToMany
+    {
+        return $this->belongsToMany(PermiEnlever::class, 'colportage_enlever', 'id_essence', 'id_permis_enlever')
+            ->withPivot('product_id', 'quantity')
+            ->withTimestamps();
     }
 }

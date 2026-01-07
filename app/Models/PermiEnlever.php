@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class PermiEnlever extends Model
+{
+    use SoftDeletes;
+
+    protected $table = 'permi_enlevers';
+
+    protected $fillable = [
+        'permis_id',
+        'num',
+        'num_quittance',
+        'date',
+        'num_tranche_paye',
+        'percepteur',
+        'volume',
+    ];
+
+    protected $casts = [
+        'date' => 'date',
+        'num_tranche_paye' => 'integer',
+        'volume' => 'decimal:2',
+    ];
+
+    /**
+     * Get the permis for this permi enlever.
+     */
+    public function permis(): BelongsTo
+    {
+        return $this->belongsTo(Permis::class, 'permis_id');
+    }
+
+    /**
+     * Many-to-many: products and essences (permisenlever_product).
+     */
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'permisenlever_product', 'permis_id', 'product_id')
+            ->withPivot('id_essence', 'quantity')
+            ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many: essences through permisenlever_product.
+     */
+    public function essences(): BelongsToMany
+    {
+        return $this->belongsToMany(Essence::class, 'permisenlever_product', 'permis_id', 'id_essence')
+            ->withPivot('product_id', 'quantity')
+            ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many: products and essences (colportage_enlever).
+     */
+    public function colportageProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'colportage_enlever', 'id_permis_enlever', 'product_id')
+            ->withPivot('id_essence', 'quantity')
+            ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many: essences through colportage_enlever.
+     */
+    public function colportageEssences(): BelongsToMany
+    {
+        return $this->belongsToMany(Essence::class, 'colportage_enlever', 'id_permis_enlever', 'id_essence')
+            ->withPivot('product_id', 'quantity')
+            ->withTimestamps();
+    }
+}

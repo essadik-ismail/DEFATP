@@ -3,7 +3,7 @@
 @section('title', 'Tableau de Bord - DEFATP')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-8">
+<div class="min-h-screen py-8">
     <div class="container mx-auto px-4">
 
         <!-- Header Section -->
@@ -29,70 +29,6 @@
 
         <!-- Welcome Guide for New Users -->
         <x-welcome-guide :show="true" />
-
-        <!-- Quick Actions -->
-        <div class="mb-8">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg">
-                    <i class="fas fa-bolt text-white text-xl"></i>
-                </div>
-                <div>
-                    <h2 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600">
-                        Actions Rapides
-                    </h2>
-                    <p class="text-gray-600">Accès rapide aux fonctionnalités principales</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer group" onclick="window.location.href='{{ route('articles.create') }}'">
-                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-plus-circle text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Nouvel Article</h3>
-                    <p class="text-gray-600 text-sm">Créez un nouvel article forestier</p>
-                </div>
-
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer group" onclick="window.location.href='{{ route('excel.index') }}'">
-                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-file-excel text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Import/Export</h3>
-                    <p class="text-gray-600 text-sm">Gérez vos données avec Excel</p>
-                </div>
-
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer group" onclick="window.location.href='{{ route('reports.index') }}'">
-                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-chart-bar text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapports</h3>
-                    <p class="text-gray-600 text-sm">Générez des rapports détaillés</p>
-                </div>
-
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer group" onclick="window.location.href='{{ route('settings.index') }}'">
-                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-cog text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Paramètres</h3>
-                    <p class="text-gray-600 text-sm">Configurez les données de base</p>
-                </div>
-
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer group" onclick="window.location.href='{{ route('auth.users.index') }}'">
-                    <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-users-cog text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Utilisateurs</h3>
-                    <p class="text-gray-600 text-sm">Gérez les comptes utilisateurs</p>
-                </div>
-
-                <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg p-6 text-center border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer group" onclick="window.location.href='{{ route('articles.index') }}'">
-                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-search text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Rechercher</h3>
-                    <p class="text-gray-600 text-sm">Trouvez rapidement vos articles</p>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 

@@ -12,12 +12,16 @@ class Location extends Model
         'mat',
         'x',
         'y',
+        'lat',
+        'log',
         'article_id',
     ];
 
     protected $casts = [
         'x' => 'decimal:6',
         'y' => 'decimal:6',
+        'lat' => 'decimal:6',
+        'log' => 'decimal:6',
     ];
 
     /**

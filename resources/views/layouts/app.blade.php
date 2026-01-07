@@ -746,6 +746,16 @@
             margin-left: calc(16rem + 1rem); /* 16rem (w-64) + 1rem margin */
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hide sidebar on article create/show/edit pages */
+        .content-wrapper.no-sidebar {
+            margin-left: 1rem;
+        }
+
+        .sidebar.hidden {
+            display: none;
         }
 
         .content-area {
@@ -2126,12 +2136,22 @@
     <!-- Toast notifications container -->
     <div class="toast-container" id="toastContainer"></div>
     
+    @php
+        $hideSidebar = request()->routeIs('articles.create') || 
+                       request()->routeIs('articles.show') || 
+                       request()->routeIs('articles.edit') ||
+                       request()->routeIs('contract-ventes.create') ||
+                       request()->routeIs('contract-ventes.edit');
+    @endphp
+
     <!-- Sidebar Backdrop Overlay -->
+    @if(!$hideSidebar)
     <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+    @endif
     
     <div class="main-wrapper">
         <!-- Left Sidebar -->
-        <aside class="sidebar w-64 min-h-screen" id="sidebar">
+        <aside class="sidebar w-64 min-h-screen {{ $hideSidebar ? 'hidden' : '' }}" id="sidebar">
             <div class="sidebar-header">
                 <div class="flex items-center justify-center">
                     <i class="fas fa-tree text-2xl mr-3"></i>
@@ -2177,19 +2197,6 @@
                     </a>
                 </div>
 
-                <!-- <div class="nav-item">
-                    <a href="{{ route('financial-data.index') }}" class="nav-link {{ request()->routeIs('financial-data.*') ? 'active' : '' }}">
-                        <i class="fas fa-money-bill-wave"></i>
-                        Recette
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="{{ route('partenariats.index') }}" class="nav-link {{ request()->routeIs('partenariats.*') ? 'active' : '' }}">
-                        <i class="fas fa-handshake"></i>
-                        Partenariats
-                    </a>
-                </div> -->
 
                 <!-- <div class="nav-item">
                     <a href="{{ route('activity-logs.index') }}" class="nav-link {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
@@ -2216,15 +2223,17 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="content-wrapper flex-1">
+        <div class="content-wrapper flex-1 {{ $hideSidebar ? 'no-sidebar' : '' }}">
             <!-- Top Header with Mobile Navigation -->
             <header class="bg-white border-b border-gray-200 px-3 sm:px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center min-w-0 flex-1">
                     <!-- Mobile menu button -->
+                    @if(!$hideSidebar)
                     <button class="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 mr-2 sm:mr-3 flex-shrink-0" 
                             onclick="toggleSidebar()">
                         <i class="fas fa-bars text-lg sm:text-xl"></i>
                     </button>
+                    @endif
                     
                     <!-- Navigation buttons (hidden on dashboard) -->
                     @if(!request()->routeIs('dashboard'))
