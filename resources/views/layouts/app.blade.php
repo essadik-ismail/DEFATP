@@ -2141,7 +2141,10 @@
                        request()->routeIs('articles.show') || 
                        request()->routeIs('articles.edit') ||
                        request()->routeIs('contract-ventes.create') ||
-                       request()->routeIs('contract-ventes.edit');
+                       request()->routeIs('contract-ventes.edit') ||
+                       request()->routeIs('exploitants.create') ||
+                       request()->routeIs('exploitants.show') ||
+                       request()->routeIs('exploitants.edit');
     @endphp
 
     <!-- Sidebar Backdrop Overlay -->
@@ -2238,11 +2241,62 @@
                     <!-- Navigation buttons (hidden on dashboard) -->
                     @if(!request()->routeIs('dashboard'))
                     <div class="flex items-center gap-1 sm:gap-2 mr-2 sm:mr-3 flex-shrink-0">
-                        <button onclick="window.history.back(); return false;" 
+                        @php
+                            $currentRoute = request()->route()->getName();
+                            $backUrl = route('dashboard');
+                            
+                            // Define route mappings: if route contains key, redirect to value
+                            $routeMappings = [
+                                'articles.' => 'articles.index',
+                                'exploitants.' => 'exploitants.index',
+                                'cooperatives.' => 'cooperatives.index',
+                                'cahiers.' => 'cahiers.index',
+                                'users.' => 'users.index',
+                                'roles.' => 'roles.index',
+                                'permissions.' => 'permissions.index',
+                                'activity-logs.' => 'activity-logs.index',
+                                'activity-journals.' => 'activity-journals.index',
+                                'archives.' => 'archives.index',
+                                'entity-data.' => 'entity-data.index',
+                                'financial-data.' => 'financial-data.index',
+                                'suivi-contract-programmes.' => 'suivi-contract-programmes.index',
+                                'settings.essences.' => 'settings.essences.index',
+                                'settings.forets.' => 'settings.forets.index',
+                                'settings.nature-de-coupes.' => 'settings.nature-de-coupes.index',
+                                'settings.situation-administratives.' => 'settings.situation-administratives.index',
+                                'settings.mode-exploitations.' => 'settings.mode-exploitations.index',
+                                'settings.dranefs.' => 'settings.dranefs.index',
+                                'settings.dpanefs.' => 'settings.dpanefs.index',
+                                'settings.zdtfs.' => 'settings.zdtfs.index',
+                                'settings.cantons.' => 'settings.cantons.index',
+                                'settings.parcelles.' => 'settings.parcelles.index',
+                                'settings.' => 'settings.index',
+                                'excel.' => 'excel.index',
+                                'contracts.' => 'contracts.index',
+                                'reports.' => 'reports.index',
+                            ];
+                            
+                            // Special case for contract-ventes: go back to article show page
+                            if (str_contains($currentRoute, 'contract-ventes.') || str_contains($currentRoute, 'contractVentes.')) {
+                                $article = request()->route('article');
+                                $backUrl = $article ? route('articles.show', $article) : route('articles.index');
+                            } else {
+                                // Check route mappings
+                                foreach ($routeMappings as $routePrefix => $indexRoute) {
+                                    if (str_contains($currentRoute, $routePrefix)) {
+                                        if (\Illuminate\Support\Facades\Route::has($indexRoute)) {
+                                            $backUrl = route($indexRoute);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        @endphp
+                        <a href="{{ $backUrl }}" 
                            class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-300 transform hover:scale-110 shadow-sm hover:shadow-md"
-                           title="Retour en arrière">
+                           title="Retour">
                             <i class="fas fa-arrow-left text-sm sm:text-base"></i>
-                        </button>
+                        </a>
                         
                         <!-- <button onclick="window.history.forward(); return false;" 
                            class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-300 transform hover:scale-110 shadow-sm hover:shadow-md"

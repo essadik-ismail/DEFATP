@@ -43,10 +43,10 @@ class StoreArticleRequest extends FormRequest
             'province_id' => ['nullable', 'exists:provinces,id'],
             'province_ids' => ['nullable', 'array'],
             'province_ids.*' => ['exists:provinces,id'],
-            'dranef_code' => ['nullable', 'string', 'exists:dranefs,code'],
-            'dpanef_code' => ['nullable', 'string', 'exists:dpanefs,code'],
-            'zdtf_code' => ['nullable', 'string', 'exists:zdtfs,code'],
-            'dfp_code' => ['nullable', 'string', 'exists:dfps,code'],
+            'dranef_code' => ['nullable', 'string', 'max:255'],
+            'dpanef_code' => ['nullable', 'string', 'max:255'],
+            'zdtf_code' => ['nullable', 'string', 'max:255'],
+            'dfp_code' => ['nullable', 'string', 'max:255'],
             'foret_ids' => ['nullable', 'array'],
             'foret_ids.*' => ['exists:forets,id'],
             'parcelle_ids' => ['nullable', 'array'],
@@ -62,6 +62,20 @@ class StoreArticleRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Convert empty strings to null for code fields
+        $this->merge([
+            'dranef_code' => $this->dranef_code ? trim($this->dranef_code) : null,
+            'dpanef_code' => $this->dpanef_code ? trim($this->dpanef_code) : null,
+            'zdtf_code' => $this->zdtf_code ? trim($this->zdtf_code) : null,
+            'dfp_code' => $this->dfp_code ? trim($this->dfp_code) : null,
+        ]);
+    }
+
+    /**
      * Get custom messages for validator errors.
      *
      * @return array<string, string>
@@ -74,6 +88,10 @@ class StoreArticleRequest extends FormRequest
             'annee.max' => 'L\'année doit être inférieure ou égale à 2100.',
             'superficie.numeric' => 'La superficie doit être un nombre.',
             'superficie.min' => 'La superficie doit être positive.',
+            'dranef_code.exists' => 'Le code DRANEF sélectionné n\'existe pas.',
+            'dpanef_code.exists' => 'Le code DPANEF sélectionné n\'existe pas.',
+            'zdtf_code.exists' => 'Le code ZDTF sélectionné n\'existe pas.',
+            'dfp_code.exists' => 'Le code DFP sélectionné n\'existe pas.',
         ];
     }
 }

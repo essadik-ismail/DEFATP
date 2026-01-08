@@ -643,7 +643,8 @@ class SettingsController extends Controller
 
     public function createExploitant(): View
     {
-        return view('settings.exploitants.create');
+        $dranefs = \App\Models\Dranef::orderBy('dranef')->get();
+        return view('settings.exploitants.create', compact('dranefs'));
     }
 
     public function storeExploitant(StoreExploitantRequest $request)
@@ -723,8 +724,8 @@ class SettingsController extends Controller
 
     public function editExploitant(Exploitant $exploitant): View
     {
-        // Get distinct DRANEF values with MIN(id) for each
-        return view('settings.exploitants.edit', compact('exploitant'));
+        $dranefs = \App\Models\Dranef::orderBy('dranef')->get();
+        return view('settings.exploitants.edit', compact('exploitant', 'dranefs'));
     }
 
     public function updateExploitant(UpdateExploitantRequest $request, Exploitant $exploitant): RedirectResponse

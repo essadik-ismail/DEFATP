@@ -3,22 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Province extends Model
 {
     protected $fillable = [
         'nom',
-        'commune_id',
     ];
 
     /**
-     * Get the commune that owns this province.
+     * Get communes for this province.
      */
-    public function commune(): BelongsTo
+    public function communes(): HasMany
     {
-        return $this->belongsTo(Commune::class);
+        return $this->hasMany(Commune::class);
     }
 
     /**

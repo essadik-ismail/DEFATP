@@ -38,6 +38,7 @@ class ContractVenteController extends Controller
             'prix_vente' => 'required|numeric|min:0',
             'prix_de_retrait' => 'nullable|numeric|min:0',
             'nombre_tranche' => 'required|integer|min:1',
+            'duree_decheache' => 'nullable|string|max:255',
             'charges' => 'required|array',
             'charges.*.nom' => 'required|string',
             'charges.*.montant' => 'required|numeric|min:0',
@@ -61,6 +62,7 @@ class ContractVenteController extends Controller
                     'prix_vente' => $validated['prix_vente'],
                     'prix_de_retrait' => $validated['prix_de_retrait'] ?? null,
                     'nombre_tranche' => $validated['nombre_tranche'],
+                    'duree_decheache' => $validated['duree_decheache'] ?? null,
                     'Current_state' => 'contrat_vente',
                 ]
             );
@@ -87,6 +89,10 @@ class ContractVenteController extends Controller
                     'contrat_vente_id' => $contractVente->id,
                 ]);
             }
+
+            // Update article status to "contrat_vente" (done)
+            // This marks "Contrat de vente" as completed and "Paiement des charges" as in progress
+            $article->update(['current_step' => 'contrat_vente']);
 
             DB::commit();
 
@@ -142,6 +148,7 @@ class ContractVenteController extends Controller
             'prix_vente' => 'required|numeric|min:0',
             'prix_de_retrait' => 'nullable|numeric|min:0',
             'nombre_tranche' => 'required|integer|min:1',
+            'duree_decheache' => 'nullable|string|max:255',
             'charges' => 'required|array',
             'charges.*.nom' => 'required|string',
             'charges.*.montant' => 'required|numeric|min:0',
@@ -163,6 +170,7 @@ class ContractVenteController extends Controller
                 'prix_vente' => $validated['prix_vente'],
                 'prix_de_retrait' => $validated['prix_de_retrait'] ?? null,
                 'nombre_tranche' => $validated['nombre_tranche'],
+                'duree_decheache' => $validated['duree_decheache'] ?? null,
             ]);
 
             // Delete existing charges
@@ -186,6 +194,16 @@ class ContractVenteController extends Controller
                     'date_echeance' => $trancheData['date_echeance'],
                     'contrat_vente_id' => $contractVente->id,
                 ]);
+            }
+
+            // Update article status to "contrat_vente" if not already at a later step
+            $steps = ['cahier_affiche', 'contrat_vente', 'paiement_charges', 'paiement_tranches', 'recollement', 'main_levee'];
+            $currentStepIndex = array_search($article->current_step, $steps);
+            $contratVenteIndex = array_search('contrat_vente', $steps);
+            
+            // Only update if current step is before or equal to contrat_vente
+            if ($currentStepIndex === false || $currentStepIndex <= $contratVenteIndex) {
+                $article->update(['current_step' => 'contrat_vente']);
             }
 
             DB::commit();

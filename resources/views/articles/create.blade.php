@@ -117,25 +117,6 @@
                         <h3 class="text-xl font-bold" style="color: #059669;">2. Localisation du lot</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Commune -->
-                        <div class="form-group">
-                            <label for="commune_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Commune
-                            </label>
-                            <select id="commune_id" name="commune_id" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                    onchange="updateProvinces()">
-                                <option value="">Sélectionner une commune</option>
-                                @foreach($communes ?? [] as $commune)
-                                    <option value="{{ $commune->id }}" {{ old('commune_id') == $commune->id ? 'selected' : '' }}>
-                                        {{ $commune->nom }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('commune_id')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
 
                         <!-- Province -->
                         <div class="form-group">
@@ -143,17 +124,38 @@
                                 Province
                             </label>
                             <select id="province_id" name="province_id" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    onchange="updateCommunes()">
                                 <option value="">Sélectionner une province</option>
                                 @foreach($provinces ?? [] as $province)
-                                    <option value="{{ $province->id }}" 
-                                            data-commune-id="{{ $province->commune_id }}"
-                                            {{ old('province_id') == $province->id ? 'selected' : '' }}>
+                                    <option value="{{ $province->id }}" {{ old('province_id') == $province->id ? 'selected' : '' }}>
                                         {{ $province->nom }}
                                     </option>
                                 @endforeach
                             </select>
                             @error('province_id')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Commune -->
+                        <div class="form-group">
+                            <label for="commune_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Commune
+                            </label>
+                            <select id="commune_id" name="commune_id" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    onchange="updateProvinceFromCommune()">
+                                <option value="">Sélectionner une commune</option>
+                                @foreach($communes ?? [] as $commune)
+                                    <option value="{{ $commune->id }}" 
+                                            data-province-id="{{ $commune->province_id }}"
+                                            {{ old('commune_id') == $commune->id ? 'selected' : '' }}>
+                                        {{ $commune->nom }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('commune_id')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
                         </div>
@@ -661,19 +663,42 @@ function filterSelectOptions(inputEl, selectId) {
 }
 
 // Cascading dropdowns for localization
-function updateProvinces() {
+function updateProvinceFromCommune() {
     const communeSelect = document.getElementById('commune_id');
     const provinceSelect = document.getElementById('province_id');
     const selectedCommuneId = communeSelect.value;
     
-    // Filter provinces by commune
-    Array.from(provinceSelect.options).forEach(option => {
+    if (selectedCommuneId) {
+        const selectedCommuneOption = communeSelect.options[communeSelect.selectedIndex];
+        const provinceId = selectedCommuneOption.getAttribute('data-province-id');
+        
+        if (provinceId) {
+            provinceSelect.value = provinceId;
+            // Also filter communes to show only those from the selected province
+            updateCommunes();
+        }
+    } else {
+        provinceSelect.value = '';
+        // Show all communes when no commune is selected
+        Array.from(communeSelect.options).forEach(option => {
+            option.style.display = '';
+        });
+    }
+}
+
+function updateCommunes() {
+    const provinceSelect = document.getElementById('province_id');
+    const communeSelect = document.getElementById('commune_id');
+    const selectedProvinceId = provinceSelect.value;
+    
+    // Filter communes by province
+    Array.from(communeSelect.options).forEach(option => {
         if (option.value === '') {
             option.style.display = '';
             return;
         }
-        const communeId = option.getAttribute('data-commune-id');
-        if (selectedCommuneId && communeId !== selectedCommuneId) {
+        const provinceId = option.getAttribute('data-province-id');
+        if (selectedProvinceId && provinceId !== selectedProvinceId) {
             option.style.display = 'none';
             if (option.selected) {
                 option.selected = false;
@@ -683,9 +708,21 @@ function updateProvinces() {
         }
     });
     
-    // Reset province if commune changed
-    if (!selectedCommuneId) {
-        provinceSelect.value = '';
+    // Reset commune if province changed and selected commune doesn't belong to new province
+    if (selectedProvinceId) {
+        const selectedCommuneOption = communeSelect.options[communeSelect.selectedIndex];
+        if (selectedCommuneOption && selectedCommuneOption.value !== '') {
+            const selectedCommuneProvinceId = selectedCommuneOption.getAttribute('data-province-id');
+            if (selectedCommuneProvinceId !== selectedProvinceId) {
+                communeSelect.value = '';
+            }
+        }
+    } else {
+        communeSelect.value = '';
+        // Show all communes when no province is selected
+        Array.from(communeSelect.options).forEach(option => {
+            option.style.display = '';
+        });
     }
 }
 
@@ -791,7 +828,14 @@ function updateDfps() {
 document.addEventListener('DOMContentLoaded', function() {
     updateNatureJuridique();
     updateParcelles();
-    updateProvinces();
+    // Initialize province/commune cascading
+    const communeSelect = document.getElementById('commune_id');
+    const provinceSelect = document.getElementById('province_id');
+    if (communeSelect && communeSelect.value) {
+        updateProvinceFromCommune();
+    } else if (provinceSelect && provinceSelect.value) {
+        updateCommunes();
+    }
     updateDpanefs();
     updateZdtfs();
     updateDfps();

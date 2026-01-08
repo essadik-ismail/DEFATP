@@ -18,6 +18,8 @@ use App\Models\Essence;
 use App\Models\Product;
 use App\Models\Depot;
 use App\Models\ContractVente;
+use App\Models\Payment;
+use App\Models\ChargeApayer;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Services\ActivityLogger;
@@ -34,10 +36,12 @@ class ArticleController extends Controller
     public function index(Request $request): View
     {
         $query = Article::with([
-            'forets.dpanef.dranef',
-            'forets.dpanef.zdtfs',
+            'dranef',
+            'dpanef',
+            'zdtf',
+            'dfp',
             'contractVentes',
-            'provinces.commune',
+            'provinces',
             'essences',
             'products'
         ]);
@@ -105,8 +109,8 @@ class ArticleController extends Controller
      */
     public function create(): View
     {
-        $communes = Commune::with('provinces')->orderBy('nom')->get();
-        $provinces = Province::with('commune')->orderBy('nom')->get();
+        $communes = Commune::orderBy('nom')->get();
+        $provinces = Province::orderBy('nom')->get();
         $dranefs = Dranef::orderBy('code')->get();
         $dpanefs = Dpanef::with('dranef')->orderBy('code')->get();
         $zdtfs = Zdtf::with('dpanef')->orderBy('code')->get();
@@ -149,18 +153,49 @@ class ArticleController extends Controller
             // Create the article
             $article = Article::create($request->validated());
             
-            // Save code-based foreign keys
-            if ($request->filled('dranef_code')) {
-                $article->dranef_code = $request->dranef_code;
+            // Save code-based foreign keys (only if not empty and exists)
+            if ($request->filled('dranef_code') && !empty(trim($request->dranef_code))) {
+                $code = trim($request->dranef_code);
+                if (Dranef::where('code', $code)->exists()) {
+                    $article->dranef_code = $code;
+                } else {
+                    throw new \Exception("Le code DRANEF '{$code}' n'existe pas.");
+                }
+            } else {
+                $article->dranef_code = null;
             }
-            if ($request->filled('dpanef_code')) {
-                $article->dpanef_code = $request->dpanef_code;
+            
+            if ($request->filled('dpanef_code') && !empty(trim($request->dpanef_code))) {
+                $code = trim($request->dpanef_code);
+                if (Dpanef::where('code', $code)->exists()) {
+                    $article->dpanef_code = $code;
+                } else {
+                    throw new \Exception("Le code DPANEF '{$code}' n'existe pas.");
+                }
+            } else {
+                $article->dpanef_code = null;
             }
-            if ($request->filled('zdtf_code')) {
-                $article->zdtf_code = $request->zdtf_code;
+            
+            if ($request->filled('zdtf_code') && !empty(trim($request->zdtf_code))) {
+                $code = trim($request->zdtf_code);
+                if (Zdtf::where('code', $code)->exists()) {
+                    $article->zdtf_code = $code;
+                } else {
+                    throw new \Exception("Le code ZDTF '{$code}' n'existe pas.");
+                }
+            } else {
+                $article->zdtf_code = null;
             }
-            if ($request->filled('dfp_code')) {
-                $article->dfp_code = $request->dfp_code;
+            
+            if ($request->filled('dfp_code') && !empty(trim($request->dfp_code))) {
+                $code = trim($request->dfp_code);
+                if (Dfp::where('code', $code)->exists()) {
+                    $article->dfp_code = $code;
+                } else {
+                    throw new \Exception("Le code DFP '{$code}' n'existe pas.");
+                }
+            } else {
+                $article->dfp_code = null;
             }
             $article->save();
 
@@ -209,8 +244,20 @@ class ArticleController extends Controller
 
             return redirect()->route('articles.index')
                 ->with('success', 'Article créé avec succès.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withInput()
+                ->withErrors($e->errors())
+                ->with('error', 'Erreur de validation. Veuillez vérifier les données saisies.');
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Log full error for debugging
+            \Log::error('Article creation error: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
             
             // Log error with shorter message
             $errorMessage = $e->getMessage();
@@ -225,7 +272,7 @@ class ArticleController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Erreur lors de la création de l\'article. Veuillez vérifier les données saisies.');
+                ->with('error', 'Erreur lors de la création de l\'article: ' . $errorMessage);
         }
     }
 
@@ -236,18 +283,26 @@ class ArticleController extends Controller
     {
         $article->load([
             'forets',
-            'provinces.commune',
+            'provinces',
             'parcelles',
             'natureDeCoupes',
             'modeExploitations',
             'essences',
             'products',
             'depots',
-            'contractVentes'
+            'contractVentes',
+            'dranef',
+            'dpanef',
+            'zdtf'
         ]);
 
         $exploitants = \App\Models\Exploitant::orderBy('nom_complet')->get();
         $contractVente = $article->contractVentes->first();
+        
+        // Load charges and their payments if contract exists
+        if ($contractVente) {
+            $contractVente->load(['chargeApayer.payments']);
+        }
 
         return view('articles.show', compact('article', 'exploitants', 'contractVente'));
     }
@@ -269,7 +324,7 @@ class ArticleController extends Controller
         $depots = Depot::orderBy('nom')->get();
 
         $article->load([
-            'provinces.commune',
+            'provinces',
             'forets',
             'parcelles',
             'natureDeCoupes',
@@ -385,6 +440,215 @@ class ArticleController extends Controller
 
             return redirect()->back()
                 ->with('error', 'Erreur lors de la suppression de l\'article: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update charge payments for an article.
+     */
+    public function updateChargePayments(Request $request, Article $article): RedirectResponse
+    {
+        $contractVente = $article->contractVentes->first();
+        
+        if (!$contractVente) {
+            return redirect()->back()
+                ->with('error', 'Aucun contrat de vente trouvé pour cet article.');
+        }
+
+        $validated = $request->validate([
+            'payments' => 'required|array',
+            'payments.*.statut' => 'required|in:0,1',
+            'payments.*.reference' => 'nullable|string|max:255',
+            'payments.*.date_payment' => 'nullable|date',
+            'payments.*.fichier_joint' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'payments.*.charge_id' => 'nullable|exists:charge_apayer,id',
+            'payments.*.charge_nom' => 'required|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($validated['payments'] as $key => $paymentData) {
+                $chargeId = $paymentData['charge_id'] ?? null;
+                
+                // Find or create charge
+                if ($chargeId) {
+                    $charge = ChargeApayer::find($chargeId);
+                } else {
+                    // Create new charge if it doesn't exist
+                    $charge = ChargeApayer::create([
+                        'nom' => $paymentData['charge_nom'],
+                        'montant' => 0,
+                        'date_echeance' => null,
+                        'contrat_vente_id' => $contractVente->id,
+                    ]);
+                }
+
+                if (!$charge) {
+                    continue;
+                }
+
+                // Handle file upload
+                $fichierJoint = null;
+                if ($request->hasFile("payments.{$key}.fichier_joint")) {
+                    $file = $request->file("payments.{$key}.fichier_joint");
+                    $fichierJoint = $file->store('charge-payments', 'public');
+                }
+
+                // Find or create payment
+                $payment = Payment::where('chargeapayer_id', $charge->id)->first();
+                
+                if ($payment) {
+                    // Update existing payment
+                    $payment->update([
+                        'is_paye' => $paymentData['statut'] == '1',
+                        'num_quittace' => $paymentData['reference'] ?? null,
+                        'date_payment' => $paymentData['date_payment'] ?? null,
+                        'fichier_joint' => $fichierJoint ?? $payment->fichier_joint,
+                    ]);
+                } else {
+                    // Create new payment
+                    Payment::create([
+                        'nom' => $charge->nom,
+                        'is_paye' => $paymentData['statut'] == '1',
+                        'num_quittace' => $paymentData['reference'] ?? null,
+                        'date_payment' => $paymentData['date_payment'] ?? null,
+                        'fichier_joint' => $fichierJoint,
+                        'chargeapayer_id' => $charge->id,
+                        'contract_vente_id' => $contractVente->id,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            ActivityLogger::log('update', 'Paiements des charges mis à jour', Article::class, $article->id);
+
+            return redirect()->route('articles.show', $article)
+                ->with('success', 'Paiements des charges enregistrés avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            ActivityLogger::log('error', 'Erreur lors de la mise à jour des paiements: ' . $e->getMessage());
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de l\'enregistrement des paiements: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Pay selected tranches.
+     */
+    public function payTranches(Request $request, Article $article): RedirectResponse
+    {
+        $validated = $request->validate([
+            'selected_tranches' => 'required|string',
+            'num_quittance' => 'required|string|max:255',
+            'date_payment' => 'required|date',
+            'fichier_joint' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $contractVente = $article->contractVentes->first();
+
+            if (!$contractVente) {
+                throw new \Exception("Aucun contrat de vente trouvé pour cet article.");
+            }
+
+            $trancheIds = json_decode($validated['selected_tranches'], true);
+            
+            if (empty($trancheIds)) {
+                throw new \Exception("Aucune tranche sélectionnée.");
+            }
+
+            // Process each selected tranche
+            foreach ($trancheIds as $trancheId) {
+                $tranche = ChargeApayer::find($trancheId);
+                
+                if (!$tranche) {
+                    \Log::warning("Tranche with ID {$trancheId} not found. Skipping.");
+                    continue;
+                }
+
+                // Create or update payment for this tranche
+                $payment = Payment::firstOrNew([
+                    'chargeapayer_id' => $tranche->id,
+                    'contract_vente_id' => $contractVente->id,
+                ]);
+
+                $payment->is_paye = true;
+                $payment->num_quittace = $validated['num_quittance'];
+                $payment->date_payment = $validated['date_payment'];
+                $payment->nom = $tranche->nom;
+
+                // Handle file upload
+                if ($request->hasFile('fichier_joint')) {
+                    $file = $request->file('fichier_joint');
+                    $path = $file->store('public/tranche_justificatifs');
+                    $payment->fichier_joint = str_replace('public/', '', $path);
+                }
+
+                $payment->save();
+            }
+
+            // Check if all tranches are paid to update article status
+            $allTranches = $contractVente->chargeApayer->filter(function($charge) {
+                return str_starts_with($charge->nom, 'Tranche');
+            });
+
+            $allPaid = true;
+            foreach ($allTranches as $tranche) {
+                $payment = $tranche->payments->first();
+                if (!$payment || !$payment->is_paye) {
+                    $allPaid = false;
+                    break;
+                }
+            }
+
+            if ($allPaid) {
+                $article->update(['current_step' => 'recollement']);
+            } else {
+                $article->update(['current_step' => 'paiement_tranches']);
+            }
+
+            DB::commit();
+            ActivityLogger::log('update', 'Paiement des tranches effectué', Article::class, $article->id);
+
+            return redirect()->route('articles.show', $article)
+                ->with('success', 'Paiement des tranches enregistré avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error paying tranches: ' . $e->getMessage(), ['exception' => $e]);
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors du paiement des tranches: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update article step.
+     */
+    public function updateStep(Request $request, Article $article): RedirectResponse
+    {
+        $validated = $request->validate([
+            'step' => 'required|in:cahier_affiche,contrat_vente,paiement_charges,paiement_tranches,recollement,main_levee',
+        ]);
+
+        try {
+            $article->update(['current_step' => $validated['step']]);
+
+            ActivityLogger::log('update', 'Statut de l\'article mis à jour: ' . $validated['step'], Article::class, $article->id);
+
+            return redirect()->route('articles.show', $article)
+                ->with('success', 'Statut de l\'article mis à jour avec succès.');
+        } catch (\Exception $e) {
+            ActivityLogger::log('error', 'Erreur lors de la mise à jour du statut: ' . $e->getMessage());
+
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la mise à jour du statut: ' . $e->getMessage());
         }
     }
 }

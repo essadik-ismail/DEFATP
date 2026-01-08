@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Province;
-use App\Models\Commune;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 
@@ -12,6 +11,10 @@ class ProvinceSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * 
+     * This seeder creates Provinces from the "Province" field in the JSON file.
+     * Provinces are the parent entities (one Province has many Communes).
+     * Must run BEFORE CommuneSeeder.
      */
     public function run(): void
     {
@@ -39,18 +42,16 @@ class ProvinceSeeder extends Seeder
 
         $provinces = [];
 
-        // Extract unique Communes from JSON (these become Provinces in database)
-        // Link them to their parent Commune (which is the "Province" value in JSON)
+        // Extract unique "Province" values from JSON (these become Provinces in database)
         foreach ($data as $row) {
-            if (isset($row['Commune']) && isset($row['Province'])) {
-                $communeName = trim($row['Commune']); // This becomes Province in database
-                $provinceName = trim($row['Province']); // This is the parent Commune
+            if (isset($row['Province'])) {
+                $provinceName = trim($row['Province']);
                 
-                if (!empty($communeName) && !empty($provinceName)) {
-                    if (!isset($provinces[$communeName])) {
-                        $provinces[$communeName] = [
-                            'nom' => $communeName,
-                            'commune_nom' => $provinceName, // Parent commune name
+                if (!empty($provinceName)) {
+                    // Use the name as key to ensure uniqueness
+                    if (!isset($provinces[$provinceName])) {
+                        $provinces[$provinceName] = [
+                            'nom' => $provinceName,
                         ];
                     }
                 }
@@ -59,30 +60,16 @@ class ProvinceSeeder extends Seeder
 
         $this->command->info('Found ' . count($provinces) . ' unique Provinces');
 
-        // Get Commune IDs for foreign key
-        $communeNames = array_unique(array_column($provinces, 'commune_nom'));
-        $communes = Commune::whereIn('nom', $communeNames)->get()->keyBy('nom');
-
         $createdCount = 0;
         $updatedCount = 0;
-        $skippedCount = 0;
 
         DB::beginTransaction();
         try {
             foreach ($provinces as $provinceData) {
-                $commune = $communes->get($provinceData['commune_nom']);
-                
-                if (!$commune) {
-                    $this->command->warn("Skipping Province {$provinceData['nom']}: Commune '{$provinceData['commune_nom']}' not found");
-                    $skippedCount++;
-                    continue;
-                }
-
                 $province = Province::updateOrCreate(
                     ['nom' => $provinceData['nom']],
                     [
                         'nom' => $provinceData['nom'],
-                        'commune_id' => $commune->id,
                     ]
                 );
 
@@ -94,10 +81,11 @@ class ProvinceSeeder extends Seeder
             }
 
             DB::commit();
-            $this->command->info("Province Seeder completed: {$createdCount} created, {$updatedCount} updated, {$skippedCount} skipped");
+            $this->command->info("Province Seeder completed: {$createdCount} created, {$updatedCount} updated");
         } catch (\Exception $e) {
             DB::rollBack();
             $this->command->error('Error seeding Provinces: ' . $e->getMessage());
+            $this->command->error('Stack trace: ' . $e->getTraceAsString());
             throw $e;
         }
     }

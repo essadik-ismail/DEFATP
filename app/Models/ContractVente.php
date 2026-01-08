@@ -21,6 +21,7 @@ class ContractVente extends Model
         'article_id',
         'exploitant_id',
         'date_de_decheance',
+        'duree_decheache',
         'id_decheance',
         'date_de_resiliation',
         'is_resiliation',

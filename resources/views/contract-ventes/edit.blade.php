@@ -234,6 +234,21 @@
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="form-group">
+                        <label for="duree_decheache" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Durée d'échéance
+                        </label>
+                        <input type="text" 
+                            id="duree_decheache" 
+                            name="duree_decheache" 
+                            value="{{ old('duree_decheache', $contractVente->duree_decheache ?? '') }}" 
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="Ex: 12 mois, 1 an, etc.">
+                        @error('duree_decheache')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
 

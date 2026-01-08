@@ -30,6 +30,7 @@ class Article extends Model
         'dpanef_code',
         'zdtf_code',
         'dfp_code',
+        'current_step',
     ];
 
     protected $casts = [

@@ -3,19 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Commune extends Model
 {
     protected $fillable = [
         'nom',
+        'province_id',
     ];
 
     /**
-     * Get provinces for this commune.
+     * Get the province that owns this commune.
      */
-    public function provinces(): HasMany
+    public function province(): BelongsTo
     {
-        return $this->hasMany(Province::class);
+        return $this->belongsTo(Province::class);
     }
 }

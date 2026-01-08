@@ -207,10 +207,6 @@
                         @forelse($articles as $article)
                             @php
                                 $contractVente = $article->contractVentes->first();
-                                $firstForet = $article->forets->first();
-                                $dpanef = $firstForet ? $firstForet->dpanef : null;
-                                $dranef = $dpanef ? $dpanef->dranef : null;
-                                $zdtf = $dpanef ? $dpanef->zdtfs->first() : null;
                             @endphp
                             <tr class="hover:bg-gray-50 transition-colors duration-200">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -221,37 +217,46 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($contractVente && $contractVente->date_adjudication)
-                                        {{ $contractVente->date_adjudication->format('d/m/Y') }}
+                                    @if($article->date_adjudication)
+                                        {{ \Carbon\Carbon::parse($article->date_adjudication)->format('d/m/Y') }}
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($dranef)
-                                        {{ $dranef->dranef }}
+                                    @if($article->dranef)
+                                        {{ $article->dranef->dranef }}
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($dpanef)
-                                        {{ $dpanef->dpanef }}
+                                    @if($article->dpanef)
+                                        {{ $article->dpanef->dpanef }}
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($zdtf)
-                                        {{ $zdtf->sdtf }}
+                                    @if($article->zdtf)
+                                        {{ $article->zdtf->zdtf }}
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($contractVente && $contractVente->type)
-                                        <span class="badge {{ $contractVente->type == 'appel_doffre' ? 'bg-info' : 'bg-primary' }}">
-                                            {{ $contractVente->type == 'appel_doffre' ? 'Appel d\'Offre' : ucfirst($contractVente->type) }}
+                                    @if($article->type)
+                                        @php
+                                            $typeLabels = [
+                                                'appel_doffre' => 'Appel d\'Offre',
+                                                'adjudication' => 'Adjudication',
+                                                'marche_negocié' => 'Marché Négocié',
+                                            ];
+                                            $typeLabel = $typeLabels[$article->type] ?? ucfirst(str_replace('_', ' ', $article->type));
+                                            $typeClass = $article->type == 'appel_doffre' ? 'bg-info' : ($article->type == 'adjudication' ? 'bg-success' : 'bg-primary');
+                                        @endphp
+                                        <span class="badge {{ $typeClass }}">
+                                            {{ $typeLabel }}
                                         </span>
                                     @else
                                         <span class="text-muted">-</span>
@@ -262,11 +267,10 @@
                                         $steps = [
                                             'cahier_affiche' => ['label' => 'Cahier affiche', 'class' => 'bg-blue-100 text-blue-800'],
                                             'contrat_vente' => ['label' => 'Contrat de vente', 'class' => 'bg-green-100 text-green-800'],
-                                            'lettre_adjudicataire' => ['label' => 'Lettre adjudicataire', 'class' => 'bg-purple-100 text-purple-800'],
-                                            'permis_exploiter' => ['label' => 'Permis d\'exploiter', 'class' => 'bg-amber-100 text-amber-800'],
-                                            'permis_enlever' => ['label' => 'Permis d\'enlever', 'class' => 'bg-orange-100 text-orange-800'],
-                                            'pv_installation' => ['label' => 'PV d\'installation', 'class' => 'bg-indigo-100 text-indigo-800'],
-                                            'permis_colportage' => ['label' => 'Permis de colportage', 'class' => 'bg-emerald-100 text-emerald-800'],
+                                            'paiement_charges' => ['label' => 'Paiement des charges', 'class' => 'bg-amber-100 text-amber-800'],
+                                            'paiement_tranches' => ['label' => 'Paiement des tranches', 'class' => 'bg-orange-100 text-orange-800'],
+                                            'recollement' => ['label' => 'Récolement', 'class' => 'bg-indigo-100 text-indigo-800'],
+                                            'main_levee' => ['label' => 'Main levée', 'class' => 'bg-emerald-100 text-emerald-800'],
                                         ];
                                         $currentStep = $article->current_step ?? null;
                                         $stepInfo = $currentStep && isset($steps[$currentStep]) 

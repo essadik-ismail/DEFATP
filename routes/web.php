@@ -119,6 +119,9 @@ Route::middleware('auth')->group(function () {
 
     // Articles Routes
     Route::prefix('articles')->name('articles.')->group(function () {
+        Route::put('{article}/charge-payments', [ArticleController::class, 'updateChargePayments'])->name('update-charge-payments');
+        Route::put('{article}/pay-tranches', [ArticleController::class, 'payTranches'])->name('pay-tranches');
+        Route::put('{article}/update-step', [ArticleController::class, 'updateStep'])->name('update-step');
         Route::get('/', [ArticleController::class, 'index'])->name('index');
         Route::get('/create', [ArticleController::class, 'create'])->name('create');
         Route::post('/', [ArticleController::class, 'store'])->name('store');

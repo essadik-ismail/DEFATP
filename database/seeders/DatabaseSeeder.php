@@ -19,16 +19,17 @@ class DatabaseSeeder extends Seeder
             ForetSeeder::class,
             NatureDeCoupeSeeder::class,
             SituationAdministrativeSeeder::class,
-            // OdfEntiteSee9der::class,
             ExploitantSeeder::class,
             ProductSeeder::class,
             PrestationSeeder::class,
-            // ArticleSeeder::class,
             VocationSeeder::class,
             CoperativeSeeder::class,
+            // Geographic seeders - must be in order: Province first, then Commune
+            ProvinceSeeder::class,
+            CommuneSeeder::class,
+            // LegacyArticlesSeeder::class,
             // ContractSeeder::class,
             // AvenantSeeder::class,
-            // LegacyArticlesSeeder::class,
         ]);
     }
 
