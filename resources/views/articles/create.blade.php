@@ -138,24 +138,27 @@
                             @enderror
                         </div>
 
-                        <!-- Commune -->
+                        <!-- Communes (Multiple Selection) -->
                         <div class="form-group">
-                            <label for="commune_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Commune
+                            <label for="commune_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Communes <span class="text-red-500">*</span>
                             </label>
-                            <select id="commune_id" name="commune_id" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                    onchange="updateProvinceFromCommune()">
-                                <option value="">Sélectionner une commune</option>
+                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'commune_ids')">
+                            <select multiple
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    id="commune_ids" name="commune_ids[]">
                                 @foreach($communes ?? [] as $commune)
                                     <option value="{{ $commune->id }}" 
                                             data-province-id="{{ $commune->province_id }}"
-                                            {{ old('commune_id') == $commune->id ? 'selected' : '' }}>
-                                        {{ $commune->nom }}
+                                            {{ collect(old('commune_ids', []))->contains($commune->id) ? 'selected' : '' }}>
+                                        {{ $commune->nom }}@if($commune->province) - {{ $commune->province->nom }}@endif
                                     </option>
                                 @endforeach
                             </select>
-                            @error('commune_id')
+                            @error('commune_ids')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
+                            @error('commune_ids.*')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
                         </div>
@@ -662,33 +665,10 @@ function filterSelectOptions(inputEl, selectId) {
     });
 }
 
-// Cascading dropdowns for localization
-function updateProvinceFromCommune() {
-    const communeSelect = document.getElementById('commune_id');
-    const provinceSelect = document.getElementById('province_id');
-    const selectedCommuneId = communeSelect.value;
-    
-    if (selectedCommuneId) {
-        const selectedCommuneOption = communeSelect.options[communeSelect.selectedIndex];
-        const provinceId = selectedCommuneOption.getAttribute('data-province-id');
-        
-        if (provinceId) {
-            provinceSelect.value = provinceId;
-            // Also filter communes to show only those from the selected province
-            updateCommunes();
-        }
-    } else {
-        provinceSelect.value = '';
-        // Show all communes when no commune is selected
-        Array.from(communeSelect.options).forEach(option => {
-            option.style.display = '';
-        });
-    }
-}
-
+// Filter communes based on selected province
 function updateCommunes() {
     const provinceSelect = document.getElementById('province_id');
-    const communeSelect = document.getElementById('commune_id');
+    const communeSelect = document.getElementById('commune_ids');
     const selectedProvinceId = provinceSelect.value;
     
     // Filter communes by province
@@ -700,6 +680,7 @@ function updateCommunes() {
         const provinceId = option.getAttribute('data-province-id');
         if (selectedProvinceId && provinceId !== selectedProvinceId) {
             option.style.display = 'none';
+            // Deselect options that don't match the province
             if (option.selected) {
                 option.selected = false;
             }
@@ -708,18 +689,8 @@ function updateCommunes() {
         }
     });
     
-    // Reset commune if province changed and selected commune doesn't belong to new province
-    if (selectedProvinceId) {
-        const selectedCommuneOption = communeSelect.options[communeSelect.selectedIndex];
-        if (selectedCommuneOption && selectedCommuneOption.value !== '') {
-            const selectedCommuneProvinceId = selectedCommuneOption.getAttribute('data-province-id');
-            if (selectedCommuneProvinceId !== selectedProvinceId) {
-                communeSelect.value = '';
-            }
-        }
-    } else {
-        communeSelect.value = '';
-        // Show all communes when no province is selected
+    // If no province is selected, show all communes
+    if (!selectedProvinceId) {
         Array.from(communeSelect.options).forEach(option => {
             option.style.display = '';
         });
@@ -829,11 +800,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateNatureJuridique();
     updateParcelles();
     // Initialize province/commune cascading
-    const communeSelect = document.getElementById('commune_id');
     const provinceSelect = document.getElementById('province_id');
-    if (communeSelect && communeSelect.value) {
-        updateProvinceFromCommune();
-    } else if (provinceSelect && provinceSelect.value) {
+    if (provinceSelect && provinceSelect.value) {
         updateCommunes();
     }
     updateDpanefs();

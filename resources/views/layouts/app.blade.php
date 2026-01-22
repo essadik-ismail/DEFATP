@@ -2137,14 +2137,9 @@
     <div class="toast-container" id="toastContainer"></div>
     
     @php
-        $hideSidebar = request()->routeIs('articles.create') || 
-                       request()->routeIs('articles.show') || 
-                       request()->routeIs('articles.edit') ||
-                       request()->routeIs('contract-ventes.create') ||
-                       request()->routeIs('contract-ventes.edit') ||
-                       request()->routeIs('exploitants.create') ||
-                       request()->routeIs('exploitants.show') ||
-                       request()->routeIs('exploitants.edit');
+        // Show sidebar on index pages and dashboard
+        $currentRoute = request()->route() ? request()->route()->getName() : '';
+        $hideSidebar = !str_contains($currentRoute, '.index') && $currentRoute !== 'dashboard';
     @endphp
 
     <!-- Sidebar Backdrop Overlay -->
@@ -2171,12 +2166,12 @@
                     </a>
                 </div>
 
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                         <i class="fas fa-chart-line"></i>
                         Rapports
                     </a>
-                </div>
+                </div> -->
                 
                 
                 <div class="nav-item">
@@ -2206,14 +2201,14 @@
                         <i class="fas fa-history"></i>
                         Journal d'Activités
                     </a>
-                </div>
+                </div>-->
 
-                <div class="nav-item">
+                <!-- <div class="nav-item">
                     <a href="{{ route('archives.index') }}" class="nav-link {{ request()->routeIs('archives.*') ? 'active' : '' }}">
                         <i class="fas fa-archive"></i>
                         Archives
                     </a>
-                </div> -->
+                </div>  -->
             
                 <div class="nav-item">
                     <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') || request()->routeIs('essences.*') || request()->routeIs('forets.*') || request()->routeIs('situations.*') || request()->routeIs('natures.*') || request()->routeIs('vocations.*') || request()->routeIs('coperatives.*') || request()->routeIs('products.*') || request()->routeIs('prestations.*') ? 'active' : '' }}">
@@ -2245,7 +2240,6 @@
                             $currentRoute = request()->route()->getName();
                             $backUrl = route('dashboard');
                             
-                            // Define route mappings: if route contains key, redirect to value
                             $routeMappings = [
                                 'articles.' => 'articles.index',
                                 'exploitants.' => 'exploitants.index',
@@ -2255,10 +2249,10 @@
                                 'roles.' => 'roles.index',
                                 'permissions.' => 'permissions.index',
                                 'activity-logs.' => 'activity-logs.index',
-                                'activity-journals.' => 'activity-journals.index',
+                                // 'activity-journals.' => 'activity-journals.index', // Disabled - missing views
                                 'archives.' => 'archives.index',
                                 'entity-data.' => 'entity-data.index',
-                                'financial-data.' => 'financial-data.index',
+                                // 'financial-data.' => 'financial-data.index', // Disabled - missing views
                                 'suivi-contract-programmes.' => 'suivi-contract-programmes.index',
                                 'settings.essences.' => 'settings.essences.index',
                                 'settings.forets.' => 'settings.forets.index',

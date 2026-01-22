@@ -5,99 +5,94 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <!-- Header Section -->
-    <div class="mb-8">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                <i class="fas fa-file-alt text-white text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
-                    Articles Forestiers
-                </h1>
-                <p class="text-gray-600 text-lg mt-2">Gérez et consultez tous les articles forestiers du système</p>
-            </div>
-        </div>
-    </div>
+    <x-page-header 
+        title="Articles Forestiers"
+        subtitle="Gérez et consultez tous les articles forestiers du système"
+        icon="fas fa-file-alt"
+    >
+        <x-slot name="actions">
+            <a href="{{ route('articles.create') }}" 
+               class="inline-flex items-center gap-3 px-6 py-3 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+               style="background: linear-gradient(135deg, #059669, #047857);">
+                <i class="fas fa-plus"></i>
+                <span>Nouvel Article</span>
+            </a>
+        </x-slot>
+    </x-page-header>
+
+    <!-- Alert Messages -->
+    @if(session('success'))
+        <x-alert type="success" title="Succès!" dismissible>
+            {{ session('success') }}
+        </x-alert>
+    @endif
+
+    @if(session('error'))
+        <x-alert type="error" title="Erreur!" dismissible>
+            {{ session('error') }}
+        </x-alert>
+    @endif
 
     <!-- Filters and Search Area -->
-    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200 mb-6">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold" style="color: #059669;">
-                <i class="fas fa-filter mr-2"></i>Filtres et Recherche
-            </h2>
-            <button type="button" onclick="clearFilters()" class="text-sm text-gray-600 hover:text-gray-900">
-                <i class="fas fa-times-circle mr-1"></i>Effacer les filtres
-            </button>
+    <x-filters-card 
+        title="Filtres et Recherche"
+        icon="fas fa-filter"
+        :action="route('articles.index')"
+        formId="filterForm"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+    >
+        <x-form-input
+            type="select"
+            name="year"
+            label="Année"
+            id="year"
+        >
+            <option value="">Toutes les années</option>
+            @foreach($availableYears ?? [] as $year)
+                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+            @endforeach
+        </x-form-input>
+
+        <x-form-input
+            type="date"
+            name="adjudication_date"
+            label="Date d'Adjudication"
+            id="adjudication_date"
+            :value="request('adjudication_date')"
+        />
+
+        <x-form-input
+            type="select"
+            name="type"
+            label="Type"
+            id="type"
+        >
+            <option value="">Tous les types</option>
+            @foreach($availableTypes ?? [] as $type)
+                <option value="{{ $type }}" {{ request('type') == $type ? 'selected' : '' }}>
+                    {{ $type == 'appel_doffre' ? 'Appel d\'Offre' : ucfirst($type) }}
+                </option>
+            @endforeach
+        </x-form-input>
+
+        <div class="form-group">
+            <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="fas fa-search mr-1"></i>Recherche Globale
+            </label>
+            <div class="relative">
+                <input type="text" 
+                       name="search" 
+                       id="search" 
+                       value="{{ request('search') }}"
+                       placeholder="Rechercher dans tous les champs..."
+                       class="form-input w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
         </div>
-        
-        <form method="GET" action="{{ route('articles.index') }}" id="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Year Filter -->
-            <div class="form-group">
-                <label for="year" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-calendar-alt mr-1"></i>Année
-                </label>
-                <select name="year" id="year" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                    <option value="">Toutes les années</option>
-                    @foreach($availableYears ?? [] as $year)
-                        <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
-                    @endforeach
-                </select>
-            </div>
 
-            <!-- Adjudication Date Filter -->
-            <div class="form-group">
-                <label for="adjudication_date" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-calendar-check mr-1"></i>Date d'Adjudication
-                </label>
-                <input type="date" 
-                       name="adjudication_date" 
-                       id="adjudication_date" 
-                       value="{{ request('adjudication_date') }}"
-                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-            </div>
-
-            <!-- Type Filter -->
-            <div class="form-group">
-                <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-tag mr-1"></i>Type
-                </label>
-                <select name="type" id="type" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                    <option value="">Tous les types</option>
-                    @foreach($availableTypes ?? [] as $type)
-                        <option value="{{ $type }}" {{ request('type') == $type ? 'selected' : '' }}>
-                            {{ $type == 'appel_doffre' ? 'Appel d\'Offre' : ucfirst($type) }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Global Search -->
-            <div class="form-group">
-                <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-search mr-1"></i>Recherche Globale
-                </label>
-                <div class="relative">
-                    <input type="text" 
-                           name="search" 
-                           id="search" 
-                           value="{{ request('search') }}"
-                           placeholder="Rechercher dans tous les champs..."
-                           class="form-input w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                </div>
-            </div>
-
-            <!-- Hidden fields to preserve pagination -->
-            <input type="hidden" name="per_page" value="{{ request('per_page', 15) }}">
-            
-            <!-- Submit Button -->
-            <!-- <div class="form-group flex items-end">
-                <button type="submit" class="w-full px-6 py-3 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg" style="background: linear-gradient(to right, #059669, #047857);">
-                    <i class="fas fa-filter mr-2"></i>Appliquer les filtres
-                </button>
-            </div> -->
-        </form>
-    </div>
+        <!-- Hidden fields to preserve pagination -->
+        <input type="hidden" name="per_page" value="{{ request('per_page', 15) }}">
+    </x-filters-card>
 
     <!-- Articles Data Table -->
     <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
@@ -112,13 +107,6 @@
                     </h2>
                     <p class="text-gray-600">Affichage de {{ $articles->firstItem() ?? 0 }} à {{ $articles->lastItem() ?? 0 }} sur {{ $articles->total() }} articles</p>
                 </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <a href="{{ route('articles.create') }}" 
-                   class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    <i class="fas fa-plus"></i>
-                    <span class="font-semibold">Nouvel Article</span>
-                </a>
             </div>
         </div>
 
@@ -263,23 +251,30 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @php
-                                        $steps = [
-                                            'cahier_affiche' => ['label' => 'Cahier affiche', 'class' => 'bg-blue-100 text-blue-800'],
-                                            'contrat_vente' => ['label' => 'Contrat de vente', 'class' => 'bg-green-100 text-green-800'],
-                                            'paiement_charges' => ['label' => 'Paiement des charges', 'class' => 'bg-amber-100 text-amber-800'],
-                                            'paiement_tranches' => ['label' => 'Paiement des tranches', 'class' => 'bg-orange-100 text-orange-800'],
-                                            'recollement' => ['label' => 'Récolement', 'class' => 'bg-indigo-100 text-indigo-800'],
-                                            'main_levee' => ['label' => 'Main levée', 'class' => 'bg-emerald-100 text-emerald-800'],
-                                        ];
-                                        $currentStep = $article->current_step ?? null;
-                                        $stepInfo = $currentStep && isset($steps[$currentStep]) 
-                                            ? $steps[$currentStep] 
-                                            : ['label' => $currentStep ? ucfirst(str_replace('_', ' ', $currentStep)) : 'Non défini', 'class' => 'bg-gray-100 text-gray-800'];
-                                    @endphp
-                                    <span class="badge {{ $stepInfo['class'] }}">
-                                        {{ $stepInfo['label'] }}
-                                    </span>
+                                    <div class="flex flex-col gap-1">
+                                        @php
+                                            $steps = [
+                                                'cahier_affiche' => ['label' => 'Cahier affiche', 'class' => 'bg-blue-100 text-blue-800'],
+                                                'contrat_vente' => ['label' => 'Contrat de vente', 'class' => 'bg-green-100 text-green-800'],
+                                                'paiement_charges' => ['label' => 'Paiement des charges', 'class' => 'bg-amber-100 text-amber-800'],
+                                                'paiement_tranches' => ['label' => 'Paiement des tranches', 'class' => 'bg-orange-100 text-orange-800'],
+                                                'recollement' => ['label' => 'Récolement', 'class' => 'bg-indigo-100 text-indigo-800'],
+                                                'main_levee' => ['label' => 'Main levée', 'class' => 'bg-emerald-100 text-emerald-800'],
+                                            ];
+                                            $currentStep = $article->current_step ?? null;
+                                            $stepInfo = $currentStep && isset($steps[$currentStep]) 
+                                                ? $steps[$currentStep] 
+                                                : ['label' => $currentStep ? ucfirst(str_replace('_', ' ', $currentStep)) : 'Non défini', 'class' => 'bg-gray-100 text-gray-800'];
+                                        @endphp
+                                        <span class="badge {{ $stepInfo['class'] }}">
+                                            {{ $stepInfo['label'] }}
+                                        </span>
+                                        @if($article->invendu)
+                                            <span class="badge bg-red-100 text-red-800">
+                                                <i class="fas fa-ban mr-1"></i>Invendu
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <div class="flex items-center justify-center gap-1">
@@ -297,14 +292,26 @@
                                             <i class="fas fa-edit text-sm"></i>
                                         </a>
                                         
+                                        <!-- Invendu Action -->
+                                        <form action="{{ route('articles.toggle-invendu', $article) }}" method="POST" style="display: contents;">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit"
+                                                    onclick="return confirm('{{ $article->invendu ? 'Marquer cet article comme vendu ?' : 'Marquer cet article comme invendu ?' }}')"
+                                                    class="inline-flex items-center justify-center w-8 h-8 {{ $article->invendu ? 'bg-green-100 hover:bg-green-200 text-green-600' : 'bg-gray-100 hover:bg-gray-200 text-gray-600' }} rounded-lg transition-colors duration-200"
+                                                    title="{{ $article->invendu ? 'Marquer comme vendu' : 'Marquer comme invendu' }}">
+                                                <i class="fas {{ $article->invendu ? 'fa-check-circle' : 'fa-ban' }} text-sm"></i>
+                                            </button>
+                                        </form>
+
                                         <!-- Delete Action -->
                                         @can('articles.delete')
                                         <form action="{{ route('articles.destroy', $article) }}" method="POST" style="display: contents;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" 
+                                            <button type="submit"
                                                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')"
-                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200" 
+                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
                                                     title="Supprimer l'article">
                                                 <i class="fas fa-trash text-sm"></i>
                                             </button>

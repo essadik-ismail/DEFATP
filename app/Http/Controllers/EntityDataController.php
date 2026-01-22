@@ -27,20 +27,24 @@ class EntityDataController extends Controller
      */
     public function index(Request $request): View
     {
+        $perPage = $request->get('per_page', 15);
+        
         // Articles entities
         $essences = Essence::where('is_deleted', false)
             ->when($request->filled('essence_search'), function($query) use ($request) {
                 $query->where('essence', 'like', '%' . $request->essence_search . '%');
             })
             ->orderBy('essence')
-            ->paginate(10, ['*'], 'essences_page');
+            ->paginate($perPage, ['*'], 'essences_page')
+            ->appends($request->except('essences_page'));
 
         $forets = Foret::where('is_deleted', false)
             ->when($request->filled('foret_search'), function($query) use ($request) {
                 $query->where('foret', 'like', '%' . $request->foret_search . '%');
             })
             ->orderBy('foret')
-            ->paginate(10, ['*'], 'forets_page');
+            ->paginate($perPage, ['*'], 'forets_page')
+            ->appends($request->except('forets_page'));
 
 
         $situationsAdministratives = SituationAdministrative::all();
@@ -50,14 +54,16 @@ class EntityDataController extends Controller
                 $query->where('nature_de_coupe', 'like', '%' . $request->nature_search . '%');
             })
             ->orderBy('nature_de_coupe')
-            ->paginate(10, ['*'], 'natures_page');
+            ->paginate($perPage, ['*'], 'natures_page')
+            ->appends($request->except('natures_page'));
 
         $exploitants = Exploitant::where('is_deleted', false)
             ->when($request->filled('exploitant_search'), function($query) use ($request) {
                 $query->where('nom_complet', 'like', '%' . $request->exploitant_search . '%');
             })
             ->orderBy('nom_complet')
-            ->paginate(10, ['*'], 'exploitants_page');
+            ->paginate($perPage, ['*'], 'exploitants_page')
+            ->appends($request->except('exploitants_page'));
 
         // Contracts entities (essences are already loaded above)
 
@@ -66,27 +72,31 @@ class EntityDataController extends Controller
                 $query->where('nom', 'like', '%' . $request->coperative_search . '%');
             })
             ->orderBy('nom')
-            ->paginate(10, ['*'], 'coperatives_page');
+            ->paginate($perPage, ['*'], 'coperatives_page')
+            ->appends($request->except('coperatives_page'));
 
         $vocations = Vocation::when($request->filled('vocation_search'), function($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->vocation_search . '%');
             })
             ->orderBy('name')
-            ->paginate(10, ['*'], 'vocations_page');
+            ->paginate($perPage, ['*'], 'vocations_page')
+            ->appends($request->except('vocations_page'));
 
         $products = Product::with(['articles', 'contracts', 'avenants'])
             ->when($request->filled('product_search'), function($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->product_search . '%');
             })
             ->orderBy('name')
-            ->paginate(10, ['*'], 'products_page');
+            ->paginate($perPage, ['*'], 'products_page')
+            ->appends($request->except('products_page'));
 
         $prestations = Prestation::with(['contracts', 'avenants'])
             ->when($request->filled('prestation_search'), function($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->prestation_search . '%');
             })
             ->orderBy('name')
-            ->paginate(10, ['*'], 'prestations_page');
+            ->paginate($perPage, ['*'], 'prestations_page')
+            ->appends($request->except('prestations_page'));
 
         $modeExploitations = ModeExploitation::when($request->filled('mode_exploitation_search'), function($query) use ($request) {
                 $query->where('mode_exploiattion', 'like', '%' . $request->mode_exploitation_search . '%');

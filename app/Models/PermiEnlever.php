@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PermiEnlever extends Model
@@ -15,6 +16,7 @@ class PermiEnlever extends Model
 
     protected $fillable = [
         'permis_id',
+        'contract_vente_id',
         'num',
         'num_quittance',
         'date',
@@ -75,5 +77,13 @@ class PermiEnlever extends Model
         return $this->belongsToMany(Essence::class, 'colportage_enlever', 'id_permis_enlever', 'id_essence')
             ->withPivot('product_id', 'quantity')
             ->withTimestamps();
+    }
+
+    /**
+     * One-to-many: Permis d'Enlever has many Permis de Colportage rows.
+     */
+    public function colportages(): HasMany
+    {
+        return $this->hasMany(ColportageEnlever::class, 'id_permis_enlever');
     }
 }

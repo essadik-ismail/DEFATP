@@ -109,6 +109,15 @@ class Article extends Model
     }
 
     /**
+     * Many-to-many: communes.
+     */
+    public function communes(): BelongsToMany
+    {
+        return $this->belongsToMany(Commune::class, 'article_commune', 'article_id', 'commune_id')
+            ->withTimestamps();
+    }
+
+    /**
      * Many-to-many: forets.
      */
     public function forets(): BelongsToMany

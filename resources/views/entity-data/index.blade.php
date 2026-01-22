@@ -80,6 +80,14 @@
 
 @push('scripts')
 <script>
+function changePerPage(tab, perPage) {
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('per_page', perPage);
+    currentUrl.searchParams.set('tab', tab);
+    currentUrl.searchParams.delete('page'); // Reset to first page
+    window.location.href = currentUrl.toString();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const tabLinks = document.querySelectorAll('.tab-link');
     const tabPanes = document.querySelectorAll('.tab-pane');
@@ -121,6 +129,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (targetPane) {
                 targetPane.classList.add('show', 'active');
             }
+            
+            // Initialize column filters for the active tab
+            setTimeout(() => {
+                initializeColumnFilters();
+            }, 100);
         });
     });
 
@@ -132,8 +145,235 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tabLink) {
             tabLink.click();
         }
+    } else {
+        // Initialize column filters for default tab
+        setTimeout(() => {
+            initializeColumnFilters();
+        }, 500);
     }
 });
+
+// Column filter functionality (same as articles.index)
+let columnFilters = {};
+let filterDropdowns = {};
+
+function initializeColumnFilters() {
+    // Handle filter button clicks
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const columnIndex = parseInt(this.getAttribute('data-column'));
+            const th = this.closest('th');
+            const columnName = th.querySelector('span').textContent.trim();
+            
+            // Close other dropdowns
+            document.querySelectorAll('.column-filter-dropdown').forEach(dd => {
+                dd.classList.remove('show');
+            });
+            
+            // Create or show dropdown
+            let dropdown = filterDropdowns[columnIndex];
+            if (!dropdown) {
+                dropdown = createColumnFilterDropdown(columnIndex, columnName);
+                filterDropdowns[columnIndex] = dropdown;
+                document.body.appendChild(dropdown);
+            }
+            
+            // Position dropdown
+            const thRect = th.getBoundingClientRect();
+            dropdown.style.top = (thRect.bottom + window.scrollY + 5) + 'px';
+            dropdown.style.left = (thRect.left + window.scrollX) + 'px';
+            dropdown.style.width = Math.max(250, thRect.width) + 'px';
+            
+            // Show dropdown
+            dropdown.classList.add('show');
+            
+            // Update checkboxes based on current filter
+            const selectedValues = columnFilters[columnIndex] || [];
+            dropdown.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = selectedValues.includes(checkbox.value);
+            });
+        });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.filter-btn, .column-filter-dropdown')) {
+            document.querySelectorAll('.column-filter-dropdown').forEach(dd => {
+                dd.classList.remove('show');
+            });
+        }
+    });
+}
+
+function createColumnFilterDropdown(columnIndex, columnName) {
+    const dropdown = document.createElement('div');
+    dropdown.className = 'column-filter-dropdown';
+    dropdown.innerHTML = `
+        <div class="filter-dropdown-header">
+            <span class="font-semibold">Filtrer: ${columnName}</span>
+            <button type="button" class="close-filter" onclick="this.closest('.column-filter-dropdown').classList.remove('show')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="filter-dropdown-content">
+            <input type="text" 
+                   class="filter-search-input" 
+                   placeholder="Rechercher..." 
+                   onkeyup="filterDropdownOptions(this, ${columnIndex})">
+            <div class="filter-options" id="filter-options-${columnIndex}">
+                <!-- Options will be populated dynamically -->
+            </div>
+        </div>
+        <div class="filter-dropdown-footer">
+            <button type="button" class="btn-clear-filter" onclick="clearColumnFilter(${columnIndex})">
+                <i class="fas fa-times"></i> Effacer
+            </button>
+            <button type="button" class="btn-apply-filter" onclick="applyColumnFilter(${columnIndex})">
+                <i class="fas fa-check"></i> Appliquer
+            </button>
+        </div>
+    `;
+    
+    // Get unique values from column - find the active table
+    const activeTab = document.querySelector('.tab-pane.show.active');
+    if (!activeTab) return dropdown;
+    
+    const table = activeTab.querySelector('table');
+    if (!table) return dropdown;
+    
+    const rows = table.querySelectorAll('tbody tr');
+    const values = new Set();
+    
+    rows.forEach(row => {
+        const cell = row.cells[columnIndex];
+        if (cell) {
+            const text = cell.textContent.trim();
+            if (text && text !== '-' && !text.includes('Aucune')) {
+                values.add(text);
+            }
+        }
+    });
+    
+    // Create checkboxes for each unique value
+    const optionsContainer = dropdown.querySelector('.filter-options');
+    const sortedValues = Array.from(values).sort();
+    
+    if (sortedValues.length === 0) {
+        optionsContainer.innerHTML = '<p class="text-gray-500 text-sm p-2">Aucune valeur disponible</p>';
+    } else {
+        sortedValues.forEach(value => {
+            const label = document.createElement('label');
+            label.className = 'filter-option';
+            label.innerHTML = `
+                <input type="checkbox" value="${value.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">
+                <span>${value}</span>
+            `;
+            optionsContainer.appendChild(label);
+        });
+    }
+    
+    return dropdown;
+}
+
+function filterDropdownOptions(inputEl, columnIndex) {
+    const filter = inputEl.value.toLowerCase();
+    const dropdown = filterDropdowns[columnIndex];
+    if (!dropdown) return;
+    
+    const options = dropdown.querySelectorAll('.filter-option');
+    options.forEach(option => {
+        const text = option.textContent.toLowerCase();
+        const match = text.indexOf(filter) !== -1;
+        option.style.display = match ? '' : 'none';
+    });
+}
+
+function applyColumnFilter(columnIndex) {
+    const dropdown = filterDropdowns[columnIndex];
+    if (!dropdown) return;
+    
+    const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]:checked');
+    const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (selectedValues.length === 0) {
+        delete columnFilters[columnIndex];
+    } else {
+        columnFilters[columnIndex] = selectedValues;
+    }
+    
+    // Apply filters to table
+    filterTableByColumns();
+    
+    // Update button appearance
+    const filterBtn = document.querySelector(`.filter-btn[data-column="${columnIndex}"]`);
+    if (filterBtn) {
+        if (selectedValues.length > 0) {
+            filterBtn.classList.add('active');
+            filterBtn.title = `${selectedValues.length} filtre(s) actif(s)`;
+        } else {
+            filterBtn.classList.remove('active');
+            filterBtn.title = 'Filtrer';
+        }
+    }
+    
+    // Close dropdown
+    dropdown.classList.remove('show');
+}
+
+function clearColumnFilter(columnIndex) {
+    delete columnFilters[columnIndex];
+    
+    // Clear checkboxes
+    const dropdown = filterDropdowns[columnIndex];
+    if (dropdown) {
+        dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+    }
+    
+    // Apply filters
+    filterTableByColumns();
+    
+    // Update button appearance
+    const filterBtn = document.querySelector(`.filter-btn[data-column="${columnIndex}"]`);
+    if (filterBtn) {
+        filterBtn.classList.remove('active');
+        filterBtn.title = 'Filtrer';
+    }
+}
+
+function filterTableByColumns() {
+    const activeTab = document.querySelector('.tab-pane.show.active');
+    if (!activeTab) return;
+    
+    const table = activeTab.querySelector('table');
+    if (!table) return;
+    
+    const rows = table.querySelectorAll('tbody tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        let showRow = true;
+        
+        // Check each column filter
+        Object.keys(columnFilters).forEach(columnIndex => {
+            const selectedValues = columnFilters[columnIndex];
+            if (selectedValues && selectedValues.length > 0) {
+                const cell = row.cells[parseInt(columnIndex)];
+                if (cell) {
+                    const cellText = cell.textContent.trim();
+                    if (!selectedValues.includes(cellText)) {
+                        showRow = false;
+                    }
+                }
+            }
+        });
+        
+        row.style.display = showRow ? '' : 'none';
+        if (showRow) visibleCount++;
+    });
+}
 </script>
 @endpush
 
@@ -187,94 +427,161 @@ document.addEventListener('DOMContentLoaded', function() {
 ::-webkit-scrollbar-thumb:hover {
     background: #059669;
 }
+
+/* Column Filter Styles (from articles.index) */
+.filter-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+.filter-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #059669;
+}
+
+.filter-btn.active {
+    color: #059669;
+    background-color: rgba(5, 150, 105, 0.1);
+}
+
+/* Column Filter Dropdown */
+.column-filter-dropdown {
+    position: absolute;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: none;
+    min-width: 250px;
+    max-width: 400px;
+    max-height: 400px;
+    overflow: hidden;
+}
+
+.column-filter-dropdown.show {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.filter-dropdown-header .close-filter {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.filter-dropdown-header .close-filter:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.filter-dropdown-content {
+    padding: 8px;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.filter-search-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.filter-option:hover {
+    background-color: #f3f4f6;
+}
+
+.filter-option input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.filter-option span {
+    flex: 1;
+    font-size: 14px;
+    color: #374151;
+}
+
+.filter-dropdown-footer {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.btn-clear-filter,
+.btn-apply-filter {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-clear-filter {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-clear-filter:hover {
+    background: #e5e7eb;
+}
+
+.btn-apply-filter {
+    background: linear-gradient(to right, #059669, #047857);
+    color: white;
+}
+
+.btn-apply-filter:hover {
+    background: linear-gradient(to right, #047857, #065f46);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(5, 150, 105, 0.3);
+}
 </style>
-
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
-
-<!-- jQuery (required for DataTables) -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- DataTables JS -->
-<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
-
-<script>
-// Auto-initialize DataTables for entity-data tabs
-$(document).ready(function() {
-    // Helper function to initialize a DataTable with empty state handling
-    function initializeDataTable(tableId) {
-        if (!tableId || $.fn.DataTable.isDataTable('#' + tableId)) {
-            return;
-        }
-        
-        const table = $('#' + tableId);
-        const tbodyRows = table.find('tbody tr');
-        
-        // Check if table has data rows (not just empty state with colspan)
-        const hasDataRows = tbodyRows.length > 0 && 
-                           !tbodyRows.first().find('td[colspan]').length;
-        
-        // If table only has empty state with colspan, remove it
-        // DataTables will show its own empty message
-        if (!hasDataRows && tbodyRows.length > 0) {
-            const emptyRow = tbodyRows.first();
-            if (emptyRow.find('td[colspan]').length) {
-                emptyRow.remove();
-            }
-        }
-        
-        // Initialize DataTables
-        $('#' + tableId).DataTable({
-            processing: false,
-            serverSide: false,
-            order: [[0, 'desc']],
-            pageLength: 25,
-            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Tous']],
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json',
-                emptyTable: 'Aucune donnée disponible dans le tableau'
-            }
-        });
-        
-        if (typeof ExcelFilters !== 'undefined') {
-            ExcelFilters.init(tableId);
-        }
-    }
-    
-    // Initialize tables when tabs are shown
-    $('.tab-link').on('click', function() {
-        var tabId = $(this).data('tab');
-        setTimeout(function() {
-            var tableId = getTableIdForTab(tabId);
-            initializeDataTable(tableId);
-        }, 300);
-    });
-    
-    // Also initialize active tab on page load
-    var activeTab = $('.tab-link.active').data('tab');
-    if (activeTab) {
-        setTimeout(function() {
-            var tableId = getTableIdForTab(activeTab);
-            initializeDataTable(tableId);
-        }, 500);
-    }
-    
-    function getTableIdForTab(tabId) {
-        var tableIdMap = {
-            'essences': 'essencesTable',
-            'forets': 'foretsTable',
-            'situations': 'situationsTable',
-            'vocations': 'vocationsTable',
-            'coperatives': 'coperativesTable',
-            'avenants': 'avenantsTable',
-            'natures-coupe': 'naturesCoupeTable',
-            'exploitants': 'entityExploitantsTable',
-            'products': 'productsTable',
-            'prestations': 'prestationsTable'
-        };
-        return tableIdMap[tabId];
-    }
-});
-</script>
 @endpush
 

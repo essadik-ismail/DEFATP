@@ -1,88 +1,100 @@
 <!-- Vocations Tab (Contracts) -->
 <div class="tab-pane fade" id="vocations" role="tabpanel">
-    <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-briefcase text-white text-lg"></i>
-            </div>
-            <div>
-                <h3 class="text-xl font-bold text-gray-900">Liste des Vocations</h3>
-                <p class="text-gray-600">Gérez les vocations des coopératives</p>
-            </div>
-        </div>
-        <a href="{{ route('contracts.vocations.create') }}" 
-           class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-            <i class="fas fa-plus"></i>
-            <span>Nouvelle Vocation</span>
-        </a>
-    </div>
-    
-    <!-- Search Box -->
-    <div class="mb-6">
-        <form method="GET" action="{{ route('entity-data.index') }}" class="flex gap-3">
-            <input type="hidden" name="tab" value="vocations">
-            <div class="flex-1 relative">
-                <input type="text" 
-                       name="vocation_search" 
-                       class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 hover:border-gray-400" 
-                       placeholder="Rechercher une vocation..." 
-                       value="{{ request('vocation_search') }}">
-                <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <i class="fas fa-search"></i>
+    <!-- Filters and Search Area -->
+    <x-filters-card 
+        title="Filtres et Recherche"
+        icon="fas fa-filter"
+        :action="route('entity-data.index')"
+        formId="vocationsFilterForm"
+        class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"
+    >
+        <input type="hidden" name="tab" value="vocations">
+        <x-form-input
+            type="text"
+            name="vocation_search"
+            label="Recherche"
+            :value="request('vocation_search')"
+            placeholder="Rechercher une vocation..."
+        />
+        <input type="hidden" name="per_page" value="{{ request('per_page', 15) }}">
+    </x-filters-card>
+
+    <!-- Vocations Data Table -->
+    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                    <i class="fas fa-table text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
+                        Liste des Vocations
+                    </h2>
+                    <p class="text-green-600">Affichage de {{ isset($vocations) && method_exists($vocations, 'firstItem') ? ($vocations->firstItem() ?? 0) : 0 }} à {{ isset($vocations) && method_exists($vocations, 'lastItem') ? ($vocations->lastItem() ?? 0) : 0 }} sur {{ isset($vocations) && method_exists($vocations, 'total') ? $vocations->total() : 0 }} vocations</p>
                 </div>
             </div>
-            <button type="submit" 
-                    class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
-                <i class="fas fa-search"></i>
-            </button>
-            @if(request('vocation_search'))
-                <a href="{{ route('entity-data.index', ['tab' => 'vocations']) }}" 
-                   class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                    <i class="fas fa-times"></i>
-                </a>
-            @endif
-        </form>
-    </div>
-    
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table id="vocationsTable" class="w-full">
+            <a href="{{ route('contracts.vocations.create') }}" 
+               class="inline-flex items-center gap-3 px-6 py-3 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+               style="background: linear-gradient(135deg, #059669, #047857);">
+                <i class="fas fa-plus"></i>
+                <span>Nouvelle Vocation</span>
+            </a>
+        </div>
+
+        <!-- Per Page Selector -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div class="flex items-center gap-4">
+                <label for="vocationsPerPageSelect" class="text-sm font-semibold text-green-700">Vocations par page:</label>
+                <select class="form-input px-4 py-2 border border-green-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-400" 
+                        id="vocationsPerPageSelect" onchange="changePerPage('vocations', this.value)">
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
+                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                </select>
+            </div>
+        </div>
+            
+        <!-- Data Table -->
+        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table id="vocationsTable" class="w-full">
                 <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-green-800 uppercase tracking-wider relative">
                             <div class="flex items-center justify-between">
                                 <span>ID</span>
-                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="0" title="Filtrer">
+                                <button class="filter-btn ml-2 text-green-400 hover:text-green-600" data-column="0" title="Filtrer">
                                     <i class="fas fa-filter text-xs"></i>
                                 </button>
                             </div>
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-green-800 uppercase tracking-wider relative">
                             <div class="flex items-center justify-between">
                                 <span>Nom de la Vocation</span>
-                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="1" title="Filtrer">
+                                <button class="filter-btn ml-2 text-green-400 hover:text-green-600" data-column="1" title="Filtrer">
                                     <i class="fas fa-filter text-xs"></i>
                                 </button>
                             </div>
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-green-800 uppercase tracking-wider relative">
                             <div class="flex items-center justify-between">
                                 <span>Date de Création</span>
-                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="2" title="Filtrer">
+                                <button class="filter-btn ml-2 text-green-400 hover:text-green-600" data-column="2" title="Filtrer">
                                     <i class="fas fa-filter text-xs"></i>
                                 </button>
                             </div>
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-green-800 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-200">
                     @forelse($vocations as $vocation)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <tr class="hover:bg-green-50 transition-colors duration-200">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-900">
                             {{ $vocation->id }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-900">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                                     <i class="fas fa-briefcase text-purple-600 text-sm"></i>
@@ -90,24 +102,24 @@
                                 <span class="font-medium">{{ $vocation->name }}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-700">
                             {{ $vocation->created_at ? $vocation->created_at->format('d/m/Y') : 'N/A' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center justify-center gap-1">
                                 <a href="{{ route('contracts.vocations.edit', $vocation) }}" 
-                                   class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors duration-200"
+                                   class="inline-flex items-center justify-center w-8 h-8 bg-orange-100 hover:bg-orange-200 text-orange-600 rounded-lg transition-colors duration-200" 
                                    title="Modifier">
                                     <i class="fas fa-edit text-sm"></i>
                                 </a>
                                 <form action="{{ route('contracts.vocations.destroy', $vocation) }}" 
                                       method="POST" 
-                                      class="inline"
+                                      style="display: contents;"
                                       onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette vocation ?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" 
-                                            class="inline-flex items-center justify-center w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors duration-200"
+                                            class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
                                             title="Supprimer">
                                         <i class="fas fa-trash text-sm"></i>
                                     </button>
@@ -117,13 +129,14 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                            <div class="flex flex-col items-center">
-                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                    <i class="fas fa-briefcase text-2xl text-gray-400"></i>
-                                </div>
-                                <p class="text-lg font-medium">Aucune vocation trouvée</p>
-                                <p class="text-sm">Commencez par ajouter une nouvelle vocation</p>
+                        <td colspan="4" class="text-center py-8">
+                            <div class="text-gray-500">
+                                <i class="fas fa-briefcase text-4xl mb-2 d-block"></i>
+                                <p class="h5 mb-2">Aucune vocation trouvée</p>
+                                <p class="text-muted mb-3">Aucune vocation ne correspond à vos critères de recherche</p>
+                                <a href="{{ route('contracts.vocations.create') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Créer la Première Vocation
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -131,17 +144,23 @@
                 </tbody>
             </table>
         </div>
+                
+        @if($vocations->hasPages())
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-sm text-green-600">
+                        Affichage de {{ $vocations->firstItem() ?? 0 }} à {{ $vocations->lastItem() ?? 0 }} 
+                        sur {{ $vocations->total() }} vocations
+                    </div>
+                    <div class="pagination-controls">
+                        {{ $vocations->appends(array_merge(request()->query(), ['tab' => 'vocations']))->links() }}
+                    </div>
+                    <div class="text-sm text-green-500">
+                        {{ $vocations->perPage() }} par page
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
-    
-    @if($vocations->hasPages())
-        <div class="mt-6 flex items-center justify-between">
-            <div class="text-sm text-gray-700">
-                Affichage de {{ $vocations->firstItem() }} à {{ $vocations->lastItem() }} sur {{ $vocations->total() }} résultats
-            </div>
-            <div class="flex items-center gap-2">
-                {{ $vocations->appends(array_merge(request()->query(), ['tab' => 'vocations']))->links() }}
-            </div>
-        </div>
-    @endif
 </div>
 

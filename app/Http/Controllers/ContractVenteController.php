@@ -19,7 +19,10 @@ class ContractVenteController extends Controller
      */
     public function create(Article $article): View
     {
-        $exploitants = Exploitant::orderBy('nom_complet')->get();
+        // Optimize: Load only necessary fields
+        $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale', 'numero')
+            ->orderBy('nom_complet')
+            ->get();
         $contractVente = $article->contractVentes->first();
         
         return view('contract-ventes.create', compact('article', 'exploitants', 'contractVente'));
@@ -70,25 +73,31 @@ class ContractVenteController extends Controller
             // Delete existing charges
             $contractVente->chargeApayer()->delete();
 
-            // Create charges
-            foreach ($validated['charges'] as $chargeData) {
-                ChargeApayer::create([
+            // Optimize: Bulk insert charges and tranches
+            $charges = collect($validated['charges'])->map(function ($chargeData) use ($contractVente) {
+                return [
                     'nom' => $chargeData['nom'],
                     'montant' => $chargeData['montant'],
                     'date_echeance' => $chargeData['date_echeance'],
                     'contrat_vente_id' => $contractVente->id,
-                ]);
-            }
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            });
 
-            // Create tranches
-            foreach ($validated['tranches'] as $index => $trancheData) {
-                ChargeApayer::create([
+            $tranches = collect($validated['tranches'])->map(function ($trancheData, $index) use ($contractVente) {
+                return [
                     'nom' => 'Tranche ' . ($index + 1),
                     'montant' => $trancheData['montant'],
                     'date_echeance' => $trancheData['date_echeance'],
                     'contrat_vente_id' => $contractVente->id,
-                ]);
-            }
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            });
+
+            // Single insert for all charges and tranches
+            ChargeApayer::insert($charges->merge($tranches)->toArray());
 
             // Update article status to "contrat_vente" (done)
             // This marks "Contrat de vente" as completed and "Paiement des charges" as in progress
@@ -116,7 +125,10 @@ class ContractVenteController extends Controller
      */
     public function edit(Article $article, ContractVente $contractVente): View
     {
-        $exploitants = Exploitant::orderBy('nom_complet')->get();
+        // Optimize: Load only necessary fields
+        $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale', 'numero')
+            ->orderBy('nom_complet')
+            ->get();
         $contractVente->load('chargeApayer');
         
         // Separate charges and tranches
@@ -176,25 +188,31 @@ class ContractVenteController extends Controller
             // Delete existing charges
             $contractVente->chargeApayer()->delete();
 
-            // Create charges
-            foreach ($validated['charges'] as $chargeData) {
-                ChargeApayer::create([
+            // Optimize: Bulk insert charges and tranches
+            $charges = collect($validated['charges'])->map(function ($chargeData) use ($contractVente) {
+                return [
                     'nom' => $chargeData['nom'],
                     'montant' => $chargeData['montant'],
                     'date_echeance' => $chargeData['date_echeance'],
                     'contrat_vente_id' => $contractVente->id,
-                ]);
-            }
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            });
 
-            // Create tranches
-            foreach ($validated['tranches'] as $index => $trancheData) {
-                ChargeApayer::create([
+            $tranches = collect($validated['tranches'])->map(function ($trancheData, $index) use ($contractVente) {
+                return [
                     'nom' => 'Tranche ' . ($index + 1),
                     'montant' => $trancheData['montant'],
                     'date_echeance' => $trancheData['date_echeance'],
                     'contrat_vente_id' => $contractVente->id,
-                ]);
-            }
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            });
+
+            // Single insert for all charges and tranches
+            ChargeApayer::insert($charges->merge($tranches)->toArray());
 
             // Update article status to "contrat_vente" if not already at a later step
             $steps = ['cahier_affiche', 'contrat_vente', 'paiement_charges', 'paiement_tranches', 'recollement', 'main_levee'];

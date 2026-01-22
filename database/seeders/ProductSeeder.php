@@ -21,7 +21,6 @@ class ProductSeeder extends Seeder
             'Liège (ST)',
             'Romarin (T)',
             'Tanin (T)',
-            'BF/ST',
             'BI (m³)',
             'BO (m³)',
             // Additional products for contracts (with lowercase units as requested)

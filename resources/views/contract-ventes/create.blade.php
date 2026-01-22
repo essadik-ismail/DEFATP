@@ -51,6 +51,21 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="duree_decheache" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Durée d'échéance
+                        </label>
+                        <input type="text" 
+                            id="duree_decheache" 
+                            name="duree_decheache" 
+                            value="{{ old('duree_decheache', $contractVente->duree_decheache ?? '') }}" 
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="Ex: 12 mois, 1 an, etc.">
+                        @error('duree_decheache')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
                             Type <span class="text-red-500">*</span>
                         </label>
@@ -184,23 +199,6 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="form-group">
-                        <label for="prix_de_retrait" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Prix de Retrait
-                        </label>
-                        <input type="number" 
-                            id="prix_de_retrait" 
-                            name="prix_de_retrait" 
-                            step="0.01" 
-                            min="0"
-                            value="{{ old('prix_de_retrait', $contractVente->prix_de_retrait ?? '') }}" 
-                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                            placeholder="0.00">
-                        @error('prix_de_retrait')
-                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
                         <label for="prix_vente" class="block text-sm font-semibold text-gray-700 mb-2">
                             Prix de Vente <span class="text-red-500">*</span>
                         </label>
@@ -219,6 +217,23 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="prix_de_retrait" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Prix de Retrait
+                        </label>
+                        <input type="number" 
+                            id="prix_de_retrait" 
+                            name="prix_de_retrait" 
+                            step="0.01" 
+                            min="0"
+                            value="{{ old('prix_de_retrait', $contractVente->prix_de_retrait ?? '') }}" 
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="0.00">
+                        @error('prix_de_retrait')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="nombre_tranche" class="block text-sm font-semibold text-gray-700 mb-2">
                             Nombre de Tranches <span class="text-red-500">*</span>
                         </label>
@@ -231,21 +246,6 @@
                             <option value="4" {{ old('nombre_tranche', $contractVente->nombre_tranche ?? 1) == 4 ? 'selected' : '' }}>4</option>
                         </select>
                         @error('nombre_tranche')
-                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="duree_decheache" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Durée d'échéance
-                        </label>
-                        <input type="text" 
-                            id="duree_decheache" 
-                            name="duree_decheache" 
-                            value="{{ old('duree_decheache', $contractVente->duree_decheache ?? '') }}" 
-                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                            placeholder="Ex: 12 mois, 1 an, etc.">
-                        @error('duree_decheache')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>

@@ -78,8 +78,9 @@ class UserController extends Controller
             'inactive' => User::where('is_deleted', true)->count(),
         ];
         
-        $roles = Role::all();
-        
+        // Optimize: Load only necessary role fields
+        $roles = Role::select('id', 'name')->orderBy('name')->get();
+
         return view('users.index', compact('users', 'roles', 'stats'));
     }
 
@@ -88,7 +89,8 @@ class UserController extends Controller
      */
     public function create(): View
     {
-        $roles = Role::all();
+        // Optimize: Load only necessary role fields
+        $roles = Role::select('id', 'name')->orderBy('name')->get();
         return view('users.create', compact('roles'));
     }
 
@@ -198,7 +200,8 @@ class UserController extends Controller
      */
     public function edit(User $user): View
     {
-        $roles = Role::orderBy('name')->get();
+        // Optimize: Load only necessary role fields
+        $roles = Role::select('id', 'name')->orderBy('name')->get();
         
         return view('users.edit', compact('user', 'roles'));
     }

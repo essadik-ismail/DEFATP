@@ -43,6 +43,8 @@ class StoreArticleRequest extends FormRequest
             'province_id' => ['nullable', 'exists:provinces,id'],
             'province_ids' => ['nullable', 'array'],
             'province_ids.*' => ['exists:provinces,id'],
+            'commune_ids' => ['nullable', 'array'],
+            'commune_ids.*' => ['exists:communes,id'],
             'dranef_code' => ['nullable', 'string', 'max:255'],
             'dpanef_code' => ['nullable', 'string', 'max:255'],
             'zdtf_code' => ['nullable', 'string', 'max:255'],

@@ -29,28 +29,7 @@ Route::middleware('guest')->group(function () {
 Route::get('/verify-exploitant/{exploitant}', [SettingsController::class, 'verifyExploitant'])->name('verify-exploitant');
 Route::get('/verify-exploitant/{exploitant}/image', [SettingsController::class, 'serveExploitantImagePublic'])->name('verify-exploitant.image');
 
-// Test notification route (remove in production)
-Route::get('/test-notification', function () {
-    $user = auth()->user();
-    
-    // Create a test notification
-    $notification = new \App\Models\AppNotification([
-        'type' => 'test',
-        'title' => 'Test Notification',
-        'message' => 'This is a test notification.',
-        'user_id' => $user->id,
-        'notifiable_type' => get_class($user),
-        'notifiable_id' => $user->id,
-        'action_url' => '/notifications',
-        'icon' => 'fas fa-bell',
-        'color' => 'primary',
-        'priority' => 'medium'
-    ]);
-    
-    $notification->save();
-    
-    return redirect()->back()->with('success', 'Test notification created!');
-})->middleware('auth')->name('test.notification');
+// Test routes removed for production security
 
 // Notification routes
 Route::prefix('notifications')->name('notifications.')->middleware('auth')->group(function () {
@@ -71,8 +50,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('auth.profile');
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('auth.profile.update');
     
-    // Activity Journals Routes
-    Route::resource('activity-journals', \App\Http\Controllers\ActivityJournalController::class);
+    // Activity Journals Routes - Disabled (missing views)
+    // TODO: Create activity-journals views or remove this feature
+    // Route::resource('activity-journals', \App\Http\Controllers\ActivityJournalController::class);
 
     // Archives
     Route::resource('archives', ArchiveController::class);
@@ -122,6 +102,16 @@ Route::middleware('auth')->group(function () {
         Route::put('{article}/charge-payments', [ArticleController::class, 'updateChargePayments'])->name('update-charge-payments');
         Route::put('{article}/pay-tranches', [ArticleController::class, 'payTranches'])->name('pay-tranches');
         Route::put('{article}/update-step', [ArticleController::class, 'updateStep'])->name('update-step');
+        Route::patch('{article}/toggle-invendu', [ArticleController::class, 'toggleInvendu'])->name('toggle-invendu');
+        Route::get('{article}/lettre-adjudicataire', [ArticleController::class, 'lettreAdjudicataire'])->name('lettre-adjudicataire');
+        Route::get('{article}/permis-enlever', [ArticleController::class, 'permisEnlever'])->name('permis-enlever');
+        Route::post('{article}/permis-enlever', [ArticleController::class, 'storePermisEnlever'])->name('store-permis-enlever');
+        Route::get('{article}/permis-exploiter', [ArticleController::class, 'permisExploiter'])->name('permis-exploiter');
+        Route::post('{article}/permis-exploiter', [ArticleController::class, 'storePermisExploiter'])->name('store-permis-exploiter');
+        Route::get('{article}/permis-colportage', [ArticleController::class, 'permisColportage'])->name('permis-colportage');
+        Route::post('{article}/permis-colportage', [ArticleController::class, 'storePermisColportage'])->name('store-permis-colportage');
+        Route::get('{article}/pv-installation', [ArticleController::class, 'pvInstallation'])->name('pv-installation');
+        Route::post('{article}/pv-installation', [ArticleController::class, 'storePvInstallation'])->name('store-pv-installation');
         Route::get('/', [ArticleController::class, 'index'])->name('index');
         Route::get('/create', [ArticleController::class, 'create'])->name('create');
         Route::post('/', [ArticleController::class, 'store'])->name('store');
@@ -163,16 +153,17 @@ Route::middleware('auth')->group(function () {
     // Unified Entity Data Management
     Route::get('/entity-data', [App\Http\Controllers\EntityDataController::class, 'index'])->name('entity-data.index');
     
-    // Financial Data Management (Recette)
-    Route::prefix('financial-data')->name('financial-data.')->group(function () {
-        Route::get('/', [App\Http\Controllers\FinancialDataController::class, 'index'])->name('index');
-        Route::get('/create', [App\Http\Controllers\FinancialDataController::class, 'create'])->name('create');
-        Route::post('/', [App\Http\Controllers\FinancialDataController::class, 'store'])->name('store');
-        Route::get('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'show'])->name('show');
-        Route::get('/{nationalSummary}/edit', [App\Http\Controllers\FinancialDataController::class, 'edit'])->name('edit');
-        Route::put('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'update'])->name('update');
-        Route::delete('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'destroy'])->name('destroy');
-    });
+    // Financial Data Management (Recette) - Disabled (missing views)
+    // TODO: Create financial-data views or remove this feature
+    // Route::prefix('financial-data')->name('financial-data.')->group(function () {
+    //     Route::get('/', [App\Http\Controllers\FinancialDataController::class, 'index'])->name('index');
+    //     Route::get('/create', [App\Http\Controllers\FinancialDataController::class, 'create'])->name('create');
+    //     Route::post('/', [App\Http\Controllers\FinancialDataController::class, 'store'])->name('store');
+    //     Route::get('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'show'])->name('show');
+    //     Route::get('/{nationalSummary}/edit', [App\Http\Controllers\FinancialDataController::class, 'edit'])->name('edit');
+    //     Route::put('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'update'])->name('update');
+    //     Route::delete('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'destroy'])->name('destroy');
+    // });
 
     // Suivi Contract Programmes Management
     Route::resource('suivi-contract-programmes', App\Http\Controllers\SuiviContractProgrammeController::class);

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -82,7 +83,15 @@ class ContractVente extends Model
     }
 
     /**
-     * Get the permis exploiter for this contract.
+     * Get the permis exploiter for this contract (single).
+     */
+    public function permisExploiter(): HasOne
+    {
+        return $this->hasOne(PermisExploiter::class, 'contrat_vente_id');
+    }
+
+    /**
+     * Get the permis exploiter for this contract (collection).
      */
     public function permisExploiters(): HasMany
     {

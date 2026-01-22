@@ -41,6 +41,8 @@ class UpdateArticleRequest extends FormRequest
             'nature_de_coupe_ids.*' => ['exists:nature_de_coupes,id'],
             'province_ids' => ['nullable', 'array'],
             'province_ids.*' => ['exists:provinces,id'],
+            'commune_ids' => ['nullable', 'array'],
+            'commune_ids.*' => ['exists:communes,id'],
             'foret_ids' => ['nullable', 'array'],
             'foret_ids.*' => ['exists:forets,id'],
             'parcelle_ids' => ['nullable', 'array'],
