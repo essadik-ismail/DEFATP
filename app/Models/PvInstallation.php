@@ -18,7 +18,7 @@ class PvInstallation extends Model
         'participants',
         'exploitant',
         'reserve',
-        'mo',
+        'emo',
         'charbonniére',
         'mise_en_charge',
         'ravalement_souches',

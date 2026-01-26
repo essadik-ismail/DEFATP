@@ -2,6 +2,11 @@
 
 @section('title', 'Gestion des Situations Administratives')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
+<li class="breadcrumb-item active">Situations administratives</li>
+@endsection
+
 @section('content')
     <!-- Page Header -->
     <div class="content-header mb-4">

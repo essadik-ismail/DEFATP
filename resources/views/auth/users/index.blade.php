@@ -2,6 +2,10 @@
 
 @section('title', 'Gestion des Utilisateurs')
 
+@section('breadcrumb')
+<li class="breadcrumb-item active">Utilisateurs</li>
+@endsection
+
 @section('page-actions')
     <x-button href="{{ route('auth.users.create') }}" variant="primary" icon="fas fa-plus">
         Nouvel Utilisateur

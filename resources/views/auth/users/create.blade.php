@@ -2,6 +2,11 @@
 
 @section('title', 'Créer un Utilisateur')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('auth.users.index') }}">Utilisateurs</a></li>
+<li class="breadcrumb-item active">Nouveau</li>
+@endsection
+
 @section('page-actions')
     <a href="{{ route('auth.users.index') }}" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> Retour aux Utilisateurs

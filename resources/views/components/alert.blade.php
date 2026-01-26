@@ -8,20 +8,18 @@
 
 @php
     $typeClasses = [
-        'success' => 'bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-700',
-        'error' => 'bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 text-red-700',
-        'warning' => 'bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 text-yellow-700',
-        'info' => 'bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 text-blue-700'
+        'success' => 'alert-theme-success',
+        'error' => 'alert-theme-error',
+        'warning' => 'alert-theme-warning',
+        'info' => 'alert-theme-info'
     ];
-    
     $iconClasses = [
-        'success' => 'fas fa-check-circle text-green-600',
-        'error' => 'fas fa-exclamation-triangle text-red-600',
-        'warning' => 'fas fa-exclamation-triangle text-yellow-600',
-        'info' => 'fas fa-info-circle text-blue-600'
+        'success' => 'fas fa-check-circle',
+        'error' => 'fas fa-exclamation-triangle',
+        'warning' => 'fas fa-exclamation-triangle',
+        'info' => 'fas fa-info-circle'
     ];
-    
-    $classes = $typeClasses[$type] . ' p-6 rounded-xl mb-6 shadow-lg transition-all duration-300';
+    $classes = 'alert ' . ($typeClasses[$type] ?? $typeClasses['info']) . ' p-6 rounded-xl mb-6 shadow-lg transition-all duration-300';
 @endphp
 
 <div {{ $attributes->merge(['class' => $classes]) }} 
@@ -39,7 +37,7 @@
         
         @if($dismissible)
             <button type="button" 
-                    class="alert-dismiss-btn text-gray-400 hover:text-gray-600 transition-colors"
+                    class="alert-dismiss-btn transition-colors"
                     onclick="dismissAlert(this.closest('.alert'))"
                     title="Fermer"
             >
@@ -51,22 +49,16 @@
 
 @push('styles')
 <style>
-    .alert {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .alert::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: currentColor;
-        opacity: 0.3;
-    }
-
+    .alert { position: relative; overflow: hidden; }
+    .alert-theme-success { background: #FFFFFF; border-left: 4px solid #2E5239; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
+    .alert-theme-error { background: #FFFFFF; border-left: 4px solid #1F2D24; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
+    .alert-theme-warning { background: #FFFFFF; border-left: 4px solid #9AB3A3; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
+    .alert-theme-info { background: #FFFFFF; border-left: 4px solid #9AB3A3; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
+    .alert-theme-success i, .alert-theme-success .font-semibold { color: #2E5239; }
+    .alert-theme-error i, .alert-theme-error .font-semibold { color: #1F2D24; }
+    .alert-theme-warning i, .alert-theme-warning .font-semibold { color: #1F2D24; }
+    .alert-theme-info i, .alert-theme-info .font-semibold { color: #2E5239; }
+    .alert::before { display: none; }
     .alert-dismiss-btn {
         background: none;
         border: none;
@@ -74,10 +66,11 @@
         padding: 0.25rem;
         border-radius: 0.375rem;
         transition: all 0.2s ease;
+        color: #9AB3A3;
     }
-
     .alert-dismiss-btn:hover {
-        background-color: rgba(0, 0, 0, 0.05);
+        color: #1F2D24;
+        background-color: rgba(46, 82, 57, 0.08);
     }
 
     .alert.alert-hiding {

@@ -2,26 +2,25 @@
 
 @section('title', 'Modifier un Article - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('articles.index') }}">Articles</a></li>
+<li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Détail #{{ $article->numero ?? $article->id }}</a></li>
+<li class="breadcrumb-item active">Modifier</li>
+@endsection
+
 @section('content')
-    <div class="container mx-auto px-4 py-8">
+    <div>
         <!-- Header Section -->
-        <div class="mb-8">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-16 h-16 bg-gradient-to-br rounded-2xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                    <i class="fas fa-file-alt text-white text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
-                        Modifier l'Article
-                    </h1>
-                    <p class="text-gray-600 text-lg mt-2">Modifiez les informations de l'article "{{ $article->numero }}"</p>
-                </div>
-            </div>
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-1">
+                Modifier l'Article
+            </h1>
+            <p class="text-gray-500 text-sm">Modifiez les informations de l'article "{{ $article->numero }}"</p>
         </div>
 
         <!-- Alert Messages -->
         @if(session('success'))
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-700 p-6 rounded-xl mb-6 shadow-lg">
+            <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6">
                 <div class="flex items-center gap-3">
                     <i class="fas fa-check-circle text-2xl"></i>
                     <div>
@@ -33,7 +32,7 @@
         @endif
 
         @if(session('error'))
-            <div class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 text-red-700 p-6 rounded-xl mb-6 shadow-lg">
+            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
                 <div class="flex items-center gap-3">
                     <i class="fas fa-exclamation-triangle text-2xl"></i>
                     <div>
@@ -56,18 +55,18 @@
         @endif
 
         <!-- Edit Form -->
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <form action="{{ route('articles.update', $article) }}" method="POST" id="articleForm" class="space-y-8" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
                 <!-- 1. Informations générales -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                            <i class="fas fa-info-circle text-white"></i>
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                            <i class="fas fa-info-circle text-white text-sm"></i>
                         </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">1. Informations générales</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">1. Informations générales</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="form-group">
@@ -75,7 +74,7 @@
                                 Numéro d'article
                             </label>
                             <input type="number" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                 id="numero" name="numero" value="{{ old('numero', $article->numero) }}" 
                                 placeholder="Numéro d'article">
                             @error('numero')
@@ -87,7 +86,7 @@
                                 Numéro du lot
                             </label>
                             <input type="number" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                 id="lot" name="lot" value="{{ old('lot', $article->lot) }}" 
                                 placeholder="Numéro du lot">
                             @error('lot')
@@ -99,7 +98,7 @@
                                 Année
                             </label>
                             <input type="number" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                 id="annee" name="annee" value="{{ old('annee', $article->annee ?? date('Y')) }}" 
                                 min="2000" max="2100" placeholder="Année">
                             @error('annee')
@@ -110,12 +109,12 @@
                 </div>
 
                 <!-- 2. Localisation du lot -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                             <i class="fas fa-map-marker-alt text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">2. Localisation du lot</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">2. Localisation du lot</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -125,7 +124,7 @@
                                 Province
                             </label>
                             <select id="province_id" name="province_id" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     onchange="updateCommunes()">
                                 <option value="">Sélectionner une province</option>
                                 @foreach($provinces ?? [] as $province)
@@ -146,7 +145,7 @@
                             </label>
                             <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'commune_ids')">
                             <select multiple
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                     id="commune_ids" name="commune_ids[]">
                                 @php($selectedCommunes = old('commune_ids', $article->communes ? $article->communes->pluck('id')->toArray() : []))
                                 @foreach($communes ?? [] as $commune)
@@ -171,7 +170,7 @@
                                 DRANEF
                             </label>
                             <select id="dranef_code" name="dranef_code" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     onchange="updateDpanefs()">
                                 <option value="">Sélectionner un DRANEF</option>
                                 @foreach($dranefs ?? [] as $dranef)
@@ -191,7 +190,7 @@
                                 DPANEF
                             </label>
                             <select id="dpanef_code" name="dpanef_code" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     onchange="updateZdtfs()">
                                 <option value="">Sélectionner un DPANEF</option>
                                 @foreach($dpanefs ?? [] as $dpanef)
@@ -213,7 +212,7 @@
                                 ZDTF
                             </label>
                             <select id="zdtf_code" name="zdtf_code" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     onchange="updateDfps()">
                                 <option value="">Sélectionner un ZDTF</option>
                                 @foreach($zdtfs ?? [] as $zdtf)
@@ -235,7 +234,7 @@
                                 DFP
                             </label>
                             <select id="dfp_code" name="dfp_code" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                                 <option value="">Sélectionner un DFP</option>
                                 @foreach($dfps ?? [] as $dfp)
                                     <option value="{{ $dfp->code }}" 
@@ -254,12 +253,12 @@
                 </div>
 
                 <!-- 3. Informations forestières -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                             <i class="fas fa-tree text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">3. Informations forestières</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">3. Informations forestières</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
@@ -268,11 +267,11 @@
                             </label>
                             <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'foret_ids')">
                             <select multiple
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                    id="foret_ids" name="foret_ids[]" onchange="updateNatureJuridique()">
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    id="foret_ids" name="foret_ids[]">
                                 @php($selectedForets = old('foret_ids', $article->forets ? $article->forets->pluck('id')->toArray() : []))
                                 @foreach($forets ?? [] as $foret)
-                                    <option value="{{ $foret->id }}" data-nature-juridique="{{ $foret->nature_juridique ?? '' }}" {{ in_array($foret->id, $selectedForets) ? 'selected' : '' }}>
+                                    <option value="{{ $foret->id }}" {{ in_array($foret->id, $selectedForets) ? 'selected' : '' }}>
                                         {{ $foret->foret }}
                                     </option>
                                 @endforeach
@@ -286,7 +285,7 @@
                                 Canton
                             </label>
                             <select id="canton_id" name="canton_id" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     onchange="updateParcelles()">
                                 <option value="">Sélectionner un canton</option>
                                 @foreach($cantons ?? [] as $canton)
@@ -305,7 +304,7 @@
                             </label>
                             <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'parcelle_ids')">
                             <select multiple
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                     id="parcelle_ids" name="parcelle_ids[]">
                                 @php($selectedParcelles = old('parcelle_ids', $article->parcelles ? $article->parcelles->pluck('id')->toArray() : []))
                                 @foreach($parcelles ?? [] as $parcelle)
@@ -320,24 +319,28 @@
                         </div>
                         <div class="form-group">
                             <label for="nature_juridique" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Nature juridique (from foret) <span class="text-gray-500 text-xs">(readonly)</span>
+                                Nature juridique
                             </label>
                             <input type="text" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 cursor-not-allowed" 
+                                name="nature_juridique"
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                 id="nature_juridique" 
-                                readonly
-                                placeholder="Sélectionnez une forêt pour voir la nature juridique">
+                                value="{{ old('nature_juridique', $article->nature_juridique) }}"
+                                placeholder="Entrez la nature juridique">
+                            @error('nature_juridique')
+                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
 
                 <!-- 4. Description du lot -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                             <i class="fas fa-clipboard-list text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">4. Description du lot</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">4. Description du lot</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
@@ -346,7 +349,7 @@
                             </label>
                             <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'nature_de_coupe_ids')">
                             <select multiple
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                     id="nature_de_coupe_ids" name="nature_de_coupe_ids[]">
                                 @php($selectedNatures = old('nature_de_coupe_ids', $article->naturesDeCoupe ? $article->naturesDeCoupe->pluck('id')->toArray() : []))
                                 @foreach($natureDeCoupes ?? [] as $natureDeCoupe)
@@ -365,7 +368,7 @@
                             </label>
                             <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'mode_exploitation_ids')">
                             <select multiple
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                     id="mode_exploitation_ids" name="mode_exploitation_ids[]">
                                 @php($selectedModes = old('mode_exploitation_ids', $article->modeExploitations ? $article->modeExploitations->pluck('id')->toArray() : []))
                                 @foreach($modeExploitations ?? [] as $modeExploitation)
@@ -382,12 +385,12 @@
                 </div>
 
                 <!-- 5. Consistance du lot -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                             <i class="fas fa-cubes text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">5. Consistance du lot</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">5. Consistance du lot</h3>
                     </div>
                     <div class="grid grid-cols-1 gap-6">
                         <div class="form-group">
@@ -395,7 +398,7 @@
                                 Superficie
                             </label>
                             <input type="number" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
                                 id="superficie" name="superficie" value="{{ old('superficie', $article->superficie) }}" 
                                 min="0" step="0.01" placeholder="Superficie en hectares">
                             @error('superficie')
@@ -479,12 +482,12 @@
                 </div>
 
                 <!-- 6. Bois sur dépôt -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                             <i class="fas fa-warehouse text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">6. Bois sur dépôt</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">6. Bois sur dépôt</h3>
                     </div>
                     <div class="form-group">
                         <label class="flex items-center gap-3 cursor-pointer">
@@ -492,108 +495,190 @@
                                 id="is_on_depot" 
                                 name="is_on_depot" 
                                 value="1"
-                                {{ old('is_on_depot') ? 'checked' : '' }}
+                                {{ old('is_on_depot', $article->depots->isNotEmpty()) ? 'checked' : '' }}
+                                onchange="toggleDepotSelect()"
                                 class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
                             <span class="text-sm font-semibold text-gray-700">Le bois est sur dépôt</span>
                         </label>
                     </div>
+                    <div id="depot-select-container" class="form-group mt-4" style="display: {{ old('is_on_depot', $article->depots->isNotEmpty()) ? 'block' : 'none' }};">
+                        <label for="depot_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Dépôts <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'depot_ids')">
+                        <select multiple
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                                id="depot_ids" name="depot_ids[]">
+                            @php($selectedDepots = old('depot_ids', $article->depots ? $article->depots->pluck('id')->toArray() : []))
+                            @foreach($depots ?? [] as $depot)
+                                <option value="{{ $depot->id }}" {{ in_array($depot->id, $selectedDepots) ? 'selected' : '' }}>
+                                    {{ $depot->nom }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('depot_ids')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                        @error('depot_ids.*')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
                 <!-- 7. Charges -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                             <i class="fas fa-money-bill-wave text-white"></i>
                         </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">7. Charges</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">7. Charges</h3>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="form-group">
-                            <label for="taxe_refection_chemins" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Taxes pour la réfection du chemin
-                            </label>
-                            <input type="number" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                id="taxe_refection_chemins" name="taxe_refection_chemins" value="{{ old('taxe_refection_chemins', $article->taxe_refection_chemins) }}" 
-                                min="0" step="0.01" placeholder="Montant">
-                            @error('taxe_refection_chemins')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                            @enderror
+                    <div class="space-y-6">
+                        <!-- Row 1: Taxes pour la réfection du chemin -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="taxe_refection_chemins" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Taxes pour la réfection du chemin (Montant)
+                                </label>
+                                <input type="number" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    id="taxe_refection_chemins" name="taxe_refection_chemins" value="{{ old('taxe_refection_chemins', $article->taxe_refection_chemins) }}" 
+                                    min="0" step="0.01" placeholder="Montant">
+                                @error('taxe_refection_chemins')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="date_echeance_taxe_refection_chemins" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Date d'échéance – Taxes pour la réfection du chemin
+                                </label>
+                                <input type="date" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    id="date_echeance_taxe_refection_chemins" name="date_echeance_taxe_refection_chemins" value="{{ old('date_echeance_taxe_refection_chemins', $article->date_echeance_taxe_refection_chemins ? \Carbon\Carbon::parse($article->date_echeance_taxe_refection_chemins)->format('Y-m-d') : '') }}">
+                                @error('date_echeance_taxe_refection_chemins')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="service_rendu_anef" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Service rendu par l'ANEF
-                            </label>
-                            <input type="number" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                id="service_rendu_anef" name="service_rendu_anef" value="{{ old('service_rendu_anef', $article->service_rendu_anef) }}" 
-                                min="0" step="0.01" placeholder="Montant">
-                            @error('service_rendu_anef')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="bois_chauffage_destination" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Bois chauffage destination (from depot)
-                            </label>
-                            <select id="bois_chauffage_destination" name="bois_chauffage_destination" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                <option value="">Sélectionner un dépôt</option>
-                                @foreach($depots ?? [] as $depot)
-                                    <option value="{{ $depot->nom }}" {{ old('bois_chauffage_destination', $article->bois_chauffage_destination) == $depot->nom ? 'selected' : '' }}>
-                                        {{ $depot->nom }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('bois_chauffage_destination')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="bois_chauffage_volume" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Bois chauffage volume
-                            </label>
-                            <input type="number" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                id="bois_chauffage_volume" name="bois_chauffage_volume" value="{{ old('bois_chauffage_volume', $article->bois_chauffage_volume) }}" 
-                                min="0" step="0.01" placeholder="Volume">
-                            @error('bois_chauffage_volume')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 8. Paiement et livraison -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                            <i class="fas fa-calendar-check text-white"></i>
+                        <!-- Row 2: Service rendu par l'ANEF -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="service_rendu_anef" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Service rendu par l'ANEF (Montant)
+                                </label>
+                                <input type="number" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    id="service_rendu_anef" name="service_rendu_anef" value="{{ old('service_rendu_anef', $article->service_rendu_anef) }}" 
+                                    min="0" step="0.01" placeholder="Montant">
+                                @error('service_rendu_anef')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="date_echeance_service_rendu_anef" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Date d'échéance – Service rendu par l'ANEF
+                                </label>
+                                <input type="date" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    id="date_echeance_service_rendu_anef" name="date_echeance_service_rendu_anef" value="{{ old('date_echeance_service_rendu_anef', $article->date_echeance_service_rendu_anef ? \Carbon\Carbon::parse($article->date_echeance_service_rendu_anef)->format('Y-m-d') : '') }}">
+                                @error('date_echeance_service_rendu_anef')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                        <h3 class="text-xl font-bold" style="color: #059669;">8. Paiement et livraison</h3>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="form-group">
-                            <label for="date_payement_service_anef" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Date payement service ANEF
-                            </label>
-                            <input type="date" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                id="date_payement_service_anef" name="date_payement_service_anef" value="{{ old('date_payement_service_anef', $article->date_payement_service_anef ? \Carbon\Carbon::parse($article->date_payement_service_anef)->format('Y-m-d') : '') }}">
-                            @error('date_payement_service_anef')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                            @enderror
+
+                        <!-- Row 3: Bois de chauffage -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="bois_chauffage_destination" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Bois de chauffage – Destination
+                                </label>
+                                <input type="text" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    id="bois_chauffage_destination" name="bois_chauffage_destination" value="{{ old('bois_chauffage_destination', $article->bois_chauffage_destination) }}" 
+                                    placeholder="Entrez la destination du bois chauffage">
+                                @error('bois_chauffage_destination')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="bois_chauffage_volume" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Bois de chauffage – Volume
+                                </label>
+                                <input type="number" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    id="bois_chauffage_volume" name="bois_chauffage_volume" value="{{ old('bois_chauffage_volume', $article->bois_chauffage_volume) }}" 
+                                    min="0" step="0.01" placeholder="Volume">
+                                @error('bois_chauffage_volume')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="date_livaison_mise_en_charge_bf" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Date livraison mise en charge BF
-                            </label>
-                            <input type="date" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                id="date_livaison_mise_en_charge_bf" name="date_livaison_mise_en_charge_bf" value="{{ old('date_livaison_mise_en_charge_bf', $article->date_livaison_mise_en_charge_bf ? \Carbon\Carbon::parse($article->date_livaison_mise_en_charge_bf)->format('Y-m-d') : '') }}">
-                            @error('date_livaison_mise_en_charge_bf')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                            @enderror
+
+                        <!-- Row 4: Mise en charge -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="form-group">
+                                <label for="mise_en_charge_destination" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Mise en charge – Destination
+                                </label>
+                                <input type="text" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    id="mise_en_charge_destination" name="mise_en_charge_destination" value="{{ old('mise_en_charge_destination', $article->mise_en_charge_destination) }}" 
+                                    placeholder="Entrez la destination">
+                                @error('mise_en_charge_destination')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="mise_en_charge_volume" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Mise en charge – Volume
+                                </label>
+                                <input type="number" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    id="mise_en_charge_volume" name="mise_en_charge_volume" value="{{ old('mise_en_charge_volume', $article->mise_en_charge_volume) }}" 
+                                    min="0" step="0.01" placeholder="Volume">
+                                @error('mise_en_charge_volume')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="date_echeance_mise_en_charge" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Date d'échéance – Mise en charge
+                                </label>
+                                <input type="date" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+                                    id="date_echeance_mise_en_charge" name="date_echeance_mise_en_charge" value="{{ old('date_echeance_mise_en_charge', $article->date_echeance_mise_en_charge ? \Carbon\Carbon::parse($article->date_echeance_mise_en_charge)->format('Y-m-d') : '') }}">
+                                @error('date_echeance_mise_en_charge')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Row 5: Dates de paiement et livraison -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="date_payement_service_anef" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Date de paiement du service ANEF (jj/mm/aaaa)
+                                </label>
+                                <input type="date" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                                    id="date_payement_service_anef" name="date_payement_service_anef" value="{{ old('date_payement_service_anef', $article->date_payement_service_anef ? \Carbon\Carbon::parse($article->date_payement_service_anef)->format('Y-m-d') : '') }}">
+                                @error('date_payement_service_anef')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="date_livaison_mise_en_charge_bf" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Date de livraison / mise en charge BF (jj/mm/aaaa)
+                                </label>
+                                <input type="date" 
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                                    id="date_livaison_mise_en_charge_bf" name="date_livaison_mise_en_charge_bf" value="{{ old('date_livaison_mise_en_charge_bf', $article->date_livaison_mise_en_charge_bf ? \Carbon\Carbon::parse($article->date_livaison_mise_en_charge_bf)->format('Y-m-d') : '') }}">
+                                @error('date_livaison_mise_en_charge_bf')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -669,20 +754,6 @@ function removeProductRow(button) {
     button.closest('tr').remove();
 }
 
-function updateNatureJuridique() {
-    const foretSelect = document.getElementById('foret_ids');
-    const natureJuridiqueInput = document.getElementById('nature_juridique');
-    const selectedOptions = Array.from(foretSelect.selectedOptions);
-    
-    if (selectedOptions.length > 0) {
-        // Get nature juridique from first selected foret
-        const firstForet = selectedOptions[0];
-        const natureJuridique = firstForet.getAttribute('data-nature-juridique') || '';
-        natureJuridiqueInput.value = natureJuridique;
-    } else {
-        natureJuridiqueInput.value = '';
-    }
-}
 
 function updateParcelles() {
     const cantonSelect = document.getElementById('canton_id');
@@ -847,9 +918,16 @@ function updateDfps() {
     }
 }
 
+function toggleDepotSelect() {
+    const checkbox = document.getElementById('is_on_depot');
+    const container = document.getElementById('depot-select-container');
+    if (checkbox && container) {
+        container.style.display = checkbox.checked ? 'block' : 'none';
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    updateNatureJuridique();
     updateParcelles();
     // Initialize province/commune cascading
     const provinceSelect = document.getElementById('province_id');
@@ -859,6 +937,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateDpanefs();
     updateZdtfs();
     updateDfps();
+    // Initialize depot select visibility
+    toggleDepotSelect();
 });
 </script>
 @endpush

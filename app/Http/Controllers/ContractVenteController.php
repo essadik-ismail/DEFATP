@@ -19,8 +19,8 @@ class ContractVenteController extends Controller
      */
     public function create(Article $article): View
     {
-        // Optimize: Load only necessary fields
-        $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale', 'numero')
+        // Load exploitant fields needed for display
+        $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale', 'numero', 'n_cin', 'adresse', 'categorie', 'activite', 'qualification_rc', 'date_obtention', 'duree_validite', 'etat_validite', 'situation_administrative')
             ->orderBy('nom_complet')
             ->get();
         $contractVente = $article->contractVentes->first();
@@ -125,8 +125,8 @@ class ContractVenteController extends Controller
      */
     public function edit(Article $article, ContractVente $contractVente): View
     {
-        // Optimize: Load only necessary fields
-        $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale', 'numero')
+        // Load exploitant fields needed for display
+        $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale', 'numero', 'n_cin', 'adresse', 'categorie', 'activite', 'qualification_rc', 'date_obtention', 'duree_validite', 'etat_validite', 'situation_administrative')
             ->orderBy('nom_complet')
             ->get();
         $contractVente->load('chargeApayer');
@@ -249,10 +249,17 @@ class ContractVenteController extends Controller
         return response()->json([
             'id' => $exploitant->id,
             'nom_complet' => $exploitant->nom_complet,
+            'raison_sociale' => $exploitant->raison_sociale,
             'n_cin' => $exploitant->n_cin,
             'numero' => $exploitant->numero,
             'adresse' => $exploitant->adresse,
             'categorie' => $exploitant->categorie,
+            'activite' => $exploitant->activite,
+            'qualification_rc' => $exploitant->qualification_rc,
+            'date_obtention' => $exploitant->date_obtention ? $exploitant->date_obtention->format('d/m/Y') : null,
+            'duree_validite' => $exploitant->duree_validite,
+            'etat_validite' => $exploitant->etat_validite,
+            'situation_administrative' => $exploitant->situation_administrative,
         ]);
     }
 }

@@ -2,6 +2,10 @@
 
 @section('title', 'Gestion des Utilisateurs')
 
+@section('breadcrumb')
+<li class="breadcrumb-item active">Utilisateurs</li>
+@endsection
+
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <!-- Header Content -->

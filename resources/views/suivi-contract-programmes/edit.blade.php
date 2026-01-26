@@ -2,6 +2,10 @@
 
 @section('title', 'Modifier Suivi Contract Programme - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item active">Suivi contract programme</li>
+@endsection
+
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <div class="mb-8">

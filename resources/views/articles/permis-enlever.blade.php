@@ -2,6 +2,12 @@
 
 @section('title', 'Permis d\'Enlever - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('articles.index') }}">Articles</a></li>
+<li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Détail #{{ $article->numero ?? $article->id }}</a></li>
+<li class="breadcrumb-item active">Permis d'enlever</li>
+@endsection
+
 @section('content')
 <div class="min-h-screen py-8">
     <div class="container mx-auto px-4 max-w-7xl">
@@ -29,8 +35,8 @@
         @endif
 
         <!-- Permis d'Enlever List Card -->
-        <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden mb-6">
-            <div class="px-6 py-4" style="background: linear-gradient(135deg, #059669, #047857);">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-white flex items-center gap-3">
                     <i class="fas fa-list"></i>
                     Liste des Permis d'Enlever
@@ -305,7 +311,7 @@
                         </a>
                         <button type="submit"
                                 {{ $article->essences->isEmpty() ? 'disabled' : '' }}
-                                class="inline-flex items-center gap-2 px-8 py-4 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
                                 style="background: linear-gradient(135deg, #059669, #047857); {{ $article->essences->isEmpty() ? 'opacity:0.6; cursor:not-allowed;' : '' }}">
                             <i class="fas fa-file-download"></i>
                             <span>Générer le Permis</span>

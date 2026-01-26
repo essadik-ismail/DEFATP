@@ -2,8 +2,12 @@
 
 @section('title', 'Articles Forestiers - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item active">Articles</li>
+@endsection
+
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="min-w-0 max-w-full overflow-x-hidden">
     <!-- Header Section -->
     <x-page-header 
         title="Articles Forestiers"
@@ -12,8 +16,7 @@
     >
         <x-slot name="actions">
             <a href="{{ route('articles.create') }}" 
-               class="inline-flex items-center gap-3 px-6 py-3 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-               style="background: linear-gradient(135deg, #059669, #047857);">
+               class="btn btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium">
                 <i class="fas fa-plus"></i>
                 <span>Nouvel Article</span>
             </a>
@@ -22,13 +25,13 @@
 
     <!-- Alert Messages -->
     @if(session('success'))
-        <x-alert type="success" title="Succès!" dismissible>
+        <x-alert type="success" title="Succès!" dismissible class="mb-4">
             {{ session('success') }}
         </x-alert>
     @endif
 
     @if(session('error'))
-        <x-alert type="error" title="Erreur!" dismissible>
+        <x-alert type="error" title="Erreur!" dismissible class="mb-4">
             {{ session('error') }}
         </x-alert>
     @endif
@@ -39,7 +42,7 @@
         icon="fas fa-filter"
         :action="route('articles.index')"
         formId="filterForm"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4"
     >
         <x-form-input
             type="select"
@@ -76,7 +79,7 @@
         </x-form-input>
 
         <div class="form-group">
-            <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
+            <label for="search" class="block text-xs font-medium text-gray-700 mb-1.5">
                 <i class="fas fa-search mr-1"></i>Recherche Globale
             </label>
             <div class="relative">
@@ -84,9 +87,10 @@
                        name="search" 
                        id="search" 
                        value="{{ request('search') }}"
-                       placeholder="Rechercher dans tous les champs..."
-                       class="form-input w-full px-4 py-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                       placeholder="Rechercher..."
+                       class="form-input w-full px-3 py-2 pl-9 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-0"
+                       style="border-color: rgba(154,179,163,0.5);">
+                <i class="fas fa-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
             </div>
         </div>
 
@@ -95,26 +99,13 @@
     </x-filters-card>
 
     <!-- Articles Data Table -->
-    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-        <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                    <i class="fas fa-table text-white text-xl"></i>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
-                        Liste des Articles
-                    </h2>
-                    <p class="text-gray-600">Affichage de {{ $articles->firstItem() ?? 0 }} à {{ $articles->lastItem() ?? 0 }} sur {{ $articles->total() }} articles</p>
-                </div>
-            </div>
-        </div>
-
+    <div class="rounded-2xl border max-w-full overflow-hidden" style="background: #FFFFFF; border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);">
         <!-- Per Page Selector -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div class="flex items-center gap-4">
-                <label for="perPageSelect" class="text-sm font-semibold text-gray-700">Articles par page:</label>
-                <select class="form-input px-4 py-2 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400" 
+        <div class="px-5 py-3 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2" style="border-color: rgba(154,179,163,0.4);">
+            <div class="flex items-center gap-2">
+                <label for="perPageSelect" class="text-xs font-medium" style="color: #6B7C72;">Articles par page:</label>
+                <select class="form-input px-2 py-1 border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-offset-0"
+                        style="border-color: rgba(154,179,163,0.5);"
                         id="perPageSelect" onchange="changePerPage()">
                     <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
                     <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
@@ -123,244 +114,245 @@
                 </select>
             </div>
         </div>
-            
-        <!-- Data Table -->
-        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table id="articlesTable" class="w-full">
-                    <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
-                                <div class="flex items-center justify-between">
-                                    <span>Numéro d'Article</span>
-                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="0" title="Filtrer">
-                                        <i class="fas fa-filter text-xs"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
-                                <div class="flex items-center justify-between">
-                                    <span>Date d'Adjudication</span>
-                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="1" title="Filtrer">
-                                        <i class="fas fa-filter text-xs"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
-                                <div class="flex items-center justify-between">
-                                    <span>DRANEF</span>
-                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="2" title="Filtrer">
-                                        <i class="fas fa-filter text-xs"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
-                                <div class="flex items-center justify-between">
-                                    <span>DPANEF</span>
-                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="3" title="Filtrer">
-                                        <i class="fas fa-filter text-xs"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
-                                <div class="flex items-center justify-between">
-                                    <span>ZDTF</span>
-                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="4" title="Filtrer">
-                                        <i class="fas fa-filter text-xs"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
-                                <div class="flex items-center justify-between">
-                                    <span>Type</span>
-                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="5" title="Filtrer">
-                                        <i class="fas fa-filter text-xs"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
-                                <div class="flex items-center justify-between">
-                                    <span>Statut</span>
-                                    <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="6" title="Filtrer">
-                                        <i class="fas fa-filter text-xs"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @forelse($articles as $article)
-                            @php
-                                $contractVente = $article->contractVentes->first();
-                            @endphp
-                            <tr class="hover:bg-gray-50 transition-colors duration-200">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    @if($article->numero)
-                                        <span class="badge bg-secondary">{{ $article->numero }}</span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($article->date_adjudication)
-                                        {{ \Carbon\Carbon::parse($article->date_adjudication)->format('d/m/Y') }}
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($article->dranef)
-                                        {{ $article->dranef->dranef }}
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($article->dpanef)
-                                        {{ $article->dpanef->dpanef }}
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($article->zdtf)
-                                        {{ $article->zdtf->zdtf }}
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($article->type)
-                                        @php
-                                            $typeLabels = [
-                                                'appel_doffre' => 'Appel d\'Offre',
-                                                'adjudication' => 'Adjudication',
-                                                'marche_negocié' => 'Marché Négocié',
-                                            ];
-                                            $typeLabel = $typeLabels[$article->type] ?? ucfirst(str_replace('_', ' ', $article->type));
-                                            $typeClass = $article->type == 'appel_doffre' ? 'bg-info' : ($article->type == 'adjudication' ? 'bg-success' : 'bg-primary');
-                                        @endphp
-                                        <span class="badge {{ $typeClass }}">
-                                            {{ $typeLabel }}
-                                        </span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <div class="flex flex-col gap-1">
-                                        @php
-                                            $steps = [
-                                                'cahier_affiche' => ['label' => 'Cahier affiche', 'class' => 'bg-blue-100 text-blue-800'],
-                                                'contrat_vente' => ['label' => 'Contrat de vente', 'class' => 'bg-green-100 text-green-800'],
-                                                'paiement_charges' => ['label' => 'Paiement des charges', 'class' => 'bg-amber-100 text-amber-800'],
-                                                'paiement_tranches' => ['label' => 'Paiement des tranches', 'class' => 'bg-orange-100 text-orange-800'],
-                                                'recollement' => ['label' => 'Récolement', 'class' => 'bg-indigo-100 text-indigo-800'],
-                                                'main_levee' => ['label' => 'Main levée', 'class' => 'bg-emerald-100 text-emerald-800'],
-                                            ];
-                                            $currentStep = $article->current_step ?? null;
-                                            $stepInfo = $currentStep && isset($steps[$currentStep]) 
-                                                ? $steps[$currentStep] 
-                                                : ['label' => $currentStep ? ucfirst(str_replace('_', ' ', $currentStep)) : 'Non défini', 'class' => 'bg-gray-100 text-gray-800'];
-                                        @endphp
-                                        <span class="badge {{ $stepInfo['class'] }}">
-                                            {{ $stepInfo['label'] }}
-                                        </span>
-                                        @if($article->invendu)
-                                            <span class="badge bg-red-100 text-red-800">
-                                                <i class="fas fa-ban mr-1"></i>Invendu
-                                            </span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <div class="flex items-center justify-center gap-1">
-                                        <!-- View Action -->
-                                        <a href="{{ route('articles.show', $article) }}" 
-                                           class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors duration-200" 
-                                           title="Voir les détails">
-                                            <i class="fas fa-eye text-sm"></i>
-                                        </a>
-                                        
-                                        <!-- Edit Action -->
-                                        <a href="{{ route('articles.edit', $article) }}" 
-                                           class="inline-flex items-center justify-center w-8 h-8 bg-orange-100 hover:bg-orange-200 text-orange-600 rounded-lg transition-colors duration-200" 
-                                           title="Modifier l'article">
-                                            <i class="fas fa-edit text-sm"></i>
-                                        </a>
-                                        
-                                        <!-- Invendu Action -->
-                                        <form action="{{ route('articles.toggle-invendu', $article) }}" method="POST" style="display: contents;">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit"
-                                                    onclick="return confirm('{{ $article->invendu ? 'Marquer cet article comme vendu ?' : 'Marquer cet article comme invendu ?' }}')"
-                                                    class="inline-flex items-center justify-center w-8 h-8 {{ $article->invendu ? 'bg-green-100 hover:bg-green-200 text-green-600' : 'bg-gray-100 hover:bg-gray-200 text-gray-600' }} rounded-lg transition-colors duration-200"
-                                                    title="{{ $article->invendu ? 'Marquer comme vendu' : 'Marquer comme invendu' }}">
-                                                <i class="fas {{ $article->invendu ? 'fa-check-circle' : 'fa-ban' }} text-sm"></i>
-                                            </button>
-                                        </form>
 
-                                        <!-- Delete Action -->
-                                        @can('articles.delete')
-                                        <form action="{{ route('articles.destroy', $article) }}" method="POST" style="display: contents;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')"
-                                                    class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
-                                                    title="Supprimer l'article">
-                                                <i class="fas fa-trash text-sm"></i>
-                                            </button>
-                                        </form>
-                                        @endcan
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center py-8">
-                                    <div class="text-gray-500">
-                                        <i class="fas fa-file-alt text-4xl mb-2 d-block"></i>
-                                        <p class="h5 mb-2">Aucun article trouvé</p>
-                                        <p class="text-muted mb-3">Aucun article ne correspond à vos critères de recherche</p>
-                                        <a href="{{ route('articles.create') }}" class="btn btn-primary">
-                                            <i class="fas fa-plus me-2"></i>Créer le Premier Article
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-                
-            @if($articles->hasPages())
-                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div class="text-sm text-gray-600">
-                            Affichage de {{ $articles->firstItem() ?? 0 }} à {{ $articles->lastItem() ?? 0 }} 
-                            sur {{ $articles->total() }} articles
-                        </div>
-                        <div class="pagination-controls">
-                            {{ $articles->appends(request()->query())->links() }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            {{ $articles->perPage() }} par page
-                        </div>
+        <!-- Data Table -->
+        <div class="overflow-x-auto max-w-full" style="-webkit-overflow-scrolling: touch;">
+            <table id="articlesTable" class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Numéro d'Article</span>
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="0" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Date d'Adjudication</span>
+                                <button class="filter-btn ml-1 text-gray-400 hover:text-gray-600" data-column="1" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>DRANEF</span>
+                                <button class="filter-btn ml-1 text-gray-400 hover:text-gray-600" data-column="2" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>DPANEF</span>
+                                <button class="filter-btn ml-1 text-gray-400 hover:text-gray-600" data-column="3" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>ZDTF</span>
+                                <button class="filter-btn ml-1 text-gray-400 hover:text-gray-600" data-column="4" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Type</span>
+                                <button class="filter-btn ml-1 text-gray-400 hover:text-gray-600" data-column="5" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
+                            <div class="flex items-center justify-between">
+                                <span>Statut</span>
+                                <button class="filter-btn ml-1 text-gray-400 hover:text-gray-600" data-column="6" title="Filtrer">
+                                    <i class="fas fa-filter text-xs"></i>
+                                </button>
+                            </div>
+                        </th>
+                        <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse($articles as $article)
+                        @php
+                            $contractVente = $article->contractVentes->first();
+                        @endphp
+                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                            <td class="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">
+                                @if($article->numero)
+                                    <span class="badge text-xs px-2 py-0.5 bg-secondary">{{ $article->numero }}</span>
+                                @else
+                                    <span class="text-muted text-xs">-</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                                @if($article->date_adjudication)
+                                    {{ \Carbon\Carbon::parse($article->date_adjudication)->format('d/m/Y') }}
+                                @else
+                                    <span class="text-muted text-xs">-</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                                @if($article->dranef)
+                                    {{ $article->dranef->dranef }}
+                                @else
+                                    <span class="text-muted text-xs">-</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                                @if($article->dpanef)
+                                    {{ $article->dpanef->dpanef }}
+                                @else
+                                    <span class="text-muted text-xs">-</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                                @if($article->zdtf)
+                                    {{ $article->zdtf->zdtf }}
+                                @else
+                                    <span class="text-muted text-xs">-</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                                @if($article->type)
+                                    @php
+                                        $typeLabels = [
+                                            'appel_doffre' => 'Appel d\'Offre',
+                                            'adjudication' => 'Adjudication',
+                                            'marche_negocié' => 'Marché Négocié',
+                                        ];
+                                        $typeLabel = $typeLabels[$article->type] ?? ucfirst(str_replace('_', ' ', $article->type));
+                                        $typeClass = $article->type == 'appel_doffre' ? 'bg-info' : ($article->type == 'adjudication' ? 'bg-success' : 'bg-primary');
+                                    @endphp
+                                    <span class="badge text-xs px-2 py-0.5 {{ $typeClass }}">
+                                        {{ $typeLabel }}
+                                    </span>
+                                @else
+                                    <span class="text-muted text-xs">-</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                                <div class="flex flex-col gap-0.5">
+                                    @php
+                                        $steps = [
+                                            'cahier_affiche' => ['label' => 'Cahier affiche', 'class' => 'badge-primary'],
+                                            'contrat_vente' => ['label' => 'Contrat de vente', 'class' => 'badge-primary'],
+                                            'paiement_charges' => ['label' => 'Paiement des charges', 'class' => 'badge-warning'],
+                                            'paiement_tranches' => ['label' => 'Paiement des tranches', 'class' => 'badge-warning'],
+                                            'recollement' => ['label' => 'Récolement', 'class' => 'badge-info'],
+                                            'main_levee' => ['label' => 'Main levée', 'class' => 'badge-success'],
+                                        ];
+                                        $currentStep = $article->current_step ?? null;
+                                        $stepInfo = $currentStep && isset($steps[$currentStep]) 
+                                            ? $steps[$currentStep] 
+                                            : ['label' => $currentStep ? ucfirst(str_replace('_', ' ', $currentStep)) : 'Non défini', 'class' => 'badge-info'];
+                                    @endphp
+                                    <span class="badge text-xs px-2 py-0.5 {{ $stepInfo['class'] }}">
+                                        {{ $stepInfo['label'] }}
+                                    </span>
+                                    @if($article->invendu)
+                                        <span class="badge badge-danger text-xs px-2 py-0.5">
+                                            <i class="fas fa-ban mr-0.5 text-xs"></i>Invendu
+                                        </span>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                                <div class="flex items-center justify-center gap-0.5">
+                                    <!-- View Action -->
+                                    <a href="{{ route('articles.show', $article) }}" 
+                                       class="inline-flex items-center justify-center w-7 h-7 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded transition-colors duration-200" 
+                                       title="Voir les détails">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </a>
+                                    
+                                    <!-- Edit Action -->
+                                    <a href="{{ route('articles.edit', $article) }}" 
+                                       class="inline-flex items-center justify-center w-7 h-7 bg-orange-100 hover:bg-orange-200 text-orange-600 rounded transition-colors duration-200" 
+                                       title="Modifier l'article">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </a>
+                                    
+                                    <!-- Invendu Action -->
+                                    <form action="{{ route('articles.toggle-invendu', $article) }}" method="POST" style="display: contents;">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                                onclick="return confirm('{{ $article->invendu ? 'Marquer cet article comme vendu ?' : 'Marquer cet article comme invendu ?' }}')"
+                                                class="inline-flex items-center justify-center w-7 h-7 rounded transition-colors duration-200 {{ $article->invendu ? 'invendu-btn' : 'no-invendu-btn' }}"
+                                                title="{{ $article->invendu ? 'Marquer comme vendu' : 'Marquer comme invendu' }}">
+                                            <i class="fas {{ $article->invendu ? 'fa-check-circle' : 'fa-ban' }} text-xs"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete Action -->
+                                    @can('articles.delete')
+                                    <form action="{{ route('articles.destroy', $article) }}" method="POST" style="display: contents;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?')"
+                                                class="inline-flex items-center justify-center w-7 h-7 bg-red-100 hover:bg-red-200 text-red-600 rounded transition-colors duration-200"
+                                                title="Supprimer l'article">
+                                            <i class="fas fa-trash text-xs"></i>
+                                        </button>
+                                    </form>
+                                    @endcan
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center py-6">
+                                <div class="text-gray-500">
+                                    <i class="fas fa-file-alt text-4xl mb-2 d-block"></i>
+                                    <p class="h5 mb-2">Aucun article trouvé</p>
+                                    <p class="text-muted mb-3">Aucun article ne correspond à vos critères de recherche</p>
+                                    <a href="{{ route('articles.create') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i>Créer le Premier Article
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($articles->hasPages())
+            <div class="bg-gray-50 px-4 py-2 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <div class="text-xs text-gray-600">
+                        Affichage de {{ $articles->firstItem() ?? 0 }} à {{ $articles->lastItem() ?? 0 }} 
+                        sur {{ $articles->total() }} articles
+                    </div>
+                    <div class="pagination-controls">
+                        {{ $articles->appends(request()->query())->links() }}
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        {{ $articles->perPage() }} par page
                     </div>
                 </div>
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
-</div>
 @endsection
 
 @push('styles')
 <style>
+.invendu-btn { background: rgba(46,82,57,0.2); color: #2E5239; }
+.invendu-btn:hover { background: rgba(46,82,57,0.35); }
+.no-invendu-btn { background: rgba(154,179,163,0.3); color: #1F2D24; }
+.no-invendu-btn:hover { background: rgba(154,179,163,0.45); }
 .filter-btn {
     background: none;
     border: none;
@@ -371,13 +363,13 @@
 }
 
 .filter-btn:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    color: #059669;
+    background-color: rgba(46, 82, 57, 0.08);
+    color: #2E5239;
 }
 
 .filter-btn.active {
-    color: #059669;
-    background-color: rgba(5, 150, 105, 0.1);
+    color: #2E5239;
+    background-color: rgba(46, 82, 57, 0.12);
 }
 
 /* Column Filter Dropdown */
@@ -505,14 +497,12 @@
 }
 
 .btn-apply-filter {
-    background: linear-gradient(to right, #059669, #047857);
-    color: white;
+    background: #2E5239;
+    color: #FFFFFF;
 }
 
 .btn-apply-filter:hover {
-    background: linear-gradient(to right, #047857, #065f46);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(5, 150, 105, 0.3);
+    background: #3E6A4B;
 }
 </style>
 @endpush

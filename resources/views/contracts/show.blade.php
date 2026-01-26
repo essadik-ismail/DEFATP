@@ -2,6 +2,11 @@
 
 @section('title', 'Détails du Contrat - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('contracts.index') }}">Contrats</a></li>
+<li class="breadcrumb-item active">Détail</li>
+@endsection
+
 @section('content')
 <div class="min-h-screen py-8">
     <div class="container mx-auto px-4">

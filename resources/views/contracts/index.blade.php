@@ -2,6 +2,10 @@
 
 @section('title', 'Contrats de Partenariat - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item active">Contrats</li>
+@endsection
+
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <!-- Header Section -->

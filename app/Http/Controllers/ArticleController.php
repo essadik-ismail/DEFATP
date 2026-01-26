@@ -117,7 +117,10 @@ class ArticleController extends Controller
     public function create(): View
     {
         // Optimize: Use select() to load only necessary fields
-        $communes = Commune::select('id', 'nom')->orderBy('nom')->get();
+        $communes = Commune::select('id', 'nom', 'province_id')
+            ->with('province:id,nom')
+            ->orderBy('nom')
+            ->get();
         $provinces = Province::select('id', 'nom')->orderBy('nom')->get();
         $dranefs = Dranef::select('id', 'code', 'dranef')->orderBy('code')->get(); // Fixed: use 'dranef' not 'designation'
         $dpanefs = Dpanef::select('id', 'code', 'dpanef', 'dranef_code') // Fixed: use 'dpanef' not 'designation'
@@ -247,6 +250,14 @@ class ArticleController extends Controller
                 $article->modeExploitations()->attach($request->mode_exploitation_ids);
             }
 
+            // Handle depots - only sync if checkbox is checked and depot_ids are provided
+            if ($request->has('is_on_depot') && $request->has('depot_ids')) {
+                $article->depots()->sync($request->depot_ids);
+            } else {
+                // If checkbox is unchecked, detach all depots
+                $article->depots()->detach();
+            }
+
             // Optimize: Handle products (essence, product, quantity) with bulk operations
             if ($request->has('products') && is_array($request->products)) {
                 // Get existing combinations once
@@ -338,7 +349,18 @@ class ArticleController extends Controller
             'essences:id,essence',
             'products:id,name',
             'depots:id,nom',
-            'contractVentes',
+            'contractVentes' => function($query) {
+                $query->with([
+                    'chargeApayer' => function($q) {
+                        $q->with('payments');
+                    },
+                    'permisExploiter',
+                    'exploitant' => function($q) {
+                        $q->select('id', 'nom_complet', 'numero', 'n_cin', 'adresse', 'categorie')
+                          ->with('dranef:id,code,dranef');
+                    }
+                ]);
+            },
             'dranef:id,code,dranef', // Fixed: removed 'designation' (doesn't exist)
             'dpanef:id,code,dpanef', // Fixed: removed 'designation' (doesn't exist)
             'zdtf:id,code,zdtf' // Fixed: removed 'designation' (doesn't exist)
@@ -347,16 +369,6 @@ class ArticleController extends Controller
         // Optimize: Only load necessary exploitant fields
         $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale')->orderBy('nom_complet')->get();
         $contractVente = $article->contractVentes->first();
-
-        // Optimize: Eager load charges and their payments to prevent N+1 queries in view
-        if ($contractVente) {
-            $contractVente->load([
-                'chargeApayer' => function($query) {
-                    $query->with('payments');
-                },
-                'permisExploiter' // Load permis exploiter if exists
-            ]);
-        }
 
         return view('articles.show', compact('article', 'exploitants', 'contractVente'));
     }
@@ -468,6 +480,13 @@ class ArticleController extends Controller
 
             if ($request->has('mode_exploitation_ids')) {
                 $article->modeExploitations()->sync($request->mode_exploitation_ids);
+            }
+
+            if ($request->has('depot_ids')) {
+                $article->depots()->sync($request->depot_ids);
+            } else {
+                // If checkbox is unchecked, detach all depots
+                $article->depots()->detach();
             }
 
             // Handle products
@@ -1254,7 +1273,7 @@ class ArticleController extends Controller
             'participants' => 'nullable|string',
             'exploitant' => 'nullable|string|max:255',
             'reserve' => 'nullable|string',
-            'mo' => 'nullable|string|max:255',
+            'emo' => 'nullable|string|max:255',
             'charbonniére' => 'nullable|string|max:255',
             'mise_en_charge' => 'nullable|string|max:255',
             'ravalement_souches' => 'nullable|string|max:255',

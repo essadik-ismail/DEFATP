@@ -8,43 +8,113 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Theme palette - clean SaaS */
+    --color-primary: #2E5239;
+    --color-primary-hover: #3E6A4B;
+    --color-secondary: #9AB3A3;
+    --color-background: #F2F6F3;
+    --color-card: #FFFFFF;
+    --color-text-primary: #1F2D24;
+    --color-text-secondary: #6B7C72;
+    --color-text-on-dark: #FFFFFF;
+    --color-text-on-light: #1F2D24;
 }
 
-/* Custom Components and Enhancements */
+/* Custom Components and Enhancements - uses theme palette from layout :root */
 @layer components {
     /* Enhanced Button Styles */
     .btn-primary {
-        @apply inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #FFFFFF;
+        @apply inline-flex items-center px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #047857, #035d42);
+    }
+    .btn-primary:focus {
+        --tw-ring-color: #059669;
     }
     
     .btn-secondary {
-        @apply inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+        background-color: #9AB3A3;
+        color: #1F2D24;
+        @apply inline-flex items-center px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+    .btn-secondary:hover {
+        background-color: #3E6A4B;
+        color: #FFFFFF;
+    }
+    .btn-secondary:focus {
+        --tw-ring-color: #9AB3A3;
     }
     
     .btn-success {
-        @apply inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #FFFFFF;
+        @apply inline-flex items-center px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+    .btn-success:hover {
+        background: linear-gradient(135deg, #047857, #035d42);
+    }
+    .btn-success:focus {
+        --tw-ring-color: #059669;
     }
     
     .btn-danger {
-        @apply inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+        background-color: #1F2D24;
+        color: #FFFFFF;
+        @apply inline-flex items-center px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+    .btn-danger:hover {
+        opacity: 0.9;
+    }
+    .btn-danger:focus {
+        --tw-ring-color: #1F2D24;
     }
 
     /* New Button Variants */
     .btn-outline {
-        @apply inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2;
+        @apply inline-flex items-center px-4 py-2 border rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2;
+        border-color: #059669;
+        color: #059669;
+        background: transparent;
+    }
+    .btn-outline:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #FFFFFF;
+    }
+    .btn-outline:focus {
+        --tw-ring-color: #059669;
     }
 
     .btn-white {
-        @apply inline-flex items-center px-4 py-2 bg-white text-gray-800 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md border border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2;
+        @apply inline-flex items-center px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2;
+        background: #FFFFFF;
+        color: #1F2D24;
+        border: 1px solid #9AB3A3;
+    }
+    .btn-white:hover {
+        background-color: #F2F6F3;
+    }
+    .btn-white:focus {
+        --tw-ring-color: #9AB3A3;
     }
 
-    /* Enhanced Card Styles */
+    /* Card styles - white, 16px radius, subtle elevation */
     .card {
-        @apply bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
+        background-color: #FFFFFF;
+        border: 1px solid rgba(154, 179, 163, 0.4);
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+        @apply transition-shadow duration-200;
+    }
+    .card:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
     }
     
     .card-header {
-        @apply px-6 py-4 border-b border-gray-200;
+        @apply px-6 py-4 border-b;
+        border-color: rgba(154, 179, 163, 0.4);
     }
     
     .card-body {
@@ -61,85 +131,105 @@
     }
     
     .form-label {
-        @apply block text-sm font-medium text-gray-700 mb-2;
+        @apply block text-sm font-medium mb-2;
+        color: #1F2D24;
+    }
+    .form-label.text-secondary {
+        color: #6B7C72;
     }
 
     /* Enhanced Table Styles */
     .table {
-        @apply min-w-full divide-y divide-gray-200;
+        @apply min-w-full;
+        border-color: rgba(154, 179, 163, 0.5);
     }
     
     .table-header {
-        @apply bg-gray-50;
+        background-color: rgba(242, 246, 243, 0.9);
     }
     
     .table-header-cell {
-        @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-150;
+        @apply px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors duration-150;
+        color: #1F2D24;
+    }
+    .table-header-cell:hover {
+        background-color: rgba(46, 82, 57, 0.06);
     }
     
     .table-row {
-        @apply hover:bg-gray-50 transition-colors duration-150;
+        @apply transition-colors duration-150;
+    }
+    .table-row:hover {
+        background-color: rgba(46, 82, 57, 0.06);
     }
     
     .table-cell {
-        @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+        @apply px-6 py-4 whitespace-nowrap text-sm;
+        color: #1F2D24;
     }
 
     /* DataTable sort icon */
     .sort-icon {
-        @apply text-gray-400 ml-1 align-middle;
+        @apply ml-1 align-middle;
+        color: #9AB3A3;
         font-size: 16px;
     }
 
-    /* Enhanced Badge Styles */
+    /* Enhanced Badge Styles - palette only */
     .badge {
         @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
     }
     
     .badge-success {
-        @apply bg-green-100 text-green-800;
+        background-color: rgba(46, 82, 57, 0.2);
+        color: #1F2D24;
     }
     
     .badge-warning {
-        @apply bg-yellow-100 text-yellow-800;
+        background-color: rgba(154, 179, 163, 0.5);
+        color: #1F2D24;
     }
     
     .badge-danger {
-        @apply bg-red-100 text-red-800;
+        background-color: rgba(31, 45, 36, 0.2);
+        color: #1F2D24;
     }
     
     .badge-info {
-        @apply bg-blue-100 text-blue-800;
+        background-color: rgba(154, 179, 163, 0.4);
+        color: #1F2D24;
     }
     
     .badge-primary {
-        @apply bg-indigo-100 text-indigo-800;
+        background-color: rgba(46, 82, 57, 0.25);
+        color: #1F2D24;
     }
 
-    /* Notification System */
+    /* Notification System - palette only */
     .notification-container {
         @apply fixed top-4 right-4 z-50 space-y-2 max-w-sm;
     }
     
     .notification {
-        @apply bg-white border-l-4 shadow-lg rounded-r-lg p-4 transform transition-all duration-300 ease-in-out;
+        @apply border-l-4 shadow-lg rounded-r-lg p-4 transform transition-all duration-300 ease-in-out;
+        background-color: #F2F6F3;
         animation: slideInRight 0.3s ease-out;
     }
     
     .notification.success {
-        @apply border-green-500 bg-green-50;
+        border-color: #2E5239;
     }
     
     .notification.error {
-        @apply border-red-500 bg-red-50;
+        border-color: #1F2D24;
     }
     
     .notification.warning {
-        @apply border-yellow-500 bg-yellow-50;
+        border-color: #9AB3A3;
     }
     
     .notification.info {
-        @apply border-blue-500 bg-blue-50;
+        border-color: #9AB3A3;
     }
     
     .notification-header {
@@ -148,46 +238,21 @@
     
     .notification-title {
         @apply text-sm font-medium;
-    }
-    
-    .notification.success .notification-title {
-        @apply text-green-800;
-    }
-    
-    .notification.error .notification-title {
-        @apply text-red-800;
-    }
-    
-    .notification.warning .notification-title {
-        @apply text-yellow-800;
-    }
-    
-    .notification.info .notification-title {
-        @apply text-blue-800;
+        color: #1F2D24;
     }
     
     .notification-message {
         @apply text-sm;
-    }
-    
-    .notification.success .notification-message {
-        @apply text-green-700;
-    }
-    
-    .notification.error .notification-message {
-        @apply text-red-700;
-    }
-    
-    .notification.warning .notification-message {
-        @apply text-yellow-700;
-    }
-    
-    .notification.info .notification-message {
-        @apply text-blue-700;
+        color: #1F2D24;
+        opacity: 0.9;
     }
     
     .notification-close {
-        @apply text-gray-400 hover:text-gray-600 cursor-pointer;
+        color: #9AB3A3;
+        @apply cursor-pointer;
+    }
+    .notification-close:hover {
+        color: #1F2D24;
     }
 
     /* Tooltip System */
@@ -196,15 +261,18 @@
     }
     
     .tooltip {
-        @apply absolute z-10 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-200;
+        @apply absolute z-10 px-2 py-1 text-xs rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-200;
         bottom: 125%;
         left: 50%;
         transform: translateX(-50%);
+        color: #FFFFFF;
+        background-color: #1F2D24;
     }
     
     .tooltip::after {
         content: '';
-        @apply absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900;
+        @apply absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent;
+        border-top-color: #1F2D24;
     }
     
     .tooltip-container:hover .tooltip {
@@ -217,7 +285,9 @@
     }
     
     .loading-spinner {
-        @apply inline-block w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin;
+        @apply inline-block w-4 h-4 border-2 rounded-full animate-spin;
+        border-color: rgba(154, 179, 163, 0.5);
+        border-top-color: #2E5239;
     }
     
     .btn.loading {
@@ -242,7 +312,8 @@
     }
     
     .wizard-navigation {
-        @apply flex justify-between items-center pt-4 border-t border-gray-200;
+        @apply flex justify-between items-center pt-4 border-t;
+        border-color: rgba(154, 179, 163, 0.5);
     }
     
     .wizard-progress {
@@ -254,15 +325,21 @@
     }
     
     .wizard-step-indicator.active {
-        @apply border-blue-600 bg-blue-600 text-white;
+        border-color: #2E5239;
+        background-color: #2E5239;
+        color: #FFFFFF;
     }
     
     .wizard-step-indicator.completed {
-        @apply border-green-600 bg-green-600 text-white;
+        border-color: #2E5239;
+        background-color: #2E5239;
+        color: #FFFFFF;
     }
     
     .wizard-step-indicator.pending {
-        @apply border-gray-300 bg-gray-100 text-gray-500;
+        border-color: rgba(154, 179, 163, 0.5);
+        background-color: #F2F6F3;
+        color: #1F2D24;
     }
 
     /* Mobile Responsiveness */
@@ -298,15 +375,21 @@
     }
     
     .confirmation-dialog {
-        @apply bg-white rounded-lg shadow-xl max-w-md w-full p-6;
+        border-radius: 1.25rem;
+        box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.08);
+        @apply max-w-md w-full p-6;
+        background-color: #FFFFFF;
+        border: 1px solid rgba(154, 179, 163, 0.4);
     }
     
     .confirmation-title {
-        @apply text-lg font-medium text-gray-900 mb-2;
+        @apply text-lg font-medium mb-2;
+        color: #1F2D24;
     }
     
     .confirmation-message {
-        @apply text-sm text-gray-600 mb-6;
+        @apply text-sm mb-6;
+        color: #6B7C72;
     }
     
     .confirmation-actions {
@@ -315,28 +398,46 @@
 
     /* Help System */
     .help-icon {
-        @apply inline-block w-4 h-4 text-blue-500 cursor-help ml-1;
+        @apply inline-block w-4 h-4 cursor-help ml-1;
+        color: #2E5239;
     }
     
     .help-text {
-        @apply text-xs text-gray-500 mt-1;
+        @apply text-xs mt-1;
+        color: #6B7C72;
     }
     
     .field-help {
-        @apply text-xs text-gray-500 mt-1 italic;
+        @apply text-xs mt-1 italic;
+        color: #6B7C72;
     }
 
-    /* Enhanced Glassmorphism */
+    /* Cards - white, soft corners */
     .glassmorphism-card {
-        @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl rounded-2xl;
+        background-color: #FFFFFF;
+        border: 1px solid rgba(154, 179, 163, 0.4);
+        border-radius: 1.25rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
     }
     
     .glassmorphism-input {
-        @apply bg-white/60 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+        @apply rounded-lg px-4 py-2;
+        background-color: #FFFFFF;
+        border: 1px solid rgba(154, 179, 163, 0.5);
+    }
+    .glassmorphism-input:focus {
+        outline: none;
+        border-color: #2E5239;
+        box-shadow: 0 0 0 2px rgba(46, 82, 57, 0.15);
     }
     
     .glassmorphism-button {
-        @apply bg-white/80 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 hover:bg-white/90 transition-all duration-200;
+        @apply rounded-lg px-4 py-2 transition-all duration-200;
+        background-color: #F2F6F3;
+        border: 1px solid rgba(154, 179, 163, 0.5);
+    }
+    .glassmorphism-button:hover {
+        background-color: rgba(154, 179, 163, 0.3);
     }
 }
 
@@ -385,7 +486,10 @@
 
 /* Enhanced Focus States */
 .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+.focus-ring:focus {
+    --tw-ring-color: #2E5239;
 }
 
 /* Smooth Transitions */

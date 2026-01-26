@@ -2,6 +2,11 @@
 
 @section('title', 'Modifier Vocation - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('contracts.index') }}">Contrats</a></li>
+<li class="breadcrumb-item active">Modifier vocation</li>
+@endsection
+
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <!-- Header Section -->

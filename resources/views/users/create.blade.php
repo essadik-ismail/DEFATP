@@ -2,6 +2,11 @@
 
 @section('title', 'Créer un Utilisateur')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('users.index') }}">Utilisateurs</a></li>
+<li class="breadcrumb-item active">Nouveau</li>
+@endsection
+
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <!-- Header Content -->

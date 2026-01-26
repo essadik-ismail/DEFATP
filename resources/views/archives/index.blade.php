@@ -2,6 +2,10 @@
 
 @section('title', 'Archives - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item active">Archives</li>
+@endsection
+
 @section('content')
 <div class="min-h-screen py-8">
     <div class="container mx-auto px-4">

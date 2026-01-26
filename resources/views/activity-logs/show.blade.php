@@ -2,6 +2,11 @@
 
 @section('title', 'Détails de l\'Activité')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('activity-logs.index') }}">Journal d'activités</a></li>
+<li class="breadcrumb-item active">Détail</li>
+@endsection
+
 @section('content')
 <div class="container-fluid">
     <!-- Header -->

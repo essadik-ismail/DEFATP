@@ -3,28 +3,24 @@
 @section('title', 'Tableau de Bord - DEFATP')
 
 @section('content')
-    <div class="min-h-screen py-8">
-        <div class="container mx-auto px-4">
-
-            <!-- Header Section -->
-            <div class="mb-8">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                        <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
-                            Tableau de Bord
-                        </h1>
-                        <p class="text-gray-600 text-lg">Vue d'ensemble de votre gestion forestière</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="bg-white/80 backdrop-blur-xl rounded-xl px-4 py-2 border border-gray-200 shadow-sm">
-                            <div class="flex items-center gap-2 text-sm text-gray-600">
-                                <i class="fas fa-calendar-alt text-green-600"></i>
-                                <span>{{ now()->format('d/m/Y') }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div>
+        <!-- Dashboard Header Section -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+            <p class="text-gray-500 text-base">Plan, prioritize, and accomplish your tasks with ease.</p>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-3 mt-6">
+                <button class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                    <i class="fas fa-plus"></i>
+                    Add Project
+                </button>
+                <button class="inline-flex items-center gap-2 px-4 py-2 bg-white text-green-600 border border-green-600 rounded-lg font-medium hover:bg-green-50 transition-colors">
+                    <i class="fas fa-upload"></i>
+                    Import Data
+                </button>
             </div>
+        </div>
 
 
             <!-- Welcome Guide for New Users -->

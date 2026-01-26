@@ -2,6 +2,12 @@
 
 @section('title', 'Modifier la Forêt')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
+<li class="breadcrumb-item"><a href="{{ route('settings.forets.index') }}">Forêts</a></li>
+<li class="breadcrumb-item active">Modifier</li>
+@endsection
+
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <!-- Header Section -->

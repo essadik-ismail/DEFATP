@@ -2,6 +2,11 @@
 
 @section('title', 'Gestion des Essences')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
+<li class="breadcrumb-item active">Essences</li>
+@endsection
+
 @section('content')
     <!-- Modern Header Section -->
     <div class="mb-8">

@@ -83,99 +83,55 @@
 
 @push('styles')
 <style>
-    /* Base Card Styles */
+    /* Base Card - white, 16px radius, subtle elevation */
     .card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
+        background: #FFFFFF;
         border-radius: 1rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(154, 179, 163, 0.4);
         overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: box-shadow 0.2s ease;
         position: relative;
     }
 
     .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
     }
 
-    /* Card Variants */
-    .card-gradient {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.8) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+    .card-gradient, .card-minimal {
+        background: #FFFFFF;
+        border: 1px solid rgba(154, 179, 163, 0.4);
     }
 
     .card-colored {
-        border-left: 4px solid var(--primary-color);
+        border-left: 4px solid #2E5239;
     }
 
-    .card-minimal {
-        background: rgba(255, 255, 255, 0.7);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    /* Color Variants */
-    .card-green {
-        --card-color: #059669;
-        --card-color-light: #10b981;
-        --card-bg: rgba(16, 185, 129, 0.05);
-    }
-
-    .card-blue {
-        --card-color: #2563eb;
-        --card-color-light: #3b82f6;
-        --card-bg: rgba(59, 130, 246, 0.05);
-    }
-
-    .card-purple {
-        --card-color: #7c3aed;
-        --card-color-light: #8b5cf6;
-        --card-bg: rgba(139, 92, 246, 0.05);
-    }
-
-    .card-orange {
-        --card-color: #ea580c;
-        --card-color-light: #f97316;
-        --card-bg: rgba(249, 115, 22, 0.05);
-    }
-
-    .card-red {
-        --card-color: #dc2626;
-        --card-color-light: #ef4444;
-        --card-bg: rgba(239, 68, 68, 0.05);
-    }
-
-    .card-gray {
-        --card-color: #6b7280;
-        --card-color-light: #9ca3af;
-        --card-bg: rgba(156, 163, 175, 0.05);
+    /* Color variants - palette only */
+    .card-green, .card-blue, .card-purple, .card-orange, .card-red, .card-gray {
+        --card-color: #2E5239;
+        --card-color-light: #3E6A4B;
+        --card-bg: rgba(46, 82, 57, 0.06);
     }
 
     /* Header Styles */
     .card-header {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(154, 179, 163, 0.5);
+        background: #F2F6F3;
         position: relative;
     }
 
-    .card-header-gradient {
-        background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.9) 100%);
+    .card-header-gradient, .card-header-colored, .card-header-minimal {
+        background: #F2F6F3;
+        border-bottom: 1px solid rgba(154, 179, 163, 0.5);
     }
 
     .card-header-colored {
-        background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.95) 100%);
-        border-bottom: 1px solid var(--card-color);
+        border-bottom-color: #2E5239;
     }
 
-    .card-header-minimal {
-        background: rgba(255, 255, 255, 0.8);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    /* Card Icon */
+    /* Card Icon - palette only */
     .card-icon {
         width: 2.5rem;
         height: 2.5rem;
@@ -186,50 +142,25 @@
         flex-shrink: 0;
     }
 
-    .card-icon-green {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: white;
-    }
-
-    .card-icon-blue {
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-        color: white;
-    }
-
-    .card-icon-purple {
-        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-        color: white;
-    }
-
-    .card-icon-orange {
-        background: linear-gradient(135deg, #f97316, #ea580c);
-        color: white;
-    }
-
-    .card-icon-red {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-        color: white;
-    }
-
-    .card-icon-gray {
-        background: linear-gradient(135deg, #9ca3af, #6b7280);
-        color: white;
+    .card-icon-green, .card-icon-blue, .card-icon-purple, .card-icon-orange, .card-icon-red, .card-icon-gray {
+        background: #2E5239;
+        color: #FFFFFF;
     }
 
     /* Typography */
     .card-title {
         margin: 0;
-        font-weight: 700;
-        color: #1f2937;
-        font-size: 1.125rem;
-        line-height: 1.4;
+        font-weight: 600;
+        color: #1F2D24;
+        font-size: 1rem;
+        line-height: 1.5;
     }
 
     .card-subtitle {
         margin: 0.25rem 0 0 0;
         font-size: 0.875rem;
-        color: #6b7280;
-        font-weight: 500;
+        color: #6B7C72;
+        font-weight: 400;
     }
 
     /* Body and Footer */
@@ -238,9 +169,9 @@
     }
 
     .card-footer {
-        padding: 1.5rem 2rem;
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
-        background: rgba(248, 250, 252, 0.5);
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid rgba(154, 179, 163, 0.4);
+        background: #FFFFFF;
     }
 
     /* Padding Variants */
@@ -274,9 +205,9 @@
 
     /* Collapse Toggle */
     .collapse-toggle {
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 0.5rem;
+        background: #FFFFFF;
+        border: 1px solid rgba(154, 179, 163, 0.4);
+        border-radius: 0.75rem;
         width: 2rem;
         height: 2rem;
         display: flex;
@@ -284,16 +215,15 @@
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s ease;
-        color: #6b7280;
+        color: #1F2D24;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .collapse-toggle:hover {
-        background: rgba(255, 255, 255, 1);
-        border-color: var(--card-color, #059669);
-        color: var(--card-color, #059669);
+        border-color: #2E5239;
+        color: #2E5239;
         transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
     }
 
     .collapse-toggle i {
@@ -394,33 +324,6 @@
         .collapse-toggle {
             width: 1.75rem;
             height: 1.75rem;
-        }
-    }
-
-    /* Dark Mode Support */
-    @media (prefers-color-scheme: dark) {
-        .card {
-            background: rgba(31, 41, 55, 0.95);
-            border: 1px solid rgba(75, 85, 99, 0.3);
-            color: #f9fafb;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, rgba(55, 65, 81, 0.8) 0%, rgba(31, 41, 55, 0.9) 100%);
-            border-bottom: 1px solid rgba(75, 85, 99, 0.3);
-        }
-
-        .card-title {
-            color: #f9fafb;
-        }
-
-        .card-subtitle {
-            color: #d1d5db;
-        }
-
-        .card-footer {
-            background: rgba(55, 65, 81, 0.5);
-            border-top: 1px solid rgba(75, 85, 99, 0.3);
         }
     }
 

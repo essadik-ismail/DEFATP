@@ -2,6 +2,10 @@
 
 @section('title', 'Données des Entités - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item active">Données des entités</li>
+@endsection
+
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <!-- Simple Header -->

@@ -2,6 +2,11 @@
 
 @section('title', 'Modifier l\'Utilisateur')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('auth.users.index') }}">Utilisateurs</a></li>
+<li class="breadcrumb-item active">Modifier</li>
+@endsection
+
 @section('page-actions')
     <a href="{{ route('auth.users.index') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i>Retour

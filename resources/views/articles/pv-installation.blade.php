@@ -2,9 +2,14 @@
 
 @section('title', 'PV d\'Installation - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('articles.index') }}">Articles</a></li>
+<li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Détail #{{ $article->numero ?? $article->id }}</a></li>
+<li class="breadcrumb-item active">PV d'installation</li>
+@endsection
+
 @section('content')
-<div class="min-h-screen py-8">
-    <div class="container mx-auto px-4 max-w-7xl">
+<div>
         
         <!-- Page Header Component -->
         <x-page-header 
@@ -83,7 +88,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-green-700 mb-1">MO</label>
-                                <p class="text-green-900 font-semibold">{{ $pvInstallation->mo ?? 'N/A' }}</p>
+                                <p class="text-green-900 font-semibold">{{ $pvInstallation->emo ?? 'N/A' }}</p>
                             </div>
                         </x-form-section>
 
@@ -198,9 +203,9 @@
 
                                 <x-form-input
                                     type="text"
-                                    name="mo"
+                                    name="emo"
                                     label="MO"
-                                    :value="old('mo')"
+                                    :value="old('emo')"
                                     placeholder="MO"
                                     focusColor="green"
                                 />

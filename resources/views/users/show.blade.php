@@ -2,6 +2,11 @@
 
 @section('title', 'Détails de l\'Utilisateur')
 
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('users.index') }}">Utilisateurs</a></li>
+<li class="breadcrumb-item active">Détail</li>
+@endsection
+
 @section('content')
 <div class="container-fluid">
     <!-- Header -->

@@ -2,6 +2,10 @@
 
 @section('title', 'Notifications - DEFATP')
 
+@section('breadcrumb')
+<li class="breadcrumb-item active">Notifications</li>
+@endsection
+
 @section('content')
 <div class="main-content">
     <!-- Header Section -->
