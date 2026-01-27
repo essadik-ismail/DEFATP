@@ -34,11 +34,16 @@
             </x-alert>
         @endif
 
+        @php
+            $showCreateOnly = request('action') === 'create';
+        @endphp
+
+        @if(!$showCreateOnly)
         <!-- Permis d'Enlever List Card -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
             <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                    <i class="fas fa-list"></i>
+                <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
+                    <i class="fas fa-list" style="color: #6B7C72;"></i>
                     Liste des Permis d'Enlever
                 </h2>
             </div>
@@ -46,13 +51,11 @@
             <!-- Create Button -->
             @if($canCreateMore)
                 <div class="mb-6">
-                    <x-button
-                        variant="primary"
-                        icon="fas fa-plus"
-                        onclick="document.getElementById('createForm').classList.toggle('hidden')"
-                    >
-                        Créer un nouveau Permis d'Enlever
-                    </x-button>
+                    <a href="{{ route('articles.permis-enlever', ['article' => $article, 'action' => 'create']) }}" 
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                        <i class="fas fa-plus"></i>
+                        <span>Créer un nouveau Permis d'Enlever</span>
+                    </a>
                 </div>
             @endif
 
@@ -124,6 +127,11 @@
                                                 title="Imprimer"
                                                 onclick="window.print()"
                                             />
+                                            <a href="{{ route('articles.permis-colportage', ['article' => $article, 'permis_enlever_id' => $permis->id]) }}" 
+                                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white transition-colors duration-200 shadow-sm hover:shadow-md bg-purple-600 hover:bg-purple-700"
+                                               title="Permis de colportage">
+                                                <i class="fas fa-truck text-sm"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -141,184 +149,147 @@
             @endif
             </div>
         </div>
+        @endif
 
-        <!-- Create Form (Hidden by default) -->
-        <div id="createForm" class="{{ $canCreateMore ? 'hidden' : 'hidden' }} mt-6">
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                <div class="px-6 py-4" style="background: linear-gradient(135deg, #059669, #047857);">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                        <i class="fas fa-file-signature"></i>
-                        Créer un Permis d'Enlever
-                    </h2>
-                </div>
-                <div class="p-6">
-            <form id="permisEnleverCreateForm" action="{{ route('articles.store-permis-enlever', $article) }}" method="POST">
-                @csrf
+        <!-- Create Form -->
+        <div id="createForm" class="{{ $showCreateOnly ? '' : ($canCreateMore ? 'hidden' : 'hidden') }} mt-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <form id="permisEnleverCreateForm" action="{{ route('articles.store-permis-enlever', $article) }}" method="POST" class="space-y-8">
+                    @csrf
+                    <x-validation-errors />
 
-                <x-validation-errors />
+                    <!-- 1. Sélection de la Date de Paiement -->
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                <i class="fas fa-calendar-check text-white text-sm"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">1. Sélection de la Date de Paiement</h3>
+                        </div>
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="form-group">
+                                <label for="date_paiement" class="block text-sm font-semibold text-gray-700 mb-2">Date de paiement <span class="text-red-500">*</span></label>
+                                <select name="date_paiement" id="date_paiement" onchange="updateTranchesList()" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                    <option value="">Sélectionner une date de paiement</option>
+                                    @foreach($tranchesByDate as $date => $tranches)
+                                        <option value="{{ $date }}" {{ old('date_paiement') == $date ? 'selected' : '' }}>
+                                            {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} ({{ $tranches->count() }} tranche(s))
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="space-y-6 mb-6">
-                    <!-- Date Selection Section -->
-                    <x-form-section
-                        title="Sélection de la Date de Paiement"
-                        icon="fas fa-calendar-check"
-                        color="green"
-                        :columns="1"
-                    >
-                        <x-form-input
-                            type="select"
-                            name="date_paiement"
-                            label="Date de paiement"
-                            :required="true"
-                            focusColor="green"
-                            onchange="updateTranchesList()"
-                        >
-                            <option value="">Sélectionner une date de paiement</option>
-                            @foreach($tranchesByDate as $date => $tranches)
-                                <option value="{{ $date }}" {{ old('date_paiement') == $date ? 'selected' : '' }}>
-                                    {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} ({{ $tranches->count() }} tranche(s))
-                                </option>
-                            @endforeach
-                        </x-form-input>
-                    </x-form-section>
+                    <!-- 2. Informations du Permis d'Enlever -->
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                <i class="fas fa-truck-loading text-white text-sm"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">2. Informations du Permis d'Enlever</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="num_quittance_enlever" class="block text-sm font-semibold text-gray-700 mb-2">N° Quittance (Enlever) <span class="text-red-500">*</span></label>
+                                <input type="text" name="num_quittance_enlever" id="num_quittance_enlever" value="{{ old('num_quittance_enlever') }}" placeholder="Ex: QE-2026-001" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="date" class="block text-sm font-semibold text-gray-700 mb-2">Date <span class="text-red-500">*</span></label>
+                                <input type="date" name="date" id="date" value="{{ old('date', date('Y-m-d')) }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="percepteur_enlever" class="block text-sm font-semibold text-gray-700 mb-2">Percepteur (Enlever) <span class="text-red-500">*</span></label>
+                                <input type="text" name="percepteur_enlever" id="percepteur_enlever" value="{{ old('percepteur_enlever') }}" placeholder="Nom du percepteur" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                            </div>
+                        </div>
+                    </div>
 
-                    <!-- Permis Enlever Information Section -->
-                    <x-form-section
-                        title="Informations du Permis d'Enlever"
-                        icon="fas fa-truck-loading"
-                        color="blue"
-                        :columns="2"
-                    >
-                        <x-form-input
-                            name="num_quittance_enlever"
-                            label="N° Quittance (Enlever)"
-                            placeholder="Ex: QE-2026-001"
-                            :required="true"
-                            borderColor="blue"
-                        />
-
-                        <x-form-input
-                            type="date"
-                            name="date"
-                            label="Date"
-                            :value="date('Y-m-d')"
-                            :required="true"
-                            borderColor="blue"
-                        />
-
-                        <x-form-input
-                            name="percepteur_enlever"
-                            label="Percepteur (Enlever)"
-                            placeholder="Nom du percepteur"
-                            :required="true"
-                            borderColor="blue"
-                        />
-
-                        <x-form-input
-                            type="number"
-                            name="volume"
-                            label="Volume (m³)"
-                            placeholder="0.00"
-                            step="0.01"
-                            min="0"
-                            borderColor="blue"
-                        />
-                    </x-form-section>
-
-                    <!-- Essences Table Section -->
-                    <x-form-section
-                        title="Essences de l'Article"
-                        icon="fas fa-tree"
-                        color="purple"
-                        :columns="1"
-                    >
+                    <!-- 3. Essences de l'Article -->
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                <i class="fas fa-tree text-white text-sm"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">3. Essences de l'Article</h3>
+                        </div>
                         @if($article->essences->isEmpty())
-                            <x-empty-state
-                                icon="fas fa-tree"
-                                title="Aucune essence associée"
-                                message="Ajoutez des essences à l'article avant de générer un permis d'enlever."
-                                color="purple"
-                            />
+                            <div class="text-center py-8">
+                                <i class="fas fa-tree text-gray-400 text-4xl mb-3"></i>
+                                <p class="text-gray-600">Aucune essence associée à l'article. Ajoutez des essences avant de générer un permis d'enlever.</p>
+                            </div>
                         @else
-                        <x-data-table-custom
-                            color="purple"
-                            :headers="[
-                                ['label' => 'Essence', 'icon' => 'fas fa-leaf'],
-                                ['label' => 'Produit', 'icon' => 'fas fa-box'],
-                                ['label' => 'Quantité dans l\'Article', 'icon' => 'fas fa-cubes'],
-                                ['label' => 'Quantité', 'icon' => 'fas fa-calculator'],
-                            ]"
-                        >
-                            @foreach($article->essences as $index => $essence)
-                                @php
-                                    $product = isset($products) && $essence->pivot->product_id ? $products->get($essence->pivot->product_id) : null;
-                                @endphp
-                                <tr class="border-b border-purple-100 hover:bg-purple-50 transition-colors">
-                                    <td class="px-4 py-3">
-                                        <span class="text-sm font-semibold text-purple-900">{{ $essence->essence ?? 'N/A' }}</span>
-                                        <input type="hidden" name="essences[{{ $index }}][essence_id]" value="{{ $essence->id }}">
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="text-sm text-purple-700">{{ $product ? $product->name : 'N/A' }}</span>
-                                        <input type="hidden" name="essences[{{ $index }}][product_id]" value="{{ $essence->pivot->product_id }}">
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="text-sm font-bold text-purple-600 base-quantity" 
-                                              data-base-quantity="{{ $essence->pivot->quantity }}">
-                                            {{ number_format($essence->pivot->quantity, 2, ',', ' ') }} m³
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-sm font-bold text-green-600 calculated-quantity" 
-                                                  id="calculated-quantity-{{ $index }}"
-                                                  data-base-quantity="{{ $essence->pivot->quantity }}">
-                                                0.00 m³
-                                            </span>
-                                            <input type="hidden" 
-                                                   name="essences[{{ $index }}][quantity]" 
-                                                   id="quantity-{{ $index }}"
-                                                   value="0">
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </x-data-table-custom>
+                        <div class="overflow-x-auto">
+                            <table class="w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Essence</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Produit</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Quantité dans l'Article</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Quantité</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($article->essences as $index => $essence)
+                                        @php
+                                            $product = isset($products) && $essence->pivot->product_id ? $products->get($essence->pivot->product_id) : null;
+                                        @endphp
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3">
+                                                <span class="text-sm font-semibold text-gray-900">{{ $essence->essence ?? 'N/A' }}</span>
+                                                <input type="hidden" name="essences[{{ $index }}][essence_id]" value="{{ $essence->id }}">
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-sm text-gray-700">{{ $product ? $product->name : 'N/A' }}</span>
+                                                <input type="hidden" name="essences[{{ $index }}][product_id]" value="{{ $essence->pivot->product_id }}">
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-sm font-bold text-gray-900 base-quantity" data-base-quantity="{{ $essence->pivot->quantity }}">
+                                                    {{ number_format($essence->pivot->quantity, 2, ',', ' ') }} m³
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-sm font-bold text-green-600 calculated-quantity" id="calculated-quantity-{{ $index }}" data-base-quantity="{{ $essence->pivot->quantity }}">
+                                                    0.00 m³
+                                                </span>
+                                                <input type="hidden" name="essences[{{ $index }}][quantity]" id="quantity-{{ $index }}" value="0">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                         @endif
-                    </x-form-section>
-                </div>
+                    </div>
 
-                <!-- Tranches Preview -->
-                <div id="tranches-preview" class="mb-6 hidden">
-                    <x-form-section
-                        title="Tranches incluses dans ce permis"
-                        icon="fas fa-receipt"
-                        color="green"
-                        :columns="1"
-                    >
+                    <!-- Tranches Preview -->
+                    <div id="tranches-preview" class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6 hidden">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                <i class="fas fa-receipt text-white text-sm"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Tranches incluses dans ce permis</h3>
+                        </div>
                         <div id="tranches-list" class="space-y-2">
                             <!-- Will be populated by JavaScript -->
                         </div>
-                    </x-form-section>
-                </div>
+                    </div>
 
                     <!-- Submit Button -->
-                    <div class="flex justify-end gap-4 pt-6 border-t border-green-200">
+                    <div class="flex justify-end gap-4 pt-2">
                         <a href="{{ route('articles.show', $article) }}" 
-                           class="inline-flex items-center gap-2 px-6 py-3 border border-green-300 rounded-xl text-green-700 hover:bg-green-50 transition-all duration-300">
+                           class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
                             <i class="fas fa-times"></i>
                             <span>Annuler</span>
                         </a>
                         <button type="submit"
                                 {{ $article->essences->isEmpty() ? 'disabled' : '' }}
-                                class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
-                                style="background: linear-gradient(135deg, #059669, #047857); {{ $article->essences->isEmpty() ? 'opacity:0.6; cursor:not-allowed;' : '' }}">
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 {{ $article->essences->isEmpty() ? 'opacity-60 cursor-not-allowed' : '' }}">
                             <i class="fas fa-file-download"></i>
                             <span>Générer le Permis</span>
                         </button>
                     </div>
                 </form>
-                </div>
             </div>
         </div>
 
@@ -332,6 +303,7 @@
         
         <script>
             const tranchesData = @json($tranchesByDate);
+            const nombreTranche = {{ $nombreTranche ?? 1 }};
             let currentTranchesCount = 0;
 
             function updateTranchesList() {
@@ -382,7 +354,7 @@
                     </div>
                     <div class="mt-2 text-sm text-green-700">
                         <i class="fas fa-info-circle text-green-500 mr-1"></i>
-                        <strong>${currentTranchesCount}</strong> tranche(s) payée(s)
+                        <strong>${currentTranchesCount}</strong> tranche(s) payée(s) sur <strong>${nombreTranche}</strong> tranche(s) totale(s)
                     </div>
                 `;
 
@@ -398,12 +370,13 @@
                     const baseQuantity = parseFloat(element.getAttribute('data-base-quantity'));
                     let calculatedQuantity = 0;
                     
-                    if (currentTranchesCount > 0) {
-                        calculatedQuantity = baseQuantity / currentTranchesCount;
+                    // Formula: (Quantité / nombre_tranche) * nombre_tranche_payée_pour_la_date_sélectionnée
+                    if (nombreTranche > 0 && currentTranchesCount > 0) {
+                        calculatedQuantity = (baseQuantity / nombreTranche) * currentTranchesCount;
                     }
                     
-                    // Format with French number format (comma as decimal separator)
-                    const formattedQuantity = calculatedQuantity.toFixed(2).replace('.', ',');
+                    // Format with French number format (comma as decimal separator, space as thousands separator)
+                    const formattedQuantity = calculatedQuantity.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ').replace('.', ',');
                     element.textContent = formattedQuantity + ' m³';
                     
                     // Update hidden input value

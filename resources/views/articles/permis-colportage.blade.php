@@ -37,8 +37,8 @@
         <!-- Main Form Card -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                    <i class="fas fa-file-signature"></i>
+                <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
+                    <i class="fas fa-file-signature" style="color: #6B7C72;"></i>
                     Générer le Permis de Colportage
                 </h2>
             </div>
@@ -57,22 +57,19 @@
                         columns="1"
                     >
                         @if(isset($permisEnlevers) && $permisEnlevers->count() > 0)
-                            <x-form-input
-                                type="select"
-                                name="id_permis_enlever"
-                                label="Sélectionner un Permis d'Enlever"
-                                :required="true"
-                                focusColor="green"
-                            >
-                                <option value="">Choisir...</option>
-                                @foreach($permisEnlevers as $permis)
-                                    <option value="{{ $permis->id }}" {{ old('id_permis_enlever') == $permis->id ? 'selected' : '' }}>
-                                        {{ $permis->num_quittance ?? ('Permis #' . $permis->id) }}
-                                        — {{ $permis->date ? \Carbon\Carbon::parse($permis->date)->format('d/m/Y') : '' }}
-                                        — Tranches: {{ $permis->num_tranche_paye ?? '-' }}
-                                    </option>
-                                @endforeach
-                            </x-form-input>
+                            <div class="form-group">
+                                <label for="id_permis_enlever" class="block text-sm font-semibold text-gray-700 mb-2">Sélectionner un Permis d'Enlever <span class="text-red-500">*</span></label>
+                                <select name="id_permis_enlever" id="id_permis_enlever" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                    <option value="">Choisir...</option>
+                                    @foreach($permisEnlevers as $permis)
+                                        <option value="{{ $permis->id }}" {{ old('id_permis_enlever', $selectedPermisEnleverId ?? null) == $permis->id ? 'selected' : '' }}>
+                                            {{ $permis->num_quittance ?? ('Permis #' . $permis->id) }}
+                                            — {{ $permis->date ? \Carbon\Carbon::parse($permis->date)->format('d/m/Y') : '' }}
+                                            — Tranches: {{ $permis->num_tranche_paye ?? '-' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         @else
                             <x-alert type="warning" title="Aucun Permis d'Enlever">
                                 Vous devez d'abord créer un <strong>Permis d'Enlever</strong> avant de générer un Permis de Colportage.
@@ -146,6 +143,67 @@
                         placeholder="Adresse de destination"
                     />
 
+                    <!-- 3. Essences de l'Article -->
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                <i class="fas fa-tree text-white text-sm"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">3. Essences de l'Article</h3>
+                        </div>
+                        @if($article->essences->isEmpty())
+                            <div class="text-center py-8">
+                                <i class="fas fa-tree text-gray-400 text-4xl mb-3"></i>
+                                <p class="text-gray-600">Aucune essence associée à l'article. Ajoutez des essences avant de générer un permis de colportage.</p>
+                            </div>
+                        @else
+                        <div class="overflow-x-auto">
+                            <table class="w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Essence</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Produit</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Quantité dans Permis d'Enlever</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Volume</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="essences-table-body">
+                                    @foreach($article->essences as $index => $essence)
+                                        @php
+                                            $product = isset($products) && $essence->pivot->product_id ? $products->get($essence->pivot->product_id) : null;
+                                        @endphp
+                                        <tr class="hover:bg-gray-50 essence-row" data-essence-id="{{ $essence->id }}" data-product-id="{{ $essence->pivot->product_id }}">
+                                            <td class="px-4 py-3">
+                                                <span class="text-sm font-semibold text-gray-900">{{ $essence->essence ?? 'N/A' }}</span>
+                                                <input type="hidden" name="essences[{{ $index }}][essence_id]" value="{{ $essence->id }}">
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-sm text-gray-700">{{ $product ? $product->name : 'N/A' }}</span>
+                                                <input type="hidden" name="essences[{{ $index }}][product_id]" value="{{ $essence->pivot->product_id }}">
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-sm font-bold text-gray-900 permis-enlever-quantity" id="permis-quantity-{{ $index }}">
+                                                    0.00 m³
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <input type="number" 
+                                                       name="essences[{{ $index }}][quantity]" 
+                                                       id="colportage-quantity-{{ $index }}"
+                                                       step="0.01" 
+                                                       min="0"
+                                                       value="{{ old('essences.' . $index . '.quantity', '0') }}"
+                                                       class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                       placeholder="0.00">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @endif
+                    </div>
+
                         <!-- Article Information Summary -->
                         <x-form-section
                             title="Informations de l'Article"
@@ -196,4 +254,75 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const permisEnleverSelect = document.getElementById('id_permis_enlever');
+    
+    // Permis d'Enlever data from backend - get quantities from permisenlever_product table
+    // Data structure: { permis_id: { essences: [{ essence_id, product_id, quantity }] } }
+    const permisEnleversData = @json($permisEnleversWithQuantities->mapWithKeys(function($permis) {
+        return [$permis->id => [
+            'essences' => $permis->quantities ?? []
+        ]];
+    }));
+    
+    // Debug: log the data structure (remove in production)
+    console.log('Permis d\'Enlever data loaded:', permisEnleversData);
+    
+    function loadPermisEnleverEssences(permisId) {
+        if (!permisId || !permisEnleversData[permisId]) {
+            // Reset all quantities to 0
+            document.querySelectorAll('.permis-enlever-quantity').forEach(function(el) {
+                el.textContent = '0.00 m³';
+            });
+            return;
+        }
+        
+        const permisData = permisEnleversData[permisId];
+        const essencesData = permisData.essences || [];
+        
+        // Create a map for quick lookup: essence_id + product_id -> quantity
+        // Ensure consistent key format (numbers as strings for comparison)
+        const quantityMap = {};
+        essencesData.forEach(function(item) {
+            const essenceId = parseInt(item.essence_id) || 0;
+            const productId = parseInt(item.product_id) || 0;
+            const key = essenceId + '_' + productId;
+            quantityMap[key] = parseFloat(item.quantity) || 0;
+        });
+        
+        // Update the table rows
+        document.querySelectorAll('.essence-row').forEach(function(row) {
+            const essenceId = parseInt(row.getAttribute('data-essence-id')) || 0;
+            const productId = parseInt(row.getAttribute('data-product-id')) || 0;
+            const key = essenceId + '_' + productId;
+            
+            const quantity = quantityMap[key] || 0;
+            const quantityDisplay = row.querySelector('.permis-enlever-quantity');
+            
+            if (quantityDisplay) {
+                // Format with French number format (comma as decimal separator, space as thousands separator)
+                const formattedQuantity = quantity.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ').replace('.', ',');
+                quantityDisplay.textContent = formattedQuantity + ' m³';
+            }
+        });
+    }
+    
+    // Load essences when permis d'enlever is selected
+    if (permisEnleverSelect) {
+        permisEnleverSelect.addEventListener('change', function() {
+            const selectedPermisId = this.value;
+            loadPermisEnleverEssences(selectedPermisId);
+        });
+        
+        // Load on page load if a permis is pre-selected
+        if (permisEnleverSelect.value) {
+            loadPermisEnleverEssences(permisEnleverSelect.value);
+        }
+    }
+});
+</script>
+@endpush
 @endsection

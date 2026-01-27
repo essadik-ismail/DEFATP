@@ -21,12 +21,14 @@ class PermiEnlever extends Model
         'num_quittance',
         'date',
         'num_tranche_paye',
+        'date_paiement',
         'percepteur',
         'volume',
     ];
 
     protected $casts = [
         'date' => 'date',
+        'date_paiement' => 'date',
         'num_tranche_paye' => 'integer',
         'volume' => 'decimal:2',
     ];

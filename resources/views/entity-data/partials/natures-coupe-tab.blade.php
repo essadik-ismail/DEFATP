@@ -20,32 +20,13 @@
     </x-filters-card>
 
     <!-- Natures de Coupe Data Table -->
-    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-        <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                    <i class="fas fa-table text-white text-xl"></i>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
-                        Liste des Natures de Coupe
-                    </h2>
-                    <p class="text-green-600">Affichage de {{ $natureDeCoupes->firstItem() ?? 0 }} à {{ $natureDeCoupes->lastItem() ?? 0 }} sur {{ $natureDeCoupes->total() }} natures</p>
-                </div>
-            </div>
-            <a href="{{ route('settings.nature-de-coupes.create') }}" 
-               class="inline-flex items-center gap-3 px-6 py-3 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-               style="background: linear-gradient(135deg, #059669, #047857);">
-                <i class="fas fa-plus"></i>
-                <span>Nouvelle Nature</span>
-            </a>
-        </div>
-
+    <div class="rounded-2xl border max-w-full overflow-hidden" style="background: #FFFFFF; border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);">
         <!-- Per Page Selector -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div class="flex items-center gap-4">
-                <label for="naturesCoupePerPageSelect" class="text-sm font-semibold text-green-700">Natures par page:</label>
-                <select class="form-input px-4 py-2 border border-green-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-green-400" 
+        <div class="px-5 py-3 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2" style="border-color: rgba(154,179,163,0.4);">
+            <div class="flex items-center gap-2">
+                <label for="naturesCoupePerPageSelect" class="text-xs font-medium" style="color: #6B7C72;">Natures par page:</label>
+                <select class="form-input px-2 py-1 border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-offset-0"
+                        style="border-color: rgba(154,179,163,0.5);"
                         id="naturesCoupePerPageSelect" onchange="changePerPage('natures-coupe', this.value)">
                     <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
                     <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
@@ -53,73 +34,72 @@
                     <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                 </select>
             </div>
+            <a href="{{ route('settings.nature-de-coupes.create') }}" 
+               class="btn btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium">
+                <i class="fas fa-plus"></i>
+                <span>Nouvelle Nature</span>
+            </a>
         </div>
             
         <!-- Data Table -->
-        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table id="naturesCoupeTable" class="w-full">
-                <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
+        <div class="overflow-x-auto max-w-full" style="-webkit-overflow-scrolling: touch;">
+            <table id="naturesCoupeTable" class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-green-800 uppercase tracking-wider relative">
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
                             <div class="flex items-center justify-between">
                                 <span>ID</span>
-                                <button class="filter-btn ml-2 text-green-400 hover:text-green-600" data-column="0" title="Filtrer">
+                                <button class="filter-btn ml-2 text-gray-400 hover:text-gray-600" data-column="0" title="Filtrer">
                                     <i class="fas fa-filter text-xs"></i>
                                 </button>
                             </div>
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-green-800 uppercase tracking-wider relative">
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
                             <div class="flex items-center justify-between">
                                 <span>Nature</span>
-                                <button class="filter-btn ml-2 text-green-400 hover:text-green-600" data-column="1" title="Filtrer">
+                                <button class="filter-btn ml-1 text-gray-400 hover:text-gray-600" data-column="1" title="Filtrer">
                                     <i class="fas fa-filter text-xs"></i>
                                 </button>
                             </div>
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-green-800 uppercase tracking-wider relative">
+                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider relative">
                             <div class="flex items-center justify-between">
                                 <span>Date de Création</span>
-                                <button class="filter-btn ml-2 text-green-400 hover:text-green-600" data-column="2" title="Filtrer">
+                                <button class="filter-btn ml-1 text-gray-400 hover:text-gray-600" data-column="2" title="Filtrer">
                                     <i class="fas fa-filter text-xs"></i>
                                 </button>
                             </div>
                         </th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold text-green-800 uppercase tracking-wider">Actions</th>
+                        <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @forelse($natureDeCoupes as $nature)
-                    <tr class="hover:bg-green-50 transition-colors duration-200">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-900">
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">
                             {{ $nature->id }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-900">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-cut text-orange-600 text-sm"></i>
-                                </div>
-                                <span class="font-medium">{{ $nature->nature_de_coupe }}</span>
-                            </div>
+                        <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                            <span class="font-medium">{{ $nature->nature_de_coupe }}</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-700">
+                        <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
                             {{ $nature->created_at->format('d/m/Y') }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex items-center justify-center gap-1">
+                        <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-900">
+                            <div class="flex items-center justify-center gap-0.5">
                                 <a href="{{ route('settings.nature-de-coupes.edit', $nature) }}" 
-                                   class="inline-flex items-center justify-center w-8 h-8 bg-orange-100 hover:bg-orange-200 text-orange-600 rounded-lg transition-colors duration-200" 
+                                   class="inline-flex items-center justify-center w-7 h-7 bg-orange-100 hover:bg-orange-200 text-orange-600 rounded transition-colors duration-200" 
                                    title="Modifier">
-                                    <i class="fas fa-edit text-sm"></i>
+                                    <i class="fas fa-edit text-xs"></i>
                                 </a>
                                 <form action="{{ route('settings.nature-de-coupes.destroy', $nature) }}" method="POST" style="display: contents;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" 
-                                            class="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
+                                            class="inline-flex items-center justify-center w-7 h-7 bg-red-100 hover:bg-red-200 text-red-600 rounded transition-colors duration-200"
                                             onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette nature de coupe ?')"
                                             title="Supprimer">
-                                        <i class="fas fa-trash text-sm"></i>
+                                        <i class="fas fa-trash text-xs"></i>
                                     </button>
                                 </form>
                             </div>
@@ -127,7 +107,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="text-center py-8">
+                        <td colspan="4" class="text-center py-6">
                             <div class="text-gray-500">
                                 <i class="fas fa-cut text-4xl mb-2 d-block"></i>
                                 <p class="h5 mb-2">Aucune nature de coupe trouvée</p>
@@ -144,16 +124,16 @@
         </div>
                 
         @if($natureDeCoupes->hasPages())
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="text-sm text-green-600">
+            <div class="bg-gray-50 px-4 py-2 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <div class="text-xs text-gray-600">
                         Affichage de {{ $natureDeCoupes->firstItem() ?? 0 }} à {{ $natureDeCoupes->lastItem() ?? 0 }} 
                         sur {{ $natureDeCoupes->total() }} natures
                     </div>
                     <div class="pagination-controls">
                         {{ $natureDeCoupes->appends(array_merge(request()->query(), ['tab' => 'natures-coupe']))->links() }}
                     </div>
-                    <div class="text-sm text-green-500">
+                    <div class="text-xs text-gray-500">
                         {{ $natureDeCoupes->perPage() }} par page
                     </div>
                 </div>

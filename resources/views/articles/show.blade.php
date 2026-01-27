@@ -8,20 +8,112 @@
 @endsection
 
 @section('content')
+@php
+    // Calculate document availability conditions
+    $hasPaidTranches = false;
+    $permisExploiter = $contractVente?->permisExploiter;
+    if ($contractVente && $contractVente->chargeApayer) {
+        foreach ($contractVente->chargeApayer as $charge) {
+            if (str_starts_with($charge->nom, 'Tranche')) {
+                $payment = $charge->payments->first();
+                if ($payment && $payment->is_paye && $payment->date_payment) {
+                    $hasPaidTranches = true;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Determine current step for document visibility
+    $currentStep = $article->current_step ?? 'cahier_affiche';
+    $steps = ['cahier_affiche', 'contrat_vente', 'paiement_charges', 'paiement_tranches', 'recollement', 'main_levee'];
+    $currentStepIndex = array_search($currentStep, $steps);
+    
+    // Documents available based on step:
+    // - Lettre adjudicataire: from contrat_vente step onwards (if contract exists)
+    // - Permis d'exploiter & PV d'Installation: from paiement_charges step onwards (if hasPaidTranches)
+    // - Permis d'enlever & Permis de colportage: from recollement step onwards (if hasPaidTranches)
+    $showLettreAdjudicataire = $contractVente && $currentStepIndex >= 1; // contrat_vente is index 1
+    $showPermisExploiter = $hasPaidTranches && $currentStepIndex >= 2; // paiement_charges is index 2
+    $showPVInstallation = $hasPaidTranches && $currentStepIndex >= 2; // paiement_charges is index 2
+    $showPermisEnlever = $hasPaidTranches && $currentStepIndex >= 4; // recollement is index 4
+    $showPermisColportage = $hasPaidTranches && $currentStepIndex >= 4; // recollement is index 4
+@endphp
 <div class="min-w-0 max-w-full">
     <!-- Header Section -->
     <x-page-header
         title="Détails de l'Article #{{ $article->numero ?? $article->id }}"
         subtitle="Créé le {{ $article->created_at ? $article->created_at->format('d/m/Y à H:i') : 'N/A' }}"
         icon="fas fa-file-alt"
-        :backRoute="route('articles.index')"
-        backText="Retour aux articles"
     >
         <x-slot name="actions">
-            <a href="{{ route('articles.edit', $article) }}" class="btn btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium">
-                <i class="fas fa-edit"></i>
-                <span>Modifier l'article</span>
-            </a>
+            @php
+                $hasAnyDocument = $showLettreAdjudicataire || $showPermisExploiter || $showPVInstallation || $showPermisEnlever || $showPermisColportage;
+            @endphp
+            @if($hasAnyDocument)
+            <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open" 
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white border border-green-700 rounded-lg font-medium hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Documents</span>
+                    <i class="fas fa-chevron-down text-xs transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+                </button>
+                
+                <div x-show="open" 
+                     @click.away="open = false"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95"
+                     class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                     style="display: none;">
+                    @if($showLettreAdjudicataire)
+                    <a href="{{ route('articles.lettre-adjudicataire', $article) }}" 
+                       class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 transition-colors">
+                        <i class="fas fa-file-alt text-green-600 w-5"></i>
+                        <span>Lettre adjudicataire</span>
+                    </a>
+                    @endif
+
+                    @if($showPermisExploiter)
+                    <a href="{{ route('articles.permis-exploiter', $article) }}" 
+                       class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 transition-colors">
+                        <i class="fas fa-file-contract text-green-600 w-5"></i>
+                        <span>Permis d'exploiter</span>
+                        @if($permisExploiter)
+                            <i class="fas fa-check-circle text-green-600 text-xs ml-auto"></i>
+                        @endif
+                    </a>
+                    @endif
+
+                    @if($showPVInstallation)
+                    <a href="{{ route('articles.pv-installation', $article) }}" 
+                       class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 transition-colors">
+                        <i class="fas fa-clipboard-check text-green-600 w-5"></i>
+                        <span>PV d'Installation</span>
+                    </a>
+                    @endif
+
+                    @if($showPermisEnlever)
+                    <a href="{{ route('articles.permis-enlever', $article) }}" 
+                       class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 transition-colors">
+                        <i class="fas fa-file-alt text-green-600 w-5"></i>
+                        <span>Permis d'enlever</span>
+                    </a>
+                    @endif
+
+                    @if($showPermisColportage)
+                    <a href="{{ route('articles.permis-colportage', $article) }}" 
+                       class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 transition-colors">
+                        <i class="fas fa-truck text-green-600 w-5"></i>
+                        <span>Permis de colportage</span>
+                    </a>
+                    @endif
+                </div>
+            </div>
+            @endif
         </x-slot>
     </x-page-header>
 
@@ -141,284 +233,197 @@
                 @endphp
 
                 @if($activeStep === 'cahier_affiche' || $activeStep === 'contrat_vente')
-                    <!-- Contract Vente Section -->
-                    <div class="card overflow-hidden">
-                        <div class="section-header">
-                            <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
-                                <i class="fas fa-file-contract" style="color: #6B7C72;"></i>
-                                Contrat de Vente
-                            </h2>
-                        </div>
-                    <div class="p-6">
+                    <!-- Contract Vente Section (styled like Create Article) -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                             @if($contractVente)
-                                <div class="mb-6 p-4 rounded-xl border" style="background: rgba(242,246,243,0.6); border-color: rgba(154,179,163,0.4);">
-                                    <p class="text-sm mb-4" style="color: #1F2D24;">
-                                        <i class="fas fa-check-circle mr-2"></i>
+                                <div class="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50">
+                                    <p class="text-sm mb-4 text-gray-700">
+                                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
                                         Un contrat de vente existe déjà pour cet article.
                                     </p>
                                     <div class="flex gap-3">
-                                        <button type="button" 
-                                                onclick="toggleEditForm()"
-                                                id="editContractBtn"
-                                                class="btn btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-xl">
+                                        <button type="button" onclick="toggleEditForm()" id="editContractBtn" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                                             <i class="fas fa-edit"></i>
                                             <span>Modifier le Contrat</span>
                                         </button>
-                                        <button type="button" 
-                                                onclick="toggleEditForm()"
-                                                id="cancelEditBtn"
-                                                class="hidden btn btn-secondary inline-flex items-center gap-2 px-4 py-2 rounded-xl">
+                                        <button type="button" onclick="toggleEditForm()" id="cancelEditBtn" class="hidden inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
                                             <i class="fas fa-times"></i>
                                             <span>Annuler</span>
                                         </button>
-                                </div>
+                                    </div>
                                 </div>
 
                                 <!-- Inline Edit Form (Hidden by default) -->
-                                <div id="editContractForm" class="hidden mb-6">
-                                    <form action="{{ route('contract-ventes.update', [$article, $contractVente]) }}" method="POST" id="contractVenteEditForm" class="space-y-6">
+                                <div id="editContractForm" class="hidden">
+                                    <form action="{{ route('contract-ventes.update', [$article, $contractVente]) }}" method="POST" id="contractVenteEditForm" class="space-y-8">
                                         @csrf
                                         @method('PUT')
-
                                         <x-validation-errors />
 
-                                        <!-- Section 1: Type & Date -->
-                                        <x-form-section 
-                                            title="Informations de l'adjudication"
-                                            icon="fas fa-info-circle"
-                                            color="green"
-                                            columns="2"
-                                        >
-                                            <x-form-input
-                                                type="select"
-                                                name="type"
-                                                label="Type"
-                                                :required="true"
-                                                focusColor="green"
-                                            >
-                                                <option value="">Sélectionner un type</option>
-                                                <option value="adjudication" {{ $contractVente->type == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
-                                                <option value="appel_doffre" {{ $contractVente->type == 'appel_doffre' ? 'selected' : '' }}>Appel d'offre</option>
-                                                <option value="marche_negocie" {{ $contractVente->type == 'marche_negocie' ? 'selected' : '' }}>Marché négocié</option>
-                                            </x-form-input>
-
-                                            <x-form-input
-                                                type="date"
-                                                name="date_adjudication"
-                                                label="Date d'Adjudication"
-                                                :required="true"
-                                                :value="$contractVente->date_adjudication ? \Carbon\Carbon::parse($contractVente->date_adjudication)->format('Y-m-d') : ''"
-                                                focusColor="green"
-                                            />
-
-                                            <x-form-input
-                                                type="text"
-                                                name="numeraAO"
-                                                label="Numéro Appel d'Offre"
-                                                :value="$contractVente->numeraAO ?? ''"
-                                                focusColor="green"
-                                                placeholder="Numéro AO (optionnel)"
-                                            />
-
-                                            <x-form-input
-                                                type="text"
-                                                name="duree_decheache"
-                                                label="Durée d'échéance"
-                                                :value="$contractVente->duree_decheache ?? ''"
-                                                focusColor="green"
-                                                placeholder="Ex: 12 mois, 1 an"
-                                            />
-                                        </x-form-section>
-
-                                        <!-- Section 2: Exploitant -->
-                                        <x-form-section 
-                                            title="Informations sur l'exploitant"
-                                            icon="fas fa-user-tie"
-                                            color="green"
-                                            columns="2"
-                                        >
-                                            <div class="form-group">
-                                                <label for="edit_exploitant_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Exploitant <span class="text-red-500">*</span>
-                                                </label>
-                                                <select id="edit_exploitant_id" 
-                                                    name="exploitant_id" 
-                                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                    required>
-                                                    <option value="">Sélectionner un exploitant</option>
-                                                    @foreach($exploitants as $exploitant)
-                                                        <option value="{{ $exploitant->id }}" 
-                                                            data-cin="{{ $exploitant->n_cin }}"
-                                                            data-numero="{{ $exploitant->numero }}"
-                                                            data-adresse="{{ $exploitant->adresse }}"
-                                                            {{ $contractVente->exploitant_id == $exploitant->id ? 'selected' : '' }}>
-                                                            {{ $exploitant->nom_complet }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('exploitant_id')
-                                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                                @enderror
+                                        <!-- 1. Informations de l'adjudication -->
+                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                            <div class="flex items-center gap-3 mb-4">
+                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                    <i class="fas fa-info-circle text-white text-sm"></i>
+                                                </div>
+                                                <h3 class="text-lg font-semibold text-gray-900">1. Informations de l'adjudication</h3>
                                             </div>
-
-                                            <div class="form-group">
-                                                <label for="edit_exploitant_cin" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    CIN
-                                                </label>
-                                                <input type="text" 
-                                                    id="edit_exploitant_cin" 
-                                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" 
-                                                    readonly>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="form-group">
+                                                    <label for="edit_type" class="block text-sm font-semibold text-gray-700 mb-2">Type <span class="text-red-500">*</span></label>
+                                                    <select id="edit_type" name="type" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                                        <option value="">Sélectionner un type</option>
+                                                        <option value="adjudication" {{ $contractVente->type == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
+                                                        <option value="appel_doffre" {{ $contractVente->type == 'appel_doffre' ? 'selected' : '' }}>Appel d'offre</option>
+                                                        <option value="marche_negocie" {{ $contractVente->type == 'marche_negocie' ? 'selected' : '' }}>Marché négocié</option>
+                                                    </select>
+                                                    @error('type')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">Date d'Adjudication <span class="text-red-500">*</span></label>
+                                                    <input type="date" id="edit_date_adjudication" name="date_adjudication" value="{{ $contractVente->date_adjudication ? \Carbon\Carbon::parse($contractVente->date_adjudication)->format('Y-m-d') : '' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                                    @error('date_adjudication')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_numeraAO" class="block text-sm font-semibold text-gray-700 mb-2">Numéro Appel d'Offre</label>
+                                                    <input type="text" id="edit_numeraAO" name="numeraAO" value="{{ $contractVente->numeraAO ?? '' }}" placeholder="Numéro AO (optionnel)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_duree_decheache" class="block text-sm font-semibold text-gray-700 mb-2">Durée d'échéance</label>
+                                                    <input type="number" id="edit_duree_decheache" name="duree_decheache" value="{{ $contractVente->duree_decheache ?? '' }}" placeholder="Ex: 12 mois, 1 an" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                                </div>
                                             </div>
+                                        </div>
 
-                                            <div class="form-group">
-                                                <label for="edit_exploitant_numero" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Numéro de Patente
-                                                </label>
-                                                <input type="text" 
-                                                    id="edit_exploitant_numero" 
-                                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" 
-                                                    readonly>
+                                        <!-- 2. Informations sur l'exploitant -->
+                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                            <div class="flex items-center gap-3 mb-4">
+                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                    <i class="fas fa-user-tie text-white text-sm"></i>
+                                                </div>
+                                                <h3 class="text-lg font-semibold text-gray-900">2. Informations sur l'exploitant</h3>
                                             </div>
-
-                                            <div class="form-group">
-                                                <label for="edit_exploitant_adresse" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Adresse
-                                                </label>
-                                                <input type="text" 
-                                                    id="edit_exploitant_adresse" 
-                                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" 
-                                                    readonly>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="form-group">
+                                                    <label for="edit_exploitant_id" class="block text-sm font-semibold text-gray-700 mb-2">Exploitant <span class="text-red-500">*</span></label>
+                                                    <select id="edit_exploitant_id" name="exploitant_id" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                                        <option value="">Sélectionner un exploitant</option>
+                                                        @foreach($exploitants as $exploitant)
+                                                            <option value="{{ $exploitant->id }}" data-cin="{{ $exploitant->n_cin ?? '' }}" data-numero="{{ $exploitant->numero ?? '' }}" data-adresse="{{ $exploitant->adresse ?? '' }}" {{ $contractVente->exploitant_id == $exploitant->id ? 'selected' : '' }}>{{ $exploitant->nom_complet }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('exploitant_id')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_exploitant_cin" class="block text-sm font-semibold text-gray-700 mb-2">CIN</label>
+                                                    <input type="text" id="edit_exploitant_cin" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_exploitant_numero" class="block text-sm font-semibold text-gray-700 mb-2">Numéro de l'exploitant</label>
+                                                    <input type="text" id="edit_exploitant_numero" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_exploitant_adresse" class="block text-sm font-semibold text-gray-700 mb-2">Adresse</label>
+                                                    <input type="text" id="edit_exploitant_adresse" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                                                </div>
                                             </div>
-                                        </x-form-section>
+                                        </div>
 
-                                        <!-- Section 3: Prix -->
-                                        <x-form-section 
-                                            title="Détails de la vente"
-                                            icon="fas fa-money-bill-wave"
-                                            color="green"
-                                            columns="3"
-                                        >
-                                            <x-form-input
-                                                type="number"
-                                                name="prix_vente"
-                                                label="Prix de Vente (MAD)"
-                                                :required="true"
-                                                :value="$contractVente->prix_vente"
-                                                focusColor="green"
-                                                placeholder="0.00"
-                                                step="0.01"
-                                                min="0"
-                                                id="edit_prix_vente"
-                                                onchange="calculateEditCharges()"
-                                            />
+                                        <!-- 3. Détails de la vente -->
+                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                            <div class="flex items-center gap-3 mb-4">
+                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                    <i class="fas fa-money-bill-wave text-white text-sm"></i>
+                                                </div>
+                                                <h3 class="text-lg font-semibold text-gray-900">3. Détails de la vente</h3>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div class="form-group">
+                                                    <label for="edit_prix_vente" class="block text-sm font-semibold text-gray-700 mb-2">Prix de Vente (MAD) <span class="text-red-500">*</span></label>
+                                                    <input type="number" id="edit_prix_vente" name="prix_vente" value="{{ $contractVente->prix_vente }}" placeholder="0.00" step="0.01" min="0" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required onchange="calculateEditCharges(); updateEditTranchesInputs();">
+                                                    @error('prix_vente')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                                </div>
 
-                                            <x-form-input
-                                                type="number"
-                                                name="prix_de_retrait"
-                                                label="Prix de Retrait (MAD)"
-                                                :value="$contractVente->prix_de_retrait ?? ''"
-                                                focusColor="green"
-                                                placeholder="0.00"
-                                                step="0.01"
-                                                min="0"
-                                            />
-
-                                            <x-form-input
-                                                type="select"
-                                                name="nombre_tranche"
-                                                label="Nombre de Tranches"
-                                                :required="true"
-                                                focusColor="green"
-                                                id="edit_nombre_tranche"
-                                                onchange="updateEditTranchesInputs()"
-                                            >
-                                                <option value="1" {{ $contractVente->nombre_tranche == 1 ? 'selected' : '' }}>1</option>
-                                                <option value="2" {{ $contractVente->nombre_tranche == 2 ? 'selected' : '' }}>2</option>
-                                                <option value="4" {{ $contractVente->nombre_tranche == 4 ? 'selected' : '' }}>4</option>
-                                            </x-form-input>
-                                        </x-form-section>
+                                                <div class="form-group">
+                                                    <label for="edit_nombre_tranche" class="block text-sm font-semibold text-gray-700 mb-2">Nombre de Tranches <span class="text-red-500">*</span></label>
+                                                    <select id="edit_nombre_tranche" name="nombre_tranche" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required onchange="updateEditTranchesInputs()">
+                                                        <option value="1" {{ $contractVente->nombre_tranche == 1 ? 'selected' : '' }}>1</option>
+                                                        <option value="2" {{ $contractVente->nombre_tranche == 2 ? 'selected' : '' }}>2</option>
+                                                        <option value="4" {{ $contractVente->nombre_tranche == 4 ? 'selected' : '' }}>4</option>
+                                                    </select>
+                                                    @error('nombre_tranche')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                                <div class="form-group">
+                                                    <label for="edit_date_limite_tranche" class="block text-sm font-semibold text-gray-700 mb-2">Date Limite Tranche</label>
+                                                    <input type="date" id="edit_date_limite_tranche" name="date_limite_tranche" value="{{ $contractVente->date_limite_tranche ? \Carbon\Carbon::parse($contractVente->date_limite_tranche)->format('Y-m-d') : '' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                                    @error('date_limite_tranche')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_date_limite_taxes" class="block text-sm font-semibold text-gray-700 mb-2">Date Limite Taxes</label>
+                                                    <input type="date" id="edit_date_limite_taxes" name="date_limite_taxes" value="{{ $contractVente->date_limite_taxes ? \Carbon\Carbon::parse($contractVente->date_limite_taxes)->format('Y-m-d') : '' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                                    @error('date_limite_taxes')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         @php
-                                            $editCharges = $contractVente->chargeApayer->filter(function($charge) {
-                                                return !str_starts_with($charge->nom, 'Tranche');
-                                            })->values();
-                                            $editTranches = $contractVente->chargeApayer->filter(function($charge) {
-                                                return str_starts_with($charge->nom, 'Tranche');
-                                            })->sortBy(function($charge) {
-                                                preg_match('/Tranche (\d+)/', $charge->nom, $matches);
-                                                return isset($matches[1]) ? (int)$matches[1] : 0;
-                                            })->values();
+                                            $editCharges = $contractVente->chargeApayer->filter(function($charge) { return !str_starts_with($charge->nom, 'Tranche'); })->values();
+                                            $editTranches = $contractVente->chargeApayer->filter(function($charge) { return str_starts_with($charge->nom, 'Tranche'); })->sortBy(function($charge) { preg_match('/Tranche (\d+)/', $charge->nom, $m); return isset($m[1]) ? (int)$m[1] : 0; })->values();
                                         @endphp
 
-                                        <!-- Section 4: Charges -->
-                                        <x-form-section 
-                                            title="Charges"
-                                            icon="fas fa-calculator"
-                                            color="blue"
-                                            columns="2"
-                                        >
-                                            @foreach($editCharges as $index => $charge)
-                                                <div>
+                                        <!-- 4. Charges -->
+                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                            <div class="flex items-center gap-3 mb-4">
+                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                    <i class="fas fa-calculator text-white text-sm"></i>
+                                                </div>
+                                                <h3 class="text-lg font-semibold text-gray-900">4. Charges</h3>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                @foreach($editCharges as $index => $charge)
+                                                <div class="form-group">
                                                     <label class="block text-sm font-semibold text-gray-700 mb-2">{{ $charge->nom }}</label>
-                                                    <input type="number" 
-                                                        name="charges[{{ $index }}][montant]" 
-                                                        step="0.01" 
-                                                        value="{{ $charge->montant }}"
-                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
-                                                        readonly>
+                                                    <input type="number" name="charges[{{ $index }}][montant]" step="0.01" value="{{ $charge->montant }}" readonly class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100">
                                                     <input type="hidden" name="charges[{{ $index }}][nom]" value="{{ $charge->nom }}">
                                                 </div>
-                                                <x-form-input
-                                                    type="date"
-                                                    name="charges[{{ $index }}][date_echeance]"
-                                                    label="Date d'échéance"
-                                                    :required="true"
-                                                    :value="$charge->date_echeance ? \Carbon\Carbon::parse($charge->date_echeance)->format('Y-m-d') : ''"
-                                                    focusColor="blue"
-                                                />
-                                            @endforeach
-                                        </x-form-section>
-
-                                        <!-- Section 5: Tranches -->
-                                        <x-form-section 
-                                            title="Tranches"
-                                            icon="fas fa-list-ol"
-                                            color="purple"
-                                            columns="2"
-                                        >
-                                            <div id="editTranchesContainer">
-                                                @foreach($editTranches as $index => $tranche)
-                                                    <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 mb-2">{{ $tranche->nom }}</label>
-                                                        <input type="number" 
-                                                            name="tranches[{{ $index }}][montant]" 
-                                                            step="0.01" 
-                                                            value="{{ $tranche->montant }}"
-                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                                                            required>
-                                                    </div>
-                                                    <x-form-input
-                                                        type="date"
-                                                        name="tranches[{{ $index }}][date_echeance]"
-                                                        label="Date d'échéance"
-                                                        :required="true"
-                                                        :value="$tranche->date_echeance ? \Carbon\Carbon::parse($tranche->date_echeance)->format('Y-m-d') : ''"
-                                                        focusColor="purple"
-                                                    />
+                                                <div class="form-group">
+                                                    <label for="edit_charge_date_{{ $index }}" class="block text-sm font-semibold text-gray-700 mb-2">Date d'échéance <span class="text-red-500">*</span></label>
+                                                    <input type="date" id="edit_charge_date_{{ $index }}" name="charges[{{ $index }}][date_echeance]" value="{{ $charge->date_echeance ? \Carbon\Carbon::parse($charge->date_echeance)->format('Y-m-d') : '' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                                </div>
                                                 @endforeach
                                             </div>
-                                        </x-form-section>
+                                        </div>
 
-                                        <div class="flex justify-end gap-3 pt-4">
-                                            <button type="button" 
-                                                    onclick="toggleEditForm()"
-                                                    class="btn btn-secondary px-6 py-2 rounded-xl">
+                                        <!-- 5. Tranches -->
+                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                            <div class="flex items-center gap-3 mb-4">
+                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                    <i class="fas fa-list-ol text-white text-sm"></i>
+                                                </div>
+                                                <h3 class="text-lg font-semibold text-gray-900">5. Tranches</h3>
+                                            </div>
+                                            <div id="editTranchesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                @foreach($editTranches as $index => $tranche)
+                                                <div class="form-group">
+                                                    <label class="block text-sm font-semibold text-gray-700 mb-2">{{ $tranche->nom }} <span class="text-xs font-normal text-gray-500">(Prix de vente ÷ {{ $contractVente->nombre_tranche }})</span></label>
+                                                    <input type="number" name="tranches[{{ $index }}][montant]" step="0.01" value="{{ $contractVente->nombre_tranche > 0 ? number_format(round($contractVente->prix_vente / $contractVente->nombre_tranche, 2), 2, '.', '') : $tranche->montant }}" readonly class="edit-tranche-montant form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_tranche_date_{{ $index }}" class="block text-sm font-semibold text-gray-700 mb-2">Date d'échéance <span class="text-red-500">*</span></label>
+                                                    <input type="date" id="edit_tranche_date_{{ $index }}" name="tranches[{{ $index }}][date_echeance]" value="{{ $tranche->date_echeance ? \Carbon\Carbon::parse($tranche->date_echeance)->format('Y-m-d') : '' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+
+                                        <div class="flex justify-end gap-3 pt-2">
+                                            <button type="button" onclick="toggleEditForm()" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
                                                 Annuler
                                             </button>
-                                            <button type="submit" 
-                                                    class="btn btn-primary px-6 py-2 rounded-xl">
-                                                <i class="fas fa-save mr-2"></i>
+                                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                                                <i class="fas fa-save"></i>
                                                 Enregistrer les modifications
                                             </button>
                                         </div>
@@ -426,520 +431,408 @@
                                 </div>
 
                                 <!-- Display existing contract details -->
-                                <div id="contractDetails" class="space-y-6">
-                                    <!-- Section 1: Type & Date -->
-                                    <x-form-section 
-                                        title="Informations de l'adjudication"
-                                        icon="fas fa-info-circle"
-                                        color="green"
-                                        columns="2"
-                                    >
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                                            <p class="text-green-900 font-semibold">
-                                                @if($contractVente->type == 'adjudication')
-                                                    Adjudication
-                                                @elseif($contractVente->type == 'appel_doffre')
-                                                    Appel d'offre
-                                                @elseif($contractVente->type == 'marche_negocie')
-                                                    Marché négocié
-                                                @else
-                                                    {{ $contractVente->type }}
-                                                @endif
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Date d'Adjudication</label>
-                                            <p class="text-green-900 font-semibold">
-                                                {{ $contractVente->date_adjudication ? \Carbon\Carbon::parse($contractVente->date_adjudication)->format('d/m/Y') : 'N/A' }}
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Numéro Appel d'Offre</label>
-                                            <p class="text-green-900 font-semibold">{{ $contractVente->numeraAO ?? 'N/A' }}</p>
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Durée d'échéance</label>
-                                            <p class="text-green-900 font-semibold">{{ $contractVente->duree_decheache ?? 'N/A' }}</p>
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Date de déchéance</label>
-                                            <p class="text-green-900 font-semibold">
-                                                {{ $contractVente->date_de_decheance ? \Carbon\Carbon::parse($contractVente->date_de_decheance)->format('d/m/Y') : 'N/A' }}
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">ID de déchéance</label>
-                                            <p class="text-green-900 font-semibold">{{ $contractVente->id_decheance ?? 'N/A' }}</p>
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">État actuel</label>
-                                            <p class="text-green-900 font-semibold">{{ $contractVente->Current_state ?? 'N/A' }}</p>
-                                        </div>
-
-                                        @if($contractVente->is_resiliation)
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Résiliation</label>
-                                            <p class="text-green-900 font-semibold">
-                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    <i class="fas fa-times-circle mr-1"></i>
-                                                    Résilié
-                                                </span>
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Date de résiliation</label>
-                                            <p class="text-green-900 font-semibold">
-                                                {{ $contractVente->date_de_resiliation ? \Carbon\Carbon::parse($contractVente->date_de_resiliation)->format('d/m/Y') : 'N/A' }}
-                                            </p>
-                                        </div>
-                                        @endif
-                                    </x-form-section>
-
-                                    <!-- Section 2: Exploitant -->
-                                    <x-form-section 
-                                        title="Informations sur l'exploitant"
-                                        icon="fas fa-user-tie"
-                                        color="green"
-                                        columns="2"
-                                    >
-                                        @if($contractVente && $contractVente->exploitant_id && $contractVente->exploitant)
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->nom_complet ?? 'N/A' }}</p>
+                                <div id="contractDetails" class="space-y-8">
+                                    <!-- 1. Informations de l'adjudication -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-info-circle text-white text-sm"></i>
                                             </div>
+                                            <h3 class="text-lg font-semibold text-gray-900">1. Informations de l'adjudication</h3>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Raison sociale</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->raison_sociale ?? 'N/A' }}</p>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">CIN</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->n_cin ?? 'N/A' }}</p>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de Patente</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->numero ?? 'N/A' }}</p>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->adresse ?? 'N/A' }}</p>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->categorie ?? 'N/A' }}</p>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Activité</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->activite ?? 'N/A' }}</p>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Qualification RC</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->qualification_rc ?? 'N/A' }}</p>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Date d'obtention</label>
-                                                <p class="text-green-900 font-semibold">
-                                                    @if($contractVente->exploitant->date_obtention)
-                                                        {{ $contractVente->exploitant->date_obtention->format('d/m/Y') }}
-                                                    @else
-                                                        N/A
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                                                <p class="text-gray-900 font-semibold">
+                                                    @if($contractVente->type == 'adjudication') Adjudication
+                                                    @elseif($contractVente->type == 'appel_doffre') Appel d'offre
+                                                    @elseif($contractVente->type == 'marche_negocie') Marché négocié
+                                                    @else {{ $contractVente->type }}
                                                     @endif
                                                 </p>
                                             </div>
                                             <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Date d'Adjudication</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->date_adjudication ? \Carbon\Carbon::parse($contractVente->date_adjudication)->format('d/m/Y') : 'N/A' }}</p>
+                                            </div>
+                                            @if($contractVente->type === 'appel_doffre')
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro Appel d'Offre</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->numeraAO ?? 'N/A' }}</p>
+                                            </div>
+                                            @endif
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Durée d'échéance</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->duree_decheache ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Date de déchéance</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->date_de_decheance ? \Carbon\Carbon::parse($contractVente->date_de_decheance)->format('d/m/Y') : 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">ID de déchéance</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->id_decheance ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">État actuel</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->Current_state ?? 'N/A' }}</p>
+                                            </div>
+                                            @if($contractVente->is_resiliation)
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Résiliation</label>
+                                                <p class="text-gray-900 font-semibold"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><i class="fas fa-times-circle mr-1"></i>Résilié</span></p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Date de résiliation</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->date_de_resiliation ? \Carbon\Carbon::parse($contractVente->date_de_resiliation)->format('d/m/Y') : 'N/A' }}</p>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Informations sur l'exploitant -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-user-tie text-white text-sm"></i>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-gray-900">2. Informations sur l'exploitant</h3>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        @if($contractVente && $contractVente->exploitant_id && $contractVente->exploitant)
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->nom_complet ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Raison sociale</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->raison_sociale ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">CIN</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->n_cin ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de Patente</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->numero ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->adresse ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->categorie ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Activité</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->activite ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Qualification RC</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->qualification_rc ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Date d'obtention</label>
+                                                <p class="text-gray-900 font-semibold">@if($contractVente->exploitant->date_obtention){{ $contractVente->exploitant->date_obtention->format('d/m/Y') }}@else N/A @endif</p>
+                                            </div>
+                                            <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-1">Durée de validité</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->duree_validite ?? 'N/A' }}</p>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->duree_validite ?? 'N/A' }}</p>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-1">État de validité</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->etat_validite ?? 'N/A' }}</p>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->etat_validite ?? 'N/A' }}</p>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-1">Situation administrative</label>
-                                                <p class="text-green-900 font-semibold">{{ $contractVente->exploitant->situation_administrative ?? 'N/A' }}</p>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->situation_administrative ?? 'N/A' }}</p>
                                             </div>
                                             @if($contractVente->exploitant->dranef)
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-1">Localisation (DRANEF)</label>
-                                                <p class="text-green-900 font-semibold">
-                                                    {{ $contractVente->exploitant->dranef->code ?? '' }} - {{ $contractVente->exploitant->dranef->dranef ?? 'N/A' }}
-                                                </p>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->dranef->code ?? '' }} - {{ $contractVente->exploitant->dranef->dranef ?? 'N/A' }}</p>
                                             </div>
                                             @endif
                                         @else
-                                            <div class="col-span-2">
-                                                <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                                    <p class="text-yellow-800 text-sm">
+                                            <div class="md:col-span-2">
+                                                <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                                    <p class="text-amber-800 text-sm">
                                                         <i class="fas fa-exclamation-triangle mr-2"></i>
                                                         @if($contractVente && $contractVente->exploitant_id)
                                                             L'exploitant sélectionné n'a pas pu être chargé. Veuillez vérifier que l'exploitant existe toujours.
                                                         @else
-                                                            Aucun exploitant n'a été sélectionné pour ce contrat de vente. 
-                                                            <button type="button" onclick="toggleEditForm()" class="text-green-600 hover:text-green-800 underline ml-1 bg-transparent border-none cursor-pointer">
-                                                                Cliquez ici pour modifier le contrat et sélectionner un exploitant.
-                                                            </button>
+                                                            Aucun exploitant n'a été sélectionné pour ce contrat de vente.
+                                                            <button type="button" onclick="toggleEditForm()" class="text-green-600 hover:text-green-800 underline ml-1 bg-transparent border-none cursor-pointer">Cliquez ici pour modifier le contrat et sélectionner un exploitant.</button>
                                                         @endif
                                                     </p>
                                                 </div>
                                             </div>
                                         @endif
-                                    </x-form-section>
-
-                                    <!-- Section 3: Prix -->
-                                    <x-form-section 
-                                        title="Détails de la vente"
-                                        icon="fas fa-money-bill-wave"
-                                        color="green"
-                                        columns="3"
-                                    >
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Prix de Vente</label>
-                                            <p class="text-green-900 font-semibold">{{ number_format($contractVente->prix_vente, 2, ',', ' ') }} MAD</p>
                                         </div>
+                                    </div>
 
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Prix de Retrait</label>
-                                            <p class="text-green-900 font-semibold">{{ number_format($contractVente->prix_de_retrait ?? 0, 2, ',', ' ') }} MAD</p>
+                                    <!-- 3. Détails de la vente -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-money-bill-wave text-white text-sm"></i>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-gray-900">3. Détails de la vente</h3>
                                         </div>
-
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de Tranches</label>
-                                            <p class="text-green-900 font-semibold">{{ $contractVente->nombre_tranche ?? 1 }}</p>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Prix de Vente</label>
+                                                <p class="text-gray-900 font-semibold">{{ number_format($contractVente->prix_vente, 2, ',', ' ') }} MAD</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Prix de Retrait</label>
+                                                <p class="text-gray-900 font-semibold">{{ number_format($contractVente->prix_de_retrait ?? 0, 2, ',', ' ') }} MAD</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de Tranches</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->nombre_tranche ?? 1 }}</p>
+                                            </div>
                                         </div>
-                                    </x-form-section>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Date Limite Tranche</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->date_limite_tranche ? \Carbon\Carbon::parse($contractVente->date_limite_tranche)->format('d/m/Y') : 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Date Limite Taxes</label>
+                                                <p class="text-gray-900 font-semibold">{{ $contractVente->date_limite_taxes ? \Carbon\Carbon::parse($contractVente->date_limite_taxes)->format('d/m/Y') : 'N/A' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                    <!-- Section 4: Charges -->
                                     @php
-                                        $charges = $contractVente->chargeApayer->filter(function($charge) {
-                                            return !str_starts_with($charge->nom, 'Tranche');
-                                        });
+                                        $charges = $contractVente->chargeApayer->filter(fn($c) => !str_starts_with($c->nom, 'Tranche'));
+                                        $tranches = $contractVente->chargeApayer->filter(fn($c) => str_starts_with($c->nom, 'Tranche'));
                                     @endphp
-                                    
+
                                     @if($charges->count() > 0)
-                                    <x-form-section 
-                                        title="Charges"
-                                        icon="fas fa-calculator"
-                                        color="blue"
-                                        columns="2"
-                                    >
-                                        @foreach($charges as $charge)
-                                            <div>
-                                                <label class="block text-sm font-medium text-blue-700 mb-1">{{ $charge->nom }}</label>
-                                                <p class="text-blue-900 font-semibold">{{ number_format($charge->montant, 2, ',', ' ') }} MAD</p>
-                                                @if($charge->date_echeance)
-                                                    <p class="text-xs text-blue-600 mt-1">Échéance: {{ \Carbon\Carbon::parse($charge->date_echeance)->format('d/m/Y') }}</p>
-                                                @endif
+                                    <!-- 4. Charges -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-calculator text-white text-sm"></i>
                                             </div>
-                                        @endforeach
-                                    </x-form-section>
+                                            <h3 class="text-lg font-semibold text-gray-900">4. Charges</h3>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            @foreach($charges as $charge)
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $charge->nom }}</label>
+                                                <p class="text-gray-900 font-semibold">{{ number_format($charge->montant, 2, ',', ' ') }} MAD</p>
+                                                @if($charge->date_echeance)<p class="text-xs text-gray-600 mt-1">Échéance: {{ \Carbon\Carbon::parse($charge->date_echeance)->format('d/m/Y') }}</p>@endif
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                     @endif
 
-                                    <!-- Section 5: Tranches -->
-                                    @php
-                                        $tranches = $contractVente->chargeApayer->filter(function($charge) {
-                                            return str_starts_with($charge->nom, 'Tranche');
-                                        });
-                                    @endphp
-                                    
                                     @if($tranches->count() > 0)
-                                    <x-form-section 
-                                        title="Détail des tranches"
-                                        icon="fas fa-list-ol"
-                                        color="purple"
-                                        columns="2"
-                                    >
-                                        @foreach($tranches as $tranche)
-                                            <div>
-                                                <label class="block text-sm font-medium text-purple-700 mb-1">{{ $tranche->nom }}</label>
-                                                <p class="text-purple-900 font-semibold">{{ number_format($tranche->montant, 2, ',', ' ') }} MAD</p>
-                                                @if($tranche->date_echeance)
-                                                    <p class="text-xs text-purple-600 mt-1">Échéance: {{ \Carbon\Carbon::parse($tranche->date_echeance)->format('d/m/Y') }}</p>
-                                                @endif
+                                    <!-- 5. Détail des tranches -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-list-ol text-white text-sm"></i>
                                             </div>
-                                        @endforeach
-                                    </x-form-section>
+                                            <h3 class="text-lg font-semibold text-gray-900">5. Détail des tranches</h3>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            @foreach($tranches as $tranche)
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ $tranche->nom }}</label>
+                                                <p class="text-gray-900 font-semibold">{{ number_format($tranche->montant, 2, ',', ' ') }} MAD</p>
+                                                @if($tranche->date_echeance)<p class="text-xs text-gray-600 mt-1">Échéance: {{ \Carbon\Carbon::parse($tranche->date_echeance)->format('d/m/Y') }}</p>@endif
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                     @endif
-                                </div>
                                 </div>
                             @else
                                 <!-- Inline Contract de Vente Creation Form -->
-                                <form action="{{ route('contract-ventes.store', $article) }}" method="POST" id="contractVenteForm" class="space-y-6">
+                                <form action="{{ route('contract-ventes.store', $article) }}" method="POST" id="contractVenteForm" class="space-y-8">
                                     @csrf
 
                                     <x-validation-errors />
 
-                                    <!-- Section 1: Type & Date -->
-                                    <x-form-section 
-                                        title="Informations de l'adjudication"
-                                        icon="fas fa-info-circle"
-                                        color="green"
-                                        columns="2"
-                                    >
-                                        <x-form-input
-                                            type="select"
-                                            name="type"
-                                            label="Type"
-                                            :required="true"
-                                            focusColor="green"
-                                        >
-                                            <option value="">Sélectionner un type</option>
-                                            <option value="adjudication" {{ old('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
-                                            <option value="appel_doffre" {{ old('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'offre</option>
-                                            <option value="marche_negocie" {{ old('type') == 'marche_negocie' ? 'selected' : '' }}>Marché négocié</option>
-                                        </x-form-input>
-
-                                        <x-form-input
-                                            type="date"
-                                            name="date_adjudication"
-                                            label="Date d'Adjudication"
-                                            :required="true"
-                                            :value="old('date_adjudication')"
-                                            focusColor="green"
-                                        />
-
-                                        <x-form-input
-                                            type="text"
-                                            name="numeraAO"
-                                            label="Numéro Appel d'Offre"
-                                            :value="old('numeraAO')"
-                                            focusColor="green"
-                                            placeholder="Numéro AO (optionnel)"
-                                        />
-
-                                        <x-form-input
-                                            type="text"
-                                            name="duree_decheache"
-                                            label="Durée d'échéance"
-                                            :value="old('duree_decheache')"
-                                            focusColor="green"
-                                            placeholder="Ex: 12 mois, 1 an"
-                                        />
-                                    </x-form-section>
-
-                                    <!-- Section 2: Exploitant -->
-                                    <x-form-section 
-                                        title="Informations sur l'exploitant"
-                                        icon="fas fa-user-tie"
-                                        color="green"
-                                        columns="2"
-                                    >
-                                        <div class="form-group">
-                                            <label for="exploitant_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                Exploitant <span class="text-red-500">*</span>
-                                            </label>
-                                            <select id="exploitant_id" 
-                                                name="exploitant_id" 
-                                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                required>
-                                                <option value="">Sélectionner un exploitant</option>
-                                                @foreach($exploitants as $exploitant)
-                                                    <option value="{{ $exploitant->id }}" 
-                                                        data-cin="{{ $exploitant->n_cin }}"
-                                                        data-numero="{{ $exploitant->numero }}"
-                                                        data-adresse="{{ $exploitant->adresse }}"
-                                                        {{ old('exploitant_id') == $exploitant->id ? 'selected' : '' }}>
-                                                        {{ $exploitant->nom_complet }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error('exploitant_id')
-                                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                            @enderror
+                                    <!-- 1. Informations de l'adjudication -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-info-circle text-white text-sm"></i>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-gray-900">1. Informations de l'adjudication</h3>
                                         </div>
-
-                                        <div class="form-group">
-                                            <label for="exploitant_cin" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                CIN
-                                            </label>
-                                            <input type="text" 
-                                                id="exploitant_cin" 
-                                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100" 
-                                                readonly>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="form-group">
+                                                <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">Type <span class="text-red-500">*</span></label>
+                                                <select id="type" name="type" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                                    <option value="">Sélectionner un type</option>
+                                                    <option value="adjudication" {{ old('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
+                                                    <option value="appel_doffre" {{ old('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'offre</option>
+                                                    <option value="marche_negocie" {{ old('type') == 'marche_negocie' ? 'selected' : '' }}>Marché négocié</option>
+                                                </select>
+                                                @error('type')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">Date d'Adjudication <span class="text-red-500">*</span></label>
+                                                <input type="date" id="date_adjudication" name="date_adjudication" value="{{ old('date_adjudication') }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                                @error('date_adjudication')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="numeraAO" class="block text-sm font-semibold text-gray-700 mb-2">Numéro Appel d'Offre</label>
+                                                <input type="text" id="numeraAO" name="numeraAO" value="{{ old('numeraAO') }}" placeholder="Numéro AO (optionnel)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                                @error('numeraAO')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="duree_decheache" class="block text-sm font-semibold text-gray-700 mb-2">Durée d'échéance</label>
+                                                <input type="number" id="duree_decheache" name="duree_decheache" value="{{ old('duree_decheache') }}" placeholder="Ex: 12 mois" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                                @error('duree_decheache')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                            </div>
                                         </div>
+                                    </div>
 
-                                        <div class="form-group">
-                                            <label for="exploitant_numero" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                Numéro de Patente
-                                            </label>
-                                            <input type="text" 
-                                                id="exploitant_numero" 
-                                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100" 
-                                                readonly>
+                                    <!-- 2. Informations sur l'exploitant -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-user-tie text-white text-sm"></i>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-gray-900">2. Informations sur l'exploitant</h3>
                                         </div>
-
-                                        <div class="form-group">
-                                            <label for="exploitant_adresse" class="block text-sm font-semibold text-gray-700 mb-2">
-                                                Adresse
-                                            </label>
-                                            <input type="text" 
-                                                id="exploitant_adresse" 
-                                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100" 
-                                                readonly>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="form-group">
+                                                <label for="exploitant_id" class="block text-sm font-semibold text-gray-700 mb-2">Exploitant <span class="text-red-500">*</span></label>
+                                                <select id="exploitant_id" name="exploitant_id" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                                    <option value="">Sélectionner un exploitant</option>
+                                                    @foreach($exploitants as $exploitant)
+                                                        <option value="{{ $exploitant->id }}" data-cin="{{ $exploitant->n_cin ?? '' }}" data-numero="{{ $exploitant->numero ?? '' }}" data-adresse="{{ $exploitant->adresse ?? '' }}" {{ old('exploitant_id') == $exploitant->id ? 'selected' : '' }}>{{ $exploitant->nom_complet }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('exploitant_id')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="exploitant_cin" class="block text-sm font-semibold text-gray-700 mb-2">CIN</label>
+                                                <input type="text" id="exploitant_cin" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="exploitant_numero" class="block text-sm font-semibold text-gray-700 mb-2">Numéro de Patente</label>
+                                                <input type="text" id="exploitant_numero" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="exploitant_adresse" class="block text-sm font-semibold text-gray-700 mb-2">Adresse</label>
+                                                <input type="text" id="exploitant_adresse" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
+                                            </div>
                                         </div>
-                                    </x-form-section>
+                                    </div>
 
-                                    <!-- Section 3: Prix -->
-                                    <x-form-section 
-                                        title="Détails de la vente"
-                                        icon="fas fa-money-bill-wave"
-                                        color="green"
-                                        columns="3"
-                                    >
-                                        <x-form-input
-                                            type="number"
-                                            name="prix_vente"
-                                            label="Prix de Vente (MAD)"
-                                            :required="true"
-                                            :value="old('prix_vente')"
-                                            focusColor="green"
-                                            placeholder="0.00"
-                                            step="0.01"
-                                            min="0"
-                                            id="prix_vente"
-                                            onchange="calculateCharges()"
-                                        />
-
-                                        <x-form-input
-                                            type="number"
-                                            name="prix_de_retrait"
-                                            label="Prix de Retrait (MAD)"
-                                            :value="old('prix_de_retrait')"
-                                            focusColor="green"
-                                            placeholder="0.00"
-                                            step="0.01"
-                                            min="0"
-                                        />
-
-                                        <x-form-input
-                                            type="select"
-                                            name="nombre_tranche"
-                                            label="Nombre de Tranches"
-                                            :required="true"
-                                            focusColor="green"
-                                            id="nombre_tranche"
-                                            onchange="updateTranchesInputs()"
-                                        >
-                                            <option value="1" {{ old('nombre_tranche', 1) == 1 ? 'selected' : '' }}>1</option>
-                                            <option value="2" {{ old('nombre_tranche', 1) == 2 ? 'selected' : '' }}>2</option>
-                                            <option value="4" {{ old('nombre_tranche', 1) == 4 ? 'selected' : '' }}>4</option>
-                                        </x-form-input>
-                                    </x-form-section>
-
-                                    <!-- Section 4: Charges (Auto-calculated) -->
-                                    <x-form-section 
-                                        title="Récapitulatif des charges (calcul automatique)"
-                                        icon="fas fa-calculator"
-                                        color="blue"
-                                        columns="2"
-                                    >
-                                        <!-- Cautionnement définitif (10%) -->
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Cautionnement définitif (10%)</label>
-                                            <input type="number" 
-                                                id="charge_cautionnement" 
-                                                name="charges[0][montant]" 
-                                                step="0.01" 
-                                                readonly
-                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
-                                                value="0.00">
-                                            <input type="hidden" name="charges[0][nom]" value="Cautionnement définitif">
+                                    <!-- 3. Détails de la vente -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-money-bill-wave text-white text-sm"></i>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-gray-900">3. Détails de la vente</h3>
                                         </div>
-                                        <x-form-input
-                                            type="date"
-                                            name="charges[0][date_echeance]"
-                                            label="Date d'échéance"
-                                            :required="true"
-                                            :value="old('charges.0.date_echeance')"
-                                            focusColor="blue"
-                                        />
-
-                                        <!-- Taxe FNF (20%) -->
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Taxe FNF (20%)</label>
-                                            <input type="number" 
-                                                id="charge_taxe_fnf" 
-                                                name="charges[1][montant]" 
-                                                step="0.01" 
-                                                readonly
-                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
-                                                value="0.00">
-                                            <input type="hidden" name="charges[1][nom]" value="Taxe FNF">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="form-group">
+                                                <label for="prix_vente" class="block text-sm font-semibold text-gray-700 mb-2">Prix de Vente (MAD) <span class="text-red-500">*</span></label>
+                                                <input type="number" id="prix_vente" name="prix_vente" value="{{ old('prix_vente') }}" placeholder="0.00" step="0.01" min="0" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required onchange="calculateCharges(); updateTranchesInputs();">
+                                                @error('prix_vente')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="nombre_tranche" class="block text-sm font-semibold text-gray-700 mb-2">Nombre de Tranches <span class="text-red-500">*</span></label>
+                                                <select id="nombre_tranche" name="nombre_tranche" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required onchange="updateTranchesInputs()">
+                                                    <option value="1" {{ old('nombre_tranche', 1) == 1 ? 'selected' : '' }}>1</option>
+                                                    <option value="2" {{ old('nombre_tranche', 1) == 2 ? 'selected' : '' }}>2</option>
+                                                    <option value="4" {{ old('nombre_tranche', 1) == 4 ? 'selected' : '' }}>4</option>
+                                                </select>
+                                                @error('nombre_tranche')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                            </div>
                                         </div>
-                                        <x-form-input
-                                            type="date"
-                                            name="charges[1][date_echeance]"
-                                            label="Date d'échéance"
-                                            :required="true"
-                                            :value="old('charges.1.date_echeance')"
-                                            focusColor="blue"
-                                        />
-
-                                        <!-- Frais d'adjudication (1.6%) -->
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Frais d'adjudication (1.6%)</label>
-                                            <input type="number" 
-                                                id="charge_frais_adjudication" 
-                                                name="charges[2][montant]" 
-                                                step="0.01" 
-                                                readonly
-                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
-                                                value="0.00">
-                                            <input type="hidden" name="charges[2][nom]" value="Frais d'adjudication">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                            <div class="form-group">
+                                                <label for="date_limite_tranche" class="block text-sm font-semibold text-gray-700 mb-2">Date Limite Tranche</label>
+                                                <input type="date" id="date_limite_tranche" name="date_limite_tranche" value="{{ old('date_limite_tranche') }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                                @error('date_limite_tranche')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="date_limite_taxes" class="block text-sm font-semibold text-gray-700 mb-2">Date Limite Taxes</label>
+                                                <input type="date" id="date_limite_taxes" name="date_limite_taxes" value="{{ old('date_limite_taxes') }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                                @error('date_limite_taxes')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                                            </div>
                                         </div>
-                                        <x-form-input
-                                            type="date"
-                                            name="charges[2][date_echeance]"
-                                            label="Date d'échéance"
-                                            :required="true"
-                                            :value="old('charges.2.date_echeance')"
-                                            focusColor="blue"
-                                        />
+                                    </div>
 
-                                        <!-- Taxe provinciale (10%) -->
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Taxe provinciale (10%)</label>
-                                            <input type="number" 
-                                                id="charge_taxe_provinciale" 
-                                                name="charges[3][montant]" 
-                                                step="0.01" 
-                                                readonly
-                                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100"
-                                                value="0.00">
-                                            <input type="hidden" name="charges[3][nom]" value="Taxe provinciale">
+                                    <!-- 4. Récapitulatif des charges (calcul automatique) -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-calculator text-white text-sm"></i>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-gray-900">4. Récapitulatif des charges (calcul automatique)</h3>
                                         </div>
-                                        <x-form-input
-                                            type="date"
-                                            name="charges[3][date_echeance]"
-                                            label="Date d'échéance"
-                                            :required="true"
-                                            :value="old('charges.3.date_echeance')"
-                                            focusColor="blue"
-                                        />
-                                    </x-form-section>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="form-group">
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Cautionnement définitif (10%)</label>
+                                                <input type="number" id="charge_cautionnement" name="charges[0][montant]" step="0.01" readonly class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" value="0.00">
+                                                <input type="hidden" name="charges[0][nom]" value="Cautionnement définitif">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="charges_0_date" class="block text-sm font-semibold text-gray-700 mb-2">Date d'échéance <span class="text-red-500">*</span></label>
+                                                <input type="date" id="charges_0_date" name="charges[0][date_echeance]" value="{{ old('charges.0.date_echeance') }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Taxe FNF (20%)</label>
+                                                <input type="number" id="charge_taxe_fnf" name="charges[1][montant]" step="0.01" readonly class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" value="0.00">
+                                                <input type="hidden" name="charges[1][nom]" value="Taxe FNF">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="charges_1_date" class="block text-sm font-semibold text-gray-700 mb-2">Date d'échéance <span class="text-red-500">*</span></label>
+                                                <input type="date" id="charges_1_date" name="charges[1][date_echeance]" value="{{ old('charges.1.date_echeance') }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Frais d'adjudication (1.6%)</label>
+                                                <input type="number" id="charge_frais_adjudication" name="charges[2][montant]" step="0.01" readonly class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" value="0.00">
+                                                <input type="hidden" name="charges[2][nom]" value="Frais d'adjudication">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="charges_2_date" class="block text-sm font-semibold text-gray-700 mb-2">Date d'échéance <span class="text-red-500">*</span></label>
+                                                <input type="date" id="charges_2_date" name="charges[2][date_echeance]" value="{{ old('charges.2.date_echeance') }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="block text-sm font-semibold text-gray-700 mb-2">Taxe provinciale (10%)</label>
+                                                <input type="number" id="charge_taxe_provinciale" name="charges[3][montant]" step="0.01" readonly class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" value="0.00">
+                                                <input type="hidden" name="charges[3][nom]" value="Taxe provinciale">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="charges_3_date" class="block text-sm font-semibold text-gray-700 mb-2">Date d'échéance <span class="text-red-500">*</span></label>
+                                                <input type="date" id="charges_3_date" name="charges[3][date_echeance]" value="{{ old('charges.3.date_echeance') }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                    <!-- Section 5: Tranches -->
-                                    <x-form-section 
-                                        title="Détail des tranches"
-                                        icon="fas fa-list-ol"
-                                        color="purple"
-                                        columns="1"
-                                    >
+                                    <!-- 5. Détail des tranches -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                                <i class="fas fa-list-ol text-white text-sm"></i>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-gray-900">5. Détail des tranches</h3>
+                                        </div>
                                         <div id="tranchesContainer" class="space-y-4">
                                             <!-- Tranches will be dynamically generated -->
                                         </div>
-                                    </x-form-section>
+                                    </div>
 
                                     <!-- Submit Button -->
-                                    <div class="flex justify-end gap-4">
-                                        <button type="submit" 
-                                                class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
-                                                style="background: linear-gradient(135deg, #059669, #047857);">
+                                    <div class="flex justify-end gap-4 pt-2">
+                                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                                             <i class="fas fa-save"></i>
                                             <span>Créer le Contrat de Vente</span>
                                         </button>
@@ -965,18 +858,19 @@
                                     document.getElementById('charge_taxe_provinciale').value = (prixVente * 0.10).toFixed(2);
                                 }
 
-                                // Update tranches inputs based on nombre_tranche
+                                // Update tranches inputs based on nombre_tranche; montant = prix_vente / nombre_tranche
                                 function updateTranchesInputs() {
                                     const nombreTranches = parseInt(document.getElementById('nombre_tranche').value) || 1;
+                                    const prixVente = parseFloat(document.getElementById('prix_vente').value) || 0;
+                                    const montantParTranche = nombreTranches > 0 ? (prixVente / nombreTranches) : 0;
                                     const container = document.getElementById('tranchesContainer');
                                     
-                                    // Clear existing tranches
                                     container.innerHTML = '';
                                     
-                                    // Create tranche inputs
                                     for (let i = 0; i < nombreTranches; i++) {
                                         const trancheDiv = document.createElement('div');
                                         trancheDiv.className = 'bg-purple-50 rounded-xl p-4 border border-purple-200';
+                                        const montant = (Math.round(montantParTranche * 100) / 100).toFixed(2);
                                         trancheDiv.innerHTML = `
                                             <h3 class="text-md font-semibold text-purple-700 mb-4">
                                                 <i class="fas fa-money-check-alt mr-2"></i>Tranche ${i + 1}
@@ -984,14 +878,15 @@
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
                                                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                                        Montant (MAD) <span class="text-red-500">*</span>
+                                                        Montant (MAD) <span class="text-red-500">*</span> <span class="text-xs font-normal text-gray-500">(Prix de vente ÷ ${nombreTranches})</span>
                                                     </label>
                                                     <input type="number" 
                                                         name="tranches[${i}][montant]" 
                                                         step="0.01" 
                                                         min="0"
-                                                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                                                        placeholder="0.00"
+                                                        value="${montant}"
+                                                        readonly
+                                                        class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100"
                                                         required>
                                                 </div>
                                                 <div>
@@ -1009,49 +904,46 @@
                                     }
                                 }
 
-                                // Auto-fill exploitant details
-                                document.addEventListener('DOMContentLoaded', function() {
+                                // Auto-fill exploitant details (run when DOM ready; script may load after DOMContentLoaded)
+                                function initExploitantFields() {
                                     const exploitantSelect = document.getElementById('exploitant_id');
-                                    
-                                    if (exploitantSelect) {
-                                        exploitantSelect.addEventListener('change', function() {
-                                            const selectedOption = this.options[this.selectedIndex];
-                                            if (selectedOption && selectedOption.value) {
-                                                // Helper function to safely set value
-                                                function setFieldValue(fieldId, value) {
-                                                    const field = document.getElementById(fieldId);
-                                                    if (field) {
-                                                        field.value = value || '';
-                                                    } else {
-                                                        console.warn('Field not found:', fieldId);
-                                                    }
-                                                }
+                                    if (!exploitantSelect) return;
 
-                                                // Populate exploitant fields
-                                                setFieldValue('exploitant_cin', selectedOption.dataset.cin);
-                                                setFieldValue('exploitant_numero', selectedOption.dataset.numero);
-                                                setFieldValue('exploitant_adresse', selectedOption.dataset.adresse);
-                                            } else {
-                                                // Clear all fields if no exploitant selected
-                                                const fieldIds = [
-                                                    'exploitant_cin', 'exploitant_numero', 'exploitant_adresse'
-                                                ];
-                                                fieldIds.forEach(fieldId => {
-                                                    const field = document.getElementById(fieldId);
-                                                    if (field) field.value = '';
-                                                });
-                                            }
-                                        });
+                                    function setFieldValue(fieldId, value) {
+                                        const field = document.getElementById(fieldId);
+                                        if (field) field.value = value || '';
+                                    }
 
-                                        // Trigger exploitant change on page load if already selected
-                                        if (exploitantSelect.value) {
-                                            exploitantSelect.dispatchEvent(new Event('change'));
+                                    function updateExploitantFromSelect() {
+                                        const selectedOption = exploitantSelect.options[exploitantSelect.selectedIndex];
+                                        if (selectedOption && selectedOption.value) {
+                                            setFieldValue('exploitant_cin', selectedOption.getAttribute('data-cin'));
+                                            setFieldValue('exploitant_numero', selectedOption.getAttribute('data-numero'));
+                                            setFieldValue('exploitant_adresse', selectedOption.getAttribute('data-adresse'));
+                                        } else {
+                                            setFieldValue('exploitant_cin', '');
+                                            setFieldValue('exploitant_numero', '');
+                                            setFieldValue('exploitant_adresse', '');
                                         }
                                     }
-                                    
-                                    updateTranchesInputs();
-                                    calculateCharges();
-                                });
+
+                                    exploitantSelect.addEventListener('change', updateExploitantFromSelect);
+                                    updateExploitantFromSelect();
+                                }
+
+                                (function runWhenReady() {
+                                    if (document.readyState === 'loading') {
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            initExploitantFields();
+                                            updateTranchesInputs();
+                                            calculateCharges();
+                                        });
+                                    } else {
+                                        initExploitantFields();
+                                        updateTranchesInputs();
+                                        calculateCharges();
+                                    }
+                                })();
                                 </script>
                                 @endpush
                             @endif
@@ -1084,9 +976,11 @@
                                                 editExploitantSelect.dispatchEvent(new Event('change'));
                                             }
                                             
-                                            // Calculate charges if function exists
                                             if (typeof calculateEditCharges === 'function') {
                                                 calculateEditCharges();
+                                            }
+                                            if (typeof updateEditTranchesInputs === 'function') {
+                                                updateEditTranchesInputs();
                                             }
                                         } else {
                                             editForm.classList.add('hidden');
@@ -1105,8 +999,8 @@
                                     try {
                                         const prixVente = parseFloat(document.getElementById('edit_prix_vente')?.value) || 0;
                                         
-                                        // Update charge inputs if they exist
-                                        const chargeInputs = document.querySelectorAll('#editContractForm input[name*="[montant]"][readonly]');
+                                        // Update charge inputs if they exist (exclude tranche montants)
+                                        const chargeInputs = document.querySelectorAll('#editContractForm input[name*="charges"][name*="[montant]"][readonly]');
                                         chargeInputs.forEach(input => {
                                             const chargeName = input.closest('div').querySelector('label')?.textContent || '';
                                             let percentage = 0;
@@ -1125,10 +1019,14 @@
                                     }
                                 }
 
-                                // Update tranches for edit form
+                                // Update tranches for edit form: montant = prix_vente / nombre_tranche
                                 function updateEditTranchesInputs() {
-                                    // This function can be enhanced if needed
-                                    // For now, tranches are already rendered from the backend
+                                    const prixVente = parseFloat(document.getElementById('edit_prix_vente')?.value) || 0;
+                                    const nombreTranches = parseInt(document.getElementById('edit_nombre_tranche')?.value) || 1;
+                                    const montantParTranche = nombreTranches > 0 ? (Math.round((prixVente / nombreTranches) * 100) / 100).toFixed(2) : '0.00';
+                                    document.querySelectorAll('.edit-tranche-montant').forEach(function(input) {
+                                        input.value = montantParTranche;
+                                    });
                                 }
 
                                 // Auto-fill exploitant details for edit form
@@ -1166,30 +1064,6 @@
                                 </script>
                                 @endpush
                             @endif
-
-                            <!-- Documents Section: Lettre adjudicataire -->
-                            @if($contractVente)
-                            <div class="mt-6 pt-6 border-t" style="border-color: rgba(154,179,163,0.4);">
-                                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: #1F2D24;">
-                                    <i class="fas fa-file-alt" style="color: #059669;"></i>
-                                    Documents disponibles
-                                </h3>
-                                <div class="space-y-3">
-                                    <a href="{{ route('articles.lettre-adjudicataire', $article) }}" 
-                                        class="w-full inline-flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200 group"
- style="background: rgba(242,246,243,0.6); border-color: rgba(154,179,163,0.4); color: #1F2D24;"
- onmouseover="this.style.background='rgba(154,179,163,0.12)'"
- onmouseout="this.style.background='rgba(242,246,243,0.6)'">
-                                        <div class="flex items-center gap-2">
-                                            <i class="fas fa-file-alt text-green-500"></i>
-                                            <span class="text-sm font-medium">Lettre adjudicataire</span>
-                                        </div>
-                                        <i class="fas fa-download text-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            @endif
-                    </div>
                     </div>
                 @elseif($activeStep === 'paiement_charges')
                     <!-- Paiement des Charges Section -->
@@ -1376,103 +1250,14 @@
                                     </table>
                                 </div>
                             @endif
-
-                            <!-- Documents Section: Permis d'exploiter & PV d'Installation -->
-                            @php
-                                $hasPaidTranches = false;
-                                $permisExploiter = $contractVente?->permisExploiter;
-                                if ($contractVente && $contractVente->chargeApayer) {
-                                    foreach ($contractVente->chargeApayer as $charge) {
-                                        if (str_starts_with($charge->nom, 'Tranche')) {
-                                            $payment = $charge->payments->first();
-                                            if ($payment && $payment->is_paye && $payment->date_payment) {
-                                                $hasPaidTranches = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            @endphp
-                            
-                            <div class="mt-6 pt-6 border-t border-gray-200">
-                                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: #1F2D24;">
-                                    <i class="fas fa-file-contract text-green-500"></i>
-                                    Documents disponibles
-                                </h3>
-                                <div class="space-y-3">
-                                    <!-- Permis d'exploiter -->
-                                    <div class="w-full">
-                                        @if($hasPaidTranches && !$permisExploiter)
-                                            <a href="{{ route('articles.permis-exploiter', $article) }}"
-                                               class="w-full inline-flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200 group"
- style="background: rgba(242,246,243,0.6); border-color: rgba(154,179,163,0.4); color: #1F2D24;"
- onmouseover="this.style.background='rgba(154,179,163,0.12)'"
- onmouseout="this.style.background='rgba(242,246,243,0.6)'">
-                                                <div class="flex items-center gap-2">
-                                                    <i class="fas fa-file-contract text-green-500"></i>
-                                                    <span class="text-sm font-medium">Permis d'exploiter</span>
-                                                </div>
-                                                <i class="fas fa-arrow-right text-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                            </a>
-                                        @elseif($permisExploiter)
-                                            <a href="{{ route('articles.permis-exploiter', $article) }}" 
-                                               class="w-full inline-flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200 group"
- style="background: rgba(242,246,243,0.6); border-color: rgba(154,179,163,0.4); color: #1F2D24;"
- onmouseover="this.style.background='rgba(154,179,163,0.12)'"
- onmouseout="this.style.background='rgba(242,246,243,0.6)'">
-                                                <div class="flex items-center gap-2">
-                                                    <i class="fas fa-file-contract text-green-500"></i>
-                                                    <span class="text-sm font-medium">Permis d'exploiter</span>
-                                                </div>
-                                                <i class="fas fa-check-circle text-green-500"></i>
-                                            </a>
-                                        @else
-                                            <button type="button" 
-                                                    disabled
-                                                    class="w-full inline-flex items-center justify-between px-4 py-3 bg-blue-100 border border-blue-300 text-blue-400 rounded-lg cursor-not-allowed opacity-60">
-                                                <div class="flex items-center gap-2">
-                                                    <i class="fas fa-file-contract text-blue-400"></i>
-                                                    <span class="text-sm font-medium">Permis d'exploiter</span>
-                                                </div>
-                                                <i class="fas fa-arrow-right text-blue-400"></i>
-                                            </button>
-                                        @endif
-                                    </div>
-
-                                    <!-- PV d'Installation -->
-                                    @if($hasPaidTranches)
-                                        <a href="{{ route('articles.pv-installation', $article) }}" 
-                                            class="w-full inline-flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200 group"
- style="background: rgba(242,246,243,0.6); border-color: rgba(154,179,163,0.4); color: #1F2D24;"
- onmouseover="this.style.background='rgba(154,179,163,0.12)'"
- onmouseout="this.style.background='rgba(242,246,243,0.6)'">
-                                            <div class="flex items-center gap-2">
-                                                <i class="fas fa-clipboard-check text-green-500"></i>
-                                                <span class="text-sm font-medium">PV d'Installation</span>
-                                            </div>
-                                            <i class="fas fa-arrow-right text-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                        </a>
-                                    @else
-                                        <button type="button" 
-                                                disabled
-                                                class="w-full inline-flex items-center justify-between px-4 py-3 bg-blue-100 border border-blue-300 text-blue-400 rounded-lg cursor-not-allowed opacity-60">
-                                            <div class="flex items-center gap-2">
-                                                <i class="fas fa-clipboard-check text-blue-400"></i>
-                                                <span class="text-sm font-medium">PV d'Installation</span>
-                                            </div>
-                                            <i class="fas fa-arrow-right text-blue-400"></i>
-                                        </button>
-                                    @endif
-                                </div>
-                            </div>
                         </div>
                     </div>
                 @elseif($activeStep === 'paiement_tranches')
                     <!-- Paiement des Tranches Section -->
                     <div class="card overflow-hidden">
-                        <div class="section-header">
-                            <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                                <i class="fas fa-credit-card"></i>
+                            <div class="section-header">
+                                <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
+                                <i class="fas fa-credit-card" style="color: #6B7C72;"></i>
                                 Paiement des Tranches
                             </h2>
                         </div>
@@ -1632,11 +1417,37 @@
                                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Date paiement</th>
                                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Référence</th>
                                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Justificatif</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="bg-white divide-y divide-gray-200">
                                                 @foreach($tranchesPayees as $tranche)
-                                                    @php $payment = $tranche->payments->first(); @endphp
+                                                    @php 
+                                                        $payment = $tranche->payments->first();
+                                                        // Find permis d'enlever for this tranche
+                                                        // Since permis are created per payment date, find the most recent one
+                                                        // that could correspond to this tranche's payment date
+                                                        $permisEnlever = null;
+                                                        if ($payment && $payment->date_payment && $contractVente && $permisEnlevers->isNotEmpty()) {
+                                                            // Get all tranches paid on the same date as this tranche
+                                                            $tranchesSameDate = $contractVente->chargeApayer->filter(function($charge) use ($payment) {
+                                                                if (!str_starts_with($charge->nom, 'Tranche')) return false;
+                                                                $p = $charge->payments->first();
+                                                                return $p && $p->is_paye && $p->date_payment == $payment->date_payment;
+                                                            });
+                                                            
+                                                            // Try to find permis d'enlever created for this number of tranches
+                                                            // If multiple exist, get the most recent one
+                                                            $permisEnlever = $permisEnlevers->filter(function($permis) use ($tranchesSameDate) {
+                                                                return $permis->num_tranche_paye == $tranchesSameDate->count();
+                                                            })->first();
+                                                            
+                                                            // If no exact match, use the most recent permis (fallback)
+                                                            if (!$permisEnlever) {
+                                                                $permisEnlever = $permisEnlevers->first();
+                                                            }
+                                                        }
+                                                    @endphp
                                                     <tr class="hover:bg-gray-50">
                                                         <td class="px-4 py-3 whitespace-nowrap">
                                                             <div class="text-sm font-medium text-gray-900">{{ $tranche->nom }}</div>
@@ -1661,6 +1472,22 @@
                                                                 <span class="text-gray-400">-</span>
                                                             @endif
                                                         </td>
+                                                        <td class="px-4 py-3 whitespace-nowrap">
+                                                            <div class="flex items-center gap-2">
+                                                                <a href="{{ route('articles.permis-enlever', $article) }}" 
+                                                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
+                                                                    <i class="fas fa-file-alt"></i>
+                                                                    <span>Permis d'enlever</span>
+                                                                </a>
+                                                                @if($permisEnlever)
+                                                                    <button onclick="printPermisEnlever({{ $permisEnlever->id }})" 
+                                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                                                                        <i class="fas fa-print"></i>
+                                                                        <span>Imprimer</span>
+                                                                    </button>
+                                                                @endif
+                                                            </div>
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                             </tbody>
@@ -1682,42 +1509,6 @@
                                 @php
                                     $hasPaidTranches = $tranchesPayees->count() > 0;
                                 @endphp
-                                
-                                @if($hasPaidTranches)
-                                <div class="mt-6 pt-6 border-t border-gray-200">
-                                    <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: #1F2D24;">
-                                        <i class="fas fa-file-alt text-green-500"></i>
-                                        Documents disponibles
-                                    </h3>
-                                    <div class="space-y-3">
-                                        <!-- Permis d'enlever -->
-                                        <a href="{{ route('articles.permis-enlever', $article) }}" 
-                                            class="w-full inline-flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200 group"
- style="background: rgba(242,246,243,0.6); border-color: rgba(154,179,163,0.4); color: #1F2D24;"
- onmouseover="this.style.background='rgba(154,179,163,0.12)'"
- onmouseout="this.style.background='rgba(242,246,243,0.6)'">
-                                            <div class="flex items-center gap-2">
-                                                <i class="fas fa-file-alt text-green-500"></i>
-                                                <span class="text-sm font-medium">Permis d'enlever</span>
-                                            </div>
-                                            <i class="fas fa-arrow-right text-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                        </a>
-
-                                        <!-- Permis de colportage -->
-                                        <a href="{{ route('articles.permis-colportage', $article) }}" 
-                                            class="w-full inline-flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200 group"
- style="background: rgba(242,246,243,0.6); border-color: rgba(154,179,163,0.4); color: #1F2D24;"
- onmouseover="this.style.background='rgba(154,179,163,0.12)'"
- onmouseout="this.style.background='rgba(242,246,243,0.6)'">
-                                            <div class="flex items-center gap-2">
-                                                <i class="fas fa-truck text-green-500"></i>
-                                                <span class="text-sm font-medium">Permis de colportage</span>
-                                            </div>
-                                            <i class="fas fa-arrow-right text-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                @endif
                             @endif
                         </div>
                     </div>
@@ -1760,8 +1551,8 @@
                     <!-- Récolement Section -->
                     <div class="card overflow-hidden">
                         <div class="section-header">
-                            <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                                <i class="fas fa-clipboard-check"></i>
+                            <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
+                                <i class="fas fa-clipboard-check" style="color: #6B7C72;"></i>
                                 Récolement
                             </h2>
                         </div>
@@ -1887,10 +1678,10 @@
                     </div>
                 @elseif($activeStep === 'main_levee')
                     <!-- Main Levée Section -->
-                    <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                        <div class="bg-green-500 px-6 py-4">
-                            <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                                <i class="fas fa-check-circle"></i>
+                    <div class="card overflow-hidden">
+                        <div class="section-header">
+                            <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
+                                <i class="fas fa-check-circle" style="color: #6B7C72;"></i>
                                 Main Levée
                             </h2>
                         </div>
@@ -1986,10 +1777,10 @@
                     </div>
                 @elseif($currentStep === 'main_levee')
                     <!-- Main Levée - Toutes les étapes sont terminées -->
-                    <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                        <div class="bg-green-600 px-6 py-4">
-                            <h2 class="text-xl font-bold text-white flex items-center gap-3">
-                                <i class="fas fa-check-circle"></i>
+                    <div class="card overflow-hidden">
+                        <div class="section-header">
+                            <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
+                                <i class="fas fa-check-circle" style="color: #6B7C72;"></i>
                                 Main Levée - Processus Terminé
                             </h2>
                         </div>
@@ -2099,4 +1890,23 @@
         margin-bottom: 0;
     }
 </style>
+
+@push('scripts')
+<script>
+function printPermisEnlever(permisId) {
+    // Open permis-enlever page in new window and trigger print
+    const url = '{{ route("articles.permis-enlever", $article) }}?print=' + permisId;
+    const printWindow = window.open(url, '_blank');
+    
+    // Wait for page to load, then trigger print
+    if (printWindow) {
+        printWindow.onload = function() {
+            setTimeout(function() {
+                printWindow.print();
+            }, 500);
+        };
+    }
+}
+</script>
+@endpush
 @endsection

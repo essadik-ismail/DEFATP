@@ -366,11 +366,27 @@ class ArticleController extends Controller
             'zdtf:id,code,zdtf' // Fixed: removed 'designation' (doesn't exist)
         ]);
 
-        // Optimize: Only load necessary exploitant fields
-        $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale')->orderBy('nom_complet')->get();
+        // Optimize: Load exploitant fields needed for contract form (incl. CIN, numero, adresse for auto-fill)
+        $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale', 'numero', 'n_cin', 'adresse')
+            ->orderBy('nom_complet')
+            ->get();
         $contractVente = $article->contractVentes->first();
 
-        return view('articles.show', compact('article', 'exploitants', 'contractVente'));
+        // Load permis d'enlever for this contract if it exists
+        $permisEnlevers = collect();
+        if ($contractVente) {
+            $permisEnlevers = \App\Models\PermiEnlever::where(function($query) use ($contractVente) {
+                    $query->where('contract_vente_id', $contractVente->id)
+                    ->orWhereHas('permis', function($q) use ($contractVente) {
+                        $q->where('contract_vente_id', $contractVente->id);
+                    });
+                })
+                ->with(['permis'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('articles.show', compact('article', 'exploitants', 'contractVente', 'permisEnlevers'));
     }
 
     /**
@@ -877,13 +893,51 @@ class ArticleController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Filter out dates that already have a Permis d'Enlever
+        $datesWithPermis = $permisEnlevers->pluck('date_paiement')
+            ->filter()
+            ->map(function($date) {
+                if ($date instanceof \Carbon\Carbon) {
+                    return $date->format('Y-m-d');
+                }
+                // If it's already a string, try to parse it
+                if (is_string($date)) {
+                    try {
+                        return \Carbon\Carbon::parse($date)->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        return $date;
+                    }
+                }
+                return $date;
+            })
+            ->toArray();
+
+        // Remove dates that already have a permis
+        $tranchesByDate = $tranchesByDate->filter(function($tranches, $date) use ($datesWithPermis) {
+            // Normalize the date key to Y-m-d format for comparison
+            $dateFormatted = $date;
+            if ($date instanceof \Carbon\Carbon) {
+                $dateFormatted = $date->format('Y-m-d');
+            } elseif (is_string($date)) {
+                try {
+                    $dateFormatted = \Carbon\Carbon::parse($date)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $dateFormatted = $date;
+                }
+            }
+            return !in_array($dateFormatted, $datesWithPermis);
+        });
+
         // Count total paid tranches
         $totalPaidTranches = $paidTranches->count();
+        
+        // Get total number of tranches from contract
+        $nombreTranche = $contractVente->nombre_tranche ?? 1;
         
         // Check if can create more permis
         $canCreateMore = $permisEnlevers->count() < $totalPaidTranches;
 
-        return view('articles.permis-enlever', compact('article', 'tranchesByDate', 'products', 'permisEnlevers', 'totalPaidTranches', 'canCreateMore'));
+        return view('articles.permis-enlever', compact('article', 'tranchesByDate', 'products', 'permisEnlevers', 'totalPaidTranches', 'canCreateMore', 'nombreTranche', 'contractVente'));
     }
 
     /**
@@ -896,7 +950,6 @@ class ArticleController extends Controller
             'num_quittance_enlever' => 'required|string|max:255',
             'date' => 'required|date',
             'percepteur_enlever' => 'required|string|max:255',
-            'volume' => 'nullable|numeric|min:0',
             // Essences come from the article table; if the article has none,
             // we'll return a clear error message below.
             'essences' => 'nullable|array',
@@ -982,8 +1035,8 @@ class ArticleController extends Controller
                 'num_quittance' => $validated['num_quittance_enlever'],
                 'date' => $validated['date'],
                 'num_tranche_paye' => $tranchesCount,
+                'date_paiement' => $validated['date_paiement'],
                 'percepteur' => $validated['percepteur_enlever'],
-                'volume' => $validated['volume'],
             ]);
 
             // Insert calculated quantities into permisenlever_product
@@ -1132,6 +1185,10 @@ class ArticleController extends Controller
     {
         $article->load(['essences', 'products', 'depots']);
         
+        // Load all products referenced in essences to avoid N+1 queries
+        $productIds = $article->essences->pluck('pivot.product_id')->filter()->unique();
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        
         $contractVente = $article->contractVentes()->with('chargeApayer.payments')->first();
         
         if (!$contractVente) {
@@ -1156,12 +1213,36 @@ class ArticleController extends Controller
                 ->with('error', 'Au moins une tranche doit être payée avant de générer un permis de colportage.');
         }
 
-        // Permis d'Enlever list (must select one for colportage)
+        // Permis d'Enlever list (must select one for colportage) - load with essences and products
         $permisEnlevers = PermiEnlever::where('contract_vente_id', $contractVente->id)
+            ->with(['essences', 'products'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('articles.permis-colportage', compact('article', 'contractVente', 'permisEnlevers'));
+        // Load quantities from permisenlever_product table for each permis
+        // This table stores: permis_id, product_id, id_essence, quantity
+        $permisEnleversWithQuantities = $permisEnlevers->map(function($permis) {
+            $quantities = DB::table('permisenlever_product')
+                ->where('permis_id', $permis->id)
+                ->select('id_essence', 'product_id', 'quantity')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'essence_id' => (int)$item->id_essence,
+                        'product_id' => (int)$item->product_id,
+                        'quantity' => (float)$item->quantity
+                    ];
+                })
+                ->values(); // Reset array keys
+            
+            $permis->quantities = $quantities;
+            return $permis;
+        });
+
+        // Get pre-selected permis d'enlever ID from query parameter
+        $selectedPermisEnleverId = request('permis_enlever_id');
+
+        return view('articles.permis-colportage', compact('article', 'contractVente', 'permisEnlevers', 'permisEnleversWithQuantities', 'selectedPermisEnleverId', 'products'));
     }
 
     /**
@@ -1177,6 +1258,10 @@ class ArticleController extends Controller
             'chauffeur_nom' => 'required|string|max:255',
             'chauffeur_cin' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
+            'essences' => 'nullable|array',
+            'essences.*.essence_id' => 'nullable|exists:essences,id',
+            'essences.*.product_id' => 'nullable|exists:products,id',
+            'essences.*.quantity' => 'nullable|numeric|min:0',
         ]);
 
         try {
@@ -1194,18 +1279,97 @@ class ArticleController extends Controller
                     ->with('error', 'Le Permis d\'Enlever sélectionné est invalide pour cet article.');
             }
 
-            // Create colportage enlever record
-            $colportage = ColportageEnlever::create([
-                'article_id' => $article->id,
-                'id_permis_enlever' => $permiEnlever->id,
-                'date_debut' => $validated['date_debut'],
-                'date_fin' => $validated['date_fin'],
-                'vehicule_immatriculation' => $validated['vehicule_immatriculation'],
-                'chauffeur_nom' => $validated['chauffeur_nom'],
-                'chauffeur_cin' => $validated['chauffeur_cin'],
-                'destination' => $validated['destination'],
-                'numero_permis' => 'PC-' . $article->numero . '-' . date('Y'),
-            ]);
+            // Load current Permis d'Enlever essences/products with quantities
+            $permiEnlever->load(['essences', 'products']);
+            
+            // Get current quantities from permisenlever_product table
+            // Table structure: permis_id, product_id, id_essence, quantity
+            $currentQuantities = DB::table('permisenlever_product')
+                ->where('permis_id', $permiEnlever->id)
+                ->select('id_essence', 'product_id', 'quantity')
+                ->get()
+                ->keyBy(function($item) {
+                    return (int)$item->id_essence . '_' . (int)$item->product_id;
+                });
+            
+            // Generate numero_permis
+            $numeroPermis = 'PC-' . $article->numero . '-' . date('Y');
+            
+            // Create one row per essence/product combination in colportage_enlever table
+            // and update Permis d'Enlever quantities in permisenlever_product
+            $essencesInserted = false;
+            if (!empty($validated['essences'])) {
+                foreach ($validated['essences'] as $essenceData) {
+                    if (empty($essenceData['essence_id']) || empty($essenceData['product_id'])) {
+                        continue;
+                    }
+                    
+                    $essenceId = (int)$essenceData['essence_id'];
+                    $productId = (int)$essenceData['product_id'];
+                    $colportageQuantity = isset($essenceData['quantity']) ? (float)$essenceData['quantity'] : 0;
+                    
+                    // Only process if quantity > 0
+                    if ($colportageQuantity > 0) {
+                        // Create colportage record in colportage_enlever table
+                        // Table structure: id_permis_enlever, product_id, id_essence, quantity
+                        ColportageEnlever::create([
+                            'article_id' => $article->id,
+                            'id_permis_enlever' => $permiEnlever->id,
+                            'product_id' => $productId,
+                            'id_essence' => $essenceId,
+                            'quantity' => $colportageQuantity,
+                            'date_debut' => $validated['date_debut'],
+                            'date_fin' => $validated['date_fin'],
+                            'vehicule_immatriculation' => $validated['vehicule_immatriculation'],
+                            'chauffeur_nom' => $validated['chauffeur_nom'],
+                            'chauffeur_cin' => $validated['chauffeur_cin'],
+                            'destination' => $validated['destination'],
+                            'numero_permis' => $numeroPermis,
+                        ]);
+                        $essencesInserted = true;
+                        
+                        // Update Permis d'Enlever quantity in permisenlever_product table
+                        // Subtract colportage quantity from permis d'enlever quantity
+                        $key = $essenceId . '_' . $productId;
+                        $currentQuantity = isset($currentQuantities[$key]) ? (float)$currentQuantities[$key]->quantity : 0;
+                        $newQuantity = max(0, $currentQuantity - $colportageQuantity); // Ensure non-negative
+                        
+                        // Update the quantity in permisenlever_product table
+                        // Using the unique constraint: permis_id, product_id, id_essence
+                        $updated = DB::table('permisenlever_product')
+                            ->where('permis_id', $permiEnlever->id)
+                            ->where('id_essence', $essenceId)
+                            ->where('product_id', $productId)
+                            ->update([
+                                'quantity' => $newQuantity,
+                                'updated_at' => now()
+                            ]);
+                        
+                        // If no row exists, create it (shouldn't happen, but safety check)
+                        if ($updated === 0) {
+                            \Log::warning("No row found in permisenlever_product for permis_id: {$permiEnlever->id}, essence_id: {$essenceId}, product_id: {$productId}");
+                        }
+                    }
+                }
+            }
+            
+            // If no essences were inserted, create at least one record with the main data
+            if (!$essencesInserted) {
+                ColportageEnlever::create([
+                    'article_id' => $article->id,
+                    'id_permis_enlever' => $permiEnlever->id,
+                    'date_debut' => $validated['date_debut'],
+                    'date_fin' => $validated['date_fin'],
+                    'vehicule_immatriculation' => $validated['vehicule_immatriculation'],
+                    'chauffeur_nom' => $validated['chauffeur_nom'],
+                    'chauffeur_cin' => $validated['chauffeur_cin'],
+                    'destination' => $validated['destination'],
+                    'numero_permis' => $numeroPermis,
+                ]);
+            }
+            
+            // Get the first colportage record for logging
+            $colportage = ColportageEnlever::where('numero_permis', $numeroPermis)->first();
 
             // Do not update current_step to a value outside the workflow steps
 

@@ -86,10 +86,17 @@
             --layout-radius: 1.25rem;
         }
 
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
             background: var(--background);
-            min-height: 100vh;
+            min-height: 100%;
+            height: 100%;
+            overflow: hidden;
             line-height: 1.6;
             color: var(--text-on-light);
         }
@@ -515,7 +522,8 @@
 
         /* Sidebar - floating panel with gap and radius */
         .sidebar {
-            background: var(--background);
+            /* background: var(--background); */
+            background: #ffffff;
             border: 1px solid var(--border-color);
             position: fixed !important;
             top: var(--layout-gap) !important;
@@ -815,23 +823,26 @@
             visibility: visible;
         }
 
-        /* Main layout - padding creates gap around sidebar & content */
+        /* Main layout - padding creates gap around sidebar & content. Only content scrolls, sidebar stays fixed. */
         .main-wrapper {
             display: flex;
+            height: 100vh;
             min-height: 100vh;
             padding: var(--layout-gap);
             box-sizing: border-box;
             background: #FFFFFF;
+            overflow: hidden;
         }
 
         .content-wrapper {
             flex: 1;
+            min-width: 0;
+            min-height: 0;
             background: #FFFFFF;
             margin-left: calc(var(--sidebar-width) + var(--layout-gap));
             margin-top: 0;
             margin-right: 0;
             margin-bottom: 0;
-            min-height: calc(100vh - 2 * var(--layout-gap));
             padding: 0;
             border-radius: var(--layout-radius);
             overflow: hidden;
@@ -852,14 +863,16 @@
             display: none;
         }
 
-        /* Content section - balanced spacing, grid-friendly */
+        /* Content section - balanced spacing, grid-friendly. This is the only scrollable area so sidebar stays fixed. */
         .content-area {
             flex: 1;
             min-width: 0;
+            min-height: 0;
             padding: 2rem;
-            min-height: calc(100vh - 56px - 2 * var(--layout-gap));
             background: #FFFFFF;
             overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Header Styles */
@@ -2035,11 +2048,10 @@
             -moz-osx-font-smoothing: grayscale;
         }
         
-        /* Force hardware acceleration for scrollable elements */
-        body,
-        .content-wrapper,
+        /* Force hardware acceleration only on scrollable/main content - NOT on body/content-wrapper
+           so that .sidebar position:fixed stays relative to the viewport when scrolling */
         .sidebar,
-        main {
+        .content-area {
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
         }
@@ -2128,7 +2140,7 @@
             }
         }
 
-        /* Desktop Sidebar Styles - Simple Fixed Layout */
+        /* Desktop Sidebar Styles - Simple Fixed Layout (sidebar stays fixed while content scrolls) */
         @media (min-width: 1024px) {
             .sidebar {
                 position: fixed !important;
@@ -2136,7 +2148,8 @@
                 top: var(--layout-gap) !important;
                 bottom: var(--layout-gap) !important;
                 width: var(--sidebar-width);
-                min-height: calc(100vh - 2 * var(--layout-gap));
+                height: calc(100vh - 2 * var(--layout-gap));
+                min-height: 0;
                 overflow-y: auto;
                 overflow-x: hidden;
                 z-index: 1000;
@@ -2149,7 +2162,6 @@
             
             .content-wrapper {
                 margin-left: calc(var(--sidebar-width) + var(--layout-gap));
-                min-height: calc(100vh - 2 * var(--layout-gap));
                 border-radius: var(--layout-radius);
             }
         }
@@ -2388,9 +2400,6 @@
                 <div class="header-actions">
                     <!-- Notifications -->
                     @auth
-                    <button class="header-icon-btn" title="Messages">
-                        <i class="far fa-envelope"></i>
-                    </button>
                     <button class="header-icon-btn" title="Notifications">
                         <i class="far fa-bell"></i>
                         <span class="notification-dot"></span>

@@ -7,58 +7,49 @@
 @endsection
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <!-- Simple Header -->
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
-            <i class="fas fa-database text-emerald-600"></i>
-            Données des Entités
-        </h1>
-        <p class="text-gray-600 mt-1">Gérez toutes les données de base du système</p>
-    </div>
+<div class="min-w-0 max-w-full overflow-x-hidden">
+    <!-- Header Section -->
+    <x-page-header 
+        title="Données des Entités"
+        subtitle="Gérez toutes les données de base du système"
+        icon="fas fa-database"
+    />
 
-    <!-- Simple Tabs Container -->
-    <div class="bg-white rounded-lg shadow">
+    <!-- Tabs Container -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
         <!-- Tab Navigation -->
         <div class="border-b border-gray-200">
             <nav class="flex flex-wrap -mb-px" aria-label="Tabs">
-                <a href="#" class="tab-link active group border-b-2 border-emerald-500 py-4 px-6 inline-flex items-center gap-2 font-medium text-sm" data-tab="essences">
-                    <i class="fas fa-leaf text-emerald-600 group-hover:scale-110 transition-transform"></i>
-                    <span class="text-emerald-600">Essences</span>
+                <a href="#" class="tab-link active group border-b-2 border-green-500 py-4 px-6 inline-flex items-center gap-2 font-medium text-sm" data-tab="essences">
+                    <i class="fas fa-leaf text-green-600"></i>
+                    <span class="text-green-600">Essences</span>
                 </a>
-                
                 <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="forets">
-                    <i class="fas fa-tree text-gray-500 group-hover:text-blue-600 group-hover:scale-110 transition-all"></i>
+                    <i class="fas fa-tree text-gray-500"></i>
                     <span class="text-gray-500 group-hover:text-gray-700">Forêts</span>
                 </a>
-                
                 <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="situations">
-                    <i class="fas fa-map-marked-alt text-gray-500 group-hover:text-purple-600 group-hover:scale-110 transition-all"></i>
+                    <i class="fas fa-map-marked-alt text-gray-500"></i>
                     <span class="text-gray-500 group-hover:text-gray-700">Situations</span>
                 </a>
-                
                 <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="natures-coupe">
-                    <i class="fas fa-cut text-gray-500 group-hover:text-orange-600 group-hover:scale-110 transition-all"></i>
+                    <i class="fas fa-cut text-gray-500"></i>
                     <span class="text-gray-500 group-hover:text-gray-700">Natures</span>
                 </a>
-                
                 <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="vocations">
-                    <i class="fas fa-briefcase text-gray-500 group-hover:text-rose-600 group-hover:scale-110 transition-all"></i>
+                    <i class="fas fa-briefcase text-gray-500"></i>
                     <span class="text-gray-500 group-hover:text-gray-700">Vocations</span>
                 </a>
-                
                 <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="coperatives">
-                    <i class="fas fa-users-cog text-gray-500 group-hover:text-cyan-600 group-hover:scale-110 transition-all"></i>
+                    <i class="fas fa-users-cog text-gray-500"></i>
                     <span class="text-gray-500 group-hover:text-gray-700">Coopératives</span>
                 </a>
-                
                 <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="products">
-                    <i class="fas fa-box text-gray-500 group-hover:text-indigo-600 group-hover:scale-110 transition-all"></i>
+                    <i class="fas fa-box text-gray-500"></i>
                     <span class="text-gray-500 group-hover:text-gray-700">Produits</span>
                 </a>
-                
                 <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="prestations">
-                    <i class="fas fa-tasks text-gray-500 group-hover:text-sky-600 group-hover:scale-110 transition-all"></i>
+                    <i class="fas fa-tasks text-gray-500"></i>
                     <span class="text-gray-500 group-hover:text-gray-700">Prestations</span>
                 </a>
             </nav>
@@ -119,14 +110,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // Add active class to clicked tab
-            this.classList.add('active', 'border-emerald-500');
+            this.classList.add('active', 'border-green-500');
             this.classList.remove('border-transparent');
             const icon = this.querySelector('i');
             const span = this.querySelector('span');
             icon.classList.remove('text-gray-500');
-            icon.classList.add('text-emerald-600');
+            icon.classList.add('text-green-600');
             span.classList.remove('text-gray-500');
-            span.classList.add('text-emerald-600');
+            span.classList.add('text-green-600');
             
             // Show target pane
             const targetPane = document.getElementById(targetTab);
@@ -390,7 +381,7 @@ function filterTableByColumns() {
 }
 
 .tab-link.active {
-    border-bottom-color: #10b981 !important;
+    border-bottom-color: #059669 !important;
 }
 
 .tab-pane {

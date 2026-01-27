@@ -65,6 +65,8 @@ class ContractVenteController extends Controller
                     'prix_vente' => $validated['prix_vente'],
                     'prix_de_retrait' => $validated['prix_de_retrait'] ?? null,
                     'nombre_tranche' => $validated['nombre_tranche'],
+                    'date_limite_tranche' => $validated['date_limite_tranche'] ?? null,
+                    'date_limite_taxes' => $validated['date_limite_taxes'] ?? null,
                     'duree_decheache' => $validated['duree_decheache'] ?? null,
                     'Current_state' => 'contrat_vente',
                 ]
@@ -85,10 +87,15 @@ class ContractVenteController extends Controller
                 ];
             });
 
-            $tranches = collect($validated['tranches'])->map(function ($trancheData, $index) use ($contractVente) {
+            $nombreTranches = (int) $validated['nombre_tranche'];
+            $montantParTranche = $nombreTranches > 0
+                ? round($validated['prix_vente'] / $nombreTranches, 2)
+                : 0;
+
+            $tranches = collect($validated['tranches'])->map(function ($trancheData, $index) use ($contractVente, $montantParTranche) {
                 return [
                     'nom' => 'Tranche ' . ($index + 1),
-                    'montant' => $trancheData['montant'],
+                    'montant' => $montantParTranche,
                     'date_echeance' => $trancheData['date_echeance'],
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),
@@ -160,6 +167,8 @@ class ContractVenteController extends Controller
             'prix_vente' => 'required|numeric|min:0',
             'prix_de_retrait' => 'nullable|numeric|min:0',
             'nombre_tranche' => 'required|integer|min:1',
+            'date_limite_tranche' => 'nullable|date',
+            'date_limite_taxes' => 'nullable|date',
             'duree_decheache' => 'nullable|string|max:255',
             'charges' => 'required|array',
             'charges.*.nom' => 'required|string',
@@ -182,6 +191,8 @@ class ContractVenteController extends Controller
                 'prix_vente' => $validated['prix_vente'],
                 'prix_de_retrait' => $validated['prix_de_retrait'] ?? null,
                 'nombre_tranche' => $validated['nombre_tranche'],
+                'date_limite_tranche' => $validated['date_limite_tranche'] ?? null,
+                'date_limite_taxes' => $validated['date_limite_taxes'] ?? null,
                 'duree_decheache' => $validated['duree_decheache'] ?? null,
             ]);
 
@@ -200,10 +211,15 @@ class ContractVenteController extends Controller
                 ];
             });
 
-            $tranches = collect($validated['tranches'])->map(function ($trancheData, $index) use ($contractVente) {
+            $nombreTranches = (int) $validated['nombre_tranche'];
+            $montantParTranche = $nombreTranches > 0
+                ? round($validated['prix_vente'] / $nombreTranches, 2)
+                : 0;
+
+            $tranches = collect($validated['tranches'])->map(function ($trancheData, $index) use ($contractVente, $montantParTranche) {
                 return [
                     'nom' => 'Tranche ' . ($index + 1),
-                    'montant' => $trancheData['montant'],
+                    'montant' => $montantParTranche,
                     'date_echeance' => $trancheData['date_echeance'],
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),

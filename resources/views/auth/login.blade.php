@@ -34,7 +34,7 @@
 
         body {
             font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-            background: #f8fafc;
+            background: #F2F6F3;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -50,19 +50,18 @@
         }
         
         .login-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            border-radius: 0.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 3rem 2.5rem;
+            background: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(154, 179, 163, 0.4);
+            padding: 1.5rem 1.75rem;
             box-sizing: border-box;
         }
 
 
 
         .login-header {
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.5rem;
         }
 
         /* Icon fixes */
@@ -85,11 +84,11 @@
         }
         
         .login-body {
-            margin-top: 1.5rem;
+            margin-top: 1rem;
         }
         
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
         
         .form-label {
@@ -102,11 +101,11 @@
         
         .form-control {
             width: 100%;
-            height: 3.5rem;
-            padding: 0.875rem 1rem;
-            font-size: 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 0.375rem;
+            height: 3rem;
+            padding: 0.75rem 0.875rem;
+            font-size: 0.9375rem;
+            border: 1px solid rgba(154, 179, 163, 0.5);
+            border-radius: 0.5rem;
             background: white;
             box-sizing: border-box;
             transition: all 0.3s ease;
@@ -114,14 +113,14 @@
         }
         
         .form-control:focus {
-            border-color: var(--primary-color);
+            border-color: #059669;
             outline: none;
             box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
             background: white;
         }
         
         .form-control:hover {
-            border-color: #9ca3af;
+            border-color: rgba(154, 179, 163, 0.7);
         }
 
         
@@ -131,12 +130,12 @@
         }
         
         .btn-login {
-            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            background: linear-gradient(to right, #059669, #047857);
             border: none;
-            border-radius: 0.375rem;
-            height: 3.5rem;
-            padding: 0 2rem;
-            font-size: 1rem;
+            border-radius: 0.75rem;
+            height: 3rem;
+            padding: 0 1.75rem;
+            font-size: 0.9375rem;
             font-weight: 600;
             color: white;
             cursor: pointer;
@@ -144,39 +143,22 @@
             min-width: 8rem;
             text-transform: none;
             letter-spacing: normal;
-            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-login::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        
-        .btn-login:hover::before {
-            left: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
         }
         
         .btn-login:hover {
-            background: linear-gradient(135deg, #047857, #0f3d1a);
-            box-shadow: 0 12px 35px rgba(5, 150, 105, 0.4);
-            transform: translateY(-3px) scale(1.02);
+            background: linear-gradient(to right, #047857, #065f46);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+            transform: translateY(-1px);
         }
 
         .btn-login:active {
-            transform: translateY(-1px) scale(0.98);
-            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
         }
         
         .form-check {
-            margin: 1.5rem 0;
+            margin: 1rem 0;
             display: flex;
             align-items: center;
         }
@@ -185,7 +167,7 @@
             width: 1.25rem;
             height: 1.25rem;
             margin-right: 0.75rem;
-            accent-color: var(--primary-color);
+            accent-color: #059669;
             border-radius: 0.25rem;
         }
 
@@ -197,12 +179,12 @@
         }
         
         .alert {
-            border-radius: 0.75rem;
-            border: 1px solid #fecaca;
+            border-radius: 0.5rem;
+            border-left: 4px solid #dc2626;
             background: #fef2f2;
             color: #dc2626;
-            padding: 1rem 1.25rem;
-            margin-bottom: 1.5rem;
+            padding: 0.75rem 0.875rem;
+            margin-bottom: 1rem;
             font-size: 0.875rem;
             font-weight: 500;
             display: flex;
@@ -257,11 +239,11 @@
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            margin-top: 2rem;
+            margin-top: 1.25rem;
         }
 
         .security-note {
-            margin-top: 2rem;
+            margin-top: 1.25rem;
             text-align: center;
             font-size: 0.75rem;
             color: #6b7280;
@@ -272,7 +254,7 @@
         .captcha-container {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.5rem;
             width: 100%;
         }
 
@@ -280,14 +262,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
-            border: 2px solid #bbf7d0;
-            border-radius: 0.375rem;
-            padding: 1rem 1.25rem;
-            font-size: 1.25rem;
+            background: white;
+            border: 1px solid rgba(154, 179, 163, 0.5);
+            border-radius: 0.5rem;
+            padding: 0.75rem 0.875rem;
+            font-size: 1.125rem;
             font-weight: 700;
             color: var(--dark-color);
-            min-height: 3.5rem;
+            min-height: 3rem;
             box-sizing: border-box;
             width: 100%;
             position: relative;
@@ -295,8 +277,7 @@
         }
         
         .captcha-question:hover {
-            border-color: #86efac;
-            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-color: rgba(154, 179, 163, 0.7);
         }
 
         .captcha-question span {
@@ -309,9 +290,9 @@
         }
 
         .captcha-refresh {
-            background: linear-gradient(135deg, var(--primary-color), #047857);
+            background: linear-gradient(to right, #059669, #047857);
             border: none;
-            border-radius: 0.375rem;
+            border-radius: 0.5rem;
             color: white;
             width: 2.5rem;
             height: 2.5rem;
@@ -320,17 +301,17 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-left: 1rem;
+            margin-left: 0.625rem;
             flex-shrink: 0;
             min-width: 2.5rem;
             min-height: 2.5rem;
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
         }
 
         .captcha-refresh:hover {
-            background: linear-gradient(135deg, #047857, #065f46);
-            transform: rotate(180deg) scale(1.05);
-            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+            background: linear-gradient(to right, #047857, #065f46);
+            transform: rotate(180deg);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
         }
 
         .captcha-refresh:active {
@@ -349,12 +330,12 @@
         /* Captcha validation states */
         .captcha-question.valid {
             border-color: #10b981;
-            background: #f0fdf4;
+            background: white;
         }
 
         .captcha-question.invalid {
             border-color: #ef4444;
-            background: #fef2f2;
+            background: white;
         }
 
 
@@ -362,16 +343,17 @@
         /* Tablet optimizations */
         @media (max-width: 768px) {
             .login-container {
-                max-width: 500px;
+                max-width: 80%;
             }
             
             .login-card {
-                padding: 2.5rem 2rem;
+                padding: 1.5rem 1.5rem;
             }
             
             .captcha-question {
-                font-size: 1.1rem;
-                padding: 0.875rem 1rem;
+                font-size: 1rem;
+                padding: 0.75rem 0.875rem;
+                min-height: 3rem;
             }
             
             .captcha-refresh {
@@ -391,7 +373,7 @@
             }
             
             .login-card {
-                padding: 2rem 1.5rem;
+                padding: 1.5rem 1.25rem;
                 border-radius: 0.5rem;
                 margin: 0;
             }
@@ -411,15 +393,15 @@
 
             /* Larger touch targets for mobile */
             .form-control {
-                height: 3.75rem;
-                font-size: 1.1rem;
-                padding: 1rem 1.25rem;
+                height: 3.25rem;
+                font-size: 1rem;
+                padding: 0.875rem 1rem;
             }
 
 
             .btn-login {
-                height: 3.5rem;
-                font-size: 1.1rem;
+                height: 3.25rem;
+                font-size: 1rem;
                 min-width: 100%;
                 width: 100%;
             }
@@ -436,14 +418,14 @@
             
             .captcha-question {
                 flex-direction: column;
-                gap: 0.75rem;
-                padding: 1.25rem 1rem;
+                gap: 0.625rem;
+                padding: 1rem 0.875rem;
                 min-height: auto;
                 text-align: center;
             }
             
             .captcha-question span {
-                font-size: 1.5rem;
+                font-size: 1.375rem;
                 margin-bottom: 0.5rem;
             }
             
@@ -460,19 +442,19 @@
             
             /* Form group spacing */
             .form-group {
-                margin-bottom: 1.75rem;
+                margin-bottom: 1.25rem;
             }
             
             /* Button container mobile */
             .button-container {
-                margin-top: 2.5rem;
+                margin-top: 1.5rem;
             }
         }
 
         /* Extra small mobile devices */
         @media (max-width: 360px) {
             .login-card {
-                padding: 1.5rem 1rem;
+                padding: 1.25rem 1rem;
             }
             
             .login-header h1 {
@@ -492,13 +474,13 @@
             }
             
             .form-control {
-                height: 3.5rem;
-                font-size: 1rem;
+                height: 3rem;
+                font-size: 0.9375rem;
             }
             
             .btn-login {
-                height: 3.25rem;
-                font-size: 1rem;
+                height: 3rem;
+                font-size: 0.9375rem;
             }
         }
 
@@ -552,7 +534,7 @@
             }
             
             .login-header {
-                margin-bottom: 1.5rem;
+                margin-bottom: 1rem;
             }
             
             .login-header h1 {
@@ -561,28 +543,28 @@
             
             .logo-icon {
                 font-size: 2rem;
-                margin-bottom: 1rem;
+                margin-bottom: 0.75rem;
             }
             
             .form-group {
-                margin-bottom: 1rem;
+                margin-bottom: 0.875rem;
             }
             
             .form-control {
-                height: 3rem;
+                height: 2.875rem;
             }
             
             .captcha-question {
-                padding: 0.75rem 1rem;
-                min-height: 3rem;
+                padding: 0.75rem 0.875rem;
+                min-height: 2.875rem;
             }
             
             .captcha-question span {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
             
             .button-container {
-                margin-top: 1.5rem;
+                margin-top: 1rem;
             }
         }
 
@@ -706,15 +688,15 @@
                     @csrf
                     
                     <!-- Main Form Container with Flex -->
-                    <div class="flex flex-col lg:flex-row gap-6">
+                    <div class="flex flex-col lg:flex-row gap-4">
                         <!-- Left Section: Credentials -->
-                        <div class="flex-1 space-y-6">
-                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-user text-white"></i>
+                        <div class="flex-1 space-y-4">
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                        <i class="fas fa-user text-white text-sm"></i>
                                     </div>
-                                    <h3 class="text-lg font-bold text-blue-900">Informations de connexion</h3>
+                                    <h3 class="text-lg font-semibold text-gray-900">Informations de connexion</h3>
                                 </div>
                                 
                                 <x-form.input 
@@ -740,15 +722,15 @@
                                 />
                                 
                                 <!-- Remember Me Checkbox -->
-                                <div class="flex items-center mt-4">
+                                <div class="flex items-center mt-3">
                                     <input type="checkbox" 
                                            name="remember" 
                                            id="remember" 
                                            value="1"
                                            {{ old('remember') ? 'checked' : '' }}
-                                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                                           class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2">
                                     <label for="remember" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer flex items-center gap-2">
-                                        <i class="fas fa-clock text-blue-500"></i>
+                                        <i class="fas fa-clock" style="color: #059669;"></i>
                                         <span>Se souvenir de moi</span>
                                     </label>
                                 </div>
@@ -756,14 +738,14 @@
                         </div>
                         
                         <!-- Right Section: Security & Options -->
-                        <div class="flex-1 space-y-6">
+                        <div class="flex-1 space-y-4">
                             <!-- Security Verification Section -->
-                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-shield-alt text-white"></i>
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                                        <i class="fas fa-shield-alt text-white text-sm"></i>
                                     </div>
-                                    <h3 class="text-lg font-bold text-green-900">Vérification de sécurité</h3>
+                                    <h3 class="text-lg font-semibold text-gray-900">Vérification de sécurité</h3>
                                 </div>
                                 <x-form.captcha 
                                     name="captcha"
@@ -776,19 +758,12 @@
                     </div>
                     
                     <!-- Form Actions -->
-                    <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
+                    <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">
                         <x-button type="submit" variant="success" size="lg" id="loginBtn" icon="fas fa-sign-in-alt">
                             <span class="btn-text">Se connecter</span>
                         </x-button>
                     </div>
                 </form>
-                
-                <div class="mt-6 text-center">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 rounded-lg border border-green-200">
-                        <i class="fas fa-shield-alt"></i>
-                        <span class="text-sm font-medium">Accès sécurisé au système de gestion forestière</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
