@@ -482,8 +482,8 @@ class SettingsController extends Controller
         $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : null;
         $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : null;
         
-        $query = Exploitant::query();
-        
+        $query = Exploitant::query()->with('dranef');
+
         // Apply date filtering if provided
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);

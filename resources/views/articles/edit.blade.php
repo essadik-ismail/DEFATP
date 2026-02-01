@@ -382,6 +382,76 @@
                             @enderror
                         </div>
                     </div>
+
+                    <!-- Sous-section : Limites du lot -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="text-base font-semibold text-gray-800 mb-4">Limites du lot</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="limite_nord" class="block text-sm font-semibold text-gray-700 mb-2">Limite Nord</label>
+                                <input type="text" id="limite_nord" name="limite_nord" value="{{ old('limite_nord', $article->limite_nord) }}"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Limite Nord">
+                                @error('limite_nord')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="limite_sud" class="block text-sm font-semibold text-gray-700 mb-2">Limite Sud</label>
+                                <input type="text" id="limite_sud" name="limite_sud" value="{{ old('limite_sud', $article->limite_sud) }}"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Limite Sud">
+                                @error('limite_sud')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="limite_est" class="block text-sm font-semibold text-gray-700 mb-2">Limite Est</label>
+                                <input type="text" id="limite_est" name="limite_est" value="{{ old('limite_est', $article->limite_est) }}"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Limite Est">
+                                @error('limite_est')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="limite_ouest" class="block text-sm font-semibold text-gray-700 mb-2">Limite Ouest</label>
+                                <input type="text" id="limite_ouest" name="limite_ouest" value="{{ old('limite_ouest', $article->limite_ouest) }}"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Limite Ouest">
+                                @error('limite_ouest')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sous-section : Coordonnées du centre -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="text-base font-semibold text-gray-800 mb-4">Coordonnées du centre</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="coordonnee_x" class="block text-sm font-semibold text-gray-700 mb-2">Coordonnée X</label>
+                                <input type="number" id="coordonnee_x" name="coordonnee_x" value="{{ old('coordonnee_x', $article->coordonnee_x) }}"
+                                    step="any"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Coordonnée X">
+                                @error('coordonnee_x')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="coordonnee_y" class="block text-sm font-semibold text-gray-700 mb-2">Coordonnée Y</label>
+                                <input type="number" id="coordonnee_y" name="coordonnee_y" value="{{ old('coordonnee_y', $article->coordonnee_y) }}"
+                                    step="any"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Coordonnée Y">
+                                @error('coordonnee_y')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 5. Consistance du lot -->
@@ -698,6 +768,40 @@
                     </button>
                 </div>
             </form>
+
+            <!-- 8. Plan de situation – Import Excel (mat, x, y → table locations) -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                        <i class="fas fa-map text-white text-sm"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900">8. Plan de situation – Import Excel</h3>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">
+                    Importez un fichier Excel contenant les colonnes <strong>mat</strong>, <strong>x</strong>, <strong>y</strong> (première ligne = en-têtes). Les lignes seront enregistrées dans la table des localisations (plan de situation).
+                </p>
+                <form action="{{ route('articles.locations.import', $article) }}" method="POST" enctype="multipart/form-data" class="flex flex-wrap items-end gap-4">
+                    @csrf
+                    <div class="form-group min-w-[240px]">
+                        <label for="locations_file" class="block text-sm font-semibold text-gray-700 mb-2">Fichier Excel (.xlsx, .xls)</label>
+                        <input type="file"
+                            id="locations_file"
+                            name="locations_file"
+                            accept=".xlsx,.xls"
+                            class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            required>
+                        @error('locations_file')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 px-5 py-2.5 text-white rounded-lg transition-all duration-300 hover:opacity-90"
+                            style="background: linear-gradient(to right, #059669, #047857);">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Importer</span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 @endsection

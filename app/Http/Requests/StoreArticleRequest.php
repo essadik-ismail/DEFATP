@@ -55,10 +55,16 @@ class StoreArticleRequest extends FormRequest
             'zdtf_code' => ['nullable', 'string', 'max:255'],
             'dfp_code' => ['nullable', 'string', 'max:255'],
             'nature_juridique' => ['nullable', 'string', 'max:255'],
+            'canton' => ['nullable', 'string', 'max:255'],
+            'particuliere' => ['nullable', 'string'],
+            'limite_nord' => ['required', 'string', 'max:255'],
+            'limite_sud' => ['required', 'string', 'max:255'],
+            'limite_est' => ['required', 'string', 'max:255'],
+            'limite_ouest' => ['required', 'string', 'max:255'],
+            'coordonnee_x' => ['required', 'numeric'],
+            'coordonnee_y' => ['required', 'numeric'],
             'foret_ids' => ['nullable', 'array'],
             'foret_ids.*' => ['exists:forets,id'],
-            'parcelle_ids' => ['nullable', 'array'],
-            'parcelle_ids.*' => ['exists:parcelles,id'],
             'depot_ids' => ['nullable', 'array'],
             'depot_ids.*' => ['exists:depot,id'],
             'products' => ['nullable', 'array'],
@@ -66,6 +72,7 @@ class StoreArticleRequest extends FormRequest
             'products.*.product_id' => ['required_with:products', 'exists:products,id'],
             'products.*.quantity' => ['required_with:products', 'numeric', 'min:0'],
             'is_on_depot' => ['nullable', 'boolean'],
+            'locations_file' => ['nullable', 'file', 'mimes:xlsx,xls', 'max:10240'],
         ];
     }
 
@@ -100,6 +107,16 @@ class StoreArticleRequest extends FormRequest
             'dpanef_code.exists' => 'Le code DPANEF sélectionné n\'existe pas.',
             'zdtf_code.exists' => 'Le code ZDTF sélectionné n\'existe pas.',
             'dfp_code.exists' => 'Le code DFP sélectionné n\'existe pas.',
+            'locations_file.mimes' => 'Le fichier plan de situation doit être au format Excel (.xlsx ou .xls).',
+            'locations_file.max' => 'Le fichier plan de situation ne doit pas dépasser 10 Mo.',
+            'limite_nord.required' => 'La limite Nord est requise.',
+            'limite_sud.required' => 'La limite Sud est requise.',
+            'limite_est.required' => 'La limite Est est requise.',
+            'limite_ouest.required' => 'La limite Ouest est requise.',
+            'coordonnee_x.required' => 'La coordonnée X est requise.',
+            'coordonnee_x.numeric' => 'La coordonnée X doit être un nombre.',
+            'coordonnee_y.required' => 'La coordonnée Y est requise.',
+            'coordonnee_y.numeric' => 'La coordonnée Y doit être un nombre.',
         ];
     }
 }

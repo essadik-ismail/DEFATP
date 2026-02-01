@@ -36,6 +36,14 @@ class Article extends Model
         'zdtf_code',
         'dfp_code',
         'nature_juridique',
+        'canton',
+        'particuliere',
+        'limite_nord',
+        'limite_sud',
+        'limite_est',
+        'limite_ouest',
+        'coordonnee_x',
+        'coordonnee_y',
         'current_step',
     ];
 
@@ -53,6 +61,8 @@ class Article extends Model
         'date_payement_service_anef' => 'date',
         'date_livaison_mise_en_charge_bf' => 'date',
         'invandu' => 'boolean',
+        'coordonnee_x' => 'decimal:6',
+        'coordonnee_y' => 'decimal:6',
     ];
 
     /**

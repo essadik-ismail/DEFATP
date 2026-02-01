@@ -652,12 +652,65 @@
             color: var(--primary);
         }
 
+        /* Nav group title (parent with submenu) - clickable toggle */
+        .nav-item.has-submenu .nav-group-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            color: var(--text-on-light);
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            text-align: left;
+            transition: background 0.2s ease;
+        }
+
+        .nav-item.has-submenu .nav-group-title:hover {
+            background: rgba(46, 82, 57, 0.08);
+        }
+
+        .nav-group-title .nav-group-label {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-group-title .nav-group-label i:first-child {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-group-title .nav-group-chevron {
+            margin-left: auto;
+            font-size: 0.75rem;
+            transition: transform 0.25s ease;
+        }
+
+        .nav-item.has-submenu.expanded .nav-group-chevron {
+            transform: rotate(90deg);
+        }
+
         /* Submenu styling */
         .submenu {
             margin-left: 1rem;
             margin-top: 0.5rem;
             border-left: 2px solid var(--border-color);
             padding-left: 1rem;
+            overflow: hidden;
+            max-height: 500px;
+            transition: max-height 0.3s ease;
+        }
+
+        .nav-item.has-submenu .submenu.collapsed {
+            max-height: 0;
+            margin-top: 0;
+            opacity: 0;
         }
 
         .submenu-item {
@@ -2327,18 +2380,28 @@
                     </a>
                 </div>
 
-                <div class="nav-item">
-                    <a href="{{ route('articles.index') }}" class="nav-link {{ request()->routeIs('articles.*') ? 'active' : '' }}">
-                        <i class="fas fa-folder"></i>
-                        Exploitation
-                    </a>
-                </div>
-
-                <div class="nav-item">
-                    <a href="{{ route('exploitants.index') }}" class="nav-link {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
-                        <i class="fas fa-folder"></i>
-                        Exploitant Forêstier
-                    </a>
+                <div class="nav-item has-submenu {{ request()->routeIs('articles.*') || request()->routeIs('exploitants.*') ? 'expanded' : '' }}" id="nav-exploitation">
+                    <button type="button" class="nav-group-title" aria-expanded="{{ request()->routeIs('articles.*') || request()->routeIs('exploitants.*') ? 'true' : 'false' }}" aria-controls="submenu-exploitation" id="toggle-exploitation">
+                        <span class="nav-group-label">
+                            <i class="fas fa-folder"></i>
+                            Exploitation
+                        </span>
+                        <i class="fas fa-chevron-right nav-group-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="submenu {{ request()->routeIs('articles.*') || request()->routeIs('exploitants.*') ? '' : 'collapsed' }}" id="submenu-exploitation" role="region" aria-label="Sous-menu Exploitation">
+                        <a href="{{ route('articles.create') }}" class="submenu-item {{ request()->routeIs('articles.create') ? 'active' : '' }}">
+                            <i class="fas fa-plus"></i>
+                            Ajouter article
+                        </a>
+                        <a href="{{ route('exploitants.index') }}" class="submenu-item {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
+                            <i class="fas fa-user-tie"></i>
+                            Exploitant Forêstier
+                        </a>
+                        <a href="{{ route('articles.index') }}" class="submenu-item {{ request()->routeIs('articles.index') || request()->routeIs('articles.show') || request()->routeIs('articles.edit') ? 'active' : '' }}">
+                            <i class="fas fa-list"></i>
+                            Consultation
+                        </a>
+                    </div>
                 </div>
 
                 <div class="nav-item">
@@ -2655,6 +2718,16 @@
             if (window.innerWidth >= 1024) {
                 closeSidebar();
             }
+        });
+
+        // Exploitation submenu collapse toggle
+        document.getElementById('toggle-exploitation')?.addEventListener('click', function() {
+            const navItem = document.getElementById('nav-exploitation');
+            const submenu = document.getElementById('submenu-exploitation');
+            if (!navItem || !submenu) return;
+            navItem.classList.toggle('expanded');
+            submenu.classList.toggle('collapsed');
+            this.setAttribute('aria-expanded', submenu.classList.contains('collapsed') ? 'false' : 'true');
         });
 
         // Close sidebar on escape key

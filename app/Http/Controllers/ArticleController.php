@@ -28,8 +28,10 @@ use App\Models\ColportageEnlever;
 use App\Models\PvInstallation;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
+use App\Imports\LocationsImport;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
@@ -238,7 +240,8 @@ class ArticleController extends Controller
                 $article->forets()->attach($request->foret_ids);
             }
 
-            if ($request->has('parcelle_ids')) {
+            // Parcelle/Canton are stored as text on the article; parcelle_ids no longer used on create form
+            if ($request->has('parcelle_ids') && is_array($request->parcelle_ids)) {
                 $article->parcelles()->attach($request->parcelle_ids);
             }
 
@@ -297,10 +300,33 @@ class ArticleController extends Controller
 
             DB::commit();
 
+            $locationsImported = false;
+            if ($request->hasFile('locations_file')) {
+                try {
+                    Excel::import(new LocationsImport($article->id), $request->file('locations_file'));
+                    $locationsImported = true;
+                    ActivityLogger::log('update', 'Locations (plan de situation) importées à la création', Article::class, $article->id);
+                } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+                    $failures = $e->failures();
+                    $messages = collect($failures)->map(fn ($f) => 'Ligne ' . $f->row() . ': ' . implode(', ', $f->errors()))->implode(' ; ');
+                    \Log::warning('Locations import on create failed: ' . $messages);
+                } catch (\Throwable $e) {
+                    \Log::error('Locations import on create: ' . $e->getMessage());
+                }
+            }
+
             ActivityLogger::log('create', 'Article créé', Article::class, $article->id);
 
+            $successMsg = 'Article créé avec succès.';
+            if ($locationsImported) {
+                $successMsg .= ' Plan de situation importé.';
+            } elseif ($request->hasFile('locations_file')) {
+                return redirect()->route('articles.edit', $article)
+                    ->with('success', 'Article créé avec succès. L\'import du plan de situation a échoué ; vous pouvez réessayer l\'import Excel ci-dessous.');
+            }
+
             return redirect()->route('articles.index')
-                ->with('success', 'Article créé avec succès.');
+                ->with('success', $successMsg);
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             return redirect()->back()
@@ -553,6 +579,36 @@ class ArticleController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Erreur lors de la modification de l\'article. Veuillez vérifier les données saisies.');
+        }
+    }
+
+    /**
+     * Import locations (plan de situation) from Excel file with columns: mat, x, y.
+     */
+    public function importLocations(Request $request, Article $article): RedirectResponse
+    {
+        $request->validate([
+            'locations_file' => ['required', 'file', 'mimes:xlsx,xls', 'max:10240'],
+        ], [
+            'locations_file.required' => 'Veuillez sélectionner un fichier Excel.',
+            'locations_file.mimes' => 'Le fichier doit être au format Excel (.xlsx ou .xls).',
+            'locations_file.max' => 'Le fichier ne doit pas dépasser 10 Mo.',
+        ]);
+
+        try {
+            Excel::import(new LocationsImport($article->id), $request->file('locations_file'));
+
+            ActivityLogger::log('update', 'Locations (plan de situation) importées', Article::class, $article->id);
+
+            return redirect()->route('articles.edit', $article)
+                ->with('success', 'Fichier Excel importé avec succès. Les coordonnées (mat, x, y) ont été enregistrées dans le plan de situation.');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $messages = collect($failures)->map(fn ($f) => 'Ligne ' . $f->row() . ': ' . implode(', ', $f->errors()))->implode(' ; ');
+            return redirect()->back()->with('error', 'Erreurs de validation: ' . $messages);
+        } catch (\Throwable $e) {
+            \Log::error('Locations import error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
         }
     }
 
@@ -1242,7 +1298,32 @@ class ArticleController extends Controller
         // Get pre-selected permis d'enlever ID from query parameter
         $selectedPermisEnleverId = request('permis_enlever_id');
 
-        return view('articles.permis-colportage', compact('article', 'contractVente', 'permisEnlevers', 'permisEnleversWithQuantities', 'selectedPermisEnleverId', 'products'));
+        // Section 1 & 2: quantities and list for selected Permis d'Enlever
+        $quantityInPermisEnlever = 0;
+        $quantityUsedColportage = 0;
+        $listPermisColportage = collect();
+
+        if ($selectedPermisEnleverId) {
+            $quantityInPermisEnlever = (float) DB::table('permisenlever_product')
+                ->where('permis_id', $selectedPermisEnleverId)
+                ->sum('quantity');
+
+            $quantityUsedColportage = (float) ColportageEnlever::where('id_permis_enlever', $selectedPermisEnleverId)
+                ->sum('quantity');
+
+            $listPermisColportage = ColportageEnlever::where('id_permis_enlever', $selectedPermisEnleverId)
+                ->whereNotNull('numero_permis')
+                ->orderBy('date_debut', 'desc')
+                ->get()
+                ->groupBy('numero_permis')
+                ->map(fn ($rows) => $rows->first());
+        }
+
+        return view('articles.permis-colportage', compact(
+            'article', 'contractVente', 'permisEnlevers', 'permisEnleversWithQuantities',
+            'selectedPermisEnleverId', 'products',
+            'quantityInPermisEnlever', 'quantityUsedColportage', 'listPermisColportage'
+        ));
     }
 
     /**
@@ -1377,7 +1458,7 @@ class ArticleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('articles.show', $article)
+            return redirect()->route('articles.permis-colportage', ['article' => $article, 'permis_enlever_id' => $permiEnlever->id])
                 ->with('success', 'Permis de colportage généré avec succès.');
 
         } catch (\Exception $e) {

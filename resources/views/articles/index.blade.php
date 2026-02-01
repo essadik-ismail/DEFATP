@@ -37,7 +37,7 @@
     @endif
 
     <!-- Filters and Search Area -->
-    <x-filters-card 
+    <!-- <x-filters-card 
         title="Filtres et Recherche"
         icon="fas fa-filter"
         :action="route('articles.index')"
@@ -94,9 +94,8 @@
             </div>
         </div>
 
-        <!-- Hidden fields to preserve pagination -->
         <input type="hidden" name="per_page" value="{{ request('per_page', 15) }}">
-    </x-filters-card>
+    </x-filters-card> -->
 
     <!-- Articles Data Table -->
     <div class="rounded-2xl border max-w-full overflow-hidden" style="background: #FFFFFF; border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);">
@@ -244,23 +243,23 @@
                                 <div class="flex flex-col gap-0.5">
                                     @php
                                         $steps = [
-                                            'cahier_affiche' => ['label' => 'Cahier affiche', 'class' => 'badge-primary'],
-                                            'contrat_vente' => ['label' => 'Contrat de vente', 'class' => 'badge-primary'],
-                                            'paiement_charges' => ['label' => 'Paiement des charges', 'class' => 'badge-warning'],
-                                            'paiement_tranches' => ['label' => 'Paiement des tranches', 'class' => 'badge-warning'],
-                                            'recollement' => ['label' => 'Récolement', 'class' => 'badge-info'],
-                                            'main_levee' => ['label' => 'Main levée', 'class' => 'badge-success'],
+                                            'cahier_affiche' => ['label' => 'Cahier affiche', 'class' => 'bg-green-100 text-green-800'],
+                                            'contrat_vente' => ['label' => 'Contrat de vente', 'class' => 'bg-green-100 text-green-800'],
+                                            'paiement_charges' => ['label' => 'Paiement des charges', 'class' => 'bg-amber-100 text-amber-800'],
+                                            'paiement_tranches' => ['label' => 'Paiement des tranches', 'class' => 'bg-amber-100 text-amber-800'],
+                                            'recollement' => ['label' => 'Récolement', 'class' => 'bg-teal-100 text-teal-800'],
+                                            'main_levee' => ['label' => 'Main levée', 'class' => 'bg-emerald-100 text-emerald-800'],
                                         ];
                                         $currentStep = $article->current_step ?? null;
-                                        $stepInfo = $currentStep && isset($steps[$currentStep]) 
-                                            ? $steps[$currentStep] 
-                                            : ['label' => $currentStep ? ucfirst(str_replace('_', ' ', $currentStep)) : 'Non défini', 'class' => 'badge-info'];
+                                        $stepInfo = $currentStep && isset($steps[$currentStep])
+                                            ? $steps[$currentStep]
+                                            : ['label' => $currentStep ? ucfirst(str_replace('_', ' ', $currentStep)) : 'Non défini', 'class' => 'bg-gray-100 text-gray-800'];
                                     @endphp
-                                    <span class="badge text-xs px-2 py-0.5 {{ $stepInfo['class'] }}">
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $stepInfo['class'] }}">
                                         {{ $stepInfo['label'] }}
                                     </span>
                                     @if($article->invendu)
-                                        <span class="badge badge-danger text-xs px-2 py-0.5">
+                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-red-100 text-red-800">
                                             <i class="fas fa-ban mr-0.5 text-xs"></i>Invendu
                                         </span>
                                     @endif

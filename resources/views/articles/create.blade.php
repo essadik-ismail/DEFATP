@@ -277,38 +277,24 @@
                             @enderror
                         </div>
                         <div class="form-group">
-                            <label for="canton_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="canton" class="block text-sm font-semibold text-gray-700 mb-2">
                                 Canton
                             </label>
-                            <select id="canton_id" name="canton_id" 
+                            <input type="text"
                                     class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                                    onchange="updateParcelles()">
-                                <option value="">Sélectionner un canton</option>
-                                @foreach($cantons ?? [] as $canton)
-                                    <option value="{{ $canton->id }}" data-foret-id="{{ $canton->foret_id }}" {{ old('canton_id') == $canton->id ? 'selected' : '' }}>
-                                        {{ $canton->canton }}@if($canton->foret) - {{ $canton->foret->foret }}@endif
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('canton_id')
+                                    id="canton" name="canton" value="{{ old('canton') }}" placeholder="Canton">
+                            @error('canton')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
-                            <label for="parcelle_ids" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="parcelle" class="block text-sm font-semibold text-gray-700 mb-2">
                                 Parcelle
                             </label>
-                            <input type="text" placeholder="Rechercher..." class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg" onkeyup="filterSelectOptions(this, 'parcelle_ids')">
-                            <select multiple
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
-                                    id="parcelle_ids" name="parcelle_ids[]">
-                                @foreach($parcelles ?? [] as $parcelle)
-                                    <option value="{{ $parcelle->id }}" data-canton-id="{{ $parcelle->canton_id }}" {{ collect(old('parcelle_ids', []))->contains($parcelle->id) ? 'selected' : '' }}>
-                                        {{ $parcelle->parcelle }}@if($parcelle->canton) - {{ $parcelle->canton->canton }}@endif
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('parcelle_ids')
+                            <input type="text"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    id="parcelle" name="parcelle" value="{{ old('parcelle') }}" placeholder="Parcelle">
+                            @error('parcelle')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
                         </div>
@@ -373,6 +359,76 @@
                             @error('mode_exploitation_ids')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
+                        </div>
+                    </div>
+
+                    <!-- Sous-section : Limites du lot -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="text-base font-semibold text-gray-800 mb-4">Limites du lot</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="limite_nord" class="block text-sm font-semibold text-gray-700 mb-2">Limite Nord <span class="text-red-500">*</span></label>
+                                <input type="text" id="limite_nord" name="limite_nord" value="{{ old('limite_nord') }}"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Limite Nord" required>
+                                @error('limite_nord')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="limite_sud" class="block text-sm font-semibold text-gray-700 mb-2">Limite Sud <span class="text-red-500">*</span></label>
+                                <input type="text" id="limite_sud" name="limite_sud" value="{{ old('limite_sud') }}"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Limite Sud" required>
+                                @error('limite_sud')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="limite_est" class="block text-sm font-semibold text-gray-700 mb-2">Limite Est <span class="text-red-500">*</span></label>
+                                <input type="text" id="limite_est" name="limite_est" value="{{ old('limite_est') }}"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Limite Est" required>
+                                @error('limite_est')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="limite_ouest" class="block text-sm font-semibold text-gray-700 mb-2">Limite Ouest <span class="text-red-500">*</span></label>
+                                <input type="text" id="limite_ouest" name="limite_ouest" value="{{ old('limite_ouest') }}"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Limite Ouest" required>
+                                @error('limite_ouest')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sous-section : Coordonnées du centre -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="text-base font-semibold text-gray-800 mb-4">Coordonnées du centre</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="coordonnee_x" class="block text-sm font-semibold text-gray-700 mb-2">Coordonnée X <span class="text-red-500">*</span></label>
+                                <input type="number" id="coordonnee_x" name="coordonnee_x" value="{{ old('coordonnee_x') }}"
+                                    step="any"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Coordonnée X" required>
+                                @error('coordonnee_x')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="coordonnee_y" class="block text-sm font-semibold text-gray-700 mb-2">Coordonnée Y <span class="text-red-500">*</span></label>
+                                <input type="number" id="coordonnee_y" name="coordonnee_y" value="{{ old('coordonnee_y') }}"
+                                    step="any"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                                    placeholder="Coordonnée Y" required>
+                                @error('coordonnee_y')
+                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -471,161 +527,46 @@
                     </div>
                 </div>
 
-                <!-- 7. Charges -->
+                <!-- 7. Particulière -->
                 <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                            <i class="fas fa-money-bill-wave text-white"></i>
+                            <i class="fas fa-file-alt text-white text-sm"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900">7. Charges</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">7. Particulière</h3>
                     </div>
-                    <div class="space-y-6">
-                        <!-- Row 1: Taxes pour la réfection du chemin -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="form-group">
-                                <label for="taxe_refection_chemins" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Taxes pour la réfection du chemin (Montant)
-                                </label>
-                                <input type="number" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
-                                    id="taxe_refection_chemins" name="taxe_refection_chemins" value="{{ old('taxe_refection_chemins') }}" 
-                                    min="0" step="0.01" placeholder="Montant">
-                                @error('taxe_refection_chemins')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label for="date_echeance_taxe_refection_chemins" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Date d'échéance – Taxes pour la réfection du chemin
-                                </label>
-                                <input type="date" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
-                                    id="date_echeance_taxe_refection_chemins" name="date_echeance_taxe_refection_chemins" value="{{ old('date_echeance_taxe_refection_chemins') }}">
-                                @error('date_echeance_taxe_refection_chemins')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="particuliere" class="block text-sm font-semibold text-gray-700 mb-2">Particulière</label>
+                        <textarea id="particuliere" name="particuliere" rows="4"
+                            class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="Notes particulières">{{ old('particuliere') }}</textarea>
+                        @error('particuliere')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
 
-                        <!-- Row 2: Service rendu par l'ANEF -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="form-group">
-                                <label for="service_rendu_anef" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Service rendu par l'ANEF (Montant)
-                                </label>
-                                <input type="number" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
-                                    id="service_rendu_anef" name="service_rendu_anef" value="{{ old('service_rendu_anef') }}" 
-                                    min="0" step="0.01" placeholder="Montant">
-                                @error('service_rendu_anef')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label for="date_echeance_service_rendu_anef" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Date d'échéance – Service rendu par l'ANEF
-                                </label>
-                                <input type="date" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
-                                    id="date_echeance_service_rendu_anef" name="date_echeance_service_rendu_anef" value="{{ old('date_echeance_service_rendu_anef') }}">
-                                @error('date_echeance_service_rendu_anef')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
+                <!-- 8. Plan de situation – Import Excel (mat, x, y → table locations) -->
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                            <i class="fas fa-map text-white text-sm"></i>
                         </div>
-
-                        <!-- Row 3: Bois de chauffage -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="form-group">
-                                <label for="bois_chauffage_destination" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Bois de chauffage – Destination
-                                </label>
-                                <input type="text" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
-                                    id="bois_chauffage_destination" name="bois_chauffage_destination" value="{{ old('bois_chauffage_destination') }}" 
-                                    placeholder="Entrez la destination du bois chauffage">
-                                @error('bois_chauffage_destination')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label for="bois_chauffage_volume" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Bois de chauffage – Volume
-                                </label>
-                                <input type="number" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
-                                    id="bois_chauffage_volume" name="bois_chauffage_volume" value="{{ old('bois_chauffage_volume') }}" 
-                                    min="0" step="0.01" placeholder="Volume">
-                                @error('bois_chauffage_volume')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Row 4: Mise en charge -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="form-group">
-                                <label for="mise_en_charge_destination" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Mise en charge – Destination
-                                </label>
-                                <input type="text" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
-                                    id="mise_en_charge_destination" name="mise_en_charge_destination" value="{{ old('mise_en_charge_destination') }}" 
-                                    placeholder="Entrez la destination">
-                                @error('mise_en_charge_destination')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label for="mise_en_charge_volume" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Mise en charge – Volume
-                                </label>
-                                <input type="number" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
-                                    id="mise_en_charge_volume" name="mise_en_charge_volume" value="{{ old('mise_en_charge_volume') }}" 
-                                    min="0" step="0.01" placeholder="Volume">
-                                @error('mise_en_charge_volume')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label for="date_echeance_mise_en_charge" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Date d'échéance – Mise en charge
-                                </label>
-                                <input type="date" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
-                                    id="date_echeance_mise_en_charge" name="date_echeance_mise_en_charge" value="{{ old('date_echeance_mise_en_charge') }}">
-                                @error('date_echeance_mise_en_charge')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Row 5: Dates de paiement et livraison -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="form-group">
-                                <label for="date_payement_service_anef" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Date de paiement du service ANEF (jj/mm/aaaa)
-                                </label>
-                                <input type="date" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
-                                    id="date_payement_service_anef" name="date_payement_service_anef" value="{{ old('date_payement_service_anef') }}">
-                                @error('date_payement_service_anef')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label for="date_livaison_mise_en_charge_bf" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Date de livraison / mise en charge BF (jj/mm/aaaa)
-                                </label>
-                                <input type="date" 
-                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
-                                    id="date_livaison_mise_en_charge_bf" name="date_livaison_mise_en_charge_bf" value="{{ old('date_livaison_mise_en_charge_bf') }}">
-                                @error('date_livaison_mise_en_charge_bf')
-                                    <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">8. Plan de situation – Import Excel</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Optionnel : importez un fichier Excel avec les colonnes <strong>mat</strong>, <strong>x</strong>, <strong>y</strong> (première ligne = en-têtes). Les lignes seront enregistrées dans la table des localisations (plan de situation) après création de l'article.
+                    </p>
+                    <div class="form-group">
+                        <label for="locations_file" class="block text-sm font-semibold text-gray-700 mb-2">Fichier Excel (.xlsx, .xls)</label>
+                        <input type="file"
+                            id="locations_file"
+                            name="locations_file"
+                            accept=".xlsx,.xls"
+                            class="form-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        @error('locations_file')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
@@ -700,27 +641,6 @@ function removeProductRow(button) {
     button.closest('tr').remove();
 }
 
-
-function updateParcelles() {
-    const cantonSelect = document.getElementById('canton_id');
-    const parcelleSelect = document.getElementById('parcelle_ids');
-    const selectedCantonId = cantonSelect.value;
-    
-    // Filter parcelles by canton
-    Array.from(parcelleSelect.options).forEach(option => {
-        if (option.value === '') {
-            option.style.display = '';
-            return;
-        }
-        const cantonId = option.getAttribute('data-canton-id');
-        if (selectedCantonId && cantonId !== selectedCantonId) {
-            option.style.display = 'none';
-            option.selected = false;
-        } else {
-            option.style.display = '';
-        }
-    });
-}
 
 function filterSelectOptions(inputEl, selectId) {
     const filter = inputEl.value.toLowerCase();
@@ -881,7 +801,6 @@ function toggleDepotSelect() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    updateParcelles();
     // Initialize province/commune cascading
     const provinceSelect = document.getElementById('province_id');
     if (provinceSelect && provinceSelect.value) {

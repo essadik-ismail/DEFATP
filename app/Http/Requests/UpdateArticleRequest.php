@@ -57,6 +57,12 @@ class UpdateArticleRequest extends FormRequest
             'zdtf_code' => ['nullable', 'string', 'max:255'],
             'dfp_code' => ['nullable', 'string', 'max:255'],
             'nature_juridique' => ['nullable', 'string', 'max:255'],
+            'limite_nord' => ['nullable', 'string', 'max:255'],
+            'limite_sud' => ['nullable', 'string', 'max:255'],
+            'limite_est' => ['nullable', 'string', 'max:255'],
+            'limite_ouest' => ['nullable', 'string', 'max:255'],
+            'coordonnee_x' => ['nullable', 'numeric'],
+            'coordonnee_y' => ['nullable', 'numeric'],
             'depot_ids' => ['nullable', 'array'],
             'depot_ids.*' => ['exists:depot,id'],
             'products' => ['nullable', 'array'],
@@ -80,6 +86,14 @@ class UpdateArticleRequest extends FormRequest
             'annee.max' => 'L\'année doit être inférieure ou égale à 2100.',
             'superficie.numeric' => 'La superficie doit être un nombre.',
             'superficie.min' => 'La superficie doit être positive.',
+            'limite_nord.required' => 'La limite Nord est requise.',
+            'limite_sud.required' => 'La limite Sud est requise.',
+            'limite_est.required' => 'La limite Est est requise.',
+            'limite_ouest.required' => 'La limite Ouest est requise.',
+            'coordonnee_x.required' => 'La coordonnée X est requise.',
+            'coordonnee_x.numeric' => 'La coordonnée X doit être un nombre.',
+            'coordonnee_y.required' => 'La coordonnée Y est requise.',
+            'coordonnee_y.numeric' => 'La coordonnée Y doit être un nombre.',
         ];
     }
 }

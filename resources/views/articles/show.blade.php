@@ -36,8 +36,8 @@
     $showLettreAdjudicataire = $contractVente && $currentStepIndex >= 1; // contrat_vente is index 1
     $showPermisExploiter = $hasPaidTranches && $currentStepIndex >= 2; // paiement_charges is index 2
     $showPVInstallation = $hasPaidTranches && $currentStepIndex >= 2; // paiement_charges is index 2
-    $showPermisEnlever = $hasPaidTranches && $currentStepIndex >= 4; // recollement is index 4
-    $showPermisColportage = $hasPaidTranches && $currentStepIndex >= 4; // recollement is index 4
+    $showPermisEnlever = $hasPaidTranches && $currentStepIndex >= 3; // paiement_tranches is index 3
+    $showPermisColportage = $hasPaidTranches && $currentStepIndex >= 3; // paiement_tranches is index 3
 @endphp
 <div class="min-w-0 max-w-full">
     <!-- Header Section -->
@@ -122,6 +122,54 @@
     @endif
     @if(session('error'))
         <x-alert type="error" title="Erreur !" dismissible class="mb-4">{{ session('error') }}</x-alert>
+    @endif
+
+    <!-- Description du lot (Limites et Coordonnées) -->
+    @if($article->limite_nord || $article->limite_sud || $article->limite_est || $article->limite_ouest || $article->coordonnee_x !== null || $article->coordonnee_y !== null)
+    <div class="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                <i class="fas fa-clipboard-list text-white text-sm"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Description du lot</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h4 class="text-base font-semibold text-gray-800 mb-3">Limites du lot</h4>
+                <dl class="space-y-2 text-sm">
+                    @if($article->limite_nord)
+                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Nord</dt><dd class="text-gray-900">{{ $article->limite_nord }}</dd></div>
+                    @endif
+                    @if($article->limite_sud)
+                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Sud</dt><dd class="text-gray-900">{{ $article->limite_sud }}</dd></div>
+                    @endif
+                    @if($article->limite_est)
+                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Est</dt><dd class="text-gray-900">{{ $article->limite_est }}</dd></div>
+                    @endif
+                    @if($article->limite_ouest)
+                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Ouest</dt><dd class="text-gray-900">{{ $article->limite_ouest }}</dd></div>
+                    @endif
+                    @if(!$article->limite_nord && !$article->limite_sud && !$article->limite_est && !$article->limite_ouest)
+                        <p class="text-gray-500">—</p>
+                    @endif
+                </dl>
+            </div>
+            <div>
+                <h4 class="text-base font-semibold text-gray-800 mb-3">Coordonnées du centre</h4>
+                <dl class="space-y-2 text-sm">
+                    @if($article->coordonnee_x !== null && $article->coordonnee_x !== '')
+                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-32">Coordonnée X</dt><dd class="text-gray-900">{{ $article->coordonnee_x }}</dd></div>
+                    @endif
+                    @if($article->coordonnee_y !== null && $article->coordonnee_y !== '')
+                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-32">Coordonnée Y</dt><dd class="text-gray-900">{{ $article->coordonnee_y }}</dd></div>
+                    @endif
+                    @if(($article->coordonnee_x === null || $article->coordonnee_x === '') && ($article->coordonnee_y === null || $article->coordonnee_y === ''))
+                        <p class="text-gray-500">—</p>
+                    @endif
+                </dl>
+            </div>
+        </div>
+    </div>
     @endif
 
     <!-- Article Steps Progress -->
@@ -234,7 +282,23 @@
 
                 @if($activeStep === 'cahier_affiche' || $activeStep === 'contrat_vente')
                     <!-- Contract Vente Section (styled like Create Article) -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="section-header flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200" style="background: rgba(242, 246, 243, 0.6);">
+                            <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
+                                <i class="fas fa-file-contract" style="color: #6B7C72;"></i>
+                                Contrat de vente
+                            </h2>
+                            @if($showLettreAdjudicataire)
+                                <div class="flex items-center gap-2 text-sm">
+                                    <span class="text-gray-500">Document :</span>
+                                    <a href="{{ route('articles.lettre-adjudicataire', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
+                                        <i class="fas fa-file-alt text-xs"></i>
+                                        Lettre adjudicataire
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="p-6">
                             @if($contractVente)
                                 <div class="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50">
                                     <p class="text-sm mb-4 text-gray-700">
@@ -280,7 +344,7 @@
                                                     @error('type')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="edit_date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">Date d'Adjudication <span class="text-red-500">*</span></label>
+                                                    <label for="edit_date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">Date <span class="text-red-500">*</span></label>
                                                     <input type="date" id="edit_date_adjudication" name="date_adjudication" value="{{ $contractVente->date_adjudication ? \Carbon\Carbon::parse($contractVente->date_adjudication)->format('Y-m-d') : '' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
                                                     @error('date_adjudication')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
                                                 </div>
@@ -289,7 +353,7 @@
                                                     <input type="text" id="edit_numeraAO" name="numeraAO" value="{{ $contractVente->numeraAO ?? '' }}" placeholder="Numéro AO (optionnel)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="edit_duree_decheache" class="block text-sm font-semibold text-gray-700 mb-2">Durée d'échéance</label>
+                                                    <label for="edit_duree_decheache" class="block text-sm font-semibold text-gray-700 mb-2">Durée de contract</label>
                                                     <input type="number" id="edit_duree_decheache" name="duree_decheache" value="{{ $contractVente->duree_decheache ?? '' }}" placeholder="Ex: 12 mois, 1 an" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                                                 </div>
                                             </div>
@@ -513,7 +577,7 @@
                                                 <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->n_cin ?? 'N/A' }}</p>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de Patente</label>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de carte professionnelle</label>
                                                 <p class="text-gray-900 font-semibold">{{ $contractVente->exploitant->numero ?? 'N/A' }}</p>
                                             </div>
                                             <div>
@@ -721,7 +785,7 @@
                                                 <input type="text" id="exploitant_cin" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
                                             </div>
                                             <div class="form-group">
-                                                <label for="exploitant_numero" class="block text-sm font-semibold text-gray-700 mb-2">Numéro de Patente</label>
+                                                <label for="exploitant_numero" class="block text-sm font-semibold text-gray-700 mb-2">Numéro de carte professionnelle</label>
                                                 <input type="text" id="exploitant_numero" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100" readonly>
                                             </div>
                                             <div class="form-group">
@@ -1064,15 +1128,33 @@
                                 </script>
                                 @endpush
                             @endif
+                        </div>
                     </div>
                 @elseif($activeStep === 'paiement_charges')
                     <!-- Paiement des Charges Section -->
                     <div class="card overflow-hidden">
-                        <div class="section-header">
-<h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
-                            <i class="fas fa-money-bill-wave" style="color: #6B7C72;"></i>
-                            Paiement des Charges
-                        </h2>
+                        <div class="section-header flex flex-wrap items-center justify-between gap-3 px-6 py-4">
+                            <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
+                                <i class="fas fa-money-bill-wave" style="color: #6B7C72;"></i>
+                                Paiement des Charges
+                            </h2>
+                            @if($showPermisExploiter || $showPVInstallation)
+                                <div class="flex flex-wrap items-center gap-2 text-sm">
+                                    <span class="text-gray-500">Documents :</span>
+                                    @if($showPermisExploiter)
+                                        <a href="{{ route('articles.permis-exploiter', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
+                                            <i class="fas fa-file-contract text-xs"></i>
+                                            Permis d'exploiter
+                                        </a>
+                                    @endif
+                                    @if($showPVInstallation)
+                                        <a href="{{ route('articles.pv-installation', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
+                                            <i class="fas fa-clipboard-check text-xs"></i>
+                                            PV d'installation
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                         <div class="p-6">
                             @if(!$contractVente)
@@ -1255,11 +1337,28 @@
                 @elseif($activeStep === 'paiement_tranches')
                     <!-- Paiement des Tranches Section -->
                     <div class="card overflow-hidden">
-                            <div class="section-header">
-                                <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
+                        <div class="section-header flex flex-wrap items-center justify-between gap-3 px-6 py-4">
+                            <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
                                 <i class="fas fa-credit-card" style="color: #6B7C72;"></i>
                                 Paiement des Tranches
                             </h2>
+                            @if($showPermisEnlever || $showPermisColportage)
+                                <div class="flex flex-wrap items-center gap-2 text-sm">
+                                    <span class="text-gray-500">Documents :</span>
+                                    @if($showPermisEnlever)
+                                        <a href="{{ route('articles.permis-enlever', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
+                                            <i class="fas fa-file-alt text-xs"></i>
+                                            Permis d'enlever
+                                        </a>
+                                    @endif
+                                    @if($showPermisColportage)
+                                        <a href="{{ route('articles.permis-colportage', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
+                                            <i class="fas fa-truck text-xs"></i>
+                                            Permis de colportage
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                         <div class="p-6">
                             @if(!$contractVente)
