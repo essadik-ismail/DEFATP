@@ -14,7 +14,7 @@ class Article extends Model
 
     protected $fillable = [
         'numero',
-        'annee',
+        'groupe_cession_id',
         'lot',
         'parcelle',
         'superficie',
@@ -31,10 +31,6 @@ class Article extends Model
         'date_payement_service_anef',
         'date_livaison_mise_en_charge_bf',
         'invandu',
-        'dranef_code',
-        'dpanef_code',
-        'zdtf_code',
-        'dfp_code',
         'nature_juridique',
         'canton',
         'particuliere',
@@ -48,7 +44,6 @@ class Article extends Model
     ];
 
     protected $casts = [
-        'annee' => 'integer',
         'superficie' => 'decimal:2',
         'fourniture_mise_charge' => 'decimal:2',
         'taxe_refection_chemins' => 'decimal:2',
@@ -64,6 +59,14 @@ class Article extends Model
         'coordonnee_x' => 'decimal:6',
         'coordonnee_y' => 'decimal:6',
     ];
+
+    /**
+     * Get the cession (groupe_cession) this article belongs to.
+     */
+    public function cession(): BelongsTo
+    {
+        return $this->belongsTo(Cession::class, 'groupe_cession_id');
+    }
 
     /**
      * Get the contract ventes for this article.
@@ -164,36 +167,5 @@ class Article extends Model
             ->withTimestamps();
     }
 
-    /**
-     * Get the dranef for this article (by code).
-     */
-    public function dranef(): BelongsTo
-    {
-        return $this->belongsTo(Dranef::class, 'dranef_code', 'code');
-    }
-
-    /**
-     * Get the dpanef for this article (by code).
-     */
-    public function dpanef(): BelongsTo
-    {
-        return $this->belongsTo(Dpanef::class, 'dpanef_code', 'code');
-    }
-
-    /**
-     * Get the zdtf for this article (by code).
-     */
-    public function zdtf(): BelongsTo
-    {
-        return $this->belongsTo(Zdtf::class, 'zdtf_code', 'code');
-    }
-
-    /**
-     * Get the dfp for this article (by code).
-     */
-    public function dfp(): BelongsTo
-    {
-        return $this->belongsTo(Dfp::class, 'dfp_code', 'code');
-    }
 }
 

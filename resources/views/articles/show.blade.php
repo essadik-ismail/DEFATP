@@ -3,7 +3,7 @@
 @section('title', 'Détails de l\'Article - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('articles.index') }}">Articles</a></li>
+<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
 <li class="breadcrumb-item active">Détail #{{ $article->numero ?? $article->id }}</li>
 @endsection
 
@@ -126,47 +126,68 @@
 
     <!-- Description du lot (Limites et Coordonnées) -->
     @if($article->limite_nord || $article->limite_sud || $article->limite_est || $article->limite_ouest || $article->coordonnee_x !== null || $article->coordonnee_y !== null)
-    <div class="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center gap-3 mb-4">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                <i class="fas fa-clipboard-list text-white text-sm"></i>
+    <div x-data="{ open: true }" class="mb-6 bg-white rounded-lg shadow-sm border border-gray-200">
+        <button
+            type="button"
+            class="w-full flex items-center justify-between gap-3 px-6 py-4"
+            @click="open = !open"
+        >
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                    <i class="fas fa-clipboard-list text-white text-sm"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900">Description du lot</h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">Description du lot</h3>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <h4 class="text-base font-semibold text-gray-800 mb-3">Limites du lot</h4>
-                <dl class="space-y-2 text-sm">
-                    @if($article->limite_nord)
-                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Nord</dt><dd class="text-gray-900">{{ $article->limite_nord }}</dd></div>
-                    @endif
-                    @if($article->limite_sud)
-                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Sud</dt><dd class="text-gray-900">{{ $article->limite_sud }}</dd></div>
-                    @endif
-                    @if($article->limite_est)
-                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Est</dt><dd class="text-gray-900">{{ $article->limite_est }}</dd></div>
-                    @endif
-                    @if($article->limite_ouest)
-                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Ouest</dt><dd class="text-gray-900">{{ $article->limite_ouest }}</dd></div>
-                    @endif
-                    @if(!$article->limite_nord && !$article->limite_sud && !$article->limite_est && !$article->limite_ouest)
-                        <p class="text-gray-500">—</p>
-                    @endif
-                </dl>
-            </div>
-            <div>
-                <h4 class="text-base font-semibold text-gray-800 mb-3">Coordonnées du centre</h4>
-                <dl class="space-y-2 text-sm">
-                    @if($article->coordonnee_x !== null && $article->coordonnee_x !== '')
-                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-32">Coordonnée X</dt><dd class="text-gray-900">{{ $article->coordonnee_x }}</dd></div>
-                    @endif
-                    @if($article->coordonnee_y !== null && $article->coordonnee_y !== '')
-                        <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-32">Coordonnée Y</dt><dd class="text-gray-900">{{ $article->coordonnee_y }}</dd></div>
-                    @endif
-                    @if(($article->coordonnee_x === null || $article->coordonnee_x === '') && ($article->coordonnee_y === null || $article->coordonnee_y === ''))
-                        <p class="text-gray-500">—</p>
-                    @endif
-                </dl>
+            <i
+                class="fas fa-chevron-down text-gray-500 text-sm transition-transform duration-200"
+                :class="{ 'rotate-180': open }"
+            ></i>
+        </button>
+        <div
+            x-show="open"
+            x-transition:enter="transition ease-out duration-150"
+            x-transition:enter-start="opacity-0 -translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-100"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 -translate-y-1"
+            class="px-6 pb-6 border-t border-gray-100"
+        >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-base font-semibold text-gray-800 mb-3">Limites du lot</h4>
+                    <dl class="space-y-2 text-sm">
+                        @if($article->limite_nord)
+                            <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Nord</dt><dd class="text-gray-900">{{ $article->limite_nord }}</dd></div>
+                        @endif
+                        @if($article->limite_sud)
+                            <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Sud</dt><dd class="text-gray-900">{{ $article->limite_sud }}</dd></div>
+                        @endif
+                        @if($article->limite_est)
+                            <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Est</dt><dd class="text-gray-900">{{ $article->limite_est }}</dd></div>
+                        @endif
+                        @if($article->limite_ouest)
+                            <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-24">Limite Ouest</dt><dd class="text-gray-900">{{ $article->limite_ouest }}</dd></div>
+                        @endif
+                        @if(!$article->limite_nord && !$article->limite_sud && !$article->limite_est && !$article->limite_ouest)
+                            <p class="text-gray-500">—</p>
+                        @endif
+                    </dl>
+                </div>
+                <div>
+                    <h4 class="text-base font-semibold text-gray-800 mb-3">Coordonnées du centre</h4>
+                    <dl class="space-y-2 text-sm">
+                        @if($article->coordonnee_x !== null && $article->coordonnee_x !== '')
+                            <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-32">Coordonnée X</dt><dd class="text-gray-900">{{ $article->coordonnee_x }}</dd></div>
+                        @endif
+                        @if($article->coordonnee_y !== null && $article->coordonnee_y !== '')
+                            <div class="flex gap-2"><dt class="font-semibold text-gray-700 w-32">Coordonnée Y</dt><dd class="text-gray-900">{{ $article->coordonnee_y }}</dd></div>
+                        @endif
+                        @if(($article->coordonnee_x === null || $article->coordonnee_x === '') && ($article->coordonnee_y === null || $article->coordonnee_y === ''))
+                            <p class="text-gray-500">—</p>
+                        @endif
+                    </dl>
+                </div>
             </div>
         </div>
     </div>
@@ -334,25 +355,6 @@
                                             </div>
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <div class="form-group">
-                                                    <label for="edit_type" class="block text-sm font-semibold text-gray-700 mb-2">Type <span class="text-red-500">*</span></label>
-                                                    <select id="edit_type" name="type" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
-                                                        <option value="">Sélectionner un type</option>
-                                                        <option value="adjudication" {{ $contractVente->type == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
-                                                        <option value="appel_doffre" {{ $contractVente->type == 'appel_doffre' ? 'selected' : '' }}>Appel d'offre</option>
-                                                        <option value="marche_negocie" {{ $contractVente->type == 'marche_negocie' ? 'selected' : '' }}>Marché négocié</option>
-                                                    </select>
-                                                    @error('type')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="edit_date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">Date <span class="text-red-500">*</span></label>
-                                                    <input type="date" id="edit_date_adjudication" name="date_adjudication" value="{{ $contractVente->date_adjudication ? \Carbon\Carbon::parse($contractVente->date_adjudication)->format('Y-m-d') : '' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
-                                                    @error('date_adjudication')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="edit_numeraAO" class="block text-sm font-semibold text-gray-700 mb-2">Numéro Appel d'Offre</label>
-                                                    <input type="text" id="edit_numeraAO" name="numeraAO" value="{{ $contractVente->numeraAO ?? '' }}" placeholder="Numéro AO (optionnel)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                                </div>
-                                                <div class="form-group">
                                                     <label for="edit_duree_decheache" class="block text-sm font-semibold text-gray-700 mb-2">Durée de contract</label>
                                                     <input type="number" id="edit_duree_decheache" name="duree_decheache" value="{{ $contractVente->duree_decheache ?? '' }}" placeholder="Ex: 12 mois, 1 an" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                                                 </div>
@@ -505,26 +507,6 @@
                                             <h3 class="text-lg font-semibold text-gray-900">1. Informations de l'adjudication</h3>
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                                                <p class="text-gray-900 font-semibold">
-                                                    @if($contractVente->type == 'adjudication') Adjudication
-                                                    @elseif($contractVente->type == 'appel_doffre') Appel d'offre
-                                                    @elseif($contractVente->type == 'marche_negocie') Marché négocié
-                                                    @else {{ $contractVente->type }}
-                                                    @endif
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Date d'Adjudication</label>
-                                                <p class="text-gray-900 font-semibold">{{ $contractVente->date_adjudication ? \Carbon\Carbon::parse($contractVente->date_adjudication)->format('d/m/Y') : 'N/A' }}</p>
-                                            </div>
-                                            @if($contractVente->type === 'appel_doffre')
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro Appel d'Offre</label>
-                                                <p class="text-gray-900 font-semibold">{{ $contractVente->numeraAO ?? 'N/A' }}</p>
-                                            </div>
-                                            @endif
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-1">Durée d'échéance</label>
                                                 <p class="text-gray-900 font-semibold">{{ $contractVente->duree_decheache ?? 'N/A' }}</p>
@@ -733,26 +715,6 @@
                                             <h3 class="text-lg font-semibold text-gray-900">1. Informations de l'adjudication</h3>
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div class="form-group">
-                                                <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">Type <span class="text-red-500">*</span></label>
-                                                <select id="type" name="type" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
-                                                    <option value="">Sélectionner un type</option>
-                                                    <option value="adjudication" {{ old('type') == 'adjudication' ? 'selected' : '' }}>Adjudication</option>
-                                                    <option value="appel_doffre" {{ old('type') == 'appel_doffre' ? 'selected' : '' }}>Appel d'offre</option>
-                                                    <option value="marche_negocie" {{ old('type') == 'marche_negocie' ? 'selected' : '' }}>Marché négocié</option>
-                                                </select>
-                                                @error('type')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="date_adjudication" class="block text-sm font-semibold text-gray-700 mb-2">Date d'Adjudication <span class="text-red-500">*</span></label>
-                                                <input type="date" id="date_adjudication" name="date_adjudication" value="{{ old('date_adjudication') }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
-                                                @error('date_adjudication')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="numeraAO" class="block text-sm font-semibold text-gray-700 mb-2">Numéro Appel d'Offre</label>
-                                                <input type="text" id="numeraAO" name="numeraAO" value="{{ old('numeraAO') }}" placeholder="Numéro AO (optionnel)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                                @error('numeraAO')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
-                                            </div>
                                             <div class="form-group">
                                                 <label for="duree_decheache" class="block text-sm font-semibold text-gray-700 mb-2">Durée d'échéance</label>
                                                 <input type="number" id="duree_decheache" name="duree_decheache" value="{{ old('duree_decheache') }}" placeholder="Ex: 12 mois" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
@@ -1391,7 +1353,7 @@
                                     @csrf
                                     @method('PUT')
                                     
-                                    <input type="hidden" name="selected_tranches" id="selectedTranches" value="">
+                                    <input type="hidden" name="selected_tranche" id="selectedTranche" value="">
                                     
                                     <div class="mb-8">
                                         <h3 class="text-lg font-semibold mb-4 flex items-center gap-2" style="color: #1F2D24;">
@@ -1404,7 +1366,7 @@
                                                 <thead class="bg-gray-50 border-b border-gray-200">
                                                     <tr>
                                                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                                                            <input type="checkbox" id="selectAllTranches" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500" onclick="toggleAllTranches(this)">
+                                                            <!-- Single selection: radio button per tranche -->
                                                         </th>
                                                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Numéro de tranche</th>
                                                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Montant</th>
@@ -1414,8 +1376,9 @@
                                                     @foreach($tranchesImpayees as $tranche)
                                                     <tr class="hover:bg-gray-50">
                                                         <td class="px-4 py-3 whitespace-nowrap">
-                                                            <input type="checkbox" 
-                                                                   class="tranche-checkbox rounded border-gray-300 text-green-500 focus:ring-green-400" 
+                                                            <input type="radio" 
+                                                                   name="tranche_radio"
+                                                                   class="tranche-radio rounded border-gray-300 text-green-500 focus:ring-green-400" 
                                                                    data-tranche-id="{{ $tranche->id }}"
                                                                    data-montant="{{ $tranche->montant }}"
                                                                    onclick="updateTotal()">
@@ -1613,36 +1576,31 @@
                     </div>
                     
                     <script>
-                    function toggleAllTranches(checkbox) {
-                        const checkboxes = document.querySelectorAll('.tranche-checkbox');
-                        checkboxes.forEach(cb => {
-                            cb.checked = checkbox.checked;
-                        });
-                        updateTotal();
-                    }
-                    
+                    // Single-tranche payment: allow paying only one tranche at a time
                     function updateTotal() {
-                        const checkboxes = document.querySelectorAll('.tranche-checkbox:checked');
+                        const radios = document.querySelectorAll('.tranche-radio');
                         let total = 0;
-                        const trancheIds = [];
-                        
-                        checkboxes.forEach(cb => {
-                            total += parseFloat(cb.dataset.montant) || 0;
-                            trancheIds.push(cb.dataset.trancheId);
+                        let selectedId = null;
+
+                        radios.forEach(rb => {
+                            if (rb.checked) {
+                                total = parseFloat(rb.dataset.montant) || 0;
+                                selectedId = rb.dataset.trancheId;
+                            }
                         });
-                        
+
                         document.getElementById('totalMontant').textContent = total.toFixed(2) + ' MAD';
-                        
+
                         // Show/hide payment section based on selection
                         const paymentSection = document.getElementById('paymentSection');
-                        const selectedTranchesInput = document.getElementById('selectedTranches');
-                        
-                        if (checkboxes.length > 0) {
+                        const selectedTrancheInput = document.getElementById('selectedTranche');
+
+                        if (selectedId) {
                             paymentSection.classList.remove('hidden');
-                            selectedTranchesInput.value = JSON.stringify(trancheIds);
+                            selectedTrancheInput.value = selectedId;
                         } else {
                             paymentSection.classList.add('hidden');
-                            selectedTranchesInput.value = '';
+                            selectedTrancheInput.value = '';
                         }
                     }
                     </script>

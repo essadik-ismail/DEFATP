@@ -3,7 +3,7 @@
 @section('title', 'PV d\'Installation - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('articles.index') }}">Articles</a></li>
+<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
 <li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Détail #{{ $article->numero ?? $article->id }}</a></li>
 <li class="breadcrumb-item active">PV d'installation</li>
 @endsection

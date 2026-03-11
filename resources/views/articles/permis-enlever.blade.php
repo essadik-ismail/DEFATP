@@ -3,7 +3,7 @@
 @section('title', 'Permis d\'Enlever - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('articles.index') }}">Articles</a></li>
+<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
 <li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Détail #{{ $article->numero ?? $article->id }}</a></li>
 <li class="breadcrumb-item active">Permis d'enlever</li>
 @endsection
@@ -97,12 +97,26 @@
                                     <td class="px-4 py-3">
                                         <span class="text-sm font-semibold text-green-900">{{ $index + 1 }}</span>
                                     </td>
+                                    @php
+                                        $payment = optional($permis->contractVente)->payments
+                                            ? optional($permis->contractVente)->payments
+                                                ->firstWhere('date_payment', $permis->date_paiement)
+                                            : null;
+                                    @endphp
                                     <td class="px-4 py-3">
-                                        <span class="text-sm text-green-900">{{ $permis->num_quittance ?? 'N/A' }}</span>
+                                        <span class="text-sm text-green-900">
+                                            {{ $payment->num_quittace ?? 'N/A' }}
+                                        </span>
                                     </td>
                                     <td class="px-4 py-3">
                                         <span class="text-sm text-blue-700">
-                                            {{ $permis->date ? \Carbon\Carbon::parse($permis->date)->format('d/m/Y') : 'N/A' }}
+                                            @if($payment && $payment->date_payment)
+                                                {{ \Carbon\Carbon::parse($payment->date_payment)->format('d/m/Y') }}
+                                            @elseif($permis->date_paiement)
+                                                {{ \Carbon\Carbon::parse($permis->date_paiement)->format('d/m/Y') }}
+                                            @else
+                                                N/A
+                                            @endif
                                         </span>
                                     </td>
                                     <td class="px-4 py-3">
@@ -110,7 +124,7 @@
                                     </td>
                                     <td class="px-4 py-3">
                                         <span class="text-sm font-semibold text-green-600">
-                                            {{ number_format($permis->volume ?? 0, 2) }} m³
+                                            {{ number_format($permis->volume ?? 0, 2) }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-center">
@@ -158,22 +172,25 @@
                     @csrf
                     <x-validation-errors />
 
-                    <!-- 1. Sélection de la Date de Paiement -->
+                    <!-- 1. Sélection de la (des) tranche(s) payée(s) -->
                     <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
                         <div class="flex items-center gap-3 mb-4">
                             <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                 <i class="fas fa-calendar-check text-white text-sm"></i>
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-900">1. Sélection de la Date de Paiement</h3>
+                            <h3 class="text-lg font-semibold text-gray-900">1. Sélection des tranches payées</h3>
                         </div>
                         <div class="grid grid-cols-1 gap-6">
                             <div class="form-group">
-                                <label for="date_paiement" class="block text-sm font-semibold text-gray-700 mb-2">Date de paiement <span class="text-red-500">*</span></label>
+                                <label for="date_paiement" class="block text-sm font-semibold text-gray-700 mb-2">Tranche(s) payée(s) <span class="text-red-500">*</span></label>
                                 <select name="date_paiement" id="date_paiement" onchange="updateTranchesList()" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
-                                    <option value="">Sélectionner une date de paiement</option>
+                                    <option value="">Sélectionner la tranche payée</option>
                                     @foreach($tranchesByDate as $date => $tranches)
+                                        @php
+                                            $labelTranches = $tranches->pluck('tranche_number')->implode(', ');
+                                        @endphp
                                         <option value="{{ $date }}" {{ old('date_paiement') == $date ? 'selected' : '' }}>
-                                            {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }} ({{ $tranches->count() }} tranche(s))
+                                            Tranche(s): {{ $labelTranches }} — {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -191,12 +208,33 @@
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
-                                <label for="num_quittance_enlever" class="block text-sm font-semibold text-gray-700 mb-2">N° Quittance (Enlever) <span class="text-red-500">*</span></label>
-                                <input type="text" name="num_quittance_enlever" id="num_quittance_enlever" value="{{ old('num_quittance_enlever') }}" placeholder="Ex: QE-2026-001" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                <label for="num_quittance_enlever" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    N° Quittance (Paiement) <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="num_quittance_enlever"
+                                    id="num_quittance_enlever"
+                                    value="{{ old('num_quittance_enlever') }}"
+                                    placeholder="Sélectionnez d'abord une tranche payée"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                                    readonly
+                                    required
+                                >
                             </div>
                             <div class="form-group">
-                                <label for="date" class="block text-sm font-semibold text-gray-700 mb-2">Date <span class="text-red-500">*</span></label>
-                                <input type="date" name="date" id="date" value="{{ old('date', date('Y-m-d')) }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                <label for="date" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Date de paiement <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    name="date"
+                                    id="date"
+                                    value="{{ old('date') }}"
+                                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                                    readonly
+                                    required
+                                >
                             </div>
                             <div class="form-group">
                                 <label for="percepteur_enlever" class="block text-sm font-semibold text-gray-700 mb-2">Percepteur (Enlever) <span class="text-red-500">*</span></label>
@@ -245,12 +283,12 @@
                                             </td>
                                             <td class="px-4 py-3">
                                                 <span class="text-sm font-bold text-gray-900 base-quantity" data-base-quantity="{{ $essence->pivot->quantity }}">
-                                                    {{ number_format($essence->pivot->quantity, 2, ',', ' ') }} m³
+                                                    {{ number_format($essence->pivot->quantity, 2, ',', ' ') }}
                                                 </span>
                                             </td>
                                             <td class="px-4 py-3">
                                                 <span class="text-sm font-bold text-green-600 calculated-quantity" id="calculated-quantity-{{ $index }}" data-base-quantity="{{ $essence->pivot->quantity }}">
-                                                    0.00 m³
+                                                    0.00
                                                 </span>
                                                 <input type="hidden" name="essences[{{ $index }}][quantity]" id="quantity-{{ $index }}" value="0">
                                             </td>
@@ -311,11 +349,15 @@
                 const selectedDate = dateSelect.value;
                 const previewDiv = document.getElementById('tranches-preview');
                 const tranchesList = document.getElementById('tranches-list');
+                const quittanceInput = document.getElementById('num_quittance_enlever');
+                const dateInput = document.getElementById('date');
 
                 if (!selectedDate || !tranchesData[selectedDate]) {
                     previewDiv.classList.add('hidden');
                     currentTranchesCount = 0;
                     updateMaxQuantities();
+                    if (quittanceInput) quittanceInput.value = '';
+                    if (dateInput) dateInput.value = '';
                     return;
                 }
 
@@ -361,6 +403,18 @@
                 tranchesList.innerHTML = html;
                 previewDiv.classList.remove('hidden');
                 updateMaxQuantities();
+
+                // Fill N° Quittance & Date from the first tranche's payment (read-only)
+                const firstTranche = tranches[0];
+                if (firstTranche && firstTranche.payment) {
+                    if (quittanceInput) {
+                        quittanceInput.value = firstTranche.payment.num_quittace || '';
+                    }
+                    if (dateInput && firstTranche.payment.date_payment) {
+                        // Ensure value is in Y-m-d format
+                        dateInput.value = firstTranche.payment.date_payment.substring(0, 10);
+                    }
+                }
             }
 
             function updateMaxQuantities() {
@@ -377,7 +431,7 @@
                     
                     // Format with French number format (comma as decimal separator, space as thousands separator)
                     const formattedQuantity = calculatedQuantity.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ').replace('.', ',');
-                    element.textContent = formattedQuantity + ' m³';
+                    element.textContent = formattedQuantity;
                     
                     // Update hidden input value
                     const index = element.id.replace('calculated-quantity-', '');
@@ -391,7 +445,7 @@
             document.getElementById('permisEnleverCreateForm')?.addEventListener('submit', function(e) {
                 if (currentTranchesCount === 0) {
                     e.preventDefault();
-                    alert('Veuillez sélectionner une date de paiement.');
+                    alert('Veuillez sélectionner au moins une tranche payée.');
                     return false;
                 }
             });

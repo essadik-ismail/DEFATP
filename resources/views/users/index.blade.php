@@ -40,7 +40,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="dashboard-cards grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/20">
             <div class="flex items-center justify-between">
                 <div>
@@ -168,7 +168,7 @@
         </div>
         
         <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
+            <div class="table-responsive overflow-x-auto">
                 <table id="usersTable" class="w-full">
                     <thead class="bg-gradient-to-r from-gray-50 to-slate-50">
                         <tr>
@@ -259,19 +259,8 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if($user->role)
-                                        @php
-                                            $roleLabels = [
-                                                'dg' => 'DG',
-                                                'dc' => 'DC',
-                                                'departement' => 'Département',
-                                                'administrateur' => 'Administrateur',
-                                                'draned' => 'DRANED',
-                                                'dpanef' => 'DPANEF',
-                                                'entite' => 'Entité'
-                                            ];
-                                        @endphp
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                            {{ $roleLabels[$user->role] ?? $user->role }}
+                                            {{ $user->role->label() }}
                                         </span>
                                     @else
                                         <span class="text-gray-400">-</span>

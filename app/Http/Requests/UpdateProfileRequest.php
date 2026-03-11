@@ -27,6 +27,11 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'ppr' => ['required', 'string', 'max:255', Rule::unique('users', 'ppr')->ignore($userId)],
+            'dranef_id' => ['nullable', 'exists:dranefs,id'],
+            'dpanef_id' => ['nullable', 'exists:dpanefs,id'],
+            'zdtf_id' => ['nullable', 'exists:zdtfs,id'],
+            'dfp_id' => ['nullable', 'exists:dfps,id'],
+            'province_id' => ['nullable', 'exists:provinces,id'],
             'current_password' => ['required_with:new_password', 'string'],
             'new_password' => ['nullable', 'string', 'min:8'],
         ];

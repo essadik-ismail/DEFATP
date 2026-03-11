@@ -3,7 +3,7 @@
 @section('title', 'Modifier un Article - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('articles.index') }}">Articles</a></li>
+<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
 <li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Détail #{{ $article->numero ?? $article->id }}</a></li>
 <li class="breadcrumb-item active">Modifier</li>
 @endsection
@@ -93,18 +93,7 @@
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="form-group">
-                            <label for="annee" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Année
-                            </label>
-                            <input type="number" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                id="annee" name="annee" value="{{ old('annee', $article->annee ?? date('Y')) }}" 
-                                min="2000" max="2100" placeholder="Année">
-                            @error('annee')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        {{-- Champ Année supprimé --}}
                     </div>
                 </div>
 
@@ -174,7 +163,7 @@
                                     onchange="updateDpanefs()">
                                 <option value="">Sélectionner un DRANEF</option>
                                 @foreach($dranefs ?? [] as $dranef)
-                                    <option value="{{ $dranef->code }}" {{ old('dranef_code', $article->dranef_code) == $dranef->code ? 'selected' : '' }}>
+                                    <option value="{{ $dranef->code }}" {{ old('dranef_code') == $dranef->code ? 'selected' : '' }}>
                                         {{ $dranef->dranef }} - {{ $dranef->Abréviation }}
                                     </option>
                                 @endforeach
@@ -196,7 +185,7 @@
                                 @foreach($dpanefs ?? [] as $dpanef)
                                     <option value="{{ $dpanef->code }}" 
                                             data-dranef-code="{{ $dpanef->dranef_code }}"
-                                            {{ old('dpanef_code', $article->dpanef_code) == $dpanef->code ? 'selected' : '' }}>
+                                            {{ old('dpanef_code') == $dpanef->code ? 'selected' : '' }}>
                                         {{ $dpanef->dpanef }}
                                     </option>
                                 @endforeach
@@ -218,7 +207,7 @@
                                 @foreach($zdtfs ?? [] as $zdtf)
                                     <option value="{{ $zdtf->code }}" 
                                             data-dpanef-code="{{ $zdtf->dpanef_code }}"
-                                            {{ old('zdtf_code', $article->zdtf_code) == $zdtf->code ? 'selected' : '' }}>
+                                            {{ old('zdtf_code') == $zdtf->code ? 'selected' : '' }}>
                                         {{ $zdtf->zdtf }}
                                     </option>
                                 @endforeach
@@ -240,7 +229,7 @@
                                     <option value="{{ $dfp->code }}" 
                                             data-zdtf-code="{{ $dfp->zdtf_code }}"
                                             data-dpanef-code="{{ $dfp->dpanef_code }}"
-                                            {{ old('dfp_code', $article->dfp_code) == $dfp->code ? 'selected' : '' }}>
+                                            {{ old('dfp_code') == $dfp->code ? 'selected' : '' }}>
                                         {{ $dfp->dfp }}
                                     </option>
                                 @endforeach
@@ -755,7 +744,7 @@
 
                 <!-- Form Actions -->
                 <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 mt-8">
-                    <a href="{{ route('articles.index') }}" 
+                    <a href="{{ route('cessions.index') }}" 
                         class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
                         <i class="fas fa-times"></i>
                         <span>Annuler</span>

@@ -13,6 +13,8 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\CessionController;
+use App\Http\Controllers\CarnetController;
 
 // Health Check Routes
 Route::get('/health', [HealthController::class, 'index'])->name('health');
@@ -282,6 +284,13 @@ Route::middleware('auth')->group(function () {
         });
         
     });
+
+    // Cessions (groupe_cession) Routes
+    Route::resource('cessions', CessionController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+
+    // Carnets (numéros pour permis de colportage)
+    Route::resource('carnets', CarnetController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::patch('carnets/{carnet}/perdu', [CarnetController::class, 'markPerdu'])->name('carnets.mark-perdu');
 
     // Excel Import/Export Routes
     Route::prefix('excel')->name('excel.')->group(function () {

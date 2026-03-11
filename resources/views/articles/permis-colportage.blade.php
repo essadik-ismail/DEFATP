@@ -3,7 +3,7 @@
 @section('title', 'Permis de Colportage - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('articles.index') }}">Articles</a></li>
+<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
 <li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Détail #{{ $article->numero ?? $article->id }}</a></li>
 <li class="breadcrumb-item active">Permis de colportage</li>
 @endsection
@@ -49,31 +49,36 @@
             </div>
         @endif
 
-        <!-- Section 1: Two cards - Quantité dans Permis d'Enlever & Quantité utilisée pour colportage -->
+        <!-- Section 1: Two cards - Volume dans Permis d'Enlever & Volume utilisé pour colportage -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                     <h3 class="text-base font-semibold flex items-center gap-2" style="color: #1F2D24;">
                         <i class="fas fa-box-open" style="color: #6B7C72;"></i>
-                        Quantité dans Permis d'Enlever
+                        Volume dans Permis d'Enlever
                     </h3>
                 </div>
                 <div class="p-6">
                     <p class="text-2xl font-bold text-gray-900">
-                        {{ number_format($quantityInPermisEnlever ?? 0, 2, ',', ' ') }} m³
+                        {{ number_format($quantityInPermisEnlever ?? 0, 2, ',', ' ') }}
                     </p>
                 </div>
             </div>
+            @php
+                $volPermis = (float)($quantityInPermisEnlever ?? 0);
+                $volColportage = (float)($quantityUsedColportage ?? 0);
+                $volumeFullyUsed = $volPermis > 0 && abs($volColportage - $volPermis) < 0.001;
+            @endphp
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                     <h3 class="text-base font-semibold flex items-center gap-2" style="color: #1F2D24;">
                         <i class="fas fa-truck-loading" style="color: #6B7C72;"></i>
-                        Quantité utilisée pour colportage
+                        Volume utilisé pour colportage
                     </h3>
                 </div>
                 <div class="p-6">
-                    <p class="text-2xl font-bold text-gray-900">
-                        {{ number_format($quantityUsedColportage ?? 0, 2, ',', ' ') }} m³
+                    <p class="text-2xl font-bold {{ $volumeFullyUsed ? 'text-red-600' : 'text-green-600' }}">
+                        {{ number_format($quantityUsedColportage ?? 0, 2, ',', ' ') }}
                     </p>
                 </div>
             </div>
@@ -162,6 +167,20 @@
                                         Vous devez d'abord créer un <strong>Permis d'Enlever</strong> avant de générer un Permis de Colportage.
                                     </x-alert>
                                 @endif
+                                @if(isset($carnetsDisponibles) && $carnetsDisponibles->isNotEmpty())
+                                    <div class="form-group mt-4">
+                                        <label for="carnet_id" class="block text-sm font-semibold text-gray-700 mb-2">Carnet</label>
+                                        <select name="carnet_id" id="carnet_id" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                            <option value="">— Aucun —</option>
+                                            @foreach($carnetsDisponibles as $c)
+                                                <option value="{{ $c->id }}" {{ old('carnet_id') == $c->id ? 'selected' : '' }}>
+                                                    {{ $c->serie }} — n° {{ $c->num }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <p class="text-xs text-gray-500 mt-1">Optionnel. Si choisi, ce numéro sera marqué « épuisé » après enregistrement.</p>
+                                    </div>
+                                @endif
                             </x-form-section>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -197,7 +216,7 @@
                                                 <tr>
                                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Essence</th>
                                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Produit</th>
-                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Quantité dans Permis d'Enlever</th>
+                                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Volume dans Permis d'Enlever</th>
                                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Volume</th>
                                                 </tr>
                                             </thead>
@@ -216,7 +235,7 @@
                                                             <input type="hidden" name="essences[{{ $index }}][product_id]" value="{{ $essence->pivot->product_id }}">
                                                         </td>
                                                         <td class="px-4 py-3">
-                                                            <span class="text-sm font-bold text-gray-900 permis-enlever-quantity" id="permis-quantity-{{ $index }}">0.00 m³</span>
+                                                            <span class="text-sm font-bold text-gray-900 permis-enlever-quantity" id="permis-quantity-{{ $index }}">0.00</span>
                                                         </td>
                                                         <td class="px-4 py-3">
                                                             <input type="number" name="essences[{{ $index }}][quantity]" id="colportage-quantity-{{ $index }}" step="0.01" min="0" value="{{ old('essences.' . $index . '.quantity', '0') }}"
@@ -235,10 +254,7 @@
                                     <label class="block text-sm font-medium text-purple-700 mb-1">Numéro</label>
                                     <p class="text-purple-900 font-semibold">{{ $article->numero }}</p>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-purple-700 mb-1">Année</label>
-                                    <p class="text-purple-900 font-semibold">{{ $article->annee }}</p>
-                                </div>
+                                {{-- Champ Année supprimé --}}
                                 <div>
                                     <label class="block text-sm font-medium text-purple-700 mb-1">Lot</label>
                                     <p class="text-purple-900 font-semibold">{{ $article->lot }}</p>
@@ -327,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadPermisEnleverEssences(permisId) {
         if (!permisId || !permisEnleversData[permisId]) {
             document.querySelectorAll('.permis-enlever-quantity').forEach(function(el) {
-                el.textContent = '0.00 m³';
+                el.textContent = '0.00';
             });
             return;
         }
@@ -344,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var quantity = quantityMap[key] || 0;
             var quantityDisplay = row.querySelector('.permis-enlever-quantity');
             if (quantityDisplay) {
-                quantityDisplay.textContent = quantity.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ').replace('.', ',') + ' m³';
+                quantityDisplay.textContent = quantity.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ').replace('.', ',');
             }
         });
     }

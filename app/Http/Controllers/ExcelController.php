@@ -214,7 +214,7 @@ class ExcelController extends Controller
      */
     public function exportArticles(Request $request)
     {
-        $filters = $request->only(['annee', 'foret_id', 'essence_id', 'invendu']);
+        $filters = $request->only(['foret_id', 'essence_id', 'invandu']);
         return $this->handleExport('articles', $request, $filters);
     }
 

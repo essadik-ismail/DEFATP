@@ -196,8 +196,7 @@
                                 id="role" name="role" required>
                             <option value="">Sélectionner un rôle</option>
                             <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrateur</option>
-                            <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Gestionnaire</option>
-                            <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>Utilisateur</option>
+                            <option value="agency" {{ old('role') == 'agency' ? 'selected' : '' }}>Agence</option>
                         </select>
                         @error('role')
                             <div class="text-red-500 text-sm mt-1 flex items-center gap-2">

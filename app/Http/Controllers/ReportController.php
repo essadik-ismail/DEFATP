@@ -64,9 +64,9 @@ class ReportController extends Controller
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
         
-        // Build base query with date filtering
-        $baseQuery = Article::withoutGlobalScope('not_deleted')
-            ->where('articles.is_deleted', false);
+        // Build base query with date filtering (articles use SoftDeletes: deleted_at)
+        $baseQuery = Article::query()
+            ->whereNull('articles.deleted_at');
             
         if ($startDate) {
             $baseQuery->where('articles.created_at', '>=', $startDate);
@@ -84,9 +84,9 @@ class ReportController extends Controller
                 $join->on('article_product.product_id', '=', 'products.id')
                      ->whereIn('products.name', ['BO (m³)', 'BI (m³)']);
             })
-            ->selectRaw('articles.annee, COUNT(DISTINCT articles.id) as total, COALESCE(SUM(article_product.quantity), 0) as volume')
-            ->groupBy('articles.annee')
-            ->orderBy('articles.annee', 'asc')
+            ->selectRaw('YEAR(articles.created_at) as annee, COUNT(DISTINCT articles.id) as total, COALESCE(SUM(article_product.quantity), 0) as volume')
+            ->groupByRaw('YEAR(articles.created_at)')
+            ->orderByRaw('YEAR(articles.created_at) ASC')
             ->get();
 
         $byForet = (clone $baseQuery)
@@ -189,7 +189,7 @@ class ReportController extends Controller
         $allProducts = Product::orderBy('name')->get();
         
         // Base query for articles with products
-        $articlesQuery = Article::where('is_deleted', false)
+        $articlesQuery = Article::query()
             ->with('products');
         
         if ($startDate) {
@@ -215,7 +215,7 @@ class ReportController extends Controller
                         ->where('product_id', $product->id)
                         ->when($startDate || $endDate, function($q) use ($startDate, $endDate) {
                             $q->join('articles', 'article_product.article_id', '=', 'articles.id')
-                              ->where('articles.is_deleted', false);
+                              ->whereNull('articles.deleted_at');
                             if ($startDate) {
                                 $q->where('articles.created_at', '>=', $startDate);
                             }
@@ -314,7 +314,7 @@ class ReportController extends Controller
                 foreach ($forets as $foret) {
                     $foretProducts = [];
                     
-                    $articles = Article::where('is_deleted', false)
+                    $articles = Article::query()
                         ->whereHas('forets', function($q) use ($foret) {
                             $q->where('forets.id', $foret->id);
                         })
@@ -353,7 +353,7 @@ class ReportController extends Controller
                 foreach ($essences as $essence) {
                     $essenceProducts = [];
                     
-                    $articles = Article::where('is_deleted', false)
+                    $articles = Article::query()
                         ->whereHas('essences', function($q) use ($essence) {
                             $q->where('essences.id', $essence->id);
                         })
@@ -392,7 +392,7 @@ class ReportController extends Controller
                 foreach ($exploitants as $exploitant) {
                     $exploitantProducts = [];
                     
-                    $articles = Article::where('is_deleted', false)
+                    $articles = Article::query()
                         ->where('exploitant_id', $exploitant->id)
                         ->with('products')
                         ->get();
@@ -426,7 +426,7 @@ class ReportController extends Controller
         
         // Calculate overall statistics
         $totalProducts = Product::count();
-        $totalArticlesWithProducts = Article::where('is_deleted', false)
+        $totalArticlesWithProducts = Article::query()
             ->whereHas('products')
             ->count();
         $totalLegacyArticlesWithProducts = LegacyArticle::whereHas('products')->count();
@@ -461,11 +461,12 @@ class ReportController extends Controller
         // Get all products for filters
         $allProducts = Product::orderBy('name')->get();
         
-        // Get all years from articles and legacy articles
-        $articleYears = Article::where('is_deleted', false)
-            ->whereNotNull('annee')
+        // Get all years from articles (YEAR(created_at)) and legacy articles
+        $articleYears = Article::query()
+            ->whereNull('deleted_at')
+            ->selectRaw('YEAR(created_at) as annee')
             ->distinct()
-            ->orderBy('annee')
+            ->orderByRaw('YEAR(created_at)')
             ->pluck('annee')
             ->toArray();
         
@@ -521,16 +522,16 @@ class ReportController extends Controller
         $articlesByYear = DB::table('article_product')
             ->join('articles', 'article_product.article_id', '=', 'articles.id')
             ->join('products', 'article_product.product_id', '=', 'products.id')
-            ->where('articles.is_deleted', false)
+            ->whereNull('articles.deleted_at')
             ->whereIn('article_product.product_id', $productIds)
-            ->when($startYear, function($q) use ($startYear) {
-                $q->where('articles.annee', '>=', $startYear);
+            ->when($startYear, function ($q) use ($startYear) {
+                $q->whereRaw('YEAR(articles.created_at) >= ?', [$startYear]);
             })
-            ->when($endYear, function($q) use ($endYear) {
-                $q->where('articles.annee', '<=', $endYear);
+            ->when($endYear, function ($q) use ($endYear) {
+                $q->whereRaw('YEAR(articles.created_at) <= ?', [$endYear]);
             })
-            ->selectRaw('articles.annee as year, products.name as product_name, SUM(article_product.quantity) as total_quantity')
-            ->groupBy('articles.annee', 'products.id', 'products.name')
+            ->selectRaw('YEAR(articles.created_at) as year, products.name as product_name, SUM(article_product.quantity) as total_quantity')
+            ->groupByRaw('YEAR(articles.created_at), products.id, products.name')
             ->get();
         
         foreach ($articlesByYear as $row) {
@@ -594,25 +595,24 @@ class ReportController extends Controller
         // Log report generation
         ActivityLogger::log('view', "Génération du rapport des articles par année: {$year}", Article::class);
         
-        $articles = Article::with([
-            'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
-            'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'exploitant'
-        ])
-        ->where('annee', $year)
-        ->orderBy('created_at', 'desc')
-        ->paginate(15);
+        $articles = Article::with(['forets', 'essences', 'natureDeCoupes', 'provinces', 'communes'])
+            ->whereYear('created_at', $year)
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
-        $annees = Article::select('annee')->distinct()->orderBy('annee', 'desc')->get();
+        $annees = Article::query()
+            ->selectRaw('YEAR(created_at) as annee')
+            ->distinct()
+            ->orderByRaw('YEAR(created_at) DESC')
+            ->get();
         
-        // Calculate stats from all articles for the year (not just paginated ones)
-        $allArticles = Article::where('annee', $year)->get();
+        $allArticles = Article::whereYear('created_at', $year)->get();
         $stats = [
             'total' => $allArticles->count(),
-            'vendus' => $allArticles->where('invendu', false)->count(),
-            'invendus' => $allArticles->where('invendu', true)->count(),
-            'total_prix_vente' => $allArticles->sum('prix_vente'),
-            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
+            'vendus' => $allArticles->where('invandu', false)->count(),
+            'invendus' => $allArticles->where('invandu', true)->count(),
+            'total_prix_vente' => 0,
+            'total_prix_retrait' => 0,
             'total_volume' => $allArticles->sum(function($article) {
                 $article->load('products');
                 $boProduct = $article->products->firstWhere('name', 'BO (m³)');
@@ -634,11 +634,7 @@ class ReportController extends Controller
         $foretName = $foretId ? Foret::find($foretId)->foret ?? 'Toutes' : 'Toutes';
         ActivityLogger::log('view', "Génération du rapport des articles par forêt: {$foretName}", Article::class);
         
-        $query = Article::with([
-            'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
-            'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'exploitant'
-        ]);
+        $query = Article::with(['forets', 'essences', 'natureDeCoupes', 'provinces', 'communes']);
 
         if ($foretId) {
             $query->whereHas('forets', function ($qq) use ($foretId) {
@@ -646,18 +642,14 @@ class ReportController extends Controller
             });
         }
 
-        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
-        $forets = Foret::orderBy('foret')->get();
-
-        // Calculate stats from all articles (not just paginated ones)
-        $allArticles = $query->get();
+        $allArticles = (clone $query)->get();
         $stats = [
             'total' => $allArticles->count(),
-            'vendus' => $allArticles->where('invendu', false)->count(),
-            'invendus' => $allArticles->where('invendu', true)->count(),
-            'total_prix_vente' => $allArticles->sum('prix_vente'),
-            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
-            'total_volume' => $allArticles->sum(function($article) {
+            'vendus' => $allArticles->where('invandu', false)->count(),
+            'invendus' => $allArticles->where('invandu', true)->count(),
+            'total_prix_vente' => 0,
+            'total_prix_retrait' => 0,
+            'total_volume' => $allArticles->sum(function ($article) {
                 $article->load('products');
                 $boProduct = $article->products->firstWhere('name', 'BO (m³)');
                 $biProduct = $article->products->firstWhere('name', 'BI (m³)');
@@ -666,6 +658,9 @@ class ReportController extends Controller
                 return $boQuantity + $biQuantity;
             }),
         ];
+
+        $articles = $query->orderBy('created_at', 'desc')->paginate(15);
+        $forets = Foret::orderBy('foret')->get();
 
         return view('reports.articles-by-foret', compact('articles', 'forets', 'foretId', 'stats'));
     }
@@ -678,11 +673,7 @@ class ReportController extends Controller
         $essenceName = $essenceId ? Essence::find($essenceId)->essence ?? 'Toutes' : 'Toutes';
         ActivityLogger::log('view', "Génération du rapport des articles par essence: {$essenceName}", Article::class);
         
-        $query = Article::with([
-            'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
-            'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'exploitant'
-        ]);
+        $query = Article::with(['forets', 'essences', 'natureDeCoupes', 'provinces', 'communes']);
 
         if ($essenceId) {
             $query->whereHas('essences', function ($qq) use ($essenceId) {
@@ -690,18 +681,14 @@ class ReportController extends Controller
             });
         }
 
-        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
-        $essences = Essence::orderBy('essence')->get();
-
-        // Calculate stats from all articles (not just paginated ones)
-        $allArticles = $query->get();
+        $allArticles = (clone $query)->get();
         $stats = [
             'total' => $allArticles->count(),
-            'vendus' => $allArticles->where('invendu', false)->count(),
-            'invendus' => $allArticles->where('invendu', true)->count(),
-            'total_prix_vente' => $allArticles->sum('prix_vente'),
-            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
-            'total_volume' => $allArticles->sum(function($article) {
+            'vendus' => $allArticles->where('invandu', false)->count(),
+            'invendus' => $allArticles->where('invandu', true)->count(),
+            'total_prix_vente' => 0,
+            'total_prix_retrait' => 0,
+            'total_volume' => $allArticles->sum(function ($article) {
                 $article->load('products');
                 $boProduct = $article->products->firstWhere('name', 'BO (m³)');
                 $biProduct = $article->products->firstWhere('name', 'BI (m³)');
@@ -711,12 +698,15 @@ class ReportController extends Controller
             }),
         ];
 
+        $articles = $query->orderBy('created_at', 'desc')->paginate(15);
+        $essences = Essence::orderBy('essence')->get();
+
         // Get essence statistics for chart
-        $essenceStats = Article::withoutGlobalScope('not_deleted')
+        $essenceStats = Article::query()
             ->join('article_essence', 'articles.id', '=', 'article_essence.article_id')
             ->join('essences', 'article_essence.essence_id', '=', 'essences.id')
             ->selectRaw('essences.essence as label, COUNT(*) as total')
-            ->where('articles.is_deleted', false)
+            ->whereNull('articles.deleted_at')
             ->where('essences.is_deleted', false)
             ->groupBy('essences.id', 'essences.essence')
             ->orderByDesc('total')
@@ -734,28 +724,20 @@ class ReportController extends Controller
         $exploitantName = $exploitantId ? Exploitant::find($exploitantId)->nom_complet ?? 'Tous' : 'Tous';
         ActivityLogger::log('view', "Génération du rapport des articles par exploitant: {$exploitantName}", Article::class);
         
-        $query = Article::with([
-            'situationAdministrative', 'foret', 'essence', 'natureDeCoupe',
-            'situationsAdministratives', 'forets', 'essences', 'naturesDeCoupe',
-            'exploitant'
-        ]);
+        $query = Article::with(['forets', 'essences', 'natureDeCoupes', 'contractVentes' => fn ($q) => $q->with('exploitant')]);
 
         if ($exploitantId) {
-            $query->where('exploitant_id', $exploitantId);
+            $query->whereHas('contractVentes', fn ($q) => $q->where('exploitant_id', $exploitantId));
         }
 
-        $articles = $query->orderBy('date_adjudication', 'desc')->paginate(15);
-        $exploitants = Exploitant::orderBy('nom_complet')->get();
-
-        // Calculate stats from all articles (not just paginated ones)
-        $allArticles = $query->get();
+        $allArticles = (clone $query)->get();
         $stats = [
             'total' => $allArticles->count(),
-            'vendus' => $allArticles->where('invendu', false)->count(),
-            'invendus' => $allArticles->where('invendu', true)->count(),
-            'total_prix_vente' => $allArticles->sum('prix_vente'),
-            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
-            'total_volume' => $allArticles->sum(function($article) {
+            'vendus' => $allArticles->where('invandu', false)->count(),
+            'invendus' => $allArticles->where('invandu', true)->count(),
+            'total_prix_vente' => 0,
+            'total_prix_retrait' => 0,
+            'total_volume' => $allArticles->sum(function ($article) {
                 $article->load('products');
                 $boProduct = $article->products->firstWhere('name', 'BO (m³)');
                 $biProduct = $article->products->firstWhere('name', 'BI (m³)');
@@ -765,6 +747,9 @@ class ReportController extends Controller
             }),
         ];
 
+        $articles = $query->orderBy('created_at', 'desc')->paginate(15);
+        $exploitants = Exploitant::orderBy('nom_complet')->get();
+
         return view('reports.articles-by-exploitant', compact('articles', 'exploitants', 'exploitantId', 'stats'));
     }
 
@@ -773,22 +758,19 @@ class ReportController extends Controller
         // Log report generation
         ActivityLogger::log('view', 'Génération du rapport des articles invendus', Article::class);
         
-        $articles = Article::with([
-            'situationAdministrative',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'exploitant',
-        ])
-        ->where('invendu', true)
-        ->orderBy('created_at', 'desc')
-        ->get();
+        $articles = Article::with(['forets', 'essences', 'contractVentes.exploitant'])
+            ->where('invandu', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $stats = [
             'total' => $articles->count(),
-            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
-            'total_volume' => $articles->sum(function($article) {
-                return ($article->bo_m3 ?? 0) + ($article->bi_m3 ?? 0);
+            'total_prix_retrait' => 0,
+            'total_volume' => $articles->sum(function ($article) {
+                $article->load('products');
+                $bo = $article->products->firstWhere('name', 'BO (m³)');
+                $bi = $article->products->firstWhere('name', 'BI (m³)');
+                return ($bo->pivot->quantity ?? 0) + ($bi->pivot->quantity ?? 0);
             }),
         ];
 
@@ -800,23 +782,20 @@ class ReportController extends Controller
         // Log report generation
         ActivityLogger::log('view', 'Génération du rapport des articles vendus', Article::class);
         
-        $articles = Article::with([
-            'situationAdministrative',
-            'foret',
-            'essence',
-            'natureDeCoupe',
-            'exploitant',
-        ])
-        ->where('invendu', false)
-        ->orderBy('created_at', 'desc')
-        ->get();
+        $articles = Article::with(['forets', 'essences', 'contractVentes.exploitant'])
+            ->where('invandu', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $stats = [
             'total' => $articles->count(),
-            'total_prix_vente' => $articles->sum('prix_vente'),
-            'total_prix_retrait' => $articles->sum('prix_de_retrait'),
-            'total_volume' => $articles->sum(function($article) {
-                return ($article->bo_m3 ?? 0) + ($article->bi_m3 ?? 0);
+            'total_prix_vente' => 0,
+            'total_prix_retrait' => 0,
+            'total_volume' => $articles->sum(function ($article) {
+                $article->load('products');
+                $bo = $article->products->firstWhere('name', 'BO (m³)');
+                $bi = $article->products->firstWhere('name', 'BI (m³)');
+                return ($bo->pivot->quantity ?? 0) + ($bi->pivot->quantity ?? 0);
             }),
         ];
 
@@ -830,20 +809,20 @@ class ReportController extends Controller
         
         // Get summary statistics
         $totalArticles = Article::count();
-        $totalVendus = Article::where('invendu', false)->count();
-        $totalInvendus = Article::where('invendu', true)->count();
-        $totalPrixVente = Article::sum('prix_vente');
-        $totalPrixRetrait = Article::sum('prix_de_retrait');
+        $totalVendus = Article::where('invandu', false)->count();
+        $totalInvendus = Article::where('invandu', true)->count();
+        $totalPrixVente = 0;
+        $totalPrixRetrait = 0;
         // Calculate total volume from products
         $totalVolume = $this->calculateArticleVolume();
 
-        // Get statistics by year
-        $statsByYear = Article::selectRaw('articles.annee, COUNT(*) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
-            ->groupBy('articles.annee')
-            ->orderBy('articles.annee', 'desc')
+        // Get statistics by year (annee = YEAR(created_at); articles have no prix_vente/prix_de_retrait)
+        $statsByYear = Article::selectRaw('YEAR(articles.created_at) as annee, COUNT(*) as total, SUM(CASE WHEN articles.invandu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invandu = 1 THEN 1 ELSE 0 END) as invendus, 0 as total_prix_vente, 0 as total_prix_retrait')
+            ->groupByRaw('YEAR(articles.created_at)')
+            ->orderByRaw('YEAR(articles.created_at) DESC')
             ->get()
-            ->map(function($item) {
-                $articleIds = Article::where('annee', $item->annee)->pluck('id')->toArray();
+            ->map(function ($item) {
+                $articleIds = Article::whereYear('created_at', $item->annee)->pluck('id')->toArray();
                 $item->total_volume = $this->calculateArticleVolume($articleIds);
                 return $item;
             });
@@ -851,7 +830,7 @@ class ReportController extends Controller
         // Get statistics by forest
         $statsByForet = Article::join('article_foret', 'articles.id', '=', 'article_foret.article_id')
             ->join('forets', 'article_foret.foret_id', '=', 'forets.id')
-            ->selectRaw('forets.foret, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
+            ->selectRaw('forets.foret, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invandu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invandu = 1 THEN 1 ELSE 0 END) as invendus, 0 as total_prix_vente, 0 as total_prix_retrait')
             ->where('forets.is_deleted', false)
             ->groupBy('forets.id', 'forets.foret')
             ->orderBy('forets.foret')
@@ -869,7 +848,7 @@ class ReportController extends Controller
         // Get statistics by essence
         $statsByEssence = Article::join('article_essence', 'articles.id', '=', 'article_essence.article_id')
             ->join('essences', 'article_essence.essence_id', '=', 'essences.id')
-            ->selectRaw('essences.essence, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
+            ->selectRaw('essences.essence, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invandu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invandu = 1 THEN 1 ELSE 0 END) as invendus, 0 as total_prix_vente, 0 as total_prix_retrait')
             ->where('essences.is_deleted', false)
             ->groupBy('essences.id', 'essences.essence')
             ->orderBy('essences.essence')
@@ -886,7 +865,7 @@ class ReportController extends Controller
 
         // Get statistics by exploitant
         $statsByExploitant = Article::join('exploitants', 'articles.exploitant_id', '=', 'exploitants.id')
-            ->selectRaw('COALESCE(exploitants.nom_complet, exploitants.raison_sociale) as exploitant, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invendu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invendu = 1 THEN 1 ELSE 0 END) as invendus, SUM(articles.prix_vente) as total_prix_vente, SUM(articles.prix_de_retrait) as total_prix_retrait')
+            ->selectRaw('COALESCE(exploitants.nom_complet, exploitants.raison_sociale) as exploitant, COUNT(DISTINCT articles.id) as total, SUM(CASE WHEN articles.invandu = 0 THEN 1 ELSE 0 END) as vendus, SUM(CASE WHEN articles.invandu = 1 THEN 1 ELSE 0 END) as invendus, 0 as total_prix_vente, 0 as total_prix_retrait')
             ->where('exploitants.is_deleted', false)
             ->groupBy('exploitants.id', 'exploitants.nom_complet', 'exploitants.raison_sociale')
             ->orderBy('exploitant')
@@ -963,11 +942,11 @@ class ReportController extends Controller
         $allArticles = $query->get();
         $stats = [
             'total' => $allArticles->count(),
-            'vendus' => $allArticles->where('invendu', false)->count(),
-            'invendus' => $allArticles->where('invendu', true)->count(),
-            'total_prix_vente' => $allArticles->sum('prix_vente'),
-            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
-            'total_volume' => $allArticles->sum(function($article) {
+            'vendus' => $allArticles->where('invandu', false)->count(),
+            'invendus' => $allArticles->where('invandu', true)->count(),
+            'total_prix_vente' => 0,
+            'total_prix_retrait' => 0,
+            'total_volume' => $allArticles->sum(function ($article) {
                 $article->load('products');
                 $boProduct = $article->products->firstWhere('name', 'BO (m³)');
                 $biProduct = $article->products->firstWhere('name', 'BI (m³)');
@@ -1013,11 +992,11 @@ class ReportController extends Controller
             'total' => $allArticles->count(),
             'validated' => $allArticles->where('is_validated', true)->count(),
             'pending' => $allArticles->where('is_validated', false)->count(),
-            'vendus' => $allArticles->where('invendu', false)->count(),
-            'invendus' => $allArticles->where('invendu', true)->count(),
-            'total_prix_vente' => $allArticles->sum('prix_vente'),
-            'total_prix_retrait' => $allArticles->sum('prix_de_retrait'),
-            'total_volume' => $allArticles->sum(function($article) {
+            'vendus' => $allArticles->where('invandu', false)->count(),
+            'invendus' => $allArticles->where('invandu', true)->count(),
+            'total_prix_vente' => 0,
+            'total_prix_retrait' => 0,
+            'total_volume' => $allArticles->sum(function ($article) {
                 $article->load('products');
                 $boProduct = $article->products->firstWhere('name', 'BO (m³)');
                 $biProduct = $article->products->firstWhere('name', 'BI (m³)');
@@ -1738,12 +1717,12 @@ class ReportController extends Controller
         ];
 
         // Get year distribution for both types - VOLUME BY YEAR
-        $currentArticlesByYear = Article::selectRaw('annee')
-            ->groupBy('annee')
-            ->orderBy('annee')
+        $currentArticlesByYear = Article::selectRaw('YEAR(created_at) as annee')
+            ->groupByRaw('YEAR(created_at)')
+            ->orderByRaw('YEAR(created_at)')
             ->get()
             ->map(function($item) {
-                $articleIds = Article::where('annee', $item->annee)->pluck('id')->toArray();
+                $articleIds = Article::whereYear('created_at', $item->annee)->pluck('id')->toArray();
                 $item->volume = $this->calculateArticleVolume($articleIds);
                 return $item;
             });
@@ -1773,7 +1752,7 @@ class ReportController extends Controller
         $currentArticlesByForet = Article::withoutGlobalScope('not_deleted')
             ->join('article_foret', 'articles.id', '=', 'article_foret.article_id')
             ->join('forets', 'article_foret.foret_id', '=', 'forets.id')
-            ->where('articles.is_deleted', false)
+            ->whereNull('articles.deleted_at')
             ->where('forets.is_deleted', false)
             ->selectRaw('forets.foret, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as volume')
             ->groupBy('forets.id', 'forets.foret')
@@ -1792,7 +1771,7 @@ class ReportController extends Controller
         $currentArticlesByEssence = Article::withoutGlobalScope('not_deleted')
             ->join('article_essence', 'articles.id', '=', 'article_essence.article_id')
             ->join('essences', 'article_essence.essence_id', '=', 'essences.id')
-            ->where('articles.is_deleted', false)
+            ->whereNull('articles.deleted_at')
             ->where('essences.is_deleted', false)
             ->selectRaw('essences.essence, SUM(COALESCE(articles.bo_m3, 0) + COALESCE(articles.bi_m3, 0)) as volume')
             ->groupBy('essences.id', 'essences.essence')
@@ -1825,9 +1804,11 @@ class ReportController extends Controller
             ActivityLogger::log('view', 'Consultation des graphiques de quantités de produits', null);
             
             // Get all years from both current and legacy articles
-            $currentYears = Article::select('annee')
-                ->distinct()
-                ->pluck('annee');
+$currentYears = Article::query()
+            ->selectRaw('YEAR(created_at) as annee')
+            ->distinct()
+            ->orderByRaw('YEAR(created_at) DESC')
+            ->pluck('annee');
             
             // Get legacy years in a DB-agnostic way (avoid REGEXP/SUBSTRING)
             $legacyYears = LegacyArticle::whereNotNull('date')
@@ -1869,7 +1850,7 @@ class ReportController extends Controller
             
             foreach ($allYears as $year) {
                 // Get data from current articles
-                $currentData = Article::where('annee', $year)
+                $currentData = Article::whereYear('created_at', $year)
                     ->selectRaw('
                         SUM(COALESCE(bo_m3, 0)) as bo_m3,
                         SUM(COALESCE(bi_m3, 0)) as bi_m3,
@@ -1930,7 +1911,7 @@ class ReportController extends Controller
                             // Get current articles data for this localisation and year
                             $currentData = Article::join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
                                 ->where('article_localisation.localisation_id', $localisation->id)
-                                ->where('articles.annee', $year)
+                                ->whereYear('articles.created_at', $year)
                                 ->selectRaw('
                                     SUM(COALESCE(articles.bo_m3, 0)) as bo_m3,
                                     SUM(COALESCE(articles.bi_m3, 0)) as bi_m3,
@@ -2175,8 +2156,9 @@ class ReportController extends Controller
             // Log report generation
             ActivityLogger::log('view', 'Consultation des graphiques de quantités de produits (Articles)', null);
             
-            // Get all years from current articles
-            $currentYears = Article::select('annee')
+            // Get all years from current articles (YEAR(created_at))
+            $currentYears = Article::query()
+                ->selectRaw('YEAR(created_at) as annee')
                 ->distinct()
                 ->pluck('annee')
                 ->filter()
@@ -2193,7 +2175,7 @@ class ReportController extends Controller
             $productFields = ['bo_m3', 'bi_m3', 'bf_st', 'tanin_t', 'fleur_acacia_t', 'caroube_t', 'romarin_t', 'liége_st', 'charbon_bois_ox'];
             
             foreach ($currentYears as $year) {
-                $currentData = Article::where('annee', $year)
+                $currentData = Article::whereYear('created_at', $year)
                     ->selectRaw('
                         SUM(COALESCE(bo_m3, 0)) as bo_m3,
                         SUM(COALESCE(bi_m3, 0)) as bi_m3,
@@ -2233,7 +2215,7 @@ class ReportController extends Controller
                         try {
                             $currentData = Article::join('article_localisation', 'articles.id', '=', 'article_localisation.article_id')
                                 ->where('article_localisation.localisation_id', $localisation->id)
-                                ->where('articles.annee', $year)
+                                ->whereYear('articles.created_at', $year)
                                 ->selectRaw('
                                     SUM(COALESCE(articles.bo_m3, 0)) as bo_m3,
                                     SUM(COALESCE(articles.bi_m3, 0)) as bi_m3,
@@ -2319,8 +2301,8 @@ class ReportController extends Controller
         if ($request->filled('search')) {
             $currentQuery->where(function($q) use ($request) {
                 $q->where('numero', 'like', '%' . $request->search . '%')
-                  ->orWhere('annee', 'like', '%' . $request->search . '%')
-                  ->orWhere('numero_adjudication', 'like', '%' . $request->search . '%')
+                  ->orWhere('lot', 'like', '%' . $request->search . '%')
+                  ->orWhere('parcelle', 'like', '%' . $request->search . '%')
                   ->orWhereHas('exploitant', function($exploitantQuery) use ($request) {
                       $exploitantQuery->where('nom_complet', 'like', '%' . $request->search . '%');
                   })
@@ -2334,43 +2316,43 @@ class ReportController extends Controller
         }
         
         if ($request->filled('year')) {
-            $currentQuery->where('annee', $request->year);
+            $currentQuery->whereYear('created_at', $request->year);
         }
         
         if ($request->filled('type')) {
             $currentQuery->where('type', $request->type);
         }
         
-        if ($request->filled('min_price')) {
+        if ($request->filled('min_price') && Schema::hasColumn('articles', 'prix_vente')) {
             $currentQuery->where('prix_vente', '>=', $request->min_price);
         }
         
-        if ($request->filled('max_price')) {
+        if ($request->filled('max_price') && Schema::hasColumn('articles', 'prix_vente')) {
             $currentQuery->where('prix_vente', '<=', $request->max_price);
         }
         
-        if ($request->filled('min_volume')) {
+        if ($request->filled('min_volume') && Schema::hasColumn('articles', 'bo_m3')) {
             $currentQuery->whereRaw('COALESCE(bo_m3, 0) + COALESCE(bi_m3, 0) >= ?', [$request->min_volume]);
         }
         
-        if ($request->filled('max_volume')) {
+        if ($request->filled('max_volume') && Schema::hasColumn('articles', 'bi_m3')) {
             $currentQuery->whereRaw('COALESCE(bo_m3, 0) + COALESCE(bi_m3, 0) <= ?', [$request->max_volume]);
         }
         
         if ($request->filled('status')) {
             if ($request->status === 'sold') {
-                $currentQuery->where('invendu', false);
+                $currentQuery->where('invandu', false);
             } elseif ($request->status === 'unsold') {
-                $currentQuery->where('invendu', true);
+                $currentQuery->where('invandu', true);
             }
         }
         
-        // Sorting
+        // Sorting (annee removed from articles; use created_at for year ordering)
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        
-        if (in_array($sortBy, ['numero', 'annee', 'prix_vente', 'bo_m3'])) {
-            $currentQuery->orderBy($sortBy, $sortOrder);
+        $sortColumn = $sortBy === 'annee' ? 'created_at' : $sortBy;
+        if (in_array($sortColumn, ['numero', 'created_at']) || ($sortColumn === 'prix_vente' && Schema::hasColumn('articles', 'prix_vente')) || ($sortColumn === 'bo_m3' && Schema::hasColumn('articles', 'bo_m3'))) {
+            $currentQuery->orderBy($sortColumn, $sortOrder);
         } else {
             $currentQuery->orderBy('created_at', 'desc');
         }
@@ -2433,7 +2415,7 @@ class ReportController extends Controller
         
         // Get filter options
         $years = collect();
-        $currentYears = Article::select('annee')->distinct()->orderBy('annee', 'desc')->pluck('annee');
+        $currentYears = Article::query()->selectRaw('YEAR(created_at) as annee')->distinct()->orderByRaw('YEAR(created_at) DESC')->pluck('annee');
         $legacyYears = LegacyArticle::selectRaw('CASE 
                 WHEN LENGTH(date) >= 8 THEN SUBSTRING(date, 1, 4)
                 WHEN LENGTH(date) >= 6 THEN 

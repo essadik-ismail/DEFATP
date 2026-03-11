@@ -24,6 +24,7 @@ class ColportageEnlever extends Model
         'chauffeur_cin',
         'destination',
         'numero_permis',
+        'carnet_id',
     ];
 
     protected $casts = [
@@ -62,5 +63,13 @@ class ColportageEnlever extends Model
     public function article()
     {
         return $this->belongsTo(Article::class);
+    }
+
+    /**
+     * Get the carnet for this permis de colportage
+     */
+    public function carnet()
+    {
+        return $this->belongsTo(Carnet::class);
     }
 }

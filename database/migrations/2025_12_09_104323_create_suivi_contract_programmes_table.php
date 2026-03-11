@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('suivi_contract_programmes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('foret_id')->nullable()->constrained('forets')->onDelete('set null');
-            $table->foreignId('partenariat_id')->nullable()->constrained('partenariats')->onDelete('cascade');
+            // Simple nullable reference; no foreign key because partenariats table does not exist
+            $table->unsignedBigInteger('partenariat_id')->nullable();
             $table->string('CT')->nullable();
             $table->string('DPF')->nullable();
             $table->string('Parcelle')->nullable();

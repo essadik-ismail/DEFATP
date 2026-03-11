@@ -25,6 +25,7 @@ use App\Models\Permis;
 use App\Models\PermiEnlever;
 use App\Models\PermisExploiter;
 use App\Models\ColportageEnlever;
+use App\Models\Carnet;
 use App\Models\PvInstallation;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
@@ -34,83 +35,17 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ArticleController extends Controller
 {
     /**
-     * Display a listing of the articles.
+     * Articles list removed: redirect to cessions (articles are accessed via cessions).
      */
-    public function index(Request $request): View
+    public function index(Request $request): RedirectResponse
     {
-        $query = Article::with([
-            'dranef',
-            'dpanef',
-            'zdtf',
-            'dfp',
-            'contractVentes',
-            'provinces',
-            'communes',
-            'essences',
-            'products'
-        ]);
-
-        // Year filter
-        if ($request->filled('year')) {
-            $query->where('annee', $request->year);
-        }
-
-        // Adjudication date filter
-        if ($request->filled('adjudication_date')) {
-            $query->whereHas('contractVentes', function ($q) use ($request) {
-                $q->whereDate('date_adjudication', $request->adjudication_date);
-            });
-        }
-
-        // Type filter (from contract_ventes)
-        if ($request->filled('type')) {
-            $query->whereHas('contractVentes', function ($q) use ($request) {
-                $q->where('type', $request->type);
-            });
-        }
-
-        // Global search
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('numero', 'like', "%{$search}%")
-                  ->orWhere('lot', 'like', "%{$search}%")
-                  ->orWhere('parcelle', 'like', "%{$search}%")
-                  ->orWhere('annee', 'like', "%{$search}%")
-                  ->orWhereHas('forets', function ($q) use ($search) {
-                      $q->where('foret', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('contractVentes', function ($q) use ($search) {
-                      $q->where('type', 'like', "%{$search}%")
-                        ->orWhere('numeraAO', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        // Get available years for filter dropdown
-        $availableYears = Article::select('annee')
-            ->distinct()
-            ->whereNotNull('annee')
-            ->orderBy('annee', 'desc')
-            ->pluck('annee')
-            ->toArray();
-
-        // Get available types for filter dropdown
-        $availableTypes = ContractVente::select('type')
-            ->distinct()
-            ->whereNotNull('type')
-            ->pluck('type')
-            ->toArray();
-
-        $perPage = $request->get('per_page', 15);
-        $articles = $query->latest()->paginate($perPage)->appends($request->query());
-
-        return view('articles.index', compact('articles', 'availableYears', 'availableTypes'));
+        return redirect()->route('cessions.index');
     }
 
     /**
@@ -152,6 +87,8 @@ class ArticleController extends Controller
         $products = Product::select('id', 'name')->orderBy('name')->get();
         $depots = Depot::select('id', 'nom')->orderBy('nom')->get();
 
+        $currentUser = Auth::user()?->load(['dranef', 'dpanef', 'zdtf', 'dfp', 'province']);
+
         return view('articles.create', compact(
             'communes',
             'provinces',
@@ -166,7 +103,8 @@ class ArticleController extends Controller
             'modeExploitations',
             'essences',
             'products',
-            'depots'
+            'depots',
+            'currentUser'
         ));
     }
 
@@ -178,54 +116,12 @@ class ArticleController extends Controller
         try {
             DB::beginTransaction();
 
+            $data = $request->validated();
+            $data['groupe_cession_id'] = $data['cession_id'] ?? null;
+            unset($data['cession_id']);
+
             // Create the article
-            $article = Article::create($request->validated());
-            
-            // Save code-based foreign keys (only if not empty and exists)
-            if ($request->filled('dranef_code') && !empty(trim($request->dranef_code))) {
-                $code = trim($request->dranef_code);
-                if (Dranef::where('code', $code)->exists()) {
-                    $article->dranef_code = $code;
-                } else {
-                    throw new \Exception("Le code DRANEF '{$code}' n'existe pas.");
-                }
-            } else {
-                $article->dranef_code = null;
-            }
-            
-            if ($request->filled('dpanef_code') && !empty(trim($request->dpanef_code))) {
-                $code = trim($request->dpanef_code);
-                if (Dpanef::where('code', $code)->exists()) {
-                    $article->dpanef_code = $code;
-                } else {
-                    throw new \Exception("Le code DPANEF '{$code}' n'existe pas.");
-                }
-            } else {
-                $article->dpanef_code = null;
-            }
-            
-            if ($request->filled('zdtf_code') && !empty(trim($request->zdtf_code))) {
-                $code = trim($request->zdtf_code);
-                if (Zdtf::where('code', $code)->exists()) {
-                    $article->zdtf_code = $code;
-                } else {
-                    throw new \Exception("Le code ZDTF '{$code}' n'existe pas.");
-                }
-            } else {
-                $article->zdtf_code = null;
-            }
-            
-            if ($request->filled('dfp_code') && !empty(trim($request->dfp_code))) {
-                $code = trim($request->dfp_code);
-                if (Dfp::where('code', $code)->exists()) {
-                    $article->dfp_code = $code;
-                } else {
-                    throw new \Exception("Le code DFP '{$code}' n'existe pas.");
-                }
-            } else {
-                $article->dfp_code = null;
-            }
-            $article->save();
+            $article = Article::create($data);
 
             // Attach relationships
             if ($request->has('province_ids')) {
@@ -325,7 +221,7 @@ class ArticleController extends Controller
                     ->with('success', 'Article créé avec succès. L\'import du plan de situation a échoué ; vous pouvez réessayer l\'import Excel ci-dessous.');
             }
 
-            return redirect()->route('articles.index')
+            return redirect()->route('cessions.index')
                 ->with('success', $successMsg);
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
@@ -387,9 +283,6 @@ class ArticleController extends Controller
                     }
                 ]);
             },
-            'dranef:id,code,dranef', // Fixed: removed 'designation' (doesn't exist)
-            'dpanef:id,code,dpanef', // Fixed: removed 'designation' (doesn't exist)
-            'zdtf:id,code,zdtf' // Fixed: removed 'designation' (doesn't exist)
         ]);
 
         // Optimize: Load exploitant fields needed for contract form (incl. CIN, numero, adresse for auto-fill)
@@ -560,7 +453,7 @@ class ArticleController extends Controller
 
             ActivityLogger::log('update', 'Article modifié', Article::class, $article->id);
 
-            return redirect()->route('articles.index')
+            return redirect()->route('cessions.index')
                 ->with('success', 'Article modifié avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -623,7 +516,7 @@ class ArticleController extends Controller
 
             ActivityLogger::log('delete', 'Article supprimé', Article::class, $articleId);
 
-            return redirect()->route('articles.index')
+            return redirect()->route('cessions.index')
                 ->with('success', 'Article supprimé avec succès.');
         } catch (\Exception $e) {
             ActivityLogger::log('error', 'Erreur lors de la suppression de l\'article: ' . $e->getMessage());
@@ -754,7 +647,7 @@ class ArticleController extends Controller
     public function payTranches(Request $request, Article $article): RedirectResponse
     {
         $validated = $request->validate([
-            'selected_tranches' => 'required|string',
+            'selected_tranche' => 'required',
             'num_quittance' => 'required|string|max:255',
             'date_payment' => 'required|date',
             'fichier_joint' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -769,41 +662,33 @@ class ArticleController extends Controller
                 throw new \Exception("Aucun contrat de vente trouvé pour cet article.");
             }
 
-            $trancheIds = json_decode($validated['selected_tranches'], true);
-            
-            if (empty($trancheIds)) {
-                throw new \Exception("Aucune tranche sélectionnée.");
+            $trancheId = $validated['selected_tranche'];
+
+            $tranche = ChargeApayer::find($trancheId);
+
+            if (!$tranche) {
+                throw new \Exception("Tranche sélectionnée introuvable.");
             }
 
-            // Process each selected tranche
-            foreach ($trancheIds as $trancheId) {
-                $tranche = ChargeApayer::find($trancheId);
-                
-                if (!$tranche) {
-                    \Log::warning("Tranche with ID {$trancheId} not found. Skipping.");
-                    continue;
-                }
+            // Create or update payment for this single tranche
+            $payment = Payment::firstOrNew([
+                'chargeapayer_id' => $tranche->id,
+                'contract_vente_id' => $contractVente->id,
+            ]);
 
-                // Create or update payment for this tranche
-                $payment = Payment::firstOrNew([
-                    'chargeapayer_id' => $tranche->id,
-                    'contract_vente_id' => $contractVente->id,
-                ]);
+            $payment->is_paye = true;
+            $payment->num_quittace = $validated['num_quittance'];
+            $payment->date_payment = $validated['date_payment'];
+            $payment->nom = $tranche->nom;
 
-                $payment->is_paye = true;
-                $payment->num_quittace = $validated['num_quittance'];
-                $payment->date_payment = $validated['date_payment'];
-                $payment->nom = $tranche->nom;
-
-                // Handle file upload
-                if ($request->hasFile('fichier_joint')) {
-                    $file = $request->file('fichier_joint');
-                    $path = $file->store('public/tranche_justificatifs');
-                    $payment->fichier_joint = str_replace('public/', '', $path);
-                }
-
-                $payment->save();
+            // Handle file upload
+            if ($request->hasFile('fichier_joint')) {
+                $file = $request->file('fichier_joint');
+                $path = $file->store('public/tranche_justificatifs');
+                $payment->fichier_joint = str_replace('public/', '', $path);
             }
+
+            $payment->save();
 
             // Check if all tranches are paid to update article status
             $allTranches = $contractVente->chargeApayer->filter(function($charge) {
@@ -945,7 +830,7 @@ class ArticleController extends Controller
                     $q->where('contract_vente_id', $contractVente->id);
                 });
             })
-            ->with(['permis'])
+            ->with(['permis', 'contractVente.payments'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -1298,6 +1183,9 @@ class ArticleController extends Controller
         // Get pre-selected permis d'enlever ID from query parameter
         $selectedPermisEnleverId = request('permis_enlever_id');
 
+        // Carnets disponibles (pour liste déroulante optionnelle)
+        $carnetsDisponibles = Carnet::disponible()->listable()->get();
+
         // Section 1 & 2: quantities and list for selected Permis d'Enlever
         $quantityInPermisEnlever = 0;
         $quantityUsedColportage = 0;
@@ -1321,7 +1209,7 @@ class ArticleController extends Controller
 
         return view('articles.permis-colportage', compact(
             'article', 'contractVente', 'permisEnlevers', 'permisEnleversWithQuantities',
-            'selectedPermisEnleverId', 'products',
+            'selectedPermisEnleverId', 'products', 'carnetsDisponibles',
             'quantityInPermisEnlever', 'quantityUsedColportage', 'listPermisColportage'
         ));
     }
@@ -1333,6 +1221,7 @@ class ArticleController extends Controller
     {
         $validated = $request->validate([
             'id_permis_enlever' => 'required|exists:permi_enlevers,id',
+            'carnet_id' => 'nullable|exists:carnets,id',
             'date_debut' => 'required|date',
             'date_fin' => 'required|date|after:date_debut',
             'vehicule_immatriculation' => 'required|string|max:255',
@@ -1406,6 +1295,7 @@ class ArticleController extends Controller
                             'chauffeur_cin' => $validated['chauffeur_cin'],
                             'destination' => $validated['destination'],
                             'numero_permis' => $numeroPermis,
+                            'carnet_id' => $validated['carnet_id'] ?? null,
                         ]);
                         $essencesInserted = true;
                         
@@ -1446,7 +1336,15 @@ class ArticleController extends Controller
                     'chauffeur_cin' => $validated['chauffeur_cin'],
                     'destination' => $validated['destination'],
                     'numero_permis' => $numeroPermis,
+                    'carnet_id' => $validated['carnet_id'] ?? null,
                 ]);
+            }
+
+            // Si un carnet a été choisi, le passer en "epuise" (un numéro = un seul permis)
+            if (!empty($validated['carnet_id'])) {
+                Carnet::where('id', $validated['carnet_id'])
+                    ->where('status', Carnet::STATUS_DISPONIBLE)
+                    ->update(['status' => Carnet::STATUS_EPUISE]);
             }
             
             // Get the first colportage record for logging

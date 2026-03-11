@@ -102,13 +102,8 @@
                                     <select class="form-select @error('role') is-invalid @enderror" 
                                             id="role" name="role">
                                         <option value="">Sélectionner un rôle</option>
-                                        <option value="dg" {{ old('role', $user->role) == 'dg' ? 'selected' : '' }}>DG (Directeur Général)</option>
-                                        <option value="dc" {{ old('role', $user->role) == 'dc' ? 'selected' : '' }}>DC (Directeur Central)</option>
-                                        <option value="departement" {{ old('role', $user->role) == 'departement' ? 'selected' : '' }}>Département</option>
-                                        <option value="administrateur" {{ old('role', $user->role) == 'administrateur' ? 'selected' : '' }}>Administrateur</option>
-                                        <option value="draned" {{ old('role', $user->role) == 'draned' ? 'selected' : '' }}>DRANED</option>
-                                        <option value="dpanef" {{ old('role', $user->role) == 'dpanef' ? 'selected' : '' }}>DPANEF</option>
-                                        <option value="entite" {{ old('role', $user->role) == 'entite' ? 'selected' : '' }}>Entité</option>
+                                        <option value="admin" {{ old('role', $user->role?->value) == 'admin' ? 'selected' : '' }}>Administrateur</option>
+                                        <option value="agency" {{ old('role', $user->role?->value) == 'agency' ? 'selected' : '' }}>Agence</option>
                                     </select>
                                     @error('role')
                                         <div class="invalid-feedback">{{ $message }}</div>

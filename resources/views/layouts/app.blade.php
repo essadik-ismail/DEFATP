@@ -53,9 +53,9 @@
             --primary-color: #059669;
             --secondary-color: #9AB3A3;
             --success-color: #059669;
-            --warning-color: #9AB3A3;
-            --danger-color: #1F2D24;
-            --info-color: #9AB3A3;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --info-color: #2563eb;
             --light-color: #F2F6F3;
             --dark-color: #1F2D24;
             --border-color: rgba(154, 179, 163, 0.4);
@@ -84,6 +84,11 @@
             --layout-gap: 16px;
             --sidebar-width: 260px;
             --layout-radius: 1.25rem;
+            /* Responsive spacing system */
+            --spacing-8: 8px;
+            --spacing-16: 16px;
+            --spacing-24: 24px;
+            --spacing-32: 32px;
         }
 
         html {
@@ -132,18 +137,18 @@
             box-shadow: var(--shadow-card);
         }
         .alert.alert-danger {
-            background: var(--card-bg);
-            border: 1px solid var(--danger-color);
+            background: #fef2f2;
+            border: 1px solid #dc2626;
             border-left-width: 4px;
-            color: var(--text-primary);
+            color: #991b1b;
             border-radius: var(--radius-card);
             box-shadow: var(--shadow-card);
         }
         .alert.alert-warning {
-            background: var(--card-bg);
-            border: 1px solid var(--secondary);
+            background: #fffbeb;
+            border: 1px solid #d97706;
             border-left-width: 4px;
-            color: var(--text-primary);
+            color: #92400e;
             border-radius: var(--radius-card);
             box-shadow: var(--shadow-card);
         }
@@ -255,18 +260,18 @@
         }
 
         .toast.error {
-            border-left-color: var(--danger-color);
-            background: var(--background);
+            border-left-color: #dc2626;
+            background: #fef2f2;
         }
 
         .toast.warning {
-            border-left-color: var(--secondary);
-            background: var(--background);
+            border-left-color: #d97706;
+            background: #fffbeb;
         }
 
         .toast.info {
-            border-left-color: var(--secondary);
-            background: var(--background);
+            border-left-color: #2563eb;
+            background: #eff6ff;
         }
 
         .toast-header {
@@ -323,17 +328,17 @@
         }
 
         .toast.error .toast-icon {
-            background: var(--danger-color);
+            background: #dc2626;
             color: var(--text-on-dark);
         }
 
         .toast.warning .toast-icon {
-            background: var(--secondary);
+            background: #d97706;
             color: var(--text-on-dark);
         }
 
         .toast.info .toast-icon {
-            background: var(--secondary);
+            background: #2563eb;
             color: var(--text-on-dark);
         }
 
@@ -484,6 +489,27 @@
             color: var(--text-on-dark);
             border-bottom: none;
             border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        }
+
+        /* Modal responsive - full width on small screens */
+        @media (max-width: 768px) {
+            .modal-dialog {
+                max-width: calc(100vw - var(--spacing-32));
+                margin: var(--spacing-16) auto;
+            }
+        }
+        @media (max-width: 480px) {
+            .modal-dialog {
+                max-width: calc(100vw - var(--spacing-16));
+                margin: var(--spacing-8) auto;
+            }
+        }
+
+        /* Container responsive - prevent overflow */
+        .page-content .container {
+            max-width: 100%;
+            padding-left: var(--spacing-16);
+            padding-right: var(--spacing-16);
         }
 
         /* Accessibility improvements */
@@ -921,11 +947,44 @@
             flex: 1;
             min-width: 0;
             min-height: 0;
-            padding: 2rem;
+            padding: var(--spacing-32);
             background: #FFFFFF;
             overflow-x: hidden;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+        }
+
+        /* Responsive typography in page content */
+        .page-content h1 {
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+        }
+        .page-content h2 {
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 600;
+        }
+        .page-content p {
+            font-size: clamp(14px, 2vw, 16px);
+        }
+
+        /* Responsive table wrapper - horizontal scroll on small screens */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            max-width: 100%;
+        }
+        .table-responsive table {
+            min-width: 280px;
+        }
+
+        /* Dashboard / card grids - flexible, responsive */
+        .dashboard-cards,
+        .page-content .grid[class*="grid-cols"] {
+            display: grid;
+            gap: var(--spacing-24);
+        }
+        .dashboard-cards {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         }
 
         /* Header Styles */
@@ -1016,12 +1075,12 @@
         }
 
         .btn-danger {
-            background: var(--danger-color);
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
             color: var(--text-on-dark);
         }
 
         .btn-danger:hover {
-            background: var(--text-on-light);
+            background: linear-gradient(135deg, #b91c1c, #991b1b);
             color: var(--text-on-dark);
             transform: translateY(-2px);
         }
@@ -2326,9 +2385,135 @@
                 background: rgba(74, 124, 89, 0.1);
             }
             
-            .nav-link.active {
-                background: var(--primary-gradient);
-                color: white;
+        .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+    }
+
+        /* ========== Comprehensive responsive breakpoints ========== */
+
+        /* Laptop (1024px) */
+        @media (max-width: 1024px) {
+            .content-area {
+                padding: var(--spacing-24);
+            }
+            .dashboard-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .top-header {
+                padding: var(--spacing-8) var(--spacing-16);
+                min-height: 52px;
+            }
+        }
+
+        /* Tablet (768px) */
+        @media (max-width: 768px) {
+            .content-area {
+                padding: var(--spacing-16);
+            }
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-16);
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+            }
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-16);
+            }
+            .top-header {
+                padding: var(--spacing-8) var(--spacing-16);
+                min-height: 48px;
+            }
+            .breadcrumb {
+                font-size: 0.8125rem;
+            }
+            .user-profile .user-email {
+                display: none;
+            }
+            .user-profile {
+                padding: var(--spacing-8);
+            }
+            .btn {
+                padding: var(--spacing-8) var(--spacing-16);
+                font-size: 0.875rem;
+            }
+            .form-control,
+            .form-select,
+            .form-input {
+                width: 100%;
+                max-width: 100%;
+            }
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin-left: calc(-1 * var(--spacing-16));
+                margin-right: calc(-1 * var(--spacing-16));
+                padding-left: var(--spacing-16);
+                padding-right: var(--spacing-16);
+            }
+            .table-responsive table {
+                min-width: 600px;
+            }
+        }
+
+        /* Mobile (480px) */
+        @media (max-width: 480px) {
+            :root {
+                --layout-gap: 8px;
+            }
+            .content-area {
+                padding: var(--spacing-8);
+            }
+            .top-header {
+                padding: var(--spacing-8);
+                min-height: 44px;
+            }
+            .breadcrumb-section {
+                gap: var(--spacing-8);
+            }
+            .header-actions {
+                gap: var(--spacing-8);
+            }
+            .user-info .user-name {
+                font-size: 0.75rem;
+            }
+            .profile-pic {
+                width: 1.75rem;
+                height: 1.75rem;
+            }
+            .dashboard-cards {
+                gap: var(--spacing-8);
+            }
+            .btn {
+                padding: var(--spacing-8) var(--spacing-16);
+                min-height: 44px;
+                font-size: 0.875rem;
+            }
+            .form-group,
+            .page-content form > div[class*="grid"] > * {
+                width: 100%;
+            }
+            .page-content form .grid {
+                grid-template-columns: 1fr;
+            }
+            .table-responsive {
+                margin-left: calc(-1 * var(--spacing-8));
+                margin-right: calc(-1 * var(--spacing-8));
+                padding-left: var(--spacing-8);
+                padding-right: var(--spacing-8);
+            }
+        }
+
+        /* Desktop (>=1200px) - ensure card grid 4 columns where applicable */
+        @media (min-width: 1200px) {
+            .dashboard-cards {
+                grid-template-columns: repeat(4, 1fr);
             }
         }
 
@@ -2374,38 +2559,38 @@
             <nav class="sidebar-nav">
                 <div class="nav-section-label">Menu</div>
                 <div class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('dashboard') }}" class="nav-link sidebar-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i class="fas fa-th-large"></i>
                         Dashboard
                     </a>
                 </div>
 
-                <div class="nav-item has-submenu {{ request()->routeIs('articles.*') || request()->routeIs('exploitants.*') ? 'expanded' : '' }}" id="nav-exploitation">
-                    <button type="button" class="nav-group-title" aria-expanded="{{ request()->routeIs('articles.*') || request()->routeIs('exploitants.*') ? 'true' : 'false' }}" aria-controls="submenu-exploitation" id="toggle-exploitation">
+                <div class="nav-item has-submenu {{ request()->routeIs('cessions.*') || request()->routeIs('exploitants.*') ? 'expanded' : '' }}" id="nav-exploitation">
+                    <button type="button" class="nav-group-title sidebar-item" aria-expanded="{{ request()->routeIs('cessions.*') || request()->routeIs('exploitants.*') ? 'true' : 'false' }}" aria-controls="submenu-exploitation" id="toggle-exploitation">
                         <span class="nav-group-label">
                             <i class="fas fa-folder"></i>
                             Exploitation
                         </span>
                         <i class="fas fa-chevron-right nav-group-chevron" aria-hidden="true"></i>
                     </button>
-                    <div class="submenu {{ request()->routeIs('articles.*') || request()->routeIs('exploitants.*') ? '' : 'collapsed' }}" id="submenu-exploitation" role="region" aria-label="Sous-menu Exploitation">
-                        <a href="{{ route('articles.create') }}" class="submenu-item {{ request()->routeIs('articles.create') ? 'active' : '' }}">
-                            <i class="fas fa-plus"></i>
-                            Ajouter article
+                    <div class="submenu {{ request()->routeIs('cessions.*') || request()->routeIs('exploitants.*') || request()->routeIs('carnets.*') ? '' : 'collapsed' }}" id="submenu-exploitation" role="region" aria-label="Sous-menu Exploitation">
+                        <a href="{{ route('cessions.index') }}" class="submenu-item sidebar-item {{ request()->routeIs('cessions.*') ? 'active' : '' }}">
+                            <i class="fas fa-layer-group"></i>
+                            Cessions
                         </a>
-                        <a href="{{ route('exploitants.index') }}" class="submenu-item {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
+                        <a href="{{ route('carnets.index') }}" class="submenu-item sidebar-item {{ request()->routeIs('carnets.*') ? 'active' : '' }}">
+                            <i class="fas fa-book"></i>
+                            Carnets
+                        </a>
+                        <a href="{{ route('exploitants.index') }}" class="submenu-item sidebar-item {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
                             <i class="fas fa-user-tie"></i>
-                            Exploitant Forêstier
-                        </a>
-                        <a href="{{ route('articles.index') }}" class="submenu-item {{ request()->routeIs('articles.index') || request()->routeIs('articles.show') || request()->routeIs('articles.edit') ? 'active' : '' }}">
-                            <i class="fas fa-list"></i>
-                            Consultation
+                            Exploitant forestier
                         </a>
                     </div>
                 </div>
 
                 <div class="nav-item">
-                    <a href="{{ route('entity-data.index') }}" class="nav-link {{ request()->routeIs('entity-data.*') || request()->routeIs('essences.*') || request()->routeIs('forets.*') || request()->routeIs('situations.*') || request()->routeIs('natures.*') || request()->routeIs('vocations.*') || request()->routeIs('coperatives.*') || request()->routeIs('products.*') || request()->routeIs('prestations.*') ? 'active' : '' }}">
+                    <a href="{{ route('entity-data.index') }}" class="nav-link sidebar-item {{ request()->routeIs('entity-data.*') || request()->routeIs('essences.*') || request()->routeIs('forets.*') || request()->routeIs('situations.*') || request()->routeIs('natures.*') || request()->routeIs('vocations.*') || request()->routeIs('coperatives.*') || request()->routeIs('products.*') || request()->routeIs('prestations.*') ? 'active' : '' }}">
                         <i class="fas fa-chart-bar"></i>
                         Données des Entités
                     </a>
@@ -2413,13 +2598,13 @@
 
                 <div class="nav-section-label">General</div>
                 <div class="nav-item">
-                    <a href="{{ route('auth.profile') }}" class="nav-link {{ request()->routeIs('auth.profile') ? 'active' : '' }}">
+                    <a href="{{ route('auth.profile') }}" class="nav-link sidebar-item {{ request()->routeIs('auth.profile') ? 'active' : '' }}">
                         <i class="fas fa-cog"></i>
                         Settings
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="#" class="nav-link sidebar-item">
                         <i class="fas fa-question-circle"></i>
                         Help
                     </a>
@@ -2427,7 +2612,7 @@
                 <div class="nav-item">
                     <form action="{{ route('logout') }}" method="POST" class="inline">
                         @csrf
-                        <button type="submit" class="nav-link w-full text-left" style="background: none; border: none; cursor: pointer;">
+                        <button type="submit" class="nav-link sidebar-item w-full text-left" style="background: none; border: none; cursor: pointer;">
                             <i class="fas fa-sign-out-alt"></i>
                             Logout
                         </button>
@@ -2511,7 +2696,9 @@
                     </div>
                 @endif
 
-                @yield('content')
+                <div class="page-content">
+                    @yield('content')
+                </div>
             </main>
         </div>
     </div>
@@ -2677,6 +2864,9 @@
     
     <!-- Excel-style Filter JavaScript -->
     <script src="{{ asset('js/excel-filters.js') }}"></script>
+
+    <!-- Anime.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
 
     <script>
         // Mobile sidebar toggle
@@ -3303,6 +3493,130 @@
             console.error('Unhandled promise rejection:', e.reason);
             UXUtils.showToast('Une erreur réseau s\'est produite', 'error');
         });
+
+        // Anime.js-powered micro-animations for a modern SaaS feel
+        function initUiAnimations() {
+            if (!window.anime) return;
+
+            // 1) Page Load: fade + slide main content
+            anime({
+                targets: '.page-content',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 700,
+                easing: 'easeOutExpo'
+            });
+
+            // 2) Dashboard / generic cards
+            anime({
+                targets: '.card',
+                translateY: [40, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(100),
+                duration: 700,
+                easing: 'easeOutExpo'
+            });
+
+            // 3) Table rows (CRUD listings)
+            anime({
+                targets: 'tbody tr',
+                translateX: [-20, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(50),
+                duration: 500,
+                easing: 'easeOutQuad'
+            });
+
+            // 4) Form groups on create/edit/show pages
+            anime({
+                targets: '.form-group',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(40),
+                duration: 500,
+                easing: 'easeOutQuad'
+            });
+
+            // 5) Sidebar items
+            anime({
+                targets: '.sidebar-item',
+                translateX: [-15, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(60),
+                duration: 500,
+                easing: 'easeOutQuad'
+            });
+
+            // 6) Button hover micro-interactions (scale on hover)
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    anime.remove(btn);
+                    anime({
+                        targets: btn,
+                        scale: 1.05,
+                        duration: 200,
+                        easing: 'easeOutQuad'
+                    });
+                });
+                btn.addEventListener('mouseleave', () => {
+                    anime.remove(btn);
+                    anime({
+                        targets: btn,
+                        scale: 1,
+                        duration: 200,
+                        easing: 'easeOutQuad'
+                    });
+                });
+            });
+
+            // 6) Modals: subtle scale + fade on show (Bootstrap)
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('shown.bs.modal', () => {
+                    const dialog = modal.querySelector('.modal-dialog');
+                    if (!dialog) return;
+
+                    anime.remove(dialog);
+                    anime({
+                        targets: dialog,
+                        scale: [0.9, 1],
+                        opacity: [0, 1],
+                        duration: 300,
+                        easing: 'easeOutExpo'
+                    });
+                });
+            });
+
+            // 7) Toasts / notifications slide-in
+            const toastContainer = document.getElementById('toastContainer');
+            if (toastContainer) {
+                const observer = new MutationObserver(mutations => {
+                    mutations.forEach(mutation => {
+                        mutation.addedNodes.forEach(node => {
+                            if (node.nodeType !== 1) return;
+                            if (node.classList.contains('toast') || node.classList.contains('notification')) {
+                                anime.remove(node);
+                                anime({
+                                    targets: node,
+                                    translateY: [-16, 0],
+                                    opacity: [0, 1],
+                                    duration: 400,
+                                    easing: 'easeOutQuad'
+                                });
+                            }
+                        });
+                    });
+                });
+
+                observer.observe(toastContainer, { childList: true });
+            }
+        }
+
+        // Ensure animations run whether DOMContentLoaded already fired or not
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initUiAnimations);
+        } else {
+            initUiAnimations();
+        }
     </script>
 </body>
 </html> 

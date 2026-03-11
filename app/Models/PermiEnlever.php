@@ -42,6 +42,14 @@ class PermiEnlever extends Model
     }
 
     /**
+     * Get the contrat de vente associated with this permis d'enlever.
+     */
+    public function contractVente(): BelongsTo
+    {
+        return $this->belongsTo(ContractVente::class, 'contract_vente_id');
+    }
+
+    /**
      * Many-to-many: products and essences (permisenlever_product).
      */
     public function products(): BelongsToMany

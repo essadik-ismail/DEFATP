@@ -182,23 +182,27 @@ class AuthController extends Controller
 
     public function showProfile(): View
     {
-        $user = Auth::user();
-        
-        // Get user's activity journals, ordered by most recent first
+        $user = Auth::user()->load(['dranef', 'dpanef', 'zdtf', 'dfp', 'province']);
+
+        $dranefs = \App\Models\Dranef::orderBy('dranef')->get();
+        $dpanefs = \App\Models\Dpanef::orderBy('dpanef')->get();
+        $zdtfs = \App\Models\Zdtf::orderBy('code')->get();
+        $dfps = \App\Models\Dfp::orderBy('code')->get();
+        $provinces = \App\Models\Province::orderBy('nom')->get();
+
         $activityJournals = \App\Models\ActivityJournal::where('user_id', $user->id)
             ->orderBy('Date', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-        
-        return view('auth.profile', compact('user', 'activityJournals'));
+
+        return view('auth.profile', compact('user', 'activityJournals', 'dranefs', 'dpanefs', 'zdtfs', 'dfps', 'provinces'));
     }
 
     public function updateProfile(UpdateProfileRequest $request): RedirectResponse
     {
         $user = Auth::user();
-        $oldData = $user->only(['name', 'ppr']);
+        $oldData = $user->only(['name', 'ppr', 'dranef_id', 'dpanef_id', 'zdtf_id', 'dfp_id', 'province_id']);
 
-        // Check current password if changing password
         if ($request->filled('new_password')) {
             if (!Hash::check($request->current_password, $user->password)) {
                 throw ValidationException::withMessages([
@@ -210,20 +214,22 @@ class AuthController extends Controller
         $user->update([
             'name' => $request->name,
             'ppr' => $request->ppr,
+            'dranef_id' => $request->input('dranef_id') ?: null,
+            'dpanef_id' => $request->input('dpanef_id') ?: null,
+            'zdtf_id' => $request->input('zdtf_id') ?: null,
+            'dfp_id' => $request->input('dfp_id') ?: null,
+            'province_id' => $request->input('province_id') ?: null,
         ]);
 
         if ($request->filled('new_password')) {
-            $user->update([
-                'password' => Hash::make($request->new_password),
-            ]);
+            $user->update(['password' => Hash::make($request->new_password)]);
         }
 
-        // Log profile update
-        $changes = array_diff_assoc($user->fresh()->only(['name', 'ppr']), $oldData);
+        $changes = array_diff_assoc($user->fresh()->only(['name', 'ppr', 'dranef_id', 'dpanef_id', 'zdtf_id', 'dfp_id', 'province_id']), $oldData);
         if ($request->filled('new_password')) {
             $changes['password'] = 'changed';
         }
-        
+
         ActivityLogger::logUpdate(User::class, $user->id, "Profil de {$user->name}", $changes, $request);
 
         return redirect()->route('auth.profile')->with('success', 'Profil mis à jour avec succès.');

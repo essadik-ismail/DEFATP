@@ -8,9 +8,9 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    /* Theme palette - clean SaaS */
-    --color-primary: #2E5239;
-    --color-primary-hover: #3E6A4B;
+    /* Theme palette - aligned with layout :root */
+    --color-primary: #059669;
+    --color-primary-hover: #047857;
     --color-secondary: #9AB3A3;
     --color-background: #F2F6F3;
     --color-card: #FFFFFF;
@@ -26,10 +26,11 @@
     .btn-primary {
         background: linear-gradient(135deg, #059669, #047857);
         color: #FFFFFF;
-        @apply inline-flex items-center px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2;
+        @apply inline-flex items-center px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500;
     }
     .btn-primary:hover {
         background: linear-gradient(135deg, #047857, #035d42);
+        @apply transform -translate-y-0.5;
     }
     .btn-primary:focus {
         --tw-ring-color: #059669;
@@ -61,15 +62,15 @@
     }
     
     .btn-danger {
-        background-color: #1F2D24;
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
         color: #FFFFFF;
         @apply inline-flex items-center px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2;
     }
     .btn-danger:hover {
-        opacity: 0.9;
+        background: linear-gradient(135deg, #b91c1c, #991b1b);
     }
     .btn-danger:focus {
-        --tw-ring-color: #1F2D24;
+        --tw-ring-color: #dc2626;
     }
 
     /* New Button Variants */
@@ -181,28 +182,28 @@
     }
     
     .badge-success {
-        background-color: rgba(46, 82, 57, 0.2);
-        color: #1F2D24;
+        background-color: #ecfdf5;
+        color: #065f46;
     }
     
     .badge-warning {
-        background-color: rgba(154, 179, 163, 0.5);
-        color: #1F2D24;
+        background-color: #fffbeb;
+        color: #92400e;
     }
     
     .badge-danger {
-        background-color: rgba(31, 45, 36, 0.2);
-        color: #1F2D24;
+        background-color: #fef2f2;
+        color: #991b1b;
     }
     
     .badge-info {
-        background-color: rgba(154, 179, 163, 0.4);
-        color: #1F2D24;
+        background-color: #eff6ff;
+        color: #1e40af;
     }
     
     .badge-primary {
-        background-color: rgba(46, 82, 57, 0.25);
-        color: #1F2D24;
+        background-color: rgba(5, 150, 105, 0.12);
+        color: #059669;
     }
 
     /* Notification System - palette only */
@@ -217,19 +218,19 @@
     }
     
     .notification.success {
-        border-color: #2E5239;
+        border-color: #059669;
     }
     
     .notification.error {
-        border-color: #1F2D24;
+        border-color: #dc2626;
     }
     
     .notification.warning {
-        border-color: #9AB3A3;
+        border-color: #d97706;
     }
     
     .notification.info {
-        border-color: #9AB3A3;
+        border-color: #2563eb;
     }
     
     .notification-header {
@@ -287,7 +288,7 @@
     .loading-spinner {
         @apply inline-block w-4 h-4 border-2 rounded-full animate-spin;
         border-color: rgba(154, 179, 163, 0.5);
-        border-top-color: #2E5239;
+        border-top-color: #059669;
     }
     
     .btn.loading {
@@ -325,14 +326,14 @@
     }
     
     .wizard-step-indicator.active {
-        border-color: #2E5239;
-        background-color: #2E5239;
+        border-color: #059669;
+        background-color: #059669;
         color: #FFFFFF;
     }
     
     .wizard-step-indicator.completed {
-        border-color: #2E5239;
-        background-color: #2E5239;
+        border-color: #059669;
+        background-color: #059669;
         color: #FFFFFF;
     }
     
@@ -399,7 +400,7 @@
     /* Help System */
     .help-icon {
         @apply inline-block w-4 h-4 cursor-help ml-1;
-        color: #2E5239;
+        color: #059669;
     }
     
     .help-text {
@@ -427,8 +428,8 @@
     }
     .glassmorphism-input:focus {
         outline: none;
-        border-color: #2E5239;
-        box-shadow: 0 0 0 2px rgba(46, 82, 57, 0.15);
+        border-color: #059669;
+        box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
     }
     
     .glassmorphism-button {
@@ -489,7 +490,7 @@
     @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
 }
 .focus-ring:focus {
-    --tw-ring-color: #2E5239;
+    --tw-ring-color: #059669;
 }
 
 /* Smooth Transitions */

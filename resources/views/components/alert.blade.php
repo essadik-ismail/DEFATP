@@ -50,14 +50,14 @@
 @push('styles')
 <style>
     .alert { position: relative; overflow: hidden; }
-    .alert-theme-success { background: #FFFFFF; border-left: 4px solid #2E5239; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
-    .alert-theme-error { background: #FFFFFF; border-left: 4px solid #1F2D24; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
-    .alert-theme-warning { background: #FFFFFF; border-left: 4px solid #9AB3A3; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
-    .alert-theme-info { background: #FFFFFF; border-left: 4px solid #9AB3A3; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
-    .alert-theme-success i, .alert-theme-success .font-semibold { color: #2E5239; }
-    .alert-theme-error i, .alert-theme-error .font-semibold { color: #1F2D24; }
-    .alert-theme-warning i, .alert-theme-warning .font-semibold { color: #1F2D24; }
-    .alert-theme-info i, .alert-theme-info .font-semibold { color: #2E5239; }
+    .alert-theme-success { background: #FFFFFF; border-left: 4px solid #059669; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
+    .alert-theme-error { background: #fef2f2; border-left: 4px solid #dc2626; color: #991b1b; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
+    .alert-theme-warning { background: #fffbeb; border-left: 4px solid #d97706; color: #92400e; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
+    .alert-theme-info { background: #eff6ff; border-left: 4px solid #2563eb; color: #1e40af; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
+    .alert-theme-success i, .alert-theme-success .font-semibold { color: #059669; }
+    .alert-theme-error i, .alert-theme-error .font-semibold { color: #dc2626; }
+    .alert-theme-warning i, .alert-theme-warning .font-semibold { color: #d97706; }
+    .alert-theme-info i, .alert-theme-info .font-semibold { color: #2563eb; }
     .alert::before { display: none; }
     .alert-dismiss-btn {
         background: none;

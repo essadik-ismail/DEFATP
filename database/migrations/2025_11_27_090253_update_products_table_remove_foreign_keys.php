@@ -12,18 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            // Drop foreign keys first if they exist
-            if (Schema::hasColumn('products', 'article_id')) {
-                $table->dropForeign(['article_id']);
-            }
+            // Drop foreign keys for contract and avenant if they exist
             if (Schema::hasColumn('products', 'contract_id')) {
                 $table->dropForeign(['contract_id']);
             }
             if (Schema::hasColumn('products', 'avenant_id')) {
                 $table->dropForeign(['avenant_id']);
             }
-            
-            // Drop columns if they exist
+
+            // Drop columns if they exist (article_id is now a simple reference)
             $columnsToDrop = [];
             if (Schema::hasColumn('products', 'article_id')) {
                 $columnsToDrop[] = 'article_id';

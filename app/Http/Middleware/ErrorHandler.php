@@ -51,7 +51,7 @@ class ErrorHandler
             session()->flash('error', 'Une erreur inattendue est survenue. Veuillez réessayer.');
             
             if ($request->is('articles/*')) {
-                return redirect()->route('articles.index');
+                return redirect()->route('cessions.index');
             }
             
             if ($request->is('settings/*')) {

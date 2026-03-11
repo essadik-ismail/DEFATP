@@ -39,12 +39,6 @@
                     Rapports
                 </a>
                 
-                <a href="{{ route('articles.index') }}" 
-                   class="mobile-nav-item {{ request()->routeIs('articles.*') ? 'active' : '' }}">
-                    <i class="fas fa-file-alt me-3"></i>
-                    Articles
-                </a>
-                
                 <a href="{{ route('exploitants.index') }}" 
                    class="mobile-nav-item {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt me-3"></i>

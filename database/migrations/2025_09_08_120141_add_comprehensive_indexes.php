@@ -41,27 +41,26 @@ return new class extends Migration
     public function up(): void
     {
         // Articles table - additional comprehensive indexes
-        Schema::table('articles', function (Blueprint $table) {
-            // Composite indexes for common query patterns
-            if (!$this->indexExists('articles', 'articles_year_status_idx')) {
-                $table->index(['annee', 'is_validated'], 'articles_year_status_idx');
-            }
-            // Removed foret_id and essence_id indexes - these are many-to-many relationships via pivot tables
-            // Removed articles_price_status_idx - prix_vente and invendu columns were removed
-            if (!$this->indexExists('articles', 'articles_type_year_idx')) {
-                $table->index(['type', 'annee'], 'articles_type_year_idx');
-            }
-            if (!$this->indexExists('articles', 'articles_exploitant_created_idx')) {
-                $table->index(['exploitant_id', 'created_at'], 'articles_exploitant_created_idx');
-            }
-            // Removed localisation_id index - this is a many-to-many relationship via pivot table
-            // Removed situation_administrative_id index - this is a many-to-many relationship via pivot table
-            // Removed nature_de_coupe_id index - this is a many-to-many relationship via pivot table
-            // Date-based indexes for reporting
-            if (!$this->indexExists('articles', 'articles_created_updated_idx')) {
-                $table->index(['created_at', 'updated_at'], 'articles_created_updated_idx');
-            }
-        });
+        if (Schema::hasTable('articles')) {
+            Schema::table('articles', function (Blueprint $table) {
+                // Composite indexes for common query patterns
+                if (!$this->indexExists('articles', 'articles_year_status_idx') && Schema::hasColumn('articles', 'is_validated')) {
+                    $table->index(['annee', 'is_validated'], 'articles_year_status_idx');
+                }
+                // Removed foret_id and essence_id indexes - these are many-to-many relationships via pivot tables
+                // Removed articles_price_status_idx - prix_vente and invendu columns were removed
+                if (!$this->indexExists('articles', 'articles_type_year_idx') && Schema::hasColumn('articles', 'type')) {
+                    $table->index(['type', 'annee'], 'articles_type_year_idx');
+                }
+                if (!$this->indexExists('articles', 'articles_exploitant_created_idx') && Schema::hasColumn('articles', 'exploitant_id')) {
+                    $table->index(['exploitant_id', 'created_at'], 'articles_exploitant_created_idx');
+                }
+                // Date-based indexes for reporting
+                if (!$this->indexExists('articles', 'articles_created_updated_idx')) {
+                    $table->index(['created_at', 'updated_at'], 'articles_created_updated_idx');
+                }
+            });
+        }
 
         // Exploitants table - additional comprehensive indexes
         Schema::table('exploitants', function (Blueprint $table) {

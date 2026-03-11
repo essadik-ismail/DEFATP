@@ -23,7 +23,6 @@ class UpdateArticleRequest extends FormRequest
     {
         return [
             'numero' => ['nullable', 'string', 'max:255'],
-            'annee' => ['nullable', 'integer', 'min:1900', 'max:2100'],
             'lot' => ['nullable', 'string', 'max:255'],
             'parcelle' => ['nullable', 'string', 'max:255'],
             'superficie' => ['nullable', 'numeric', 'min:0'],
@@ -52,10 +51,6 @@ class UpdateArticleRequest extends FormRequest
             'foret_ids.*' => ['exists:forets,id'],
             'parcelle_ids' => ['nullable', 'array'],
             'parcelle_ids.*' => ['exists:parcelles,id'],
-            'dranef_code' => ['nullable', 'string', 'max:255'],
-            'dpanef_code' => ['nullable', 'string', 'max:255'],
-            'zdtf_code' => ['nullable', 'string', 'max:255'],
-            'dfp_code' => ['nullable', 'string', 'max:255'],
             'nature_juridique' => ['nullable', 'string', 'max:255'],
             'limite_nord' => ['nullable', 'string', 'max:255'],
             'limite_sud' => ['nullable', 'string', 'max:255'],
@@ -81,9 +76,6 @@ class UpdateArticleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'annee.integer' => 'L\'année doit être un nombre entier.',
-            'annee.min' => 'L\'année doit être supérieure ou égale à 1900.',
-            'annee.max' => 'L\'année doit être inférieure ou égale à 2100.',
             'superficie.numeric' => 'La superficie doit être un nombre.',
             'superficie.min' => 'La superficie doit être positive.',
             'limite_nord.required' => 'La limite Nord est requise.',

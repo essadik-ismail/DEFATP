@@ -1,0 +1,77 @@
+@extends('layouts.app')
+
+@section('title', 'Modifier le carnet')
+
+@section('breadcrumb')
+<li class="breadcrumb-item"><a href="{{ route('carnets.index') }}">Carnets</a></li>
+<li class="breadcrumb-item active">Modifier #{{ $carnet->id }}</li>
+@endsection
+
+@section('content')
+<div class="min-w-0 max-w-full overflow-x-hidden">
+    <x-page-header
+        title="Modifier le carnet #{{ $carnet->id }}"
+        subtitle="Série {{ $carnet->serie }} — Numéro {{ $carnet->num }}"
+        icon="fas fa-book"
+    >
+        <x-slot name="actions">
+            <a href="{{ route('carnets.index') }}"
+               class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200">
+                <i class="fas fa-arrow-left"></i>
+                <span>Retour à la liste</span>
+            </a>
+        </x-slot>
+    </x-page-header>
+
+    <div class="max-w-xl">
+        <div class="rounded-2xl border bg-white p-6" style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);">
+            @if($errors->any())
+                <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <ul class="list-disc list-inside space-y-0.5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('carnets.update', $carnet) }}" method="POST" class="space-y-6">
+                @csrf
+                @method('PUT')
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Série (lecture seule)</label>
+                    <input type="text" value="{{ $carnet->serie }}" class="w-full rounded-lg border-gray-300 bg-gray-100 text-sm" readonly>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Num <span class="text-red-500">*</span></label>
+                    <input type="number" name="num" min="0" value="{{ old('num', $carnet->num) }}"
+                           class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500" required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Statut <span class="text-red-500">*</span></label>
+                    <select name="status" class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500" required>
+                        <option value="disponible" {{ old('status', $carnet->status) === 'disponible' ? 'selected' : '' }}>disponible</option>
+                        <option value="epuise" {{ old('status', $carnet->status) === 'epuise' ? 'selected' : '' }}>epuise</option>
+                        <option value="perdu" {{ old('status', $carnet->status) === 'perdu' ? 'selected' : '' }}>perdu</option>
+                        <option value="utilise" {{ old('status', $carnet->status) === 'utilise' ? 'selected' : '' }}>utilise</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <a href="{{ route('carnets.index') }}"
+                       class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200">
+                        Annuler
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white shadow-sm" style="background: var(--primary-gradient);">
+                        <i class="fas fa-save mr-1.5"></i>
+                        Mettre à jour
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection

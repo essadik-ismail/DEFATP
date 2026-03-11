@@ -118,7 +118,7 @@ class SettingsController extends Controller
     public function storeEssence(StoreEssenceRequest $request): RedirectResponse
     {
         Essence::create($request->only('essence'));
-        return redirect()->route('articles.index')->with('success', 'Essence ajoutée avec succès.');
+        return redirect()->route('cessions.index')->with('success', 'Essence ajoutée avec succès.');
     }
 
     public function editEssence(Essence $essence): View
@@ -129,7 +129,7 @@ class SettingsController extends Controller
     public function updateEssence(UpdateEssenceRequest $request, Essence $essence): RedirectResponse
     {
         $essence->update($request->only('essence'));
-        return redirect()->route('articles.index')->with('success', 'Essence mise à jour avec succès.');
+        return redirect()->route('cessions.index')->with('success', 'Essence mise à jour avec succès.');
     }
 
     public function destroyEssence(Essence $essence): RedirectResponse
@@ -183,7 +183,7 @@ class SettingsController extends Controller
     public function storeForet(Request $request): RedirectResponse
     {
         Foret::create($request->only(['foret', 'lat', 'log', 'province', 'nature_juridique', 'dpanef_id']));
-        return redirect()->route('articles.index')->with('success', 'Forêt ajoutée avec succès.');
+        return redirect()->route('cessions.index')->with('success', 'Forêt ajoutée avec succès.');
     }
 
     public function editForet(Foret $foret): View
@@ -195,7 +195,7 @@ class SettingsController extends Controller
     public function updateForet(UpdateForetRequest $request, Foret $foret): RedirectResponse
     {
         $foret->update($request->only(['foret', 'lat', 'log', 'province', 'nature_juridique', 'dpanef_id']));
-        return redirect()->route('articles.index')->with('success', 'Forêt mise à jour avec succès.');
+        return redirect()->route('cessions.index')->with('success', 'Forêt mise à jour avec succès.');
     }
 
     public function destroyForet(Foret $foret): RedirectResponse
@@ -284,7 +284,7 @@ class SettingsController extends Controller
             $request
         );
         
-        return redirect()->route('articles.index')->with('success', 'Nature de coupe ajoutée avec succès.');
+        return redirect()->route('cessions.index')->with('success', 'Nature de coupe ajoutée avec succès.');
     }
 
     public function editNatureDeCoupe(NatureDeCoupe $natureDeCoupe): View
@@ -315,7 +315,7 @@ class SettingsController extends Controller
             $request
         );
         
-        return redirect()->route('articles.index')->with('success', 'Nature de coupe mise à jour avec succès.');
+        return redirect()->route('cessions.index')->with('success', 'Nature de coupe mise à jour avec succès.');
     }
 
     public function destroyNatureDeCoupe(NatureDeCoupe $natureDeCoupe): RedirectResponse
@@ -422,7 +422,7 @@ class SettingsController extends Controller
             $request
         );
         
-        return redirect()->route('articles.index')->with('success', 'Situation administrative ajoutée avec succès.');
+        return redirect()->route('cessions.index')->with('success', 'Situation administrative ajoutée avec succès.');
     }
 
     public function editSituationAdministrative(SituationAdministrative $situationAdministrative): View
@@ -453,7 +453,7 @@ class SettingsController extends Controller
             $request
         );
         
-        return redirect()->route('articles.index')->with('success', 'Situation administrative mise à jour avec succès.');
+        return redirect()->route('cessions.index')->with('success', 'Situation administrative mise à jour avec succès.');
     }
 
     public function destroySituationAdministrative(SituationAdministrative $situationAdministrative): RedirectResponse

@@ -34,13 +34,15 @@ class ContractVenteController extends Controller
     public function store(Request $request, Article $article): RedirectResponse
     {
         $validated = $request->validate([
-            'type' => 'required|in:adjudication,appel_doffre,marche_negocie',
-            'date_adjudication' => 'required|date',
+            'type' => 'nullable|in:adjudication,appel_doffre,marche_negocie',
+            'date_adjudication' => 'nullable|date',
             'numeraAO' => 'nullable|string|max:255',
             'exploitant_id' => 'required|exists:exploitants,id',
             'prix_vente' => 'required|numeric|min:0',
             'prix_de_retrait' => 'nullable|numeric|min:0',
             'nombre_tranche' => 'required|integer|min:1',
+            'date_limite_tranche' => 'nullable|date',
+            'date_limite_taxes' => 'nullable|date',
             'duree_decheache' => 'nullable|string|max:255',
             'charges' => 'required|array',
             'charges.*.nom' => 'required|string',
@@ -58,8 +60,8 @@ class ContractVenteController extends Controller
             $contractVente = ContractVente::updateOrCreate(
                 ['article_id' => $article->id],
                 [
-                    'type' => $validated['type'],
-                    'date_adjudication' => $validated['date_adjudication'],
+                    'type' => $validated['type'] ?? null,
+                    'date_adjudication' => isset($validated['date_adjudication']) ? $validated['date_adjudication'] : null,
                     'numeraAO' => $validated['numeraAO'] ?? null,
                     'exploitant_id' => $validated['exploitant_id'],
                     'prix_vente' => $validated['prix_vente'],
@@ -160,8 +162,8 @@ class ContractVenteController extends Controller
     public function update(Request $request, Article $article, ContractVente $contractVente): RedirectResponse
     {
         $validated = $request->validate([
-            'type' => 'required|in:adjudication,appel_doffre,marche_negocie',
-            'date_adjudication' => 'required|date',
+            'type' => 'nullable|in:adjudication,appel_doffre,marche_negocie',
+            'date_adjudication' => 'nullable|date',
             'numeraAO' => 'nullable|string|max:255',
             'exploitant_id' => 'required|exists:exploitants,id',
             'prix_vente' => 'required|numeric|min:0',
@@ -184,8 +186,8 @@ class ContractVenteController extends Controller
 
             // Update contract vente
             $contractVente->update([
-                'type' => $validated['type'],
-                'date_adjudication' => $validated['date_adjudication'],
+                'type' => $validated['type'] ?? null,
+                'date_adjudication' => isset($validated['date_adjudication']) ? $validated['date_adjudication'] : null,
                 'numeraAO' => $validated['numeraAO'] ?? null,
                 'exploitant_id' => $validated['exploitant_id'],
                 'prix_vente' => $validated['prix_vente'],

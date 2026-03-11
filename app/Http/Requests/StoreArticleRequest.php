@@ -23,7 +23,6 @@ class StoreArticleRequest extends FormRequest
     {
         return [
             'numero' => ['nullable', 'string', 'max:255'],
-            'annee' => ['nullable', 'integer', 'min:1900', 'max:2100'],
             'lot' => ['nullable', 'string', 'max:255'],
             'parcelle' => ['nullable', 'string', 'max:255'],
             'superficie' => ['nullable', 'numeric', 'min:0'],
@@ -50,10 +49,6 @@ class StoreArticleRequest extends FormRequest
             'province_ids.*' => ['exists:provinces,id'],
             'commune_ids' => ['nullable', 'array'],
             'commune_ids.*' => ['exists:communes,id'],
-            'dranef_code' => ['nullable', 'string', 'max:255'],
-            'dpanef_code' => ['nullable', 'string', 'max:255'],
-            'zdtf_code' => ['nullable', 'string', 'max:255'],
-            'dfp_code' => ['nullable', 'string', 'max:255'],
             'nature_juridique' => ['nullable', 'string', 'max:255'],
             'canton' => ['nullable', 'string', 'max:255'],
             'particuliere' => ['nullable', 'string'],
@@ -73,23 +68,13 @@ class StoreArticleRequest extends FormRequest
             'products.*.quantity' => ['required_with:products', 'numeric', 'min:0'],
             'is_on_depot' => ['nullable', 'boolean'],
             'locations_file' => ['nullable', 'file', 'mimes:xlsx,xls', 'max:10240'],
+            'cession_id' => ['nullable', 'integer', 'exists:groupe_cession,id'],
         ];
     }
 
     /**
      * Prepare the data for validation.
      */
-    protected function prepareForValidation(): void
-    {
-        // Convert empty strings to null for code fields
-        $this->merge([
-            'dranef_code' => $this->dranef_code ? trim($this->dranef_code) : null,
-            'dpanef_code' => $this->dpanef_code ? trim($this->dpanef_code) : null,
-            'zdtf_code' => $this->zdtf_code ? trim($this->zdtf_code) : null,
-            'dfp_code' => $this->dfp_code ? trim($this->dfp_code) : null,
-        ]);
-    }
-
     /**
      * Get custom messages for validator errors.
      *
@@ -98,15 +83,8 @@ class StoreArticleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'annee.integer' => 'L\'année doit être un nombre entier.',
-            'annee.min' => 'L\'année doit être supérieure ou égale à 1900.',
-            'annee.max' => 'L\'année doit être inférieure ou égale à 2100.',
             'superficie.numeric' => 'La superficie doit être un nombre.',
             'superficie.min' => 'La superficie doit être positive.',
-            'dranef_code.exists' => 'Le code DRANEF sélectionné n\'existe pas.',
-            'dpanef_code.exists' => 'Le code DPANEF sélectionné n\'existe pas.',
-            'zdtf_code.exists' => 'Le code ZDTF sélectionné n\'existe pas.',
-            'dfp_code.exists' => 'Le code DFP sélectionné n\'existe pas.',
             'locations_file.mimes' => 'Le fichier plan de situation doit être au format Excel (.xlsx ou .xls).',
             'locations_file.max' => 'Le fichier plan de situation ne doit pas dépasser 10 Mo.',
             'limite_nord.required' => 'La limite Nord est requise.',

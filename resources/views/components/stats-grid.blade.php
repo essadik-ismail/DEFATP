@@ -20,8 +20,8 @@
 <style>
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
         margin-bottom: 2rem;
     }
 
@@ -46,7 +46,7 @@
         left: 0;
         right: 0;
         height: 4px;
-        background: linear-gradient(90deg, var(--purple-color), var(--accent-color));
+        background: linear-gradient(90deg, #059669, #047857);
         opacity: 0;
         transition: opacity 0.3s;
     }
@@ -81,7 +81,7 @@
         width: 48px;
         height: 48px;
         border-radius: 12px;
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        background: linear-gradient(135deg, #059669, #047857);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -122,15 +122,35 @@
         font-weight: 500;
     }
 
-    @media (max-width: 1024px) {
+    @media (min-width: 1200px) {
         .stats-grid {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
         }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 1024px) and (min-width: 769px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
         .stats-grid {
             grid-template-columns: 1fr;
+            gap: 8px;
+        }
+        .stat-card {
+            padding: 1rem;
+        }
+        .stat-number {
+            font-size: 1.5rem;
         }
     }
 </style>

@@ -16,8 +16,9 @@ return new class extends Migration
             $table->date('date_adjudication');
             $table->decimal('prix_vente', 15, 2)->nullable();
             $table->decimal('prix_de_retrait', 15, 2)->nullable();
-            $table->foreignId('article_id')->nullable()->constrained('articles')->onDelete('set null');
-            $table->foreignId('exploitant_id')->nullable()->constrained('exploitants')->onDelete('set null');
+            // Simple nullable references; foreign keys can be added later once related tables exist
+            $table->unsignedBigInteger('article_id')->nullable();
+            $table->unsignedBigInteger('exploitant_id')->nullable();
             $table->date('date_de_decheance')->nullable();
             $table->string('id_decheance')->nullable();
             $table->date('date_de_resiliation')->nullable();

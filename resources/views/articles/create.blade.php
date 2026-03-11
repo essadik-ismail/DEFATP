@@ -3,7 +3,7 @@
 @section('title', 'Nouvel Article - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('articles.index') }}">Articles</a></li>
+<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
 <li class="breadcrumb-item active">Nouvel article</li>
 @endsection
 
@@ -57,6 +57,51 @@
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <form action="{{ route('articles.store') }}" method="POST" id="articleForm" class="space-y-8" enctype="multipart/form-data">
                 @csrf
+                @if(request('cession_id'))
+                    <input type="hidden" name="cession_id" value="{{ request('cession_id') }}">
+                @endif
+
+                @if($currentUser && ($currentUser->dranef_id || $currentUser->dpanef_id || $currentUser->zdtf_id || $currentUser->dfp_id || $currentUser->province_id))
+                <!-- Affectation de l'utilisateur (lecture seule) -->
+                <div class="bg-emerald-50 rounded-lg p-4 border border-emerald-200 mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-user-tag text-emerald-600"></i>
+                        <span class="text-sm font-semibold text-emerald-800 uppercase tracking-wider">Votre affectation</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-sm">
+                        @if($currentUser->dranef)
+                        <div>
+                            <span class="text-gray-500 block">DRANEF</span>
+                            <span class="font-medium text-gray-900">{{ $currentUser->dranef->dranef }}</span>
+                        </div>
+                        @endif
+                        @if($currentUser->dpanef)
+                        <div>
+                            <span class="text-gray-500 block">DPANEF</span>
+                            <span class="font-medium text-gray-900">{{ $currentUser->dpanef->dpanef ?? $currentUser->dpanef->code }}</span>
+                        </div>
+                        @endif
+                        @if($currentUser->zdtf)
+                        <div>
+                            <span class="text-gray-500 block">ZDTF</span>
+                            <span class="font-medium text-gray-900">{{ $currentUser->zdtf->code ?? $currentUser->zdtf->zdtf ?? $currentUser->zdtf->sdtf }}</span>
+                        </div>
+                        @endif
+                        @if($currentUser->dfp)
+                        <div>
+                            <span class="text-gray-500 block">DFP</span>
+                            <span class="font-medium text-gray-900">{{ $currentUser->dfp->code ?? $currentUser->dfp->dfp }}</span>
+                        </div>
+                        @endif
+                        @if($currentUser->province)
+                        <div>
+                            <span class="text-gray-500 block">Province</span>
+                            <span class="font-medium text-gray-900">{{ $currentUser->province->nom }}</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
 
                 <!-- 1. Informations générales -->
                 <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
@@ -91,18 +136,7 @@
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="form-group">
-                            <label for="annee" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Année
-                            </label>
-                            <input type="number" 
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                                id="annee" name="annee" value="{{ old('annee', date('Y')) }}" 
-                                min="2000" max="2100" placeholder="Année">
-                            @error('annee')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        {{-- Champ Année supprimé --}}
                     </div>
                 </div>
 
@@ -572,7 +606,7 @@
 
                 <!-- Form Actions -->
                 <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 mt-8">
-                    <a href="{{ route('articles.index') }}" 
+                    <a href="{{ route('cessions.index') }}" 
                         class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
                         <i class="fas fa-times"></i>
                         <span>Annuler</span>

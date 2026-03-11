@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('mat')->nullable(); // Material or reference code
             $table->decimal('x', 10, 6)->nullable(); // X coordinate
             $table->decimal('y', 10, 6)->nullable(); // Y coordinate
-            $table->foreignId('article_id')->constrained('articles')->onDelete('cascade');
+            // Simple nullable reference; foreign key can be added in a later migration
+            $table->unsignedBigInteger('article_id')->nullable();
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
         });
