@@ -126,17 +126,17 @@
 
     <!-- Description du lot (Limites et Coordonnées) -->
     @if($article->limite_nord || $article->limite_sud || $article->limite_est || $article->limite_ouest || $article->coordonnee_x !== null || $article->coordonnee_y !== null)
-    <div x-data="{ open: true }" class="mb-6 bg-white rounded-lg shadow-sm border border-gray-200">
+    <div x-data="{ open: true }" class="mb-6 rounded-2xl border bg-white overflow-hidden" style="border-color:rgba(154,179,163,0.35);box-shadow:var(--shadow-card);">
         <button
             type="button"
             class="w-full flex items-center justify-between gap-3 px-6 py-4"
             @click="open = !open"
         >
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 2px 6px rgba(5,150,105,0.25);">
                     <i class="fas fa-clipboard-list text-white text-sm"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900">Description du lot</h3>
+                <h3 class="text-base font-semibold text-gray-900">Description du lot</h3>
             </div>
             <i
                 class="fas fa-chevron-down text-gray-500 text-sm transition-transform duration-200"
@@ -195,11 +195,13 @@
 
     <!-- Article Steps Progress -->
     <div class="mb-6">
-        <div class="card p-6">
-                <h2 class="text-lg font-bold mb-6 flex items-center gap-2" style="color: #1F2D24;">
-                    <i class="fas fa-tasks" style="color: #059669;"></i>
-                    Statut de l'Article
-                </h2>
+        <div class="rounded-2xl border bg-white p-6" style="border-color:rgba(154,179,163,0.35);box-shadow:var(--shadow-card);">
+                <div class="flex items-center gap-2.5 mb-6 pb-4 border-b" style="border-color:rgba(154,179,163,0.2);">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 2px 6px rgba(5,150,105,0.3);">
+                        <i class="fas fa-tasks text-white text-sm"></i>
+                    </div>
+                    <h2 class="text-base font-bold" style="color:#1F2D24;">Statut de l'Article</h2>
+                </div>
                 @php
                     $steps = [
                         'cahier_affiche' => ['label' => 'Cahier affiche', 'icon' => 'fa-file-alt', 'color' => 'green'],
@@ -303,7 +305,7 @@
 
                 @if($activeStep === 'cahier_affiche' || $activeStep === 'contrat_vente')
                     <!-- Contract Vente Section (styled like Create Article) -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="rounded-2xl border bg-white overflow-hidden mb-5" style="border-color:rgba(154,179,163,0.35);box-shadow:var(--shadow-card);">
                         <div class="section-header flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-200" style="background: rgba(242, 246, 243, 0.6);">
                             <h2 class="text-lg font-semibold flex items-center gap-3" style="color: #1F2D24;">
                                 <i class="fas fa-file-contract" style="color: #6B7C72;"></i>
@@ -346,7 +348,7 @@
                                         <x-validation-errors />
 
                                         <!-- 1. Informations de l'adjudication -->
-                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                             <div class="flex items-center gap-3 mb-4">
                                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                     <i class="fas fa-info-circle text-white text-sm"></i>
@@ -362,7 +364,7 @@
                                         </div>
 
                                         <!-- 2. Informations sur l'exploitant -->
-                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                             <div class="flex items-center gap-3 mb-4">
                                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                     <i class="fas fa-user-tie text-white text-sm"></i>
@@ -396,7 +398,7 @@
                                         </div>
 
                                         <!-- 3. Détails de la vente -->
-                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                             <div class="flex items-center gap-3 mb-4">
                                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                     <i class="fas fa-money-bill-wave text-white text-sm"></i>
@@ -440,7 +442,7 @@
                                         @endphp
 
                                         <!-- 4. Charges -->
-                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                             <div class="flex items-center gap-3 mb-4">
                                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                     <i class="fas fa-calculator text-white text-sm"></i>
@@ -463,7 +465,7 @@
                                         </div>
 
                                         <!-- 5. Tranches -->
-                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                        <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                             <div class="flex items-center gap-3 mb-4">
                                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                     <i class="fas fa-list-ol text-white text-sm"></i>
@@ -707,7 +709,7 @@
                                     <x-validation-errors />
 
                                     <!-- 1. Informations de l'adjudication -->
-                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                    <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                         <div class="flex items-center gap-3 mb-4">
                                             <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                 <i class="fas fa-info-circle text-white text-sm"></i>
@@ -724,7 +726,7 @@
                                     </div>
 
                                     <!-- 2. Informations sur l'exploitant -->
-                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                    <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                         <div class="flex items-center gap-3 mb-4">
                                             <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                 <i class="fas fa-user-tie text-white text-sm"></i>
@@ -758,7 +760,7 @@
                                     </div>
 
                                     <!-- 3. Détails de la vente -->
-                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                    <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                         <div class="flex items-center gap-3 mb-4">
                                             <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                 <i class="fas fa-money-bill-wave text-white text-sm"></i>
@@ -796,7 +798,7 @@
                                     </div>
 
                                     <!-- 4. Récapitulatif des charges (calcul automatique) -->
-                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                    <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                         <div class="flex items-center gap-3 mb-4">
                                             <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                 <i class="fas fa-calculator text-white text-sm"></i>
@@ -844,7 +846,7 @@
                                     </div>
 
                                     <!-- 5. Détail des tranches -->
-                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
+                                    <div class="rounded-xl p-5 border mb-5" style="background:#f8faf9;border-color:rgba(154,179,163,0.25);">
                                         <div class="flex items-center gap-3 mb-4">
                                             <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                                                 <i class="fas fa-list-ol text-white text-sm"></i>

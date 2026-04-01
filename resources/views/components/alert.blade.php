@@ -19,7 +19,7 @@
         'warning' => 'fas fa-exclamation-triangle',
         'info' => 'fas fa-info-circle'
     ];
-    $classes = 'alert ' . ($typeClasses[$type] ?? $typeClasses['info']) . ' p-6 rounded-xl mb-6 shadow-lg transition-all duration-300';
+    $classes = 'alert ' . ($typeClasses[$type] ?? $typeClasses['info']) . ' px-4 py-3 rounded-xl mb-4 transition-all duration-300';
 @endphp
 
 <div {{ $attributes->merge(['class' => $classes]) }} 
@@ -27,12 +27,12 @@
      @if($dismissible) data-dismissible="true" @endif
 >
     <div class="flex items-center gap-3">
-        <i class="{{ $iconClasses[$type] }} text-2xl"></i>
+        <i class="{{ $iconClasses[$type] }} text-base flex-shrink-0"></i>
         <div class="flex-1">
             @if($title)
-                <h3 class="font-semibold text-lg mb-1">{{ $title }}</h3>
+                <span class="font-semibold text-sm">{{ $title }} — </span>
             @endif
-            <p class="text-sm">{{ $slot }}</p>
+            <span class="text-sm">{{ $slot }}</span>
         </div>
         
         @if($dismissible)
@@ -50,10 +50,10 @@
 @push('styles')
 <style>
     .alert { position: relative; overflow: hidden; }
-    .alert-theme-success { background: #FFFFFF; border-left: 4px solid #059669; color: #1F2D24; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
-    .alert-theme-error { background: #fef2f2; border-left: 4px solid #dc2626; color: #991b1b; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
-    .alert-theme-warning { background: #fffbeb; border-left: 4px solid #d97706; color: #92400e; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
-    .alert-theme-info { background: #eff6ff; border-left: 4px solid #2563eb; color: #1e40af; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-radius: 1rem; }
+    .alert-theme-success { background: #f0fdf7; border: 1px solid rgba(5,150,105,0.2); border-left: 3px solid #059669; color: #065f46; border-radius: 0.625rem; }
+    .alert-theme-error   { background: #fef2f2; border: 1px solid rgba(220,38,38,0.2);  border-left: 3px solid #dc2626; color: #991b1b; border-radius: 0.625rem; }
+    .alert-theme-warning { background: #fffbeb; border: 1px solid rgba(217,119,6,0.2);  border-left: 3px solid #d97706; color: #92400e; border-radius: 0.625rem; }
+    .alert-theme-info    { background: #eff6ff; border: 1px solid rgba(37,99,235,0.2);  border-left: 3px solid #2563eb; color: #1e40af; border-radius: 0.625rem; }
     .alert-theme-success i, .alert-theme-success .font-semibold { color: #059669; }
     .alert-theme-error i, .alert-theme-error .font-semibold { color: #dc2626; }
     .alert-theme-warning i, .alert-theme-warning .font-semibold { color: #d97706; }

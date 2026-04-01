@@ -54,13 +54,17 @@ return new class extends Migration
         // Add foreign key constraint after ensuring the column exists and the constraint doesn't already exist
         Schema::table('notifications', function (Blueprint $table) {
             if (Schema::hasColumn('notifications', 'user_id')) {
-                // Check if the foreign key constraint already exists
-                $db = DB::getDatabaseName();
-                $constraintExists = DB::table('information_schema.TABLE_CONSTRAINTS')
-                    ->where('TABLE_SCHEMA', $db)
-                    ->where('TABLE_NAME', 'notifications')
-                    ->where('CONSTRAINT_NAME', 'notifications_user_id_foreign')
-                    ->exists();
+                $constraintExists = false;
+
+                if (DB::getDriverName() !== 'sqlite') {
+                    // Check if the foreign key constraint already exists on engines that expose information_schema.
+                    $db = DB::getDatabaseName();
+                    $constraintExists = DB::table('information_schema.TABLE_CONSTRAINTS')
+                        ->where('TABLE_SCHEMA', $db)
+                        ->where('TABLE_NAME', 'notifications')
+                        ->where('CONSTRAINT_NAME', 'notifications_user_id_foreign')
+                        ->exists();
+                }
                 
                 if (!$constraintExists) {
                     // Only add the foreign key if it doesn't exist

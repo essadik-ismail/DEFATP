@@ -13,20 +13,20 @@ class Dranef extends Model
     protected $fillable = [
         'code',
         'dranef',
-        'Abréviation',
+        "Abr\u{00E9}viation",
         'adresse',
         'tel',
         'fax',
     ];
 
-    public function getCODEAttribute(): ?string
+    public function getCODEAttribute(?string $value = null): ?string
     {
-        return $this->code;
+        return $value ?? $this->getRawOriginal('code');
     }
 
-    public function getDRANEFAttribute(): ?string
+    public function getDRANEFAttribute(?string $value = null): ?string
     {
-        return $this->dranef;
+        return $value ?? $this->getRawOriginal('dranef');
     }
 
     public function getDPANEFAttribute(): ?string
@@ -37,7 +37,7 @@ class Dranef extends Model
 
     public function getENTITEAttribute(): ?string
     {
-        return $this->getAttribute('Abréviation');
+        return $this->getRawOriginal("Abr\u{00E9}viation");
     }
 
     /**

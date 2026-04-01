@@ -105,6 +105,7 @@ Route::middleware('auth')->group(function () {
         Route::put('{article}/update-step', [ArticleController::class, 'updateStep'])->name('update-step');
         Route::patch('{article}/toggle-invendu', [ArticleController::class, 'toggleInvendu'])->name('toggle-invendu');
         Route::get('{article}/lettre-adjudicataire', [ArticleController::class, 'lettreAdjudicataire'])->name('lettre-adjudicataire');
+        Route::get('{article}/lettre-adjudicataire/download', [ArticleController::class, 'downloadLettreAdjudicataire'])->name('lettre-adjudicataire.download');
         Route::get('{article}/permis-enlever', [ArticleController::class, 'permisEnlever'])->name('permis-enlever');
         Route::post('{article}/permis-enlever', [ArticleController::class, 'storePermisEnlever'])->name('store-permis-enlever');
         Route::get('{article}/permis-exploiter', [ArticleController::class, 'permisExploiter'])->name('permis-exploiter');

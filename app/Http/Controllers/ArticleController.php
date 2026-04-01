@@ -31,12 +31,14 @@ use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Imports\LocationsImport;
 use App\Services\ActivityLogger;
+use App\Services\LettreAdjudicataireService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ArticleController extends Controller
 {
@@ -767,21 +769,79 @@ class ArticleController extends Controller
     }
 
     /**
-     * Generate and download Lettre Adjudicataire PDF
+     * Show the Lettre Adjudicataire page and resolved template values.
      */
-    public function lettreAdjudicataire(Article $article)
+    public function lettreAdjudicataire(Article $article, LettreAdjudicataireService $lettreAdjudicataireService): View|RedirectResponse
     {
-        // Check if contract vente exists
-        $contractVente = $article->contractVentes()->first();
+        $article->load([
+            'cession.dranef',
+            'provinces',
+            'contractVentes.exploitant',
+            'contractVentes.chargeApayer',
+            'contractVentes.permisExploiter',
+        ]);
+
+        $contractVente = $article->contractVentes->first();
         
         if (!$contractVente) {
             return redirect()->route('articles.show', $article)
                 ->with('error', 'Un contrat de vente doit être créé avant de générer la lettre adjudicataire.');
         }
 
-        // Generate PDF logic here (to be implemented with PDF library)
-        // For now, return a view
-        return view('articles.lettre-adjudicataire', compact('article', 'contractVente'));
+        $resolvedPlaceholders = $lettreAdjudicataireService->getResolvedData($article);
+        $templateAvailable = $lettreAdjudicataireService->hasTemplate();
+
+        return view('articles.lettre-adjudicataire', compact(
+            'article',
+            'contractVente',
+            'resolvedPlaceholders',
+            'templateAvailable'
+        ));
+    }
+
+    /**
+     * Generate and download the Lettre Adjudicataire DOCX.
+     */
+    public function downloadLettreAdjudicataire(Article $article, LettreAdjudicataireService $lettreAdjudicataireService): BinaryFileResponse|RedirectResponse
+    {
+        $article->load([
+            'contractVentes.exploitant',
+            'contractVentes.chargeApayer',
+            'contractVentes.permisExploiter',
+        ]);
+
+        if (!$article->contractVentes->first()) {
+            return redirect()->route('articles.show', $article)
+                ->with('error', 'Un contrat de vente doit etre cree avant de generer la lettre adjudicataire.');
+        }
+
+        try {
+            $document = $lettreAdjudicataireService->generate($article);
+
+            ActivityLogger::log(
+                'export',
+                'Lettre adjudicataire telechargee',
+                Article::class,
+                $article->id,
+                ['format' => 'docx']
+            );
+
+            return response()->download(
+                $document['path'],
+                $document['download_name'],
+                [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                ]
+            )->deleteFileAfterSend();
+        } catch (\Throwable $e) {
+            \Log::error('Erreur lors de la generation de la lettre adjudicataire: ' . $e->getMessage(), [
+                'article_id' => $article->id,
+                'exception' => $e,
+            ]);
+
+            return redirect()->route('articles.lettre-adjudicataire', $article)
+                ->with('error', 'Erreur lors de la generation de la lettre adjudicataire: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -1310,6 +1370,11 @@ class ArticleController extends Controller
             'essences.*.product_id' => 'nullable|exists:products,id',
             'essences.*.quantity' => 'nullable|numeric|min:0',
             'fichier_joint' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ], [
+            'id_permis_enlever.required' => 'Le permis d\'enlever est obligatoire.',
+            'id_permis_enlever.exists' => 'Le permis d\'enlever selectionne est invalide.',
+            'carnet_id.required' => 'Le numero de permis de colportage est obligatoire.',
+            'carnet_id.exists' => 'Le numero de permis de colportage selectionne est invalide.',
         ]);
 
         try {

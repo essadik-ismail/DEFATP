@@ -16,47 +16,40 @@
     />
 
     <!-- Tabs Container -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="ed-card rounded-2xl border bg-white overflow-hidden" style="border-color:rgba(154,179,163,0.35);box-shadow:var(--shadow-card);">
+
         <!-- Tab Navigation -->
-        <div class="border-b border-gray-200">
-            <nav class="flex flex-wrap -mb-px" aria-label="Tabs">
-                <a href="#" class="tab-link active group border-b-2 border-green-500 py-4 px-6 inline-flex items-center gap-2 font-medium text-sm" data-tab="essences">
-                    <i class="fas fa-leaf text-green-600"></i>
-                    <span class="text-green-600">Essences</span>
+        <div class="ed-tab-header border-b" style="border-color:rgba(154,179,163,0.2);background:#fafcfb;">
+            <nav class="ed-tab-nav flex overflow-x-auto" aria-label="Tabs">
+                <a href="#" class="tab-link ed-tab active" data-tab="essences">
+                    <i class="fas fa-leaf"></i><span>Essences</span>
                 </a>
-                <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="forets">
-                    <i class="fas fa-tree text-gray-500"></i>
-                    <span class="text-gray-500 group-hover:text-gray-700">Forêts</span>
+                <a href="#" class="tab-link ed-tab" data-tab="forets">
+                    <i class="fas fa-tree"></i><span>Forêts</span>
                 </a>
-                <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="situations">
-                    <i class="fas fa-map-marked-alt text-gray-500"></i>
-                    <span class="text-gray-500 group-hover:text-gray-700">Situations</span>
+                <a href="#" class="tab-link ed-tab" data-tab="situations">
+                    <i class="fas fa-map-marked-alt"></i><span>Situations</span>
                 </a>
-                <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="natures-coupe">
-                    <i class="fas fa-cut text-gray-500"></i>
-                    <span class="text-gray-500 group-hover:text-gray-700">Natures</span>
+                <a href="#" class="tab-link ed-tab" data-tab="natures-coupe">
+                    <i class="fas fa-cut"></i><span>Natures</span>
                 </a>
-                <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="vocations">
-                    <i class="fas fa-briefcase text-gray-500"></i>
-                    <span class="text-gray-500 group-hover:text-gray-700">Vocations</span>
+                <a href="#" class="tab-link ed-tab" data-tab="vocations">
+                    <i class="fas fa-briefcase"></i><span>Vocations</span>
                 </a>
-                <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="coperatives">
-                    <i class="fas fa-users-cog text-gray-500"></i>
-                    <span class="text-gray-500 group-hover:text-gray-700">Coopératives</span>
+                <a href="#" class="tab-link ed-tab" data-tab="coperatives">
+                    <i class="fas fa-users-cog"></i><span>Coopératives</span>
                 </a>
-                <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="products">
-                    <i class="fas fa-box text-gray-500"></i>
-                    <span class="text-gray-500 group-hover:text-gray-700">Produits</span>
+                <a href="#" class="tab-link ed-tab" data-tab="products">
+                    <i class="fas fa-box"></i><span>Produits</span>
                 </a>
-                <a href="#" class="tab-link group border-b-2 border-transparent py-4 px-6 inline-flex items-center gap-2 font-medium text-sm hover:text-gray-700 hover:border-gray-300 transition-colors" data-tab="prestations">
-                    <i class="fas fa-tasks text-gray-500"></i>
-                    <span class="text-gray-500 group-hover:text-gray-700">Prestations</span>
+                <a href="#" class="tab-link ed-tab" data-tab="prestations">
+                    <i class="fas fa-tasks"></i><span>Prestations</span>
                 </a>
             </nav>
         </div>
-        
+
         <!-- Tab Content -->
-        <div class="p-6">
+        <div class="p-5">
             <div class="tab-content" id="entitiesTabContent">
                 @include('entity-data.partials.essences-tab')
                 @include('entity-data.partials.forets-tab')
@@ -69,6 +62,45 @@
             </div>
         </div>
     </div>
+
+@push('styles')
+<style>
+.ed-tab-nav {
+    padding: 0 0.75rem;
+    gap: 0;
+    scrollbar-width: none;
+}
+.ed-tab-nav::-webkit-scrollbar { display: none; }
+.ed-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #6B7C72;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+.ed-tab i { font-size: 0.75rem; }
+.ed-tab:hover {
+    color: #1F2D24;
+    background: rgba(5,150,105,0.05);
+    border-bottom-color: rgba(5,150,105,0.25);
+}
+.ed-tab.active {
+    color: #059669 !important;
+    font-weight: 600;
+    border-bottom: 2px solid #059669;
+    background: rgba(5,150,105,0.04);
+}
+.ed-tab.active i { color: #059669 !important; }
+</style>
+@endpush
 </div>
 
 @endsection

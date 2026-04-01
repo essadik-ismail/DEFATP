@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -13,19 +13,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('communes', function (Blueprint $table) {
-            // Add province_id column (nullable first for data migration)
             $table->foreignId('province_id')->nullable()->after('nom')->constrained('provinces')->onDelete('cascade');
         });
 
-        // Migrate data: For each province, set its commune's province_id
-        // Since provinces have commune_id, we need to set the commune's province_id to the province's id
-        DB::statement('
-            UPDATE communes c
-            INNER JOIN provinces p ON p.commune_id = c.id
-            SET c.province_id = p.id
-        ');
+        DB::table('provinces')
+            ->select('id', 'commune_id')
+            ->whereNotNull('commune_id')
+            ->orderBy('id')
+            ->get()
+            ->each(function ($province): void {
+                DB::table('communes')
+                    ->where('id', $province->commune_id)
+                    ->update(['province_id' => $province->id]);
+            });
 
-        // Make province_id not nullable after data migration
         Schema::table('communes', function (Blueprint $table) {
             $table->foreignId('province_id')->nullable(false)->change();
         });

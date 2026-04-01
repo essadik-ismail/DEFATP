@@ -33,20 +33,29 @@
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        @foreach($statsData as $stat)
-        <a href="{{ $stat['route'] }}" class="stat-card block rounded-2xl border bg-white p-5 hover:shadow-lg transition-all duration-200" style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);">
-            <div class="flex items-center gap-4">
-                <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center
-                    {{ $stat['color'] === 'green' ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200' : '' }}
-                    {{ $stat['color'] === 'teal' ? 'bg-teal-50 text-teal-600 ring-1 ring-teal-200' : '' }}
-                    {{ $stat['color'] === 'blue' ? 'bg-blue-50 text-blue-600 ring-1 ring-blue-200' : '' }}
-                    {{ $stat['color'] === 'purple' ? 'bg-purple-50 text-purple-600 ring-1 ring-purple-200' : '' }}">
-                    <i class="{{ $stat['icon'] }} text-lg"></i>
+        @foreach($statsData as $index => $stat)
+        @php
+            $gradients = [
+                'green'  => ['from'=>'#059669','to'=>'#047857','light'=>'rgba(5,150,105,0.08)','ring'=>'rgba(5,150,105,0.2)'],
+                'teal'   => ['from'=>'#0d9488','to'=>'#0f766e','light'=>'rgba(13,148,136,0.08)','ring'=>'rgba(13,148,136,0.2)'],
+                'blue'   => ['from'=>'#2563eb','to'=>'#1d4ed8','light'=>'rgba(37,99,235,0.08)','ring'=>'rgba(37,99,235,0.2)'],
+                'purple' => ['from'=>'#7c3aed','to'=>'#6d28d9','light'=>'rgba(124,58,237,0.08)','ring'=>'rgba(124,58,237,0.2)'],
+            ];
+            $g = $gradients[$stat['color']] ?? $gradients['green'];
+        @endphp
+        <a href="{{ $stat['route'] }}"
+           class="stat-card block rounded-2xl bg-white p-5 transition-all duration-200"
+           style="border: 1px solid {{ $g['ring'] }}; box-shadow: var(--shadow-card);">
+            <div class="flex items-start justify-between gap-3">
+                <div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center"
+                     style="background: linear-gradient(135deg, {{ $g['from'] }}, {{ $g['to'] }}); box-shadow: 0 3px 8px {{ $g['ring'] }};">
+                    <i class="{{ $stat['icon'] }} text-white text-base"></i>
                 </div>
-                <div class="min-w-0">
-                    <p class="text-2xl font-bold text-gray-900">{{ number_format($stat['value']) }}</p>
-                    <p class="text-sm font-medium text-gray-500">{{ $stat['title'] }}</p>
-                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs mt-1 flex-shrink-0"></i>
+            </div>
+            <div class="mt-3">
+                <p class="text-2xl font-bold text-gray-900 leading-none">{{ number_format($stat['value']) }}</p>
+                <p class="text-xs font-medium text-gray-500 mt-1">{{ $stat['title'] }}</p>
             </div>
         </a>
         @endforeach
@@ -98,17 +107,18 @@
                 Voir tout →
             </a>
         </div>
-        <div class="divide-y divide-gray-100">
+        <div class="divide-y" style="border-color:rgba(154,179,163,0.15);">
             @foreach($recentArticles as $article)
-            <a href="{{ route('articles.show', $article) }}" class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors">
-                <span class="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-semibold">
-                    {{ $article->numero ?? $article->id }}
-                </span>
-                <div class="min-w-0 flex-1">
-                    <p class="font-medium text-gray-900 truncate">Article {{ $article->numero ?? '#' . $article->id }}</p>
-                    <p class="text-xs text-gray-500">{{ $article->created_at ? $article->created_at->format('d/m/Y H:i') : '-' }}</p>
+            <a href="{{ route('articles.show', $article) }}"
+               class="flex items-center gap-4 px-5 py-3.5 hover:bg-emerald-50/40 transition-colors group">
+                <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                    {{ is_numeric($article->numero) ? $article->numero : substr($article->numero ?? $article->id, 0, 3) }}
                 </div>
-                <i class="fas fa-chevron-right text-gray-400 text-sm flex-shrink-0"></i>
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold text-gray-800 truncate">Article #{{ $article->numero ?? $article->id }}</p>
+                    <p class="text-xs text-gray-400 mt-0.5">{{ $article->created_at ? $article->created_at->format('d/m/Y') : '-' }}</p>
+                </div>
+                <i class="fas fa-arrow-right text-gray-300 text-xs group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all flex-shrink-0"></i>
             </a>
             @endforeach
         </div>
