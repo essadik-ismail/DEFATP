@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Article;
-use App\Models\LegacyArticle;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DeleteAllArticles extends Command
 {
@@ -21,7 +21,7 @@ class DeleteAllArticles extends Command
      *
      * @var string
      */
-    protected $description = 'Delete all records from articles and legacy_articles tables';
+    protected $description = 'Delete all records from the current articles module tables';
 
     /**
      * Execute the console command.
@@ -30,55 +30,54 @@ class DeleteAllArticles extends Command
     {
         $this->info('Starting deletion of all articles...');
 
-        // Count records before deletion
         $articlesCount = Article::withTrashed()->count();
-        $legacyArticlesCount = LegacyArticle::count();
 
-        $this->info("Found {$articlesCount} articles and {$legacyArticlesCount} legacy articles.");
+        $this->info("Found {$articlesCount} articles.");
 
-        if ($articlesCount === 0 && $legacyArticlesCount === 0) {
+        if ($articlesCount === 0) {
             $this->info('No records to delete.');
+
             return Command::SUCCESS;
         }
 
-        // Ask for confirmation unless --force is used
-        if (!$this->option('force')) {
-            if (!$this->confirm('Are you sure you want to delete all articles and legacy articles? This action cannot be undone.')) {
-                $this->info('Deletion cancelled.');
-                return Command::SUCCESS;
-            }
+        if (! $this->option('force') && ! $this->confirm('Are you sure you want to delete all articles? This action cannot be undone.')) {
+            $this->info('Deletion cancelled.');
+
+            return Command::SUCCESS;
         }
+
+        $tablesToClear = [
+            'article_essence',
+            'article_foret',
+            'article_nature_de_coupe',
+            'article_province',
+            'article_commune',
+            'article_parcelle',
+            'depot_article',
+            'locations',
+            'articles',
+        ];
 
         try {
-            // Disable foreign key checks temporarily
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-            // Delete all pivot table records first
-            $this->info('Deleting pivot table records...');
-            DB::table('article_essence')->truncate();
-            DB::table('article_foret')->truncate();
-            DB::table('article_situation_administrative')->truncate();
-            DB::table('article_nature_de_coupe')->truncate();
-            DB::table('article_localisation')->truncate();
-            $this->info('Pivot tables cleared.');
+            foreach ($tablesToClear as $table) {
+                if (! Schema::hasTable($table)) {
+                    continue;
+                }
 
-            // Delete all articles (including soft deleted)
-            DB::table('articles')->truncate();
-            $this->info("Deleted all articles from 'articles' table.");
+                DB::table($table)->truncate();
+                $this->info("Cleared '{$table}'.");
+            }
 
-            // Delete all legacy articles
-            DB::table('legacy_articles')->truncate();
-            $this->info("Deleted all articles from 'legacy_articles' table.");
-
-            // Re-enable foreign key checks
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            $this->info('All article data has been successfully deleted.');
 
-            $this->info('All articles have been successfully deleted!');
             return Command::SUCCESS;
-        } catch (\Exception $e) {
-            // Re-enable foreign key checks in case of error
+        } catch (\Throwable $e) {
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             $this->error('Error deleting articles: ' . $e->getMessage());
+
             return Command::FAILURE;
         }
     }

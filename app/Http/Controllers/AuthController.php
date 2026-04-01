@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Http\Requests\LoginRequest;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
@@ -29,7 +27,7 @@ class AuthController extends Controller
         // Store captcha answer in session for validation
         session(['captcha_answer' => $captcha_answer]);
         
-        return view('auth.login', compact('captcha_question', 'captcha_answer'));
+        return view('auth.login', compact('captcha_question'));
     }
 
     public function refreshCaptcha()
@@ -46,7 +44,6 @@ class AuthController extends Controller
         
         return response()->json([
             'question' => $captcha_question,
-            'answer' => $captcha_answer
         ]);
     }
 

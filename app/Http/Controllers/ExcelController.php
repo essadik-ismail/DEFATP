@@ -78,8 +78,10 @@ class ExcelController extends Controller
     public function index(): View
     {
         ActivityLogger::log('view', 'Accès à la gestion des imports/exports Excel', null);
-        
-        return view('excel.index');
+
+        $dataTypes = self::DATA_TYPES;
+
+        return view('excel.index', compact('dataTypes'));
     }
 
     /**
@@ -243,11 +245,6 @@ class ExcelController extends Controller
         return $this->handleExport('exploitants', request());
     }
 
-    public function exportLocalisations()
-    {
-        return $this->handleExport('localisations', request());
-    }
-
     /**
      * Generic export handler
      */
@@ -306,11 +303,6 @@ class ExcelController extends Controller
     public function importExploitants(Request $request)
     {
         return $this->handleImport('exploitants', $request);
-    }
-
-    public function importLocalisations(Request $request)
-    {
-        return $this->handleImport('localisations', $request);
     }
 
     /**

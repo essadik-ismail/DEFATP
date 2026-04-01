@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExcelController;
@@ -111,6 +110,7 @@ Route::middleware('auth')->group(function () {
         Route::get('{article}/permis-exploiter', [ArticleController::class, 'permisExploiter'])->name('permis-exploiter');
         Route::post('{article}/permis-exploiter', [ArticleController::class, 'storePermisExploiter'])->name('store-permis-exploiter');
         Route::get('{article}/permis-colportage', [ArticleController::class, 'permisColportage'])->name('permis-colportage');
+        Route::get('{article}/permis-colportage/create', [ArticleController::class, 'permisColportageCreate'])->name('permis-colportage.create');
         Route::post('{article}/permis-colportage', [ArticleController::class, 'storePermisColportage'])->name('store-permis-colportage');
         Route::get('{article}/pv-installation', [ArticleController::class, 'pvInstallation'])->name('pv-installation');
         Route::post('{article}/pv-installation', [ArticleController::class, 'storePvInstallation'])->name('store-pv-installation');
@@ -168,9 +168,6 @@ Route::middleware('auth')->group(function () {
     //     Route::delete('/{nationalSummary}', [App\Http\Controllers\FinancialDataController::class, 'destroy'])->name('destroy');
     // });
 
-    // Suivi Contract Programmes Management
-    Route::resource('suivi-contract-programmes', App\Http\Controllers\SuiviContractProgrammeController::class);
-
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [SettingsController::class, 'index'])->name('index');
         
@@ -223,16 +220,6 @@ Route::middleware('auth')->group(function () {
             Route::post('/import', [SettingsController::class, 'importSituationAdministratives'])->name('import');
         });
         
-        // Mode Exploitations
-        Route::prefix('mode-exploitations')->name('mode-exploitations.')->group(function () {
-            Route::get('/', [SettingsController::class, 'modeExploitations'])->name('index');
-            Route::get('/create', [SettingsController::class, 'createModeExploitation'])->name('create');
-            Route::post('/', [SettingsController::class, 'storeModeExploitation'])->name('store');
-            Route::get('/{modeExploitation}/edit', [SettingsController::class, 'editModeExploitation'])->name('edit');
-            Route::put('/{modeExploitation}', [SettingsController::class, 'updateModeExploitation'])->name('update');
-            Route::delete('/{modeExploitation}', [SettingsController::class, 'destroyModeExploitation'])->name('destroy');
-        });
-        
         // DRANEFs
         Route::prefix('dranefs')->name('dranefs.')->group(function () {
             Route::get('/', [SettingsController::class, 'dranefs'])->name('index');
@@ -262,31 +249,11 @@ Route::middleware('auth')->group(function () {
             Route::put('/{zdtf}', [SettingsController::class, 'updateZdtf'])->name('update');
             Route::delete('/{zdtf}', [SettingsController::class, 'destroyZdtf'])->name('destroy');
         });
-        
-        // Cantons
-        Route::prefix('cantons')->name('cantons.')->group(function () {
-            Route::get('/', [SettingsController::class, 'cantons'])->name('index');
-            Route::get('/create', [SettingsController::class, 'createCanton'])->name('create');
-            Route::post('/', [SettingsController::class, 'storeCanton'])->name('store');
-            Route::get('/{canton}/edit', [SettingsController::class, 'editCanton'])->name('edit');
-            Route::put('/{canton}', [SettingsController::class, 'updateCanton'])->name('update');
-            Route::delete('/{canton}', [SettingsController::class, 'destroyCanton'])->name('destroy');
-        });
-        
-        // Parcelles
-        Route::prefix('parcelles')->name('parcelles.')->group(function () {
-            Route::get('/', [SettingsController::class, 'parcelles'])->name('index');
-            Route::get('/create', [SettingsController::class, 'createParcelle'])->name('create');
-            Route::post('/', [SettingsController::class, 'storeParcelle'])->name('store');
-            Route::get('/{parcelle}/edit', [SettingsController::class, 'editParcelle'])->name('edit');
-            Route::put('/{parcelle}', [SettingsController::class, 'updateParcelle'])->name('update');
-            Route::delete('/{parcelle}', [SettingsController::class, 'destroyParcelle'])->name('destroy');
-        });
-        
     });
 
     // Cessions (groupe_cession) Routes
     Route::resource('cessions', CessionController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+    Route::patch('cessions/{cession}/cloture', [CessionController::class, 'cloture'])->name('cessions.cloture');
 
     // Carnets (numéros pour permis de colportage)
     Route::resource('carnets', CarnetController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
@@ -299,12 +266,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/import-all', [ExcelController::class, 'importAll'])->name('import-all');
         
         // Individual exports
+        Route::get('/export/articles', [ExcelController::class, 'exportArticles'])->name('export.articles');
         Route::get('/export/essences', [ExcelController::class, 'exportEssences'])->name('export.essences');
         Route::get('/export/forets', [ExcelController::class, 'exportForets'])->name('export.forets');
         Route::get('/export/nature-de-coupes', [ExcelController::class, 'exportNatureDeCoupes'])->name('export.nature-de-coupes');
         Route::get('/export/situation-administratives', [ExcelController::class, 'exportSituationAdministratives'])->name('export.situation-administratives');
         Route::get('/export/exploitants', [ExcelController::class, 'exportExploitants'])->name('export.exploitants');
         // Individual imports
+        Route::post('/import/articles', [ExcelController::class, 'importArticles'])->name('import.articles');
         Route::post('/import/essences', [ExcelController::class, 'importEssences'])->name('import.essences');
         Route::post('/import/forets', [ExcelController::class, 'importForets'])->name('import.forets');
         Route::post('/import/nature-de-coupes', [ExcelController::class, 'importNatureDeCoupes'])->name('import.nature-de-coupes');
@@ -314,14 +283,17 @@ Route::middleware('auth')->group(function () {
 
     // Contracts Routes
     Route::prefix('contracts')->name('contracts.')->group(function () {
-        Route::get('/', [ContractController::class, 'index'])->name('index');
-        Route::get('/create', [ContractController::class, 'create'])->name('create');
-        Route::post('/', [ContractController::class, 'store'])->name('store');
+        Route::get('/', function (\Illuminate\Http\Request $request) {
+            $tab = $request->query('tab', 'coperatives');
+            $allowedTabs = ['coperatives', 'avenants', 'vocations'];
+
+            if (!in_array($tab, $allowedTabs, true)) {
+                $tab = 'coperatives';
+            }
+
+            return redirect()->route('entity-data.index', ['tab' => $tab]);
+        })->name('index');
         Route::get('/{contract}', [ContractController::class, 'show'])->name('show');
-        Route::get('/{contract}/edit', [ContractController::class, 'edit'])->name('edit');
-        Route::put('/{contract}', [ContractController::class, 'update'])->name('update');
-        Route::delete('/{contract}', [ContractController::class, 'destroy'])->name('destroy');
-        
         
         // Contract Avenants Routes
         Route::prefix('avenants')->name('avenants.')->group(function () {
@@ -349,21 +321,6 @@ Route::middleware('auth')->group(function () {
             Route::put('/{vocation}', [ContractController::class, 'updateVocation'])->name('update');
             Route::delete('/{vocation}', [ContractController::class, 'destroyVocation'])->name('destroy');
         });
-    });
-
-    // Reports Routes
-    Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/', [ReportController::class, 'index'])->name('index');
-        Route::get('/summary', [ReportController::class, 'summary'])->name('summary');
-        Route::get('/summary/export', [ReportController::class, 'exportSummary'])->name('summary.export');
-        Route::get('/product-quantities-charts', [ReportController::class, 'productQuantitiesCharts'])->name('product-quantities-charts');
-        Route::get('/legacy-quantities-charts', [ReportController::class, 'legacyQuantitiesCharts'])->name('legacy-quantities-charts');
-        Route::get('/unified', [ReportController::class, 'unifiedReports'])->name('unified');
-        Route::get('/unified-table', [ReportController::class, 'unifiedTable'])->name('unified-table');
-        Route::get('/contracts', [ReportController::class, 'contractsReport'])->name('contracts');
-        Route::get('/exploitants', [ReportController::class, 'exploitantsReport'])->name('exploitants');
-        Route::get('/products', [ReportController::class, 'productsReport'])->name('products');
-        Route::get('/products-development-chart', [ReportController::class, 'productsDevelopmentChart'])->name('products-development-chart');
     });
 
 });

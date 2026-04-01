@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Foret extends Model
@@ -37,14 +36,6 @@ class Foret extends Model
     {
         return $this->belongsToMany(Contract::class, 'contact_foret', 'foret_id', 'contact_id')
             ->withTimestamps();
-    }
-
-    /**
-     * Get the suivi contract programmes for this foret.
-     */
-    public function suiviContractProgrammes(): HasMany
-    {
-        return $this->hasMany(SuiviContractProgramme::class);
     }
 
     /**

@@ -121,10 +121,8 @@ class OptimizeDatabase extends Command
     private function analyzeTables()
     {
         $this->info('🔍 Analyzing Tables...');
-        
-        $tables = ['articles', 'exploitants', 'users', 'essences', 'forets', 'localisations', 'situation_administratives', 'nature_de_coupes'];
-        
-        $results = DatabaseMonitor::analyzeTables($tables);
+
+        $results = DatabaseMonitor::analyzeTables();
         
         foreach ($results as $table => $result) {
             if (strpos($result, 'Error') === false) {
@@ -141,10 +139,8 @@ class OptimizeDatabase extends Command
     private function optimizeTables()
     {
         $this->info('⚡ Optimizing Tables...');
-        
-        $tables = ['articles', 'exploitants', 'users', 'essences', 'forets', 'localisations', 'situation_administratives', 'nature_de_coupes'];
-        
-        $results = DatabaseMonitor::optimizeTables($tables);
+
+        $results = DatabaseMonitor::optimizeTables();
         
         foreach ($results as $table => $result) {
             if (strpos($result, 'Error') === false) {

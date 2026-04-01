@@ -5,9 +5,24 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseMonitor
 {
+    private const DEFAULT_TABLES = [
+        'articles',
+        'exploitants',
+        'users',
+        'essences',
+        'forets',
+        'dranefs',
+        'dpanefs',
+        'zdtfs',
+        'situation_administratives',
+        'nature_de_coupes',
+        'locations',
+    ];
+
     /**
      * Monitor slow queries
      */
@@ -195,7 +210,7 @@ class DatabaseMonitor
     public static function optimizeTables(array $tables = []): array
     {
         if (empty($tables)) {
-            $tables = ['articles', 'exploitants', 'users', 'essences', 'forets', 'localisations', 'situation_administratives', 'nature_de_coupes'];
+            $tables = self::defaultTables();
         }
 
         $results = [];
@@ -217,7 +232,7 @@ class DatabaseMonitor
     public static function analyzeTables(array $tables = []): array
     {
         if (empty($tables)) {
-            $tables = ['articles', 'exploitants', 'users', 'essences', 'forets', 'localisations', 'situation_administratives', 'nature_de_coupes'];
+            $tables = self::defaultTables();
         }
 
         $results = [];
@@ -231,5 +246,10 @@ class DatabaseMonitor
         }
 
         return $results;
+    }
+
+    private static function defaultTables(): array
+    {
+        return array_values(array_filter(self::DEFAULT_TABLES, fn (string $table) => Schema::hasTable($table)));
     }
 }

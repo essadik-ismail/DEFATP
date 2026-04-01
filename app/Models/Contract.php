@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-    use Illuminate\Database\Eloquent\Model;
-    use Illuminate\Database\Eloquent\Relations\BelongsTo;
-    use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
 
 class Contract extends Model
 {
@@ -42,6 +42,13 @@ class Contract extends Model
         'date_resiliation' => 'date',
     ];
 
+    /**
+     * Legacy localisation relation kept for old contract/avenant views.
+     */
+    public function localisation(): BelongsTo
+    {
+        return $this->belongsTo(Dranef::class, 'localisation_id');
+    }
 
     /**
      * Get the situation administrative for this contract.
@@ -52,7 +59,7 @@ class Contract extends Model
     }
 
     /**
-     * Get the essences for this contract (many-to-many relationship).
+     * Get the essences for this contract.
      */
     public function essences(): BelongsToMany
     {
@@ -61,14 +68,13 @@ class Contract extends Model
     }
 
     /**
-     * Get the forets for this contract (many-to-many relationship).
+     * Get the forets for this contract.
      */
     public function forets(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Models\Foret::class, 'contact_foret', 'contact_id', 'foret_id')
+        return $this->belongsToMany(Foret::class, 'contact_foret', 'contact_id', 'foret_id')
             ->withTimestamps();
     }
-
 
     /**
      * Get the coperative for this contract.
@@ -87,7 +93,7 @@ class Contract extends Model
     }
 
     /**
-     * Get the products for this contract (many-to-many relationship).
+     * Get the products for this contract.
      */
     public function products(): BelongsToMany
     {
@@ -97,7 +103,7 @@ class Contract extends Model
     }
 
     /**
-     * Get the prestations for this contract (many-to-many relationship).
+     * Get the prestations for this contract.
      */
     public function prestations(): BelongsToMany
     {

@@ -85,7 +85,7 @@ class CessionController extends Controller
             $cession->date_attribution = $validated['date_attribution'] ?? null;
         }
 
-        $cession->status = 'brouillon';
+        $cession->status = '';
         $cession->save();
 
         return redirect()
@@ -140,6 +140,18 @@ class CessionController extends Controller
         return view('cessions.show', [
             'cession' => $cession,
         ]);
+    }
+
+    /**
+     * Set cession status to "Clôturée".
+     */
+    public function cloture(Cession $cession): RedirectResponse
+    {
+        $cession->update(['Statut' => 'cloture']);
+
+        return redirect()
+            ->back()
+            ->with('success', 'La cession a été clôturée.');
     }
 }
 

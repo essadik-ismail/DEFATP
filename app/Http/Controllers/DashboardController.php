@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Foret;
 use App\Models\Exploitant;
-use App\Models\Contract;
 use App\Services\ActivityLogger;
 use Illuminate\View\View;
 
@@ -89,24 +88,6 @@ class DashboardController extends Controller
                 'color' => 'from-red-500 to-orange-600',
                 'route' => route('exploitants.index'),
                 'priority' => 'high'
-            ];
-        }
-        
-        // 7. Contrats avec dates de résiliation proches
-        $upcomingContractResiliations = Contract::whereNotNull('date_resiliation')
-            ->where('date_resiliation', '>=', now())
-            ->where('date_resiliation', '<=', now()->addDays(30))
-            ->count();
-        if ($upcomingContractResiliations > 0) {
-            $actionsRequired[] = [
-                'type' => 'contrats_resiliation',
-                'title' => 'Résiliations de Contrats',
-                'count' => $upcomingContractResiliations,
-                'description' => 'Contrats avec résiliation dans les 30 prochains jours',
-                'icon' => 'fa-file-contract',
-                'color' => 'from-amber-500 to-yellow-600',
-                'route' => route('contracts.index'),
-                'priority' => 'medium'
             ];
         }
         

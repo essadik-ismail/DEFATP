@@ -106,13 +106,13 @@
                                 </td>
                                 <td class="px-3 py-2 whitespace-nowrap">
                                     @php
-                                        $status = $cession->status ?? 'brouillon';
+                                        $status = $cession->status ?? '';
                                         $map = [
-                                            'brouillon' => ['label' => 'Brouillon', 'class' => 'bg-gray-100 text-gray-800'],
+                                            '' => ['label' => '—', 'class' => 'bg-gray-100 text-gray-500'],
                                             'en_cours' => ['label' => 'En cours', 'class' => 'bg-amber-100 text-amber-800'],
                                             'cloture' => ['label' => 'Clôturée', 'class' => 'bg-emerald-100 text-emerald-800'],
                                         ];
-                                        $badge = $map[$status] ?? ['label' => ucfirst($status), 'class' => 'bg-gray-100 text-gray-800'];
+                                        $badge = $map[$status] ?? ['label' => $status ? ucfirst($status) : '—', 'class' => 'bg-gray-100 text-gray-800'];
                                     @endphp
                                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $badge['class'] }}">
                                         {{ $badge['label'] }}
@@ -125,16 +125,28 @@
                                            title="Voir la cession">
                                             <i class="fas fa-eye text-xs"></i>
                                         </a>
-                                        <a href="{{ route('cessions.edit', $cession) }}"
-                                           class="inline-flex items-center justify-center w-7 h-7 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-full transition-colors duration-200"
-                                           title="Modifier la cession">
-                                            <i class="fas fa-edit text-xs"></i>
-                                        </a>
-                                        <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
-                                           class="inline-flex items-center justify-center w-7 h-7 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full transition-colors duration-200"
-                                           title="Ajouter un article">
-                                            <i class="fas fa-plus text-xs"></i>
-                                        </a>
+                                        @if(($cession->status ?? '') !== 'cloture')
+                                            <a href="{{ route('cessions.edit', $cession) }}"
+                                               class="inline-flex items-center justify-center w-7 h-7 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-full transition-colors duration-200"
+                                               title="Modifier la cession">
+                                                <i class="fas fa-edit text-xs"></i>
+                                            </a>
+                                            <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
+                                               class="inline-flex items-center justify-center w-7 h-7 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full transition-colors duration-200"
+                                               title="Ajouter un article">
+                                                <i class="fas fa-plus text-xs"></i>
+                                            </a>
+                                            <form action="{{ route('cessions.cloture', $cession) }}" method="POST" class="inline"
+                                                  onsubmit="return confirm('Clôturer cette cession ?');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                        class="inline-flex items-center justify-center w-7 h-7 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full transition-colors duration-200"
+                                                        title="Clôturer la cession">
+                                                    <i class="fas fa-check-circle text-xs"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -197,13 +209,13 @@
                                 </td>
                                 <td class="px-3 py-2 whitespace-nowrap">
                                     @php
-                                        $status = $cession->status ?? 'brouillon';
+                                        $status = $cession->status ?? '';
                                         $map = [
-                                            'brouillon' => ['label' => 'Brouillon', 'class' => 'bg-gray-100 text-gray-800'],
+                                            '' => ['label' => '—', 'class' => 'bg-gray-100 text-gray-500'],
                                             'en_cours' => ['label' => 'En cours', 'class' => 'bg-amber-100 text-amber-800'],
                                             'cloture' => ['label' => 'Clôturée', 'class' => 'bg-emerald-100 text-emerald-800'],
                                         ];
-                                        $badge = $map[$status] ?? ['label' => ucfirst($status), 'class' => 'bg-gray-100 text-gray-800'];
+                                        $badge = $map[$status] ?? ['label' => $status ? ucfirst($status) : '—', 'class' => 'bg-gray-100 text-gray-800'];
                                     @endphp
                                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $badge['class'] }}">
                                         {{ $badge['label'] }}
@@ -216,16 +228,28 @@
                                            title="Voir la cession">
                                             <i class="fas fa-eye text-xs"></i>
                                         </a>
-                                        <a href="{{ route('cessions.edit', $cession) }}"
-                                           class="inline-flex items-center justify-center w-7 h-7 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-full transition-colors duration-200"
-                                           title="Modifier la cession">
-                                            <i class="fas fa-edit text-xs"></i>
-                                        </a>
-                                        <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
-                                           class="inline-flex items-center justify-center w-7 h-7 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full transition-colors duration-200"
-                                           title="Ajouter un article">
-                                            <i class="fas fa-plus text-xs"></i>
-                                        </a>
+                                        @if(($cession->status ?? '') !== 'cloture')
+                                            <a href="{{ route('cessions.edit', $cession) }}"
+                                               class="inline-flex items-center justify-center w-7 h-7 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-full transition-colors duration-200"
+                                               title="Modifier la cession">
+                                                <i class="fas fa-edit text-xs"></i>
+                                            </a>
+                                            <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
+                                               class="inline-flex items-center justify-center w-7 h-7 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full transition-colors duration-200"
+                                               title="Ajouter un article">
+                                                <i class="fas fa-plus text-xs"></i>
+                                            </a>
+                                            <form action="{{ route('cessions.cloture', $cession) }}" method="POST" class="inline"
+                                                  onsubmit="return confirm('Clôturer cette cession ?');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                        class="inline-flex items-center justify-center w-7 h-7 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full transition-colors duration-200"
+                                                        title="Clôturer la cession">
+                                                    <i class="fas fa-check-circle text-xs"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

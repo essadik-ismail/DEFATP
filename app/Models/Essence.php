@@ -3,9 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Essence extends Model
@@ -33,14 +31,6 @@ class Essence extends Model
     {
         return $this->belongsToMany(Contract::class, 'contact_essence', 'essence_id', 'contact_id')
             ->withTimestamps();
-    }
-
-    /**
-     * Get the partenariats for this essence.
-     */
-    public function partenariats(): HasMany
-    {
-        return $this->hasMany(Partenariat::class);
     }
 
     /**

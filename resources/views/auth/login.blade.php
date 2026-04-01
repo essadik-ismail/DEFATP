@@ -750,7 +750,6 @@
                                 <x-form.captcha 
                                     name="captcha"
                                     :question="$captcha_question ?? null"
-                                    :answer="$captcha_answer ?? null"
                                 />
                             </div>
                             
@@ -769,242 +768,138 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
     <script>
-        // Password visibility toggle
-        document.getElementById('passwordToggle').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.getElementById('passwordToggleIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-                this.setAttribute('aria-label', 'Masquer le mot de passe');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-                this.setAttribute('aria-label', 'Afficher le mot de passe');
-            }
-        });
+        const loginForm = document.getElementById('loginForm');
+        const pprField = document.getElementById('ppr');
+        const passwordField = document.getElementById('password');
+        const captchaField = document.getElementById('captcha');
 
-        // Captcha functionality
-        let currentCaptchaAnswer = {{ $captcha_answer ?? 8 }};
-        
-        function generateCaptcha() {
-            // Generate captcha question with sum between 1-10
-            const maxSum = 10;
-            const num1 = Math.floor(Math.random() * (maxSum - 1)) + 1;
-            const num2 = Math.floor(Math.random() * (maxSum - num1)) + 1;
-            const question = `${num1} + ${num2}`;
-            const answer = num1 + num2;
-            
-            document.getElementById('captchaQuestion').textContent = question;
-            document.getElementById('captcha').value = '';
-            currentCaptchaAnswer = answer;
-            
-            // Reset validation states
-            const captchaQuestion = document.querySelector('.captcha-question');
-            const captchaInput = document.getElementById('captcha');
-            captchaQuestion.classList.remove('valid', 'invalid');
-            captchaInput.classList.remove('is-valid', 'is-invalid');
-        }
-        
-        function validateCaptcha() {
-            const captchaInput = document.getElementById('captcha');
-            const captchaQuestion = document.querySelector('.captcha-question');
-            const userAnswer = parseInt(captchaInput.value);
-            
-            captchaQuestion.classList.remove('valid', 'invalid');
-            captchaInput.classList.remove('is-valid', 'is-invalid');
-            
-            if (captchaInput.value === '') {
-                return false;
-            }
-            
-            // Check if answer is within valid range (1-10)
-            if (userAnswer < 1 || userAnswer > 10) {
-                captchaQuestion.classList.add('invalid');
-                captchaInput.classList.add('is-invalid');
-                return false;
-            }
-            
-            if (userAnswer === currentCaptchaAnswer) {
-                captchaQuestion.classList.add('valid');
-                captchaInput.classList.add('is-valid');
-                return true;
-            } else {
-                captchaQuestion.classList.add('invalid');
-                captchaInput.classList.add('is-invalid');
-                return false;
-            }
-        }
-        
-        // Captcha refresh button
-        document.getElementById('refreshCaptcha').addEventListener('click', function() {
-            // Show loading state
-            const refreshBtn = this;
-            const originalContent = refreshBtn.innerHTML;
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            refreshBtn.disabled = true;
-            
-            // Fetch new captcha from server
-            fetch('/captcha/refresh')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('captchaQuestion').textContent = data.question;
-                    document.getElementById('captcha').value = '';
-                    currentCaptchaAnswer = data.answer;
-                    
-                    // Reset validation states
-                    const captchaQuestion = document.querySelector('.captcha-question');
-                    const captchaInput = document.getElementById('captcha');
-                    captchaQuestion.classList.remove('valid', 'invalid');
-                    captchaInput.classList.remove('is-valid', 'is-invalid');
-                })
-                .catch(error => {
-                    console.error('Error refreshing captcha:', error);
-                    // Fallback to client-side generation
-                    generateCaptcha();
-                })
-                .finally(() => {
-                    // Restore button state
-                    refreshBtn.innerHTML = originalContent;
-                    refreshBtn.disabled = false;
-                });
-        });
-        
-        // Captcha input validation
-        document.getElementById('captcha').addEventListener('input', function() {
-            validateCaptcha();
-        });
-        
-        document.getElementById('captcha').addEventListener('blur', function() {
-            validateCaptcha();
-        });
-
-        // Real-time form validation
         function validateField(field) {
+            if (!field) {
+                return false;
+            }
+
             const value = field.value.trim();
-            const fieldName = field.name;
-            
-            // Remove existing validation classes
+
             field.classList.remove('is-valid', 'is-invalid');
-            
+
             if (value === '') {
                 return false;
             }
-            
-            // PPR validation (basic check for non-empty)
-            if (fieldName === 'ppr' && value.length >= 3) {
+
+            if (field.name === 'ppr' && value.length >= 3) {
                 field.classList.add('is-valid');
                 return true;
             }
-            
-            // Password validation (basic check for minimum length)
-            if (fieldName === 'password' && value.length >= 6) {
+
+            if (field.name === 'password' && value.length >= 6) {
                 field.classList.add('is-valid');
                 return true;
             }
-            
+
             return false;
         }
 
-        // Add real-time validation to form fields
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('input', function() {
-                validateField(this);
-            });
-            
-            input.addEventListener('blur', function() {
-                validateField(this);
-            });
-        });
+        function validateCaptchaInput(field) {
+            const captchaQuestion = document.querySelector('.captcha-question');
 
-        // Enhanced form submission with validation
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            const pprField = document.getElementById('ppr');
-            const passwordField = document.getElementById('password');
-            const captchaField = document.getElementById('captcha');
-            const btn = document.getElementById('loginBtn');
-            const btnText = btn.querySelector('.btn-text');
-            
-            // Validate fields before submission
-            const pprValid = validateField(pprField);
-            const passwordValid = validateField(passwordField);
-            const captchaValid = validateCaptcha();
-            
-            if (!pprValid || !passwordValid || !captchaValid) {
-                e.preventDefault();
-                
-                if (!pprValid) {
-                    pprField.classList.add('is-invalid');
-                    pprField.focus();
-                } else if (!passwordValid) {
-                    passwordField.classList.add('is-invalid');
-                    passwordField.focus();
-                } else if (!captchaValid) {
-                    captchaField.classList.add('is-invalid');
-                    captchaField.focus();
-                }
+            if (!field || !captchaQuestion) {
+                return false;
+            }
+
+            const rawValue = field.value.trim();
+            const parsedValue = Number.parseInt(rawValue, 10);
+
+            captchaQuestion.classList.remove('valid', 'invalid');
+            field.classList.remove('is-valid', 'is-invalid');
+
+            if (rawValue === '' || Number.isNaN(parsedValue) || parsedValue < 1 || parsedValue > 10) {
+                captchaQuestion.classList.add('invalid');
+                field.classList.add('is-invalid');
+                return false;
+            }
+
+            captchaQuestion.classList.add('valid');
+            field.classList.add('is-valid');
+            return true;
+        }
+
+        [pprField, passwordField].forEach((field) => {
+            if (!field) {
                 return;
             }
-            
-            // Add loading state
-            btn.classList.add('loading');
-            btnText.textContent = 'Connexion...';
-            btn.disabled = true;
-            
-            // Re-enable button after 10 seconds (fallback)
-            setTimeout(() => {
-                btn.classList.remove('loading');
-                btnText.textContent = 'Se connecter';
-                btn.disabled = false;
-            }, 10000);
+
+            field.addEventListener('input', () => validateField(field));
+            field.addEventListener('blur', () => validateField(field));
         });
 
-        // Enhanced keyboard navigation
+        document.querySelectorAll('.form-control').forEach((input) => {
+            input.addEventListener('focus', function() {
+                this.parentElement?.classList.add('focused');
+                this.setAttribute('aria-expanded', 'true');
+            });
+
+            input.addEventListener('blur', function() {
+                this.parentElement?.classList.remove('focused');
+                this.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                const btn = document.getElementById('loginBtn');
+                const btnText = btn?.querySelector('.btn-text');
+                const pprValid = validateField(pprField);
+                const passwordValid = validateField(passwordField);
+                const captchaValid = validateCaptchaInput(captchaField);
+
+                if (!pprValid || !passwordValid || !captchaValid) {
+                    e.preventDefault();
+
+                    if (!pprValid && pprField) {
+                        pprField.classList.add('is-invalid');
+                        pprField.focus();
+                    } else if (!passwordValid && passwordField) {
+                        passwordField.classList.add('is-invalid');
+                        passwordField.focus();
+                    } else if (captchaField) {
+                        captchaField.classList.add('is-invalid');
+                        captchaField.focus();
+                    }
+
+                    return;
+                }
+
+                if (btn && btnText) {
+                    btn.classList.add('loading');
+                    btnText.textContent = 'Connexion...';
+                    btn.disabled = true;
+
+                    setTimeout(() => {
+                        btn.classList.remove('loading');
+                        btnText.textContent = 'Se connecter';
+                        btn.disabled = false;
+                    }, 10000);
+                }
+            });
+        }
+
         document.addEventListener('keydown', function(e) {
-            // Enter key on password field should submit form
-            if (e.key === 'Enter' && e.target.id === 'password') {
-                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            if (e.key === 'Enter' && e.target?.id === 'password') {
+                loginForm?.requestSubmit();
             }
-            
-            // Escape key to clear password field
-            if (e.key === 'Escape' && e.target.id === 'password') {
+
+            if (e.key === 'Escape' && e.target?.id === 'password') {
                 e.target.value = '';
                 e.target.classList.remove('is-valid', 'is-invalid');
             }
         });
 
-        // Auto-focus management
         document.addEventListener('DOMContentLoaded', function() {
-            const pprField = document.getElementById('ppr');
             if (pprField && !pprField.value) {
                 pprField.focus();
             }
-        });
-
-        // Add focus effects to form inputs
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.classList.remove('focused');
-            });
-        });
-
-        // Accessibility improvements
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.setAttribute('aria-expanded', 'true');
-            });
-            
-            input.addEventListener('blur', function() {
-                this.setAttribute('aria-expanded', 'false');
-            });
         });
     </script>
 </body>

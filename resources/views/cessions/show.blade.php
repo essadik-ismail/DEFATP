@@ -9,13 +9,13 @@
 
 @section('content')
 @php
-    $status = $cession->status ?? 'brouillon';
+    $status = $cession->status ?? '';
     $statusMap = [
-        'brouillon' => ['label' => 'Brouillon',  'icon' => 'fa-pencil-alt', 'bg' => 'bg-gray-50',    'text' => 'text-gray-700',    'ring' => 'ring-gray-200',    'dot' => 'bg-gray-400'],
-        'en_cours'  => ['label' => 'En cours',    'icon' => 'fa-spinner',    'bg' => 'bg-amber-50',   'text' => 'text-amber-700',   'ring' => 'ring-amber-200',   'dot' => 'bg-amber-400'],
-        'cloture'   => ['label' => 'Clôturée',    'icon' => 'fa-check-circle','bg' => 'bg-emerald-50','text' => 'text-emerald-700', 'ring' => 'ring-emerald-200', 'dot' => 'bg-emerald-500'],
+        ''         => ['label' => '—',            'icon' => 'fa-minus',       'bg' => 'bg-gray-50',    'text' => 'text-gray-500',    'ring' => 'ring-gray-200',    'dot' => 'bg-gray-400'],
+        'en_cours' => ['label' => 'En cours',     'icon' => 'fa-spinner',     'bg' => 'bg-amber-50',   'text' => 'text-amber-700',   'ring' => 'ring-amber-200',   'dot' => 'bg-amber-400'],
+        'cloture'  => ['label' => 'Clôturée',     'icon' => 'fa-check-circle','bg' => 'bg-emerald-50','text' => 'text-emerald-700', 'ring' => 'ring-emerald-200', 'dot' => 'bg-emerald-500'],
     ];
-    $badge = $statusMap[$status] ?? $statusMap['brouillon'];
+    $badge = $statusMap[$status] ?? $statusMap[''];
     $articleCount = $cession->articles->count();
 @endphp
 <div class="min-w-0 max-w-full overflow-x-hidden">
@@ -31,12 +31,24 @@
                 <i class="fas fa-arrow-left text-xs"></i>
                 Retour
             </a>
-            <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white shadow-sm"
-               style="background: var(--primary-gradient); box-shadow: var(--shadow-md);">
-                <i class="fas fa-plus"></i>
-                Ajouter Article
-            </a>
+            @if(($cession->status ?? '') !== 'cloture')
+                <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
+                   class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white shadow-sm"
+                   style="background: var(--primary-gradient); box-shadow: var(--shadow-md);">
+                    <i class="fas fa-plus"></i>
+                    Ajouter Article
+                </a>
+                <form action="{{ route('cessions.cloture', $cession) }}" method="POST" class="inline"
+                      onsubmit="return confirm('Clôturer cette cession ?');">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors">
+                        <i class="fas fa-check-circle"></i>
+                        Clôturer la cession
+                    </button>
+                </form>
+            @endif
         </x-slot>
     </x-page-header>
 
@@ -110,11 +122,13 @@
                     <p class="text-xs text-gray-500">{{ $articleCount }} article(s) dans cette cession</p>
                 </div>
             </div>
-            <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
-               class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-sm">
-                <i class="fas fa-plus"></i>
-                Ajouter
-            </a>
+            @if(($cession->status ?? '') !== 'cloture')
+                <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
+                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-sm">
+                    <i class="fas fa-plus"></i>
+                    Ajouter
+                </a>
+            @endif
         </div>
 
         <div class="overflow-x-auto w-full" style="-webkit-overflow-scrolling: touch;">

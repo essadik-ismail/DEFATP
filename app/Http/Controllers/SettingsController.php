@@ -19,7 +19,10 @@ use App\Models\NatureDeCoupe;
 use App\Models\SituationAdministrative;
 use App\Models\Exploitant;
 use App\Models\Coperative;
+use App\Models\Dpanef;
+use App\Models\Dranef;
 use App\Models\Vocation;
+use App\Models\Zdtf;
 use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -42,7 +45,16 @@ class SettingsController extends Controller
 {
     public function index(): View
     {
-        return view('settings.index');
+        $stats = [
+            'essences' => Essence::count(),
+            'forets' => Foret::count(),
+            'nature_de_coupes' => NatureDeCoupe::count(),
+            'situation_administratives' => SituationAdministrative::count(),
+            'exploitants' => Exploitant::count(),
+            'dranefs' => Dranef::count(),
+        ];
+
+        return view('settings.index', compact('stats'));
     }
 
 
@@ -101,10 +113,10 @@ class SettingsController extends Controller
 
         // Get statistics for the current filtered results
         $stats = [
-            'total' => $query->count(),
-            'active' => $query->whereNull('deleted_at')->count(),
-            'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
-            'unique' => $query->distinct('essence')->count(),
+            'total' => (clone $query)->count(),
+            'active' => (clone $query)->whereNull('deleted_at')->count(),
+            'recent' => (clone $query)->where('created_at', '>=', now()->subDays(30))->count(),
+            'unique' => (clone $query)->distinct()->count('essence'),
         ];
 
         return view('settings.essences.index', compact('essences', 'stats'));
@@ -118,7 +130,7 @@ class SettingsController extends Controller
     public function storeEssence(StoreEssenceRequest $request): RedirectResponse
     {
         Essence::create($request->only('essence'));
-        return redirect()->route('cessions.index')->with('success', 'Essence ajoutée avec succès.');
+        return redirect()->route('settings.essences.index')->with('success', 'Essence ajoutée avec succès.');
     }
 
     public function editEssence(Essence $essence): View
@@ -129,13 +141,13 @@ class SettingsController extends Controller
     public function updateEssence(UpdateEssenceRequest $request, Essence $essence): RedirectResponse
     {
         $essence->update($request->only('essence'));
-        return redirect()->route('cessions.index')->with('success', 'Essence mise à jour avec succès.');
+        return redirect()->route('settings.essences.index')->with('success', 'Essence mise à jour avec succès.');
     }
 
     public function destroyEssence(Essence $essence): RedirectResponse
     {
         $essence->delete(); // Soft delete
-        return redirect()->route('settings.essences')->with('success', 'Essence supprimée avec succès.');
+        return redirect()->route('settings.essences.index')->with('success', 'Essence supprimée avec succès.');
     }
 
     // Forets Management
@@ -176,32 +188,32 @@ class SettingsController extends Controller
 
     public function createForet(): View
     {
-        $dpanefs = \App\Models\Dpanef::with('dranef')->orderBy('name')->get();
+        $dpanefs = Dpanef::with('dranef')->orderBy('dpanef')->get();
         return view('settings.forets.create', compact('dpanefs'));
     }
 
     public function storeForet(Request $request): RedirectResponse
     {
         Foret::create($request->only(['foret', 'lat', 'log', 'province', 'nature_juridique', 'dpanef_id']));
-        return redirect()->route('cessions.index')->with('success', 'Forêt ajoutée avec succès.');
+        return redirect()->route('settings.forets.index')->with('success', 'Forêt ajoutée avec succès.');
     }
 
     public function editForet(Foret $foret): View
     {
-        $dpanefs = \App\Models\Dpanef::with('dranef')->orderBy('name')->get();
+        $dpanefs = Dpanef::with('dranef')->orderBy('dpanef')->get();
         return view('settings.forets.edit', compact('foret', 'dpanefs'));
     }
 
     public function updateForet(UpdateForetRequest $request, Foret $foret): RedirectResponse
     {
         $foret->update($request->only(['foret', 'lat', 'log', 'province', 'nature_juridique', 'dpanef_id']));
-        return redirect()->route('cessions.index')->with('success', 'Forêt mise à jour avec succès.');
+        return redirect()->route('settings.forets.index')->with('success', 'Forêt mise à jour avec succès.');
     }
 
     public function destroyForet(Foret $foret): RedirectResponse
     {
         $foret->delete(); // Soft delete
-        return redirect()->route('settings.forets')->with('success', 'Forêt supprimée avec succès.');
+        return redirect()->route('settings.forets.index')->with('success', 'Forêt supprimée avec succès.');
     }
 
     // Nature de Coupes Management
@@ -258,10 +270,10 @@ class SettingsController extends Controller
 
         // Get statistics for the current filtered results
         $stats = [
-            'total' => $query->count(),
-            'active' => $query->whereNull('deleted_at')->count(),
-            'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
-            'unique' => $query->distinct('nature_de_coupe')->count(),
+            'total' => (clone $query)->count(),
+            'active' => (clone $query)->whereNull('deleted_at')->count(),
+            'recent' => (clone $query)->where('created_at', '>=', now()->subDays(30))->count(),
+            'unique' => (clone $query)->distinct()->count('nature_de_coupe'),
         ];
 
         return view('settings.nature-de-coupes.index', compact('natureDeCoupes', 'stats'));
@@ -284,7 +296,7 @@ class SettingsController extends Controller
             $request
         );
         
-        return redirect()->route('cessions.index')->with('success', 'Nature de coupe ajoutée avec succès.');
+        return redirect()->route('settings.nature-de-coupes.index')->with('success', 'Nature de coupe ajoutée avec succès.');
     }
 
     public function editNatureDeCoupe(NatureDeCoupe $natureDeCoupe): View
@@ -315,7 +327,7 @@ class SettingsController extends Controller
             $request
         );
         
-        return redirect()->route('cessions.index')->with('success', 'Nature de coupe mise à jour avec succès.');
+        return redirect()->route('settings.nature-de-coupes.index')->with('success', 'Nature de coupe mise à jour avec succès.');
     }
 
     public function destroyNatureDeCoupe(NatureDeCoupe $natureDeCoupe): RedirectResponse
@@ -331,7 +343,7 @@ class SettingsController extends Controller
             request()
         );
         
-        return redirect()->route('settings.nature-de-coupes')->with('success', 'Nature de coupe supprimée avec succès.');
+        return redirect()->route('settings.nature-de-coupes.index')->with('success', 'Nature de coupe supprimée avec succès.');
     }
 
     // Situation Administratives Management
@@ -396,10 +408,10 @@ class SettingsController extends Controller
 
         // Get statistics for the current filtered results
         $stats = [
-            'total' => $query->count(),
-            'active' => $query->whereNull('deleted_at')->count(),
-            'recent' => $query->where('created_at', '>=', now()->subDays(30))->count(),
-            'unique' => $query->distinct('commune')->count(),
+            'total' => (clone $query)->count(),
+            'active' => (clone $query)->whereNull('deleted_at')->count(),
+            'recent' => (clone $query)->where('created_at', '>=', now()->subDays(30))->count(),
+            'unique' => (clone $query)->distinct()->count('commune'),
         ];
 
         return view('settings.situation-administratives.index', compact('situationAdministratives', 'stats'));
@@ -422,7 +434,7 @@ class SettingsController extends Controller
             $request
         );
         
-        return redirect()->route('cessions.index')->with('success', 'Situation administrative ajoutée avec succès.');
+        return redirect()->route('settings.situation-administratives.index')->with('success', 'Situation administrative ajoutée avec succès.');
     }
 
     public function editSituationAdministrative(SituationAdministrative $situationAdministrative): View
@@ -453,7 +465,7 @@ class SettingsController extends Controller
             $request
         );
         
-        return redirect()->route('cessions.index')->with('success', 'Situation administrative mise à jour avec succès.');
+        return redirect()->route('settings.situation-administratives.index')->with('success', 'Situation administrative mise à jour avec succès.');
     }
 
     public function destroySituationAdministrative(SituationAdministrative $situationAdministrative): RedirectResponse
@@ -469,7 +481,7 @@ class SettingsController extends Controller
             request()
         );
         
-        return redirect()->route('settings.situation-administratives')->with('success', 'Situation administrative supprimée avec succès.');
+        return redirect()->route('settings.situation-administratives.index')->with('success', 'Situation administrative supprimée avec succès.');
     }
 
     // Exploitants Management
@@ -496,7 +508,7 @@ class SettingsController extends Controller
                 $q->where('nom_complet', 'like', "%{$search}%")
                   ->orWhere('raison_sociale', 'like', "%{$search}%")
                   ->orWhere('n_cin', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('adresse', 'like', "%{$search}%")
                   ->orWhere('numero', 'like', "%{$search}%");
             });
         }
@@ -547,7 +559,7 @@ class SettingsController extends Controller
         $sortField = $request->get('sort', 'nom_complet');
         $sortDirection = $request->get('direction', 'asc');
         
-        $allowedSortFields = ['id', 'nom_complet', 'email', 'created_at', 'updated_at'];
+        $allowedSortFields = ['id', 'nom_complet', 'numero', 'n_cin', 'created_at', 'updated_at'];
         if (in_array($sortField, $allowedSortFields)) {
             $query->orderBy($sortField, $sortDirection);
         }
@@ -575,7 +587,7 @@ class SettingsController extends Controller
                 $q->where('nom_complet', 'like', "%{$search}%")
                   ->orWhere('raison_sociale', 'like', "%{$search}%")
                   ->orWhere('n_cin', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('adresse', 'like', "%{$search}%")
                   ->orWhere('numero', 'like', "%{$search}%");
             });
         }
@@ -651,6 +663,11 @@ class SettingsController extends Controller
     {
         try {
             $validated = $request->validated();
+
+            if (array_key_exists('localisation_id', $validated)) {
+                $validated['dranef_id'] = $validated['localisation_id'];
+                unset($validated['localisation_id']);
+            }
             
             // Handle image upload - store in private directory
             if ($request->hasFile('image')) {
@@ -683,7 +700,7 @@ class SettingsController extends Controller
                         'id' => $exploitant->id,
                         'numero' => $exploitant->numero,
                         'nom_complet' => $exploitant->nom_complet,
-                        'cin' => $exploitant->cin
+                        'cin' => $exploitant->n_cin
                     ]
                 ]);
             }
@@ -730,8 +747,13 @@ class SettingsController extends Controller
 
     public function updateExploitant(UpdateExploitantRequest $request, Exploitant $exploitant): RedirectResponse
     {
-        $oldData = $exploitant->only(['nom_complet', 'email']);
+        $oldData = $exploitant->only(['nom_complet', 'numero', 'n_cin', 'dranef_id']);
         $validated = $request->validated();
+
+        if (array_key_exists('localisation_id', $validated)) {
+            $validated['dranef_id'] = $validated['localisation_id'];
+            unset($validated['localisation_id']);
+        }
         
         // Handle image upload - store in private directory
         if ($request->hasFile('image')) {
@@ -750,7 +772,7 @@ class SettingsController extends Controller
         $exploitant->update($validated);
         
         // Log exploitant update
-        $changes = array_diff_assoc($exploitant->fresh()->only(['nom_complet', 'email']), $oldData);
+        $changes = array_diff_assoc($exploitant->fresh()->only(['nom_complet', 'numero', 'n_cin', 'dranef_id']), $oldData);
         ActivityLogger::logUpdate(
             Exploitant::class,
             $exploitant->id,
@@ -907,7 +929,7 @@ class SettingsController extends Controller
         $zdtf = Zdtf::create($request->only(['dpanef_id', 'sdtf']));
         ActivityLogger::log('create', 'Création d\'un ZDTF', Zdtf::class, $zdtf->id);
 
-        return redirect()->route('settings.zdtfs')->with('success', 'ZDTF créé avec succès.');
+        return redirect()->route('settings.zdtfs.index')->with('success', 'ZDTF créé avec succès.');
     }
 
     public function editZdtf(Zdtf $zdtf): View
@@ -926,7 +948,7 @@ class SettingsController extends Controller
         $zdtf->update($request->only(['dpanef_id', 'sdtf']));
         ActivityLogger::log('update', 'Modification d\'un ZDTF', Zdtf::class, $zdtf->id);
 
-        return redirect()->route('settings.zdtfs')->with('success', 'ZDTF mis à jour avec succès.');
+        return redirect()->route('settings.zdtfs.index')->with('success', 'ZDTF mis à jour avec succès.');
     }
 
     public function destroyZdtf(Zdtf $zdtf): RedirectResponse
@@ -934,7 +956,7 @@ class SettingsController extends Controller
         $zdtf->delete();
         ActivityLogger::log('delete', 'Suppression d\'un ZDTF', Zdtf::class, $zdtf->id);
 
-        return redirect()->route('settings.zdtfs')->with('success', 'ZDTF supprimé avec succès.');
+        return redirect()->route('settings.zdtfs.index')->with('success', 'ZDTF supprimé avec succès.');
     }
 
     // DPANEFs Management
@@ -977,7 +999,7 @@ class SettingsController extends Controller
         $dpanef = Dpanef::create($request->only(['dranef_id', 'dpanef']));
         ActivityLogger::log('create', 'Création d\'un DPANEF', Dpanef::class, $dpanef->id);
 
-        return redirect()->route('settings.dpanefs')->with('success', 'DPANEF créé avec succès.');
+        return redirect()->route('settings.dpanefs.index')->with('success', 'DPANEF créé avec succès.');
     }
 
     public function editDpanef(Dpanef $dpanef): View
@@ -996,7 +1018,7 @@ class SettingsController extends Controller
         $dpanef->update($request->only(['dranef_id', 'dpanef']));
         ActivityLogger::log('update', 'Modification d\'un DPANEF', Dpanef::class, $dpanef->id);
 
-        return redirect()->route('settings.dpanefs')->with('success', 'DPANEF mis à jour avec succès.');
+        return redirect()->route('settings.dpanefs.index')->with('success', 'DPANEF mis à jour avec succès.');
     }
 
     public function destroyDpanef(Dpanef $dpanef): RedirectResponse
@@ -1004,7 +1026,7 @@ class SettingsController extends Controller
         $dpanef->delete();
         ActivityLogger::log('delete', 'Suppression d\'un DPANEF', Dpanef::class, $dpanef->id);
 
-        return redirect()->route('settings.dpanefs')->with('success', 'DPANEF supprimé avec succès.');
+        return redirect()->route('settings.dpanefs.index')->with('success', 'DPANEF supprimé avec succès.');
     }
 
     // DRANEFs Management
@@ -1045,7 +1067,7 @@ class SettingsController extends Controller
         $dranef = Dranef::create($request->only(['dranef', 'adresse', 'tel', 'fax']));
         ActivityLogger::log('create', 'Création d\'un DRANEF', Dranef::class, $dranef->id);
 
-        return redirect()->route('settings.dranefs')->with('success', 'DRANEF créé avec succès.');
+        return redirect()->route('settings.dranefs.index')->with('success', 'DRANEF créé avec succès.');
     }
 
     public function editDranef(Dranef $dranef): View
@@ -1065,7 +1087,7 @@ class SettingsController extends Controller
         $dranef->update($request->only(['dranef', 'adresse', 'tel', 'fax']));
         ActivityLogger::log('update', 'Modification d\'un DRANEF', Dranef::class, $dranef->id);
 
-        return redirect()->route('settings.dranefs')->with('success', 'DRANEF mis à jour avec succès.');
+        return redirect()->route('settings.dranefs.index')->with('success', 'DRANEF mis à jour avec succès.');
     }
 
     public function destroyDranef(Dranef $dranef): RedirectResponse
@@ -1073,7 +1095,7 @@ class SettingsController extends Controller
         $dranef->delete();
         ActivityLogger::log('delete', 'Suppression d\'un DRANEF', Dranef::class, $dranef->id);
 
-        return redirect()->route('settings.dranefs')->with('success', 'DRANEF supprimé avec succès.');
+        return redirect()->route('settings.dranefs.index')->with('success', 'DRANEF supprimé avec succès.');
     }
 
     // Situation Forestieres Management
@@ -1192,7 +1214,7 @@ class SettingsController extends Controller
                 $request
             );
             
-            return redirect()->route('settings.essences')->with('success', 'Essences importées avec succès.');
+            return redirect()->route('settings.essences.index')->with('success', 'Essences importées avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
         }
@@ -1218,7 +1240,7 @@ class SettingsController extends Controller
                 $request
             );
             
-            return redirect()->route('settings.forets')->with('success', 'Forêts importées avec succès.');
+            return redirect()->route('settings.forets.index')->with('success', 'Forêts importées avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
         }
@@ -1244,7 +1266,7 @@ class SettingsController extends Controller
                 $request
             );
             
-            return redirect()->route('settings.nature-de-coupes')->with('success', 'Natures de coupe importées avec succès.');
+            return redirect()->route('settings.nature-de-coupes.index')->with('success', 'Natures de coupe importées avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
         }
@@ -1270,7 +1292,7 @@ class SettingsController extends Controller
                 $request
             );
             
-            return redirect()->route('settings.situation-administratives')->with('success', 'Situations administratives importées avec succès.');
+            return redirect()->route('settings.situation-administratives.index')->with('success', 'Situations administratives importées avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
         }

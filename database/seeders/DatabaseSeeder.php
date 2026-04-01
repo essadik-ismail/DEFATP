@@ -31,9 +31,6 @@ class DatabaseSeeder extends Seeder
             // Geographic seeders - must be in order: Province first, then Commune
             ProvinceSeeder::class,
             CommuneSeeder::class,
-            // LegacyArticlesSeeder::class,
-            // ContractSeeder::class,
-            // AvenantSeeder::class,
         ]);
     }
 

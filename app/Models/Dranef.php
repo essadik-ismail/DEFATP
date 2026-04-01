@@ -19,6 +19,27 @@ class Dranef extends Model
         'fax',
     ];
 
+    public function getCODEAttribute(): ?string
+    {
+        return $this->code;
+    }
+
+    public function getDRANEFAttribute(): ?string
+    {
+        return $this->dranef;
+    }
+
+    public function getDPANEFAttribute(): ?string
+    {
+        return $this->dpanefsByCode()->orderBy('dpanef')->value('dpanef')
+            ?? $this->dpanefs()->orderBy('dpanef')->value('dpanef');
+    }
+
+    public function getENTITEAttribute(): ?string
+    {
+        return $this->getAttribute('Abréviation');
+    }
+
     /**
      * Get the dpanefs for this dranef (by ID).
      */

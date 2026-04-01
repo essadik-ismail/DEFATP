@@ -25,6 +25,7 @@ class ColportageEnlever extends Model
         'destination',
         'numero_permis',
         'carnet_id',
+        'fichier_joint',
     ];
 
     protected $casts = [

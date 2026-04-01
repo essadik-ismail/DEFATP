@@ -67,11 +67,6 @@
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="inline-flex items-center gap-2">
-                                <a href="{{ route('carnets.edit', $carnet) }}"
-                                   class="inline-flex items-center justify-center w-7 h-7 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-full transition-colors"
-                                   title="Modifier">
-                                    <i class="fas fa-edit text-xs"></i>
-                                </a>
                                 @if($carnet->canBeMarkedPerdu())
                                     <form action="{{ route('carnets.mark-perdu', $carnet) }}" method="POST" class="inline"
                                           onsubmit="return confirm('Marquer ce carnet comme perdu ?');">
@@ -84,16 +79,6 @@
                                         </button>
                                     </form>
                                 @endif
-                                <form action="{{ route('carnets.destroy', $carnet) }}" method="POST" class="inline"
-                                      onsubmit="return confirm('Supprimer ce carnet (suppression logique) ?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                            class="inline-flex items-center justify-center w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors"
-                                            title="Supprimer">
-                                        <i class="fas fa-trash text-xs"></i>
-                                    </button>
-                                </form>
                             </div>
                         </td>
                     </tr>

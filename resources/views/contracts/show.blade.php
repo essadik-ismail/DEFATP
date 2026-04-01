@@ -34,12 +34,7 @@
                             <i class="fas fa-plus"></i>
                             <span>Créer un Avenant</span>
                         </a>
-                        <a href="{{ route('contracts.edit', $contract) }}" 
-                           class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                            <i class="fas fa-edit"></i>
-                            <span>Modifier</span>
-                        </a>
-                        <a href="{{ route('contracts.index') }}" 
+                        <a href="{{ route('entity-data.index', ['tab' => 'coperatives']) }}" 
                            class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                             <i class="fas fa-arrow-left"></i>
                             <span>Retour</span>
