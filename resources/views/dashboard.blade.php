@@ -36,26 +36,33 @@
         @foreach($statsData as $index => $stat)
         @php
             $gradients = [
-                'green'  => ['from'=>'#059669','to'=>'#047857','light'=>'rgba(5,150,105,0.08)','ring'=>'rgba(5,150,105,0.2)'],
-                'teal'   => ['from'=>'#0d9488','to'=>'#0f766e','light'=>'rgba(13,148,136,0.08)','ring'=>'rgba(13,148,136,0.2)'],
-                'blue'   => ['from'=>'#2563eb','to'=>'#1d4ed8','light'=>'rgba(37,99,235,0.08)','ring'=>'rgba(37,99,235,0.2)'],
-                'purple' => ['from'=>'#7c3aed','to'=>'#6d28d9','light'=>'rgba(124,58,237,0.08)','ring'=>'rgba(124,58,237,0.2)'],
+                'green'  => ['from'=>'#059669','to'=>'#047857','light'=>'rgba(5,150,105,0.08)','ring'=>'rgba(5,150,105,0.2)', 'glow'=>'rgba(5,150,105,0.15)'],
+                'teal'   => ['from'=>'#0d9488','to'=>'#0f766e','light'=>'rgba(13,148,136,0.08)','ring'=>'rgba(13,148,136,0.2)', 'glow'=>'rgba(13,148,136,0.15)'],
+                'blue'   => ['from'=>'#2563eb','to'=>'#1d4ed8','light'=>'rgba(37,99,235,0.08)','ring'=>'rgba(37,99,235,0.2)', 'glow'=>'rgba(37,99,235,0.15)'],
+                'purple' => ['from'=>'#7c3aed','to'=>'#6d28d9','light'=>'rgba(124,58,237,0.08)','ring'=>'rgba(124,58,237,0.2)', 'glow'=>'rgba(124,58,237,0.15)'],
             ];
             $g = $gradients[$stat['color']] ?? $gradients['green'];
         @endphp
         <a href="{{ $stat['route'] }}"
-           class="stat-card block rounded-2xl bg-white p-5 transition-all duration-200"
+           class="stat-card group block rounded-2xl bg-white p-5 transition-all duration-200"
            style="border: 1px solid {{ $g['ring'] }}; box-shadow: var(--shadow-card);">
             <div class="flex items-start justify-between gap-3">
-                <div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center"
-                     style="background: linear-gradient(135deg, {{ $g['from'] }}, {{ $g['to'] }}); box-shadow: 0 3px 8px {{ $g['ring'] }};">
+                <div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+                     style="background: linear-gradient(135deg, {{ $g['from'] }}, {{ $g['to'] }}); box-shadow: 0 4px 12px {{ $g['glow'] }};">
                     <i class="{{ $stat['icon'] }} text-white text-base"></i>
                 </div>
-                <i class="fas fa-chevron-right text-gray-300 text-xs mt-1 flex-shrink-0"></i>
+                <i class="fas fa-arrow-right text-gray-300 text-xs mt-1 flex-shrink-0 transition-all duration-200 group-hover:text-gray-400 group-hover:translate-x-0.5"></i>
             </div>
-            <div class="mt-3">
-                <p class="text-2xl font-bold text-gray-900 leading-none">{{ number_format($stat['value']) }}</p>
-                <p class="text-xs font-medium text-gray-500 mt-1">{{ $stat['title'] }}</p>
+            <div class="mt-4">
+                <p class="text-3xl font-bold text-gray-900 leading-none tracking-tight">{{ number_format($stat['value']) }}</p>
+                <div class="flex items-center justify-between mt-1.5">
+                    <p class="text-xs font-medium text-gray-500">{{ $stat['title'] }}</p>
+                    <span class="inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded-full"
+                          style="background: {{ $g['light'] }}; color: {{ $g['from'] }};">
+                        <i class="fas fa-layer-group" style="font-size:0.55rem;"></i>
+                        Total
+                    </span>
+                </div>
             </div>
         </a>
         @endforeach
@@ -63,26 +70,33 @@
 
     <!-- Actions Required (if any) -->
     @if(count($actionsRequired) > 0)
-    <div class="rounded-2xl border bg-white mb-8 overflow-hidden" style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);">
-        <div class="px-6 py-4 border-b flex items-center gap-3" style="border-color: rgba(154,179,163,0.3);">
-            <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
-                <i class="fas fa-exclamation-triangle text-white text-sm"></i>
+    <div class="rounded-2xl border bg-white mb-8 overflow-hidden" style="border-color: rgba(245,158,11,0.3); box-shadow: 0 0 0 1px rgba(245,158,11,0.08), var(--shadow-card);">
+        <div class="px-6 py-4 border-b flex items-center justify-between" style="border-color: rgba(245,158,11,0.2); background: rgba(255,251,235,0.6);">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg,#f59e0b,#d97706); box-shadow: 0 2px 6px rgba(245,158,11,0.3);">
+                    <i class="fas fa-exclamation-triangle text-white text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900">Actions requises</h3>
+                    <p class="text-xs text-amber-600 font-medium">{{ count($actionsRequired) }} élément(s) nécessitent votre attention</p>
+                </div>
             </div>
-            <h3 class="text-base font-semibold text-gray-900">Actions requises</h3>
         </div>
         <div class="p-4">
             <div class="flex flex-col sm:flex-row flex-wrap gap-3">
                 @foreach($actionsRequired as $action)
-                <a href="{{ $action['route'] }}" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border bg-white hover:shadow-md transition-all"
+                <a href="{{ $action['route'] }}" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border bg-white hover:shadow-md hover:border-amber-200 transition-all group"
                    style="border-color: rgba(154,179,163,0.4);">
-                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 text-amber-600">
+                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-100 transition-colors">
                         <i class="fas {{ $action['icon'] }}"></i>
                     </span>
                     <div class="text-left">
-                        <p class="font-semibold text-gray-900">{{ $action['title'] }}</p>
-                        <p class="text-xs text-gray-500">{{ $action['description'] }} — {{ $action['count'] }} concerné(s)</p>
+                        <p class="font-semibold text-gray-900 text-sm">{{ $action['title'] }}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">{{ $action['description'] }} —
+                            <span class="font-semibold text-amber-600">{{ $action['count'] }} concerné(s)</span>
+                        </p>
                     </div>
-                    <i class="fas fa-chevron-right text-gray-400 text-sm ml-auto"></i>
+                    <i class="fas fa-arrow-right text-gray-300 text-xs ml-auto group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all"></i>
                 </a>
                 @endforeach
             </div>

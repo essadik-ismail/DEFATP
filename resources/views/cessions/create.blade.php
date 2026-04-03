@@ -4,164 +4,146 @@
 
 @section('breadcrumb')
 <li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
-<li class="breadcrumb-item active">Nouvelle Cession</li>
+<li class="breadcrumb-item active">Nouvelle cession</li>
 @endsection
 
 @section('content')
-<div class="min-w-0 max-w-full overflow-x-hidden" x-data="{ type: '{{ old('type', 'adjudication') }}' }">
+<div
+    class="min-w-0 max-w-full overflow-x-hidden"
+    x-data="{ type: '{{ old('type', 'adjudication') }}' }"
+>
+
+    {{-- ─── Page header ─────────────────────────────────────────────── --}}
     <x-page-header
-        title="Nouvelle Cession"
+        title="Nouvelle cession"
         subtitle="Créer une cession par adjudication ou appel d'offre"
         icon="fas fa-gavel"
     >
         <x-slot name="actions">
-            <a href="{{ route('cessions.index') }}"
-               class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200">
-                <i class="fas fa-arrow-left"></i>
-                <span>Retour à la liste</span>
-            </a>
+            <x-button href="{{ route('cessions.index') }}" variant="secondary" icon="fas fa-arrow-left" size="sm">
+                Retour à la liste
+            </x-button>
         </x-slot>
     </x-page-header>
 
-    <div class="max-w-3xl">
-        <div class="rounded-2xl border bg-white p-6"
-             style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);">
-            @if ($errors->any())
-                <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                    <p class="font-semibold mb-1">Veuillez corriger les erreurs suivantes :</p>
-                    <ul class="list-disc list-inside space-y-0.5">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+    {{-- ─── Validation errors ──────────────────────────────────────── --}}
+    @if($errors->any())
+        <x-alert type="error" title="Veuillez corriger les erreurs suivantes" dismissible class="mb-4">
+            <ul class="list-disc list-inside space-y-0.5 mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </x-alert>
+    @endif
 
-            <form action="{{ route('cessions.store') }}" method="POST" class="space-y-6">
-                @csrf
+    <form action="{{ route('cessions.store') }}" method="POST">
+        @csrf
+        <input type="hidden" name="type" :value="type">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- DRANEF -->
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">
-                            DRANEF <span class="text-red-500">*</span>
-                        </label>
-                        <select
-                            name="dranef_id"
-                            class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500"
-                            required
-                        >
-                            <option value="">Sélectionner une DRANEF</option>
-                            @foreach($dranefs as $dranef)
-                                <option value="{{ $dranef->id }}" @selected(old('dranef_id') == $dranef->id)>
-                                    {{ $dranef->dranef }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+        <x-form-card title="Paramètres de la cession" max-width="3xl">
 
-                    <!-- Année / Exercice -->
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">
-                            Année / Exercice <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            name="annee_exercice"
-                            min="2000"
-                            max="{{ now()->year + 1 }}"
-                            value="{{ old('annee_exercice', now()->year) }}"
-                            class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500"
-                            required
-                        />
-                    </div>
+            <div class="space-y-5">
 
-                    <!-- Type -->
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">
-                            Type de cession <span class="text-red-500">*</span>
-                        </label>
-                        <div class="inline-flex rounded-full border border-gray-200 bg-gray-50 p-0.5 text-xs">
-                            <button
-                                type="button"
-                                @click="type = 'adjudication'"
-                                :class="type === 'adjudication' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600'"
-                                class="px-3 py-1 rounded-full transition"
-                            >
-                                Adjudication
-                            </button>
-                            <button
-                                type="button"
-                                @click="type = 'appel_offre'"
-                                :class="type === 'appel_offre' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600'"
-                                class="px-3 py-1 rounded-full transition"
-                            >
-                                Appel d'offre
-                            </button>
-                        </div>
-                        <input type="hidden" name="type" :value="type">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
-                    <!-- Adjudication fields -->
-                    <div x-show="type === 'adjudication'" x-transition>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">
-                            Date d'adjudication <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="date"
-                            name="date_adjudication"
-                            value="{{ old('date_adjudication') }}"
-                            class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500"
-                        />
-                    </div>
-
-                    <!-- Appel d'offre fields -->
-                    <div class="space-y-3" x-show="type === 'appel_offre'" x-transition>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">
-                                Numéro AO <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="numero_ao"
-                                value="{{ old('numero_ao') }}"
-                                class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500"
-                                placeholder="Ex: AO-2026-001"
-                            />
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">
-                                Date d'attribution <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="date"
-                                name="date_attribution"
-                                value="{{ old('date_attribution') }}"
-                                class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <a href="{{ route('cessions.index') }}"
-                       class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200">
-                        Annuler
-                    </a>
-                    <button
-                        type="submit"
-                        class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white shadow-sm"
-                        style="background: var(--primary-gradient);"
+                {{-- Row 1: DRANEF + Année --}}
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <x-form-input
+                        name="dranef_id"
+                        type="select"
+                        label="DRANEF"
+                        required
                     >
-                        <i class="fas fa-save mr-1.5"></i>
-                        Enregistrer
-                    </button>
+                        <option value="">Sélectionner une DRANEF…</option>
+                        @foreach($dranefs as $dranef)
+                            <option value="{{ $dranef->id }}" @selected(old('dranef_id') == $dranef->id)>
+                                {{ $dranef->dranef }}
+                            </option>
+                        @endforeach
+                    </x-form-input>
+
+                    <x-form-input
+                        name="annee_exercice"
+                        type="number"
+                        label="Année / Exercice"
+                        required
+                        min="2000"
+                        :max="now()->year + 1"
+                        :value="old('annee_exercice', now()->year)"
+                    />
                 </div>
-            </form>
-        </div>
-    </div>
+
+                {{-- Type toggle --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Type de cession <span class="text-red-500">*</span>
+                    </label>
+                    <div class="inline-flex rounded-xl border border-gray-200 bg-gray-100 p-1 text-sm gap-1">
+                        <button
+                            type="button"
+                            @click="type = 'adjudication'"
+                            :class="type === 'adjudication'
+                                ? 'bg-white text-emerald-700 shadow-sm font-semibold'
+                                : 'text-gray-500 hover:text-gray-700'"
+                            class="rounded-lg px-4 py-1.5 transition-all"
+                        >
+                            <i class="fas fa-gavel mr-1.5 text-xs"></i>Adjudication
+                        </button>
+                        <button
+                            type="button"
+                            @click="type = 'appel_offre'"
+                            :class="type === 'appel_offre'
+                                ? 'bg-white text-emerald-700 shadow-sm font-semibold'
+                                : 'text-gray-500 hover:text-gray-700'"
+                            class="rounded-lg px-4 py-1.5 transition-all"
+                        >
+                            <i class="fas fa-file-signature mr-1.5 text-xs"></i>Appel d'offre
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Adjudication fields --}}
+                <div x-show="type === 'adjudication'" x-transition>
+                    <x-form-input
+                        name="date_adjudication"
+                        type="date"
+                        label="Date d'adjudication"
+                        required
+                        :value="old('date_adjudication')"
+                    />
+                </div>
+
+                {{-- Appel d'offre fields --}}
+                <div x-show="type === 'appel_offre'" x-transition class="space-y-4">
+                    <x-form-input
+                        name="numero_ao"
+                        label="Numéro AO"
+                        placeholder="Ex : AO-2026-001"
+                        required
+                        :value="old('numero_ao')"
+                    />
+                    <x-form-input
+                        name="date_attribution"
+                        type="date"
+                        label="Date d'attribution"
+                        required
+                        :value="old('date_attribution')"
+                    />
+                </div>
+
+            </div>
+
+            <x-slot name="footer">
+                <x-button href="{{ route('cessions.index') }}" variant="secondary">
+                    Annuler
+                </x-button>
+                <x-button type="submit" icon="fas fa-save">
+                    Enregistrer
+                </x-button>
+            </x-slot>
+
+        </x-form-card>
+
+    </form>
+
 </div>
 @endsection
-

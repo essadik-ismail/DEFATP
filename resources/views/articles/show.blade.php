@@ -314,10 +314,9 @@
                             @if($showLettreAdjudicataire)
                                 <div class="flex items-center gap-2 text-sm">
                                     <span class="text-gray-500">Document :</span>
-                                    <a href="{{ route('articles.lettre-adjudicataire', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
-                                        <i class="fas fa-file-alt text-xs"></i>
+                                    <x-button href="{{ route('articles.lettre-adjudicataire', $article) }}" icon="fas fa-file-alt" size="sm">
                                         Lettre adjudicataire
-                                    </a>
+                                    </x-button>
                                 </div>
                             @endif
                         </div>
@@ -329,11 +328,10 @@
                                         Un contrat de vente existe déjà pour cet article.
                                     </p>
                                     <div class="flex gap-3">
-                                        <button type="button" onclick="toggleEditForm()" id="editContractBtn" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                                            <i class="fas fa-edit"></i>
-                                            <span>Modifier le Contrat</span>
-                                        </button>
-                                        <button type="button" onclick="toggleEditForm()" id="cancelEditBtn" class="hidden inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                                        <x-button type="button" onclick="toggleEditForm()" id="editContractBtn" icon="fas fa-edit">
+                                            Modifier le Contrat
+                                        </x-button>
+                                        <button type="button" onclick="toggleEditForm()" id="cancelEditBtn" class="hidden inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
                                             <i class="fas fa-times"></i>
                                             <span>Annuler</span>
                                         </button>
@@ -1106,16 +1104,14 @@
                                 <div class="flex flex-wrap items-center gap-2 text-sm">
                                     <span class="text-gray-500">Documents :</span>
                                     @if($showPermisExploiter)
-                                        <a href="{{ route('articles.permis-exploiter', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
-                                            <i class="fas fa-file-contract text-xs"></i>
+                                        <x-button href="{{ route('articles.permis-exploiter', $article) }}" icon="fas fa-file-contract" size="sm">
                                             Permis d'exploiter
-                                        </a>
+                                        </x-button>
                                     @endif
                                     @if($showPVInstallation)
-                                        <a href="{{ route('articles.pv-installation', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
-                                            <i class="fas fa-clipboard-check text-xs"></i>
+                                        <x-button href="{{ route('articles.pv-installation', $article) }}" icon="fas fa-clipboard-check" size="sm">
                                             PV d'installation
-                                        </a>
+                                        </x-button>
                                     @endif
                                 </div>
                             @endif
@@ -1310,16 +1306,14 @@
                                 <div class="flex flex-wrap items-center gap-2 text-sm">
                                     <span class="text-gray-500">Documents :</span>
                                     @if($showPermisEnlever)
-                                        <a href="{{ route('articles.permis-enlever', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
-                                            <i class="fas fa-file-alt text-xs"></i>
+                                        <x-button href="{{ route('articles.permis-enlever', $article) }}" icon="fas fa-file-alt" size="sm">
                                             Permis d'enlever
-                                        </a>
+                                        </x-button>
                                     @endif
                                     @if($showPermisColportage)
-                                        <a href="{{ route('articles.permis-colportage', $article) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors text-white hover:opacity-90" style="background: linear-gradient(135deg, #059669, #047857);">
-                                            <i class="fas fa-truck text-xs"></i>
+                                        <x-button href="{{ route('articles.permis-colportage', $article) }}" icon="fas fa-truck" size="sm">
                                             Permis de colportage
-                                        </a>
+                                        </x-button>
                                     @endif
                                 </div>
                             @endif

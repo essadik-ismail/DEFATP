@@ -20,6 +20,9 @@
     --color-text-on-light: #1F2D24;
 }
 
+/* Alpine.js: hide elements marked with x-cloak until Alpine initialises */
+[x-cloak] { display: none !important; }
+
 /* Custom Components and Enhancements - uses theme palette from layout :root */
 @layer components {
     /* Enhanced Button Styles */
@@ -137,6 +140,42 @@
     }
     .form-label.text-secondary {
         color: #6B7C72;
+    }
+
+    /* ── Table action icon-button (.tbl-action) ───────────────────────────
+       Used in list pages for the edit / view / delete icon buttons per row.
+       Usage:  <a href="..." class="tbl-action bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200">
+    ─────────────────────────────────────────────────────────────────────── */
+    .tbl-action {
+        @apply inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-150 text-xs focus:outline-none focus:ring-2 focus:ring-offset-1;
+    }
+
+    /* ── Page-level index table wrapper ────────────────────────────────── */
+    .index-table-wrapper {
+        border-color: rgba(154,179,163,0.4);
+        @apply rounded-2xl border bg-white overflow-hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* ── Toolbar inside index table (search + count row) ───────────────── */
+    .index-table-toolbar {
+        @apply flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 bg-gray-50/60 px-4 py-3;
+    }
+
+    /* ── Standard <thead> row ──────────────────────────────────────────── */
+    .index-thead th {
+        @apply px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider;
+    }
+    .index-thead th.text-center {
+        @apply text-center;
+    }
+
+    /* ── Standard <tbody> row ──────────────────────────────────────────── */
+    .index-tbody tr {
+        @apply transition-colors hover:bg-emerald-50/40;
+    }
+    .index-tbody td {
+        @apply px-4 py-3 text-sm text-gray-700;
     }
 
     /* Enhanced Table Styles */

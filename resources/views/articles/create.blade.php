@@ -8,53 +8,34 @@
 @endsection
 
 @section('content')
-    <div>
-        <!-- Header Section -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 mb-1">
-                Nouvel Article
-            </h1>
-            <p class="text-gray-500 text-sm">Créez un nouvel article forestier pour votre système</p>
-        </div>
+    <div class="min-w-0 max-w-full overflow-x-hidden">
 
-        <!-- Alert Messages -->
-        @if(session('success'))
-            <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-check-circle text-2xl"></i>
-                    <div>
-                        <h3 class="font-semibold text-lg">Succès!</h3>
-                        <p>{{ session('success') }}</p>
-                    </div>
-                </div>
-            </div>
-        @endif
+    <x-page-header
+        title="Nouvel Article"
+        subtitle="Créer un nouvel article forestier pour votre système"
+        icon="fas fa-file-alt"
+    >
+        <x-slot name="actions">
+            <x-button href="{{ route('cessions.index') }}" variant="secondary" icon="fas fa-arrow-left" size="sm">
+                Retour
+            </x-button>
+        </x-slot>
+    </x-page-header>
 
-        @if(session('error'))
-            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-exclamation-triangle text-2xl"></i>
-                    <div>
-                        <h3 class="font-semibold text-lg">Erreur!</h3>
-                        <p>{{ session('error') }}</p>
-                    </div>
-                </div>
-            </div>
-        @endif
+    <x-flash-messages />
 
-        @if ($errors->any())
-        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
-            <div class="font-semibold mb-2">Erreurs de validation:</div>
-            <ul class="list-disc pl-5">
-                @foreach ($errors->all() as $error)
+    @if($errors->any())
+        <x-alert type="error" title="Erreurs de validation" dismissible class="mb-4">
+            <ul class="list-disc list-inside space-y-0.5 mt-1">
+                @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-        </div>
-        @endif
+        </x-alert>
+    @endif
 
         <!-- Create Form -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white rounded-2xl border p-6" style="border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
             <form action="{{ route('articles.store') }}" method="POST" id="articleForm" class="space-y-8" enctype="multipart/form-data">
                 @csrf
                 @if(request('cession_id'))
@@ -103,14 +84,8 @@
                 </div>
                 @endif
 
-                <!-- 1. Informations générales -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                            <i class="fas fa-info-circle text-white text-sm"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">1. Informations générales</h3>
-                    </div>
+                {{-- 1. Informations générales --}}
+                <x-form-section number="1" title="Informations générales" icon="fas fa-info-circle" color="green">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="form-group">
                             <label for="numero" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -138,16 +113,10 @@
                         </div>
                         {{-- Champ Année supprimé --}}
                     </div>
-                </div>
+                </x-form-section>
 
-                <!-- 2. Localisation du lot -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                            <i class="fas fa-map-marker-alt text-white"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">2. Localisation du lot</h3>
-                    </div>
+                {{-- 2. Localisation du lot --}}
+                <x-form-section number="2" title="Localisation du lot" icon="fas fa-map-marker-alt" color="blue">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         <!-- Province -->
@@ -281,16 +250,10 @@
                             @enderror
                         </div>
                     </div>
-                </div>
+                </x-form-section>
 
-                <!-- 3. Informations forestières -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                            <i class="fas fa-tree text-white"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">3. Informations forestières</h3>
-                    </div>
+                {{-- 3. Informations forestières --}}
+                <x-form-section number="3" title="Informations forestières" icon="fas fa-tree" color="purple">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
                             <label for="foret_ids" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -347,16 +310,10 @@
                             @enderror
                         </div>
                     </div>
-                </div>
+                </x-form-section>
 
-                <!-- 4. Description du lot -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                            <i class="fas fa-clipboard-list text-white"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">4. Description du lot</h3>
-                    </div>
+                {{-- 4. Description du lot --}}
+                <x-form-section number="4" title="Description du lot" icon="fas fa-clipboard-list" color="orange">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
                             <label for="nature_de_coupe_ids" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -465,16 +422,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </x-form-section>
 
-                <!-- 5. Consistance du lot -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                            <i class="fas fa-cubes text-white"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">5. Consistance du lot</h3>
-                    </div>
+                {{-- 5. Consistance du lot --}}
+                <x-form-section number="5" title="Consistance du lot" icon="fas fa-cubes" color="gray">
                     <div class="grid grid-cols-1 gap-6">
                         <div class="form-group">
                             <label for="superficie" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -491,13 +442,9 @@
                         <div class="bg-white rounded-xl p-6 border border-indigo-200">
                             <div class="flex items-center justify-between mb-4">
                                 <h4 class="text-lg font-semibold" style="color: #059669;">Produits présumés</h4>
-                                <button type="button" 
-                                        onclick="addProductRow()" 
-                                        class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm"
-                                        style="background: linear-gradient(to right, #059669, #047857);">
-                                    <i class="fas fa-plus"></i>
+                                <x-button type="button" onclick="addProductRow()" icon="fas fa-plus" size="sm">
                                     Ajouter
-                                </button>
+                                </x-button>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full border-collapse">
@@ -516,16 +463,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </x-form-section>
 
-                <!-- 6. Bois sur dépôt -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                            <i class="fas fa-warehouse text-white"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">6. Bois sur dépôt</h3>
-                    </div>
+                {{-- 6. Bois sur dépôt --}}
+                <x-form-section number="6" title="Bois sur dépôt" icon="fas fa-warehouse" color="green">
                     <div class="form-group">
                         <label class="flex items-center gap-3 cursor-pointer">
                             <input type="checkbox" 
@@ -559,16 +500,10 @@
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
+                </x-form-section>
 
-                <!-- 7. Particulière -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                            <i class="fas fa-file-alt text-white text-sm"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">7. Particulière</h3>
-                    </div>
+                {{-- 7. Particulière --}}
+                <x-form-section number="7" title="Particulière" icon="fas fa-file-alt" color="green">
                     <div class="form-group">
                         <label for="particuliere" class="block text-sm font-semibold text-gray-700 mb-2">Particulière</label>
                         <textarea id="particuliere" name="particuliere" rows="4"
@@ -578,16 +513,10 @@
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
+                </x-form-section>
 
-                <!-- 8. Plan de situation – Import Excel (mat, x, y → table locations) -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                            <i class="fas fa-map text-white text-sm"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">8. Plan de situation – Import Excel</h3>
-                    </div>
+                {{-- 8. Plan de situation – Import Excel --}}
+                <x-form-section number="8" title="Plan de situation – Import Excel" icon="fas fa-map" color="blue">
                     <p class="text-sm text-gray-600 mb-4">
                         Optionnel : importez un fichier Excel avec les colonnes <strong>mat</strong>, <strong>x</strong>, <strong>y</strong> (première ligne = en-têtes). Les lignes seront enregistrées dans la table des localisations (plan de situation) après création de l'article.
                     </p>
@@ -602,21 +531,16 @@
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
+                </x-form-section>
 
-                <!-- Form Actions -->
-                <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200 mt-8">
-                    <a href="{{ route('cessions.index') }}" 
-                        class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300">
-                        <i class="fas fa-times"></i>
-                        <span>Annuler</span>
-                    </a>
-                    <button type="submit" 
-                            class="inline-flex items-center gap-3 px-6 py-3 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-                            style="background: linear-gradient(to right, #059669, #047857);">
-                        <i class="fas fa-save"></i>
-                        <span class="font-semibold">Créer l'Article</span>
-                    </button>
+                {{-- Form Actions --}}
+                <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 mt-8">
+                    <x-button href="{{ route('cessions.index') }}" variant="secondary" icon="fas fa-times">
+                        Annuler
+                    </x-button>
+                    <x-button type="submit" icon="fas fa-save">
+                        Créer l'Article
+                    </x-button>
                 </div>
             </form>
         </div>

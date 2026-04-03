@@ -47,6 +47,7 @@
     </div>
 </div>
 
+@once
 @push('styles')
 <style>
     .alert { position: relative; overflow: hidden; }
@@ -117,73 +118,72 @@
     }
 </style>
 @endpush
+@endonce
 
+@once
 @push('scripts')
 <script>
-    // Auto-hide functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const alerts = document.querySelectorAll('[data-auto-hide]');
-        alerts.forEach(alert => {
-            const duration = parseInt(alert.dataset.autoHide) || 5000;
-            setTimeout(() => {
-                hideAlert(alert);
-            }, duration);
-        });
-    });
+    (function() {
+        function initializeAutoHideAlerts() {
+            document.querySelectorAll('[data-auto-hide]').forEach((alert) => {
+                if (alert.dataset.alertInitialized === 'true') {
+                    return;
+                }
 
-    // Dismiss alert functionality
-    function dismissAlert(alert) {
-        hideAlert(alert);
-    }
+                alert.dataset.alertInitialized = 'true';
 
-    function hideAlert(alert) {
-        alert.classList.add('alert-hiding');
-        setTimeout(() => {
-            alert.classList.add('alert-hidden');
-        }, 300);
-    }
-
-    // Global alert functions
-    window.showAlert = function(type, message, title = null, options = {}) {
-        const alertHtml = `
-            <div class="alert ${typeClasses[type]} p-6 rounded-xl mb-6 shadow-lg transition-all duration-300" 
-                 data-auto-hide="${options.autoHide || false}" 
-                 data-dismissible="${options.dismissible || true}">
-                <div class="flex items-center gap-3">
-                    <i class="${iconClasses[type]} text-2xl"></i>
-                    <div class="flex-1">
-                        ${title ? `<h3 class="font-semibold text-lg mb-1">${title}</h3>` : ''}
-                        <p class="text-sm">${message}</p>
-                    </div>
-                    ${options.dismissible !== false ? `
-                        <button type="button" 
-                                class="alert-dismiss-btn text-gray-400 hover:text-gray-600 transition-colors"
-                                onclick="dismissAlert(this.closest('.alert'))"
-                                title="Fermer">
-                            <i class="fas fa-times text-lg"></i>
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-        
-        // Insert at the top of the content area
-        const contentArea = document.querySelector('main') || document.querySelector('.content') || document.body;
-        contentArea.insertAdjacentHTML('afterbegin', alertHtml);
-        
-        // Auto-hide if enabled
-        if (options.autoHide) {
-            setTimeout(() => {
-                const newAlert = contentArea.querySelector('.alert');
-                if (newAlert) hideAlert(newAlert);
-            }, options.duration || 5000);
+                const duration = parseInt(alert.dataset.autoHide, 10) || 5000;
+                alert._hideTimer = setTimeout(() => {
+                    window.hideAlert(alert);
+                }, duration);
+            });
         }
-    };
 
-    // Predefined alert types
-    window.showSuccessAlert = (message, title, options) => showAlert('success', message, title, options);
-    window.showErrorAlert = (message, title, options) => showAlert('error', message, title, options);
-    window.showWarningAlert = (message, title, options) => showAlert('warning', message, title, options);
-    window.showInfoAlert = (message, title, options) => showAlert('info', message, title, options);
+        window.hideAlert = function(alert) {
+            if (!alert || alert.classList.contains('alert-hidden')) {
+                return;
+            }
+
+            if (alert._hideTimer) {
+                clearTimeout(alert._hideTimer);
+            }
+
+            alert.classList.add('alert-hiding');
+
+            setTimeout(() => {
+                alert.classList.add('alert-hidden');
+            }, 300);
+        };
+
+        window.dismissAlert = function(alert) {
+            window.hideAlert(alert);
+        };
+
+        window.showAlert = function(type, message, title = null, options = {}) {
+            if (window.UXUtils && typeof window.UXUtils.showToast === 'function') {
+                return window.UXUtils.showToast(message, type, {
+                    title: title,
+                    duration: options.duration || 5000,
+                    closable: options.dismissible !== false,
+                    dedupe: options.dedupe !== false,
+                    sound: options.sound === true
+                });
+            }
+
+            return null;
+        };
+
+        window.showSuccessAlert = (message, title, options) => window.showAlert('success', message, title, options);
+        window.showErrorAlert = (message, title, options) => window.showAlert('error', message, title, options);
+        window.showWarningAlert = (message, title, options) => window.showAlert('warning', message, title, options);
+        window.showInfoAlert = (message, title, options) => window.showAlert('info', message, title, options);
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeAutoHideAlerts);
+        } else {
+            initializeAutoHideAlerts();
+        }
+    })();
 </script>
 @endpush
+@endonce

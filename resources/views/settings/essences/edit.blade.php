@@ -9,168 +9,121 @@
 @endsection
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <!-- Header Section -->
-    <div class="mb-8">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl flex items-center justify-center">
-                <i class="fas fa-seedling text-white text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-                    Modifier l'Essence
-                </h1>
-                <p class="text-gray-600 text-lg mt-2">Modifiez les informations de l'essence "{{ $essence->essence }}"</p>
-            </div>
-        </div>
-    </div>
+<div class="min-w-0 max-w-full overflow-x-hidden">
 
-    <!-- Alert Messages -->
-    @if(session('success'))
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-700 p-6 rounded-xl mb-6 shadow-lg">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-check-circle text-2xl"></i>
-                <div>
-                    <h3 class="font-semibold text-lg">Succès!</h3>
-                    <p>{{ session('success') }}</p>
-                </div>
-            </div>
-        </div>
+    {{-- ─── Page header ─────────────────────────────────────────────── --}}
+    <x-page-header
+        title="Modifier l'essence"
+        subtitle="{{ $essence->essence }}"
+        icon="fas fa-leaf"
+    >
+        <x-slot name="actions">
+            <x-button
+                href="{{ route('settings.essences.index') }}"
+                variant="secondary"
+                icon="fas fa-arrow-left"
+                size="sm"
+            >
+                Retour à la liste
+            </x-button>
+        </x-slot>
+    </x-page-header>
+
+    {{-- ─── Flash messages ──────────────────────────────────────────── --}}
+    <x-flash-messages />
+
+    {{-- ─── Validation errors ──────────────────────────────────────── --}}
+    @if($errors->any())
+        <x-alert type="error" title="Erreurs de validation" dismissible class="mb-4">
+            <ul class="list-disc list-inside space-y-0.5 mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </x-alert>
     @endif
 
-    @if(session('error'))
-        <div class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 text-red-700 p-6 rounded-xl mb-6 shadow-lg">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-exclamation-triangle text-2xl"></i>
-                <div>
-                    <h3 class="font-semibold text-lg">Erreur!</h3>
-                    <p>{{ session('error') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
+    <form action="{{ route('settings.essences.update', $essence) }}" method="POST">
+        @csrf
+        @method('PUT')
 
-    <!-- Edit Form -->
-    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-edit text-white text-xl"></i>
-            </div>
-            <div>
-                <h2 class="text-2xl font-bold text-gray-900">Formulaire de modification</h2>
-                <p class="text-gray-600">Modifiez les informations de l'essence</p>
-            </div>
-        </div>
+        <x-form-card title="Modifier l'essence" max-width="xl">
 
-        <form action="{{ route('settings.essences.update', $essence) }}" method="POST" class="space-y-6">
-            @csrf
-            @method('PUT')
+            <x-form-input
+                name="essence"
+                label="Nom de l'essence"
+                placeholder="Ex : Moabi, Sapelli, Ayous…"
+                required
+                :value="old('essence', $essence->essence)"
+            />
 
-            <!-- Essence Name -->
-            <div class="form-group">
-                <label for="essence" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Nom de l'Essence <span class="text-red-500">*</span>
-                </label>
-                <input 
-                    type="text" 
-                    name="essence" 
-                    id="essence" 
-                    value="{{ old('essence', $essence->essence) }}"
-                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 hover:border-gray-400"
-                    placeholder="Entrez le nom de l'essence"
-                    required
+            <x-slot name="footer">
+                {{-- Danger: delete --}}
+                <x-button
+                    type="button"
+                    variant="danger"
+                    icon="fas fa-trash-alt"
+                    size="sm"
+                    @click="$dispatch('delete-confirm', {
+                        action : '{{ route('settings.essences.destroy', $essence) }}',
+                        label  : 'l\'essence &laquo; {{ addslashes($essence->essence) }} &raquo;'
+                    })"
                 >
-                @error('essence')
-                    <div class="text-red-500 text-sm mt-1 flex items-center gap-2">
-                        <i class="fas fa-exclamation-circle"></i>
-                        {{ $message }}
-                    </div>
-                @enderror
-            </div>
+                    Supprimer
+                </x-button>
 
-            <!-- Form Actions -->
-            <div class="flex items-center gap-4 pt-6 border-t border-gray-200">
-                <button 
-                    type="submit" 
-                    class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl hover:from-green-700 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                    <i class="fas fa-save"></i>
-                    <span class="font-semibold">Mettre à jour</span>
-                </button>
-                
-                <a 
-                    href="{{ route('entity-data.index', ['tab' => 'essences']) }}" 
-                    class="inline-flex items-center gap-3 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300"
-                >
-                    <i class="fas fa-arrow-left"></i>
-                    <span>Retour</span>
-                </a>
-            </div>
-        </form>
-    </div>
+                <div class="flex items-center gap-3 ml-auto">
+                    <x-button href="{{ route('settings.essences.index') }}" variant="secondary">
+                        Annuler
+                    </x-button>
+                    <x-button type="submit" icon="fas fa-save">
+                        Mettre à jour
+                    </x-button>
+                </div>
+            </x-slot>
 
-    <!-- Essence Information -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 mt-8 border border-blue-200 shadow-xl">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-info-circle text-white text-xl"></i>
-            </div>
-            <div>
-                <h3 class="text-2xl font-bold text-blue-900">Informations de l'Essence</h3>
-                <p class="text-blue-700">Détails et statistiques</p>
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-calendar text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Créée le</h4>
-                        <p class="text-gray-600 text-sm">{{ $essence->created_at->format('d/m/Y H:i') }}</p>
-                    </div>
+            <x-slot name="aside">
+                {{-- Metadata card --}}
+                <div
+                    class="rounded-2xl border bg-white p-5 space-y-3"
+                    style="border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
+                >
+                    <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-emerald-500"></i>
+                        Informations
+                    </h3>
+                    <dl class="space-y-2.5 text-sm">
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500">ID</dt>
+                            <dd class="font-medium text-gray-800">#{{ $essence->id }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500">Créée le</dt>
+                            <dd class="font-medium text-gray-800">{{ $essence->created_at->format('d/m/Y') }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500">Modifiée le</dt>
+                            <dd class="font-medium text-gray-800">{{ $essence->updated_at->format('d/m/Y') }}</dd>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <dt class="text-gray-500">Statut</dt>
+                            <dd>
+                                @if($essence->deleted_at)
+                                    <x-status-badge type="danger">Supprimée</x-status-badge>
+                                @else
+                                    <x-status-badge type="success">Active</x-status-badge>
+                                @endif
+                            </dd>
+                        </div>
+                    </dl>
                 </div>
-            </div>
-            
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-clock text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Modifiée le</h4>
-                        <p class="text-gray-600 text-sm">{{ $essence->updated_at->format('d/m/Y H:i') }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-database text-white"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">ID</h4>
-                        <p class="text-gray-600 text-sm">#{{ $essence->id }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            </x-slot>
+
+        </x-form-card>
+
+    </form>
+
 </div>
-@endsection
 
-@push('styles')
-<style>
-    .form-input {
-        background-image: none;
-    }
-    
-    .form-input:focus {
-        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
-    }
-    
-</style>
-@endpush
+<x-delete-confirm />
+@endsection

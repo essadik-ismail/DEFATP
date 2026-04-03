@@ -106,6 +106,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('{article}/toggle-invendu', [ArticleController::class, 'toggleInvendu'])->name('toggle-invendu');
         Route::get('{article}/lettre-adjudicataire', [ArticleController::class, 'lettreAdjudicataire'])->name('lettre-adjudicataire');
         Route::get('{article}/lettre-adjudicataire/download', [ArticleController::class, 'downloadLettreAdjudicataire'])->name('lettre-adjudicataire.download');
+        Route::get('{article}/lettre-adjudicataire/download-pdf', [ArticleController::class, 'downloadLettreAdjudicatairePdf'])->name('lettre-adjudicataire.download-pdf');
         Route::get('{article}/permis-enlever', [ArticleController::class, 'permisEnlever'])->name('permis-enlever');
         Route::post('{article}/permis-enlever', [ArticleController::class, 'storePermisEnlever'])->name('store-permis-enlever');
         Route::get('{article}/permis-exploiter', [ArticleController::class, 'permisExploiter'])->name('permis-exploiter');
@@ -258,6 +259,7 @@ Route::middleware('auth')->group(function () {
 
     // Carnets (numéros pour permis de colportage)
     Route::resource('carnets', CarnetController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::get('carnets/series/{serie}/{createdDate}', [CarnetController::class, 'showSerie'])->name('carnets.show-serie');
     Route::patch('carnets/{carnet}/perdu', [CarnetController::class, 'markPerdu'])->name('carnets.mark-perdu');
 
     // Excel Import/Export Routes

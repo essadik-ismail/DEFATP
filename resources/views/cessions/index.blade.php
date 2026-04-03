@@ -7,274 +7,246 @@
 @endsection
 
 @section('content')
-<div class="min-w-0 max-w-full overflow-x-hidden" x-data="{ activeTab: 'adjudication' }">
-    <!-- Header -->
+<div class="min-w-0 max-w-full overflow-x-hidden" x-data="{ activeTab: '{{ request('tab', 'adjudication') }}' }">
+
+    {{-- ─── Page header ─────────────────────────────────────────────── --}}
     <x-page-header
-        title="Gestion des Cessions"
+        title="Cessions"
         subtitle="Pilotez les cessions par adjudication et appel d'offre"
         icon="fas fa-gavel"
     >
         <x-slot name="actions">
-            <a href="{{ route('cessions.create') }}"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white shadow-sm"
-               style="background: var(--primary-gradient); box-shadow: var(--shadow-md);">
-                <i class="fas fa-plus"></i>
-                <span>Ajouter Cession</span>
-            </a>
+            <x-button href="{{ route('cessions.create') }}" icon="fas fa-plus">
+                Nouvelle cession
+            </x-button>
         </x-slot>
     </x-page-header>
 
-    @if(session('success'))
-        <x-alert type="success" title="Succès!" dismissible class="mb-4">
-            {{ session('success') }}
-        </x-alert>
-    @endif
+    {{-- ─── Flash messages ──────────────────────────────────────────── --}}
+    <x-flash-messages />
 
-    <!-- Tabs -->
-    <div class="rounded-2xl border max-w-full overflow-hidden mb-4"
-         style="background:#FFFFFF;border-color:rgba(154,179,163,0.4);box-shadow:var(--shadow-card);">
-        <div class="border-b border-gray-100 px-4 pt-3">
-            <nav class="flex space-x-4 text-sm font-medium">
+    {{-- ─── Tabbed table card ───────────────────────────────────────── --}}
+    <div
+        class="rounded-2xl border bg-white overflow-hidden"
+        style="border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
+    >
+        {{-- Tab bar --}}
+        <div class="border-b border-gray-100 bg-gray-50/60 px-4 pt-0">
+            <nav class="-mb-px flex gap-1 text-sm font-medium">
                 <button
                     type="button"
-                    class="px-3 py-2 rounded-t-lg border-b-2 -mb-px transition"
+                    class="inline-flex items-center gap-1.5 px-4 py-3 border-b-2 transition-colors"
                     :class="activeTab === 'adjudication'
                         ? 'border-emerald-600 text-emerald-700'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     @click="activeTab = 'adjudication'"
                 >
-                    <i class="fas fa-gavel mr-1.5 text-xs"></i> Adjudication
+                    <i class="fas fa-gavel text-xs"></i>
+                    Adjudication
+                    <span
+                        class="ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
+                        :class="activeTab === 'adjudication' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'"
+                    >{{ $adjudications->count() }}</span>
                 </button>
                 <button
                     type="button"
-                    class="px-3 py-2 rounded-t-lg border-b-2 -mb-px transition"
+                    class="inline-flex items-center gap-1.5 px-4 py-3 border-b-2 transition-colors"
                     :class="activeTab === 'appel_offre'
                         ? 'border-emerald-600 text-emerald-700'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     @click="activeTab = 'appel_offre'"
                 >
-                    <i class="fas fa-file-signature mr-1.5 text-xs"></i> Appel d'offre
+                    <i class="fas fa-file-signature text-xs"></i>
+                    Appel d'offre
+                    <span
+                        class="ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
+                        :class="activeTab === 'appel_offre' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'"
+                    >{{ $appelOffres->count() }}</span>
                 </button>
             </nav>
         </div>
 
-        <div class="p-4">
-            <!-- Tab: Adjudication -->
-            <div x-show="activeTab === 'adjudication'" x-cloak>
-                <div class="table-responsive overflow-x-auto max-w-full">
-                    <table id="adjudicationTable"
-                           data-table="adjudicationTable"
-                           class="min-w-full text-sm">
-                        <thead class="bg-gray-50">
+        {{-- ── Tab: Adjudication ──────────────────────────────────────── --}}
+        <div x-show="activeTab === 'adjudication'" x-cloak>
+            <div class="overflow-x-auto">
+                <table class="w-full divide-y divide-gray-100">
+                    <thead class="bg-gray-50 index-thead">
                         <tr>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                DRANEF
-                            </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Année / Exercice
-                            </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Date d'adjudication
-                            </th>
-                            <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Nombre d'articles
-                            </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Statut
-                            </th>
-                            <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Actions
-                            </th>
+                            <th>DRANEF</th>
+                            <th>Année / Exercice</th>
+                            <th>Date d'adjudication</th>
+                            <th class="text-center">Articles</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
                         </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                        @foreach($adjudications as $cession)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ $cession->dranef->dranef ?? '-' }}
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white index-tbody">
+                        @forelse($adjudications as $cession)
+                            <tr>
+                                <td class="font-medium text-gray-900">{{ $cession->dranef->dranef ?? '—' }}</td>
+                                <td>{{ $cession->annee_exercice ?? '—' }}</td>
+                                <td>{{ optional($cession->date_adjudication)->format('d/m/Y') ?? '—' }}</td>
+                                <td class="text-center">
+                                    <x-status-badge type="info">{{ $cession->articles_count }}</x-status-badge>
                                 </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ $cession->annee_exercice ?? '-' }}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ optional($cession->date_adjudication)->format('d/m/Y') ?? '-' }}
-                                </td>
-                                <td class="px-3 py-2 text-center whitespace-nowrap">
-                                    <span class="inline-flex items-center justify-center rounded-full bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 font-medium">
-                                        {{ $cession->articles_count }}
-                                    </span>
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
+                                <td>
                                     @php
-                                        $status = $cession->status ?? '';
-                                        $map = [
-                                            '' => ['label' => '—', 'class' => 'bg-gray-100 text-gray-500'],
-                                            'en_cours' => ['label' => 'En cours', 'class' => 'bg-amber-100 text-amber-800'],
-                                            'cloture' => ['label' => 'Clôturée', 'class' => 'bg-emerald-100 text-emerald-800'],
-                                        ];
-                                        $badge = $map[$status] ?? ['label' => $status ? ucfirst($status) : '—', 'class' => 'bg-gray-100 text-gray-800'];
+                                        $statusMap = ['en_cours'=>['type'=>'warning','label'=>'En cours'],'cloture'=>['type'=>'success','label'=>'Clôturée']];
+                                        $s = $statusMap[$cession->status ?? ''] ?? ['type'=>'pending','label'=>$cession->status ? ucfirst($cession->status) : '—'];
                                     @endphp
-                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $badge['class'] }}">
-                                        {{ $badge['label'] }}
-                                    </span>
+                                    <x-status-badge :type="$s['type']">{{ $s['label'] }}</x-status-badge>
                                 </td>
-                                <td class="px-3 py-2 whitespace-nowrap text-center">
-                                    <div class="inline-flex items-center justify-center gap-1">
+                                <td class="text-center">
+                                    <div class="inline-flex items-center gap-1.5">
                                         <a href="{{ route('cessions.show', $cession) }}"
-                                           class="tbl-action bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200"
-                                           title="Voir la cession">
-                                            <i class="fas fa-eye text-xs"></i>
+                                           class="tbl-action bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 focus:ring-blue-300"
+                                           title="Voir">
+                                            <i class="fas fa-eye"></i>
                                         </a>
                                         @if(($cession->status ?? '') !== 'cloture')
                                             <a href="{{ route('cessions.edit', $cession) }}"
-                                               class="tbl-action bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200"
-                                               title="Modifier la cession">
-                                                <i class="fas fa-edit text-xs"></i>
+                                               class="tbl-action bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 focus:ring-amber-300"
+                                               title="Modifier">
+                                                <i class="fas fa-pen"></i>
                                             </a>
                                             <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
-                                               class="tbl-action bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                               class="tbl-action bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 focus:ring-emerald-300"
                                                title="Ajouter un article">
-                                                <i class="fas fa-plus text-xs"></i>
+                                                <i class="fas fa-plus"></i>
                                             </a>
-                                            <form action="{{ route('cessions.cloture', $cession) }}" method="POST" class="inline"
-                                                  onsubmit="return confirm('Clôturer cette cession ?');">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit"
-                                                        class="tbl-action bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200"
-                                                        title="Clôturer la cession">
-                                                    <i class="fas fa-check-circle text-xs"></i>
-                                                </button>
-                                            </form>
+                                            <button
+                                                type="button"
+                                                class="tbl-action bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 focus:ring-teal-300"
+                                                title="Clôturer la cession"
+                                                @click="$dispatch('delete-confirm', {
+                                                    action : '{{ route('cessions.cloture', $cession) }}',
+                                                    label  : 'la cession {{ $cession->dranef->dranef ?? '' }} {{ $cession->annee_exercice ?? '' }}',
+                                                    method : 'PATCH',
+                                                    title  : 'Clôturer la cession',
+                                                    btnText: 'Clôturer',
+                                                    danger : false
+                                                })"
+                                            >
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Tab: Appel d'offre -->
-            <div x-show="activeTab === 'appel_offre'" x-cloak>
-                <div class="table-responsive overflow-x-auto max-w-full">
-                    <table id="appelOffreTable"
-                           data-table="appelOffreTable"
-                           class="min-w-full text-sm">
-                        <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                DRANEF
-                            </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Année / Exercice
-                            </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                N° AO
-                            </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Date d'attribution
-                            </th>
-                            <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Nombre d'articles
-                            </th>
-                            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Statut
-                            </th>
-                            <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                        @foreach($appelOffres as $cession)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ $cession->dranef->dranef ?? '-' }}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ $cession->annee_exercice ?? '-' }}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ $cession->numero_ao ?? '-' }}
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    {{ optional($cession->date_attribution)->format('d/m/Y') ?? '-' }}
-                                </td>
-                                <td class="px-3 py-2 text-center whitespace-nowrap">
-                                    <span class="inline-flex items-center justify-center rounded-full bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 font-medium">
-                                        {{ $cession->articles_count }}
-                                    </span>
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap">
-                                    @php
-                                        $status = $cession->status ?? '';
-                                        $map = [
-                                            '' => ['label' => '—', 'class' => 'bg-gray-100 text-gray-500'],
-                                            'en_cours' => ['label' => 'En cours', 'class' => 'bg-amber-100 text-amber-800'],
-                                            'cloture' => ['label' => 'Clôturée', 'class' => 'bg-emerald-100 text-emerald-800'],
-                                        ];
-                                        $badge = $map[$status] ?? ['label' => $status ? ucfirst($status) : '—', 'class' => 'bg-gray-100 text-gray-800'];
-                                    @endphp
-                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $badge['class'] }}">
-                                        {{ $badge['label'] }}
-                                    </span>
-                                </td>
-                                <td class="px-3 py-2 whitespace-nowrap text-center">
-                                    <div class="inline-flex items-center justify-center gap-1">
-                                        <a href="{{ route('cessions.show', $cession) }}"
-                                           class="tbl-action bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200"
-                                           title="Voir la cession">
-                                            <i class="fas fa-eye text-xs"></i>
-                                        </a>
-                                        @if(($cession->status ?? '') !== 'cloture')
-                                            <a href="{{ route('cessions.edit', $cession) }}"
-                                               class="tbl-action bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200"
-                                               title="Modifier la cession">
-                                                <i class="fas fa-edit text-xs"></i>
-                                            </a>
-                                            <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
-                                               class="tbl-action bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200"
-                                               title="Ajouter un article">
-                                                <i class="fas fa-plus text-xs"></i>
-                                            </a>
-                                            <form action="{{ route('cessions.cloture', $cession) }}" method="POST" class="inline"
-                                                  onsubmit="return confirm('Clôturer cette cession ?');">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit"
-                                                        class="tbl-action bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200"
-                                                        title="Clôturer la cession">
-                                                    <i class="fas fa-check-circle text-xs"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </div>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="py-4">
+                                    <x-empty-state
+                                        icon="fas fa-gavel"
+                                        title="Aucune cession par adjudication"
+                                        message="Créez votre première cession."
+                                        color="green"
+                                    >
+                                        <x-button href="{{ route('cessions.create') }}" icon="fas fa-plus" size="sm">
+                                            Nouvelle cession
+                                        </x-button>
+                                    </x-empty-state>
                                 </td>
                             </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
+
+        {{-- ── Tab: Appel d'offre ─────────────────────────────────────── --}}
+        <div x-show="activeTab === 'appel_offre'" x-cloak>
+            <div class="overflow-x-auto">
+                <table class="w-full divide-y divide-gray-100">
+                    <thead class="bg-gray-50 index-thead">
+                        <tr>
+                            <th>DRANEF</th>
+                            <th>Année / Exercice</th>
+                            <th>N° AO</th>
+                            <th>Date d'attribution</th>
+                            <th class="text-center">Articles</th>
+                            <th>Statut</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white index-tbody">
+                        @forelse($appelOffres as $cession)
+                            <tr>
+                                <td class="font-medium text-gray-900">{{ $cession->dranef->dranef ?? '—' }}</td>
+                                <td>{{ $cession->annee_exercice ?? '—' }}</td>
+                                <td class="font-mono text-gray-600">{{ $cession->numero_ao ?? '—' }}</td>
+                                <td>{{ optional($cession->date_attribution)->format('d/m/Y') ?? '—' }}</td>
+                                <td class="text-center">
+                                    <x-status-badge type="info">{{ $cession->articles_count }}</x-status-badge>
+                                </td>
+                                <td>
+                                    @php
+                                        $statusMap = ['en_cours'=>['type'=>'warning','label'=>'En cours'],'cloture'=>['type'=>'success','label'=>'Clôturée']];
+                                        $s = $statusMap[$cession->status ?? ''] ?? ['type'=>'pending','label'=>$cession->status ? ucfirst($cession->status) : '—'];
+                                    @endphp
+                                    <x-status-badge :type="$s['type']">{{ $s['label'] }}</x-status-badge>
+                                </td>
+                                <td class="text-center">
+                                    <div class="inline-flex items-center gap-1.5">
+                                        <a href="{{ route('cessions.show', $cession) }}"
+                                           class="tbl-action bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 focus:ring-blue-300"
+                                           title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if(($cession->status ?? '') !== 'cloture')
+                                            <a href="{{ route('cessions.edit', $cession) }}"
+                                               class="tbl-action bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 focus:ring-amber-300"
+                                               title="Modifier">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
+                                               class="tbl-action bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 focus:ring-emerald-300"
+                                               title="Ajouter un article">
+                                                <i class="fas fa-plus"></i>
+                                            </a>
+                                            <button
+                                                type="button"
+                                                class="tbl-action bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 focus:ring-teal-300"
+                                                title="Clôturer la cession"
+                                                @click="$dispatch('delete-confirm', {
+                                                    action : '{{ route('cessions.cloture', $cession) }}',
+                                                    label  : 'la cession {{ $cession->dranef->dranef ?? '' }} {{ $cession->annee_exercice ?? '' }}',
+                                                    method : 'PATCH',
+                                                    title  : 'Clôturer la cession',
+                                                    btnText: 'Clôturer',
+                                                    danger : false
+                                                })"
+                                            >
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="py-4">
+                                    <x-empty-state
+                                        icon="fas fa-file-signature"
+                                        title="Aucune cession par appel d'offre"
+                                        message="Créez votre première cession par appel d'offre."
+                                        color="green"
+                                    >
+                                        <x-button href="{{ route('cessions.create') }}" icon="fas fa-plus" size="sm">
+                                            Nouvelle cession
+                                        </x-button>
+                                    </x-empty-state>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
+
 </div>
+
+<x-delete-confirm />
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof initDataTableWithFilters === 'function') {
-            initDataTableWithFilters('adjudicationTable', {
-                order: [[1, 'desc']]
-            });
-            initDataTableWithFilters('appelOffreTable', {
-                order: [[1, 'desc']]
-            });
-        }
-    });
-</script>
-@endpush
-

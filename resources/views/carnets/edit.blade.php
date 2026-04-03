@@ -9,69 +9,176 @@
 
 @section('content')
 <div class="min-w-0 max-w-full overflow-x-hidden">
+
+    {{-- ─── Page header ─────────────────────────────────────────────── --}}
     <x-page-header
         title="Modifier le carnet #{{ $carnet->id }}"
-        subtitle="Série {{ $carnet->serie }} — Numéro {{ $carnet->num }}"
+        subtitle="Série {{ $carnet->serie }} · Numéro {{ $carnet->num }}"
         icon="fas fa-book"
     >
         <x-slot name="actions">
-            <a href="{{ route('carnets.index') }}"
-               class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200">
-                <i class="fas fa-arrow-left"></i>
-                <span>Retour à la liste</span>
-            </a>
+            <x-button
+                href="{{ route('carnets.show-serie', ['serie' => $carnet->serie, 'createdDate' => $carnet->created_at?->toDateString()]) }}"
+                variant="secondary"
+                icon="fas fa-arrow-left"
+                size="sm"
+            >
+                Retour à la série
+            </x-button>
         </x-slot>
     </x-page-header>
 
-    <div class="max-w-xl">
-        <div class="rounded-2xl border bg-white p-6" style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);">
-            @if($errors->any())
-                <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                    <ul class="list-disc list-inside space-y-0.5">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
+    {{-- ─── Validation errors ──────────────────────────────────────── --}}
+    @if($errors->any())
+        <x-alert type="error" title="Erreurs de validation" dismissible class="mb-4">
+            <ul class="list-disc list-inside space-y-0.5 mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </x-alert>
+    @endif
+
+    <div class="grid gap-6 lg:grid-cols-3">
+
+        {{-- ─── Form card ──────────────────────────────────────────── --}}
+        <div class="lg:col-span-2">
+            <div
+                class="rounded-2xl border bg-white p-6"
+                style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);"
+            >
+                <h2 class="mb-5 text-base font-semibold text-gray-800">Informations du carnet</h2>
+
+                <form action="{{ route('carnets.update', $carnet) }}" method="POST" class="space-y-5">
+                    @csrf
+                    @method('PUT')
+
+                    {{-- Série (read-only) --}}
+                    <x-form-input
+                        name="serie_display"
+                        label="Série"
+                        :value="$carnet->serie"
+                        readonly
+                        helper="La série ne peut pas être modifiée."
+                    />
+
+                    {{-- Type --}}
+                    <x-form-input
+                        name="type"
+                        type="select"
+                        label="Type"
+                        required
+                        helper="Modifier le type ici met à jour tous les carnets de la série {{ $carnet->serie }}."
+                    >
+                        @foreach($types as $type)
+                            <option value="{{ $type }}" {{ old('type', $carnet->type) === $type ? 'selected' : '' }}>
+                                {{ $type }}
+                            </option>
                         @endforeach
-                    </ul>
-                </div>
-            @endif
+                    </x-form-input>
 
-            <form action="{{ route('carnets.update', $carnet) }}" method="POST" class="space-y-6">
-                @csrf
-                @method('PUT')
+                    {{-- Num --}}
+                    <x-form-input
+                        name="num"
+                        type="number"
+                        label="Numéro"
+                        required
+                        min="0"
+                        :value="old('num', $carnet->num)"
+                    />
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Série (lecture seule)</label>
-                    <input type="text" value="{{ $carnet->serie }}" class="w-full rounded-lg border-gray-300 bg-gray-100 text-sm" readonly>
-                </div>
+                    {{-- Statut --}}
+                    <x-form-input
+                        name="status"
+                        type="select"
+                        label="Statut"
+                        required
+                    >
+                        @foreach(['disponible' => 'Disponible', 'epuise' => 'Épuisé', 'perdu' => 'Perdu', 'utilise' => 'Utilisé'] as $val => $label)
+                            <option value="{{ $val }}" {{ old('status', $carnet->status) === $val ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </x-form-input>
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Num <span class="text-red-500">*</span></label>
-                    <input type="number" name="num" min="0" value="{{ old('num', $carnet->num) }}"
-                           class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500" required>
-                </div>
+                    {{-- Actions --}}
+                    <div class="flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
+                        {{-- Danger: delete --}}
+                        <x-button
+                            type="button"
+                            variant="danger"
+                            icon="fas fa-trash-alt"
+                            size="sm"
+                            @click="$dispatch('delete-confirm', {
+                                action : '{{ route('carnets.destroy', $carnet) }}',
+                                label  : 'carnet #{{ $carnet->num }} (série {{ $carnet->serie }})'
+                            })"
+                        >
+                            Supprimer
+                        </x-button>
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Statut <span class="text-red-500">*</span></label>
-                    <select name="status" class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500" required>
-                        <option value="disponible" {{ old('status', $carnet->status) === 'disponible' ? 'selected' : '' }}>disponible</option>
-                        <option value="epuise" {{ old('status', $carnet->status) === 'epuise' ? 'selected' : '' }}>epuise</option>
-                        <option value="perdu" {{ old('status', $carnet->status) === 'perdu' ? 'selected' : '' }}>perdu</option>
-                        <option value="utilise" {{ old('status', $carnet->status) === 'utilise' ? 'selected' : '' }}>utilise</option>
-                    </select>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <a href="{{ route('carnets.index') }}"
-                       class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200">
-                        Annuler
-                    </a>
-                    <button type="submit" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white shadow-sm" style="background: var(--primary-gradient);">
-                        <i class="fas fa-save mr-1.5"></i>
-                        Mettre à jour
-                    </button>
-                </div>
-            </form>
+                        <div class="flex items-center gap-3">
+                            <x-button
+                                href="{{ route('carnets.show-serie', ['serie' => $carnet->serie, 'createdDate' => $carnet->created_at?->toDateString()]) }}"
+                                variant="secondary"
+                            >
+                                Annuler
+                            </x-button>
+                            <x-button type="submit" icon="fas fa-save">
+                                Mettre à jour
+                            </x-button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
+
+        {{-- ─── Info sidebar ────────────────────────────────────────── --}}
+        <div>
+            <div
+                class="rounded-2xl border bg-white p-5 space-y-3"
+                style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);"
+            >
+                <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <i class="fas fa-info-circle text-emerald-500"></i>
+                    Détails actuels
+                </h3>
+                <dl class="space-y-2.5 text-sm">
+                    <div class="flex justify-between">
+                        <dt class="text-gray-500">ID</dt>
+                        <dd class="font-medium text-gray-800">#{{ $carnet->id }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-gray-500">Série</dt>
+                        <dd class="font-medium text-gray-800">{{ $carnet->serie }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-gray-500">Numéro</dt>
+                        <dd class="font-medium text-gray-800">{{ $carnet->num }}</dd>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <dt class="text-gray-500">Statut actuel</dt>
+                        <dd>
+                            @php
+                                $statusMap = ['disponible'=>'success','epuise'=>'pending','perdu'=>'danger','utilise'=>'warning'];
+                            @endphp
+                            <x-status-badge :type="$statusMap[$carnet->status] ?? 'default'">
+                                {{ ucfirst($carnet->status) }}
+                            </x-status-badge>
+                        </dd>
+                    </div>
+                    @if($carnet->created_at)
+                    <div class="flex justify-between">
+                        <dt class="text-gray-500">Créé le</dt>
+                        <dd class="font-medium text-gray-800">{{ $carnet->created_at->format('d/m/Y') }}</dd>
+                    </div>
+                    @endif
+                </dl>
+            </div>
+        </div>
+
     </div>
 </div>
+
+<x-delete-confirm />
 @endsection

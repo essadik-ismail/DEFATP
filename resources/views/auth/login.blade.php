@@ -4,903 +4,648 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - DEFATP</title>
-    
-    <!-- Fonts -->
+
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <style>
         :root {
-            --primary-color: #059669;
-            --secondary-color: #7c2d12;
-            --success-color: #16a34a;
-            --warning-color: #ca8a04;
-            --danger-color: #dc2626;
-            --info-color: #0891b2;
-            --light-color: #f0fdf4;
-            --dark-color: #14532d;
-            --border-color: #bbf7d0;
-            --shadow-color: rgba(0, 0, 0, 0.1);
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-darker: #065f46;
+            --bg: #F2F6F3;
+            --border: rgba(154, 179, 163, 0.45);
+            --text: #1F2D24;
+            --muted: #6B7C72;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-            background: #F2F6F3;
+            margin: 0;
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        
-        .login-container {
-            width: 100%;
-            max-width: 50%;
-        }
-        
-        .login-card {
-            background: #FFFFFF;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
-            border: 1px solid rgba(154, 179, 163, 0.4);
-            padding: 1.5rem 1.75rem;
-            box-sizing: border-box;
+            background: var(--bg);
         }
 
-
-
-        .login-header {
-            margin-bottom: 1.5rem;
-        }
-
-        /* Icon fixes */
-        .fas, .fa {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900;
-        }
-
-        .fas.fa-user,
-        .fas.fa-shield-alt,
-        .fas.fa-id-badge,
-        .fas.fa-lock,
-        .fas.fa-tree {
-            font-size: 1rem;
-            line-height: 1;
-        }
-
-        .text-2xl .fas {
-            font-size: 1.5rem;
-        }
-        
-        .login-body {
-            margin-top: 1rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-control {
-            width: 100%;
-            height: 3rem;
-            padding: 0.75rem 0.875rem;
-            font-size: 0.9375rem;
-            border: 1px solid rgba(154, 179, 163, 0.5);
-            border-radius: 0.5rem;
-            background: white;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        
-        .form-control:focus {
-            border-color: #059669;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-            background: white;
-        }
-        
-        .form-control:hover {
-            border-color: rgba(154, 179, 163, 0.7);
-        }
-
-        
-        .form-control::placeholder {
-            color: #9ca3af;
-            font-weight: 400;
-        }
-        
-        .btn-login {
-            background: linear-gradient(to right, #059669, #047857);
-            border: none;
-            border-radius: 0.75rem;
-            height: 3rem;
-            padding: 0 1.75rem;
-            font-size: 0.9375rem;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 8rem;
-            text-transform: none;
-            letter-spacing: normal;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
-        }
-        
-        .btn-login:hover {
-            background: linear-gradient(to right, #047857, #065f46);
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .btn-login:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
-        }
-        
-        .form-check {
-            margin: 1rem 0;
-            display: flex;
-            align-items: center;
-        }
-
-        .form-check-input {
-            width: 1.25rem;
-            height: 1.25rem;
-            margin-right: 0.75rem;
-            accent-color: #059669;
-            border-radius: 0.25rem;
-        }
-
-        .form-check-label {
-            font-size: 0.875rem;
-            color: var(--dark-color);
-            cursor: pointer;
-            font-weight: 500;
-        }
-        
-        .alert {
-            border-radius: 0.5rem;
-            border-left: 4px solid #dc2626;
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 0.75rem 0.875rem;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .alert i {
-            font-size: 1rem;
-        }
-        
-        .invalid-feedback {
-            font-size: 0.75rem;
-            color: #dc2626;
-            margin-top: 0.25rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        /* Enhanced form validation states */
-        .form-control.is-valid {
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
-
-        .form-control.is-invalid {
-            border-color: #ef4444;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-        }
-
-        .valid-feedback {
-            font-size: 0.75rem;
-            color: #10b981;
-            margin-top: 0.25rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        /* Help text */
-        .form-text {
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin-top: 0.25rem;
-            font-weight: 400;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-top: 1.25rem;
-        }
-
-        .security-note {
-            margin-top: 1.25rem;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #6b7280;
-            font-weight: 500;
-        }
-
-        /* Captcha styles */
-        .captcha-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            width: 100%;
-        }
-
-        .captcha-question {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: white;
-            border: 1px solid rgba(154, 179, 163, 0.5);
-            border-radius: 0.5rem;
-            padding: 0.75rem 0.875rem;
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--dark-color);
-            min-height: 3rem;
-            box-sizing: border-box;
-            width: 100%;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        
-        .captcha-question:hover {
-            border-color: rgba(154, 179, 163, 0.7);
-        }
-
-        .captcha-question span {
-            flex: 1;
-            text-align: center;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 0.1em;
-            word-break: keep-all;
-            white-space: nowrap;
-        }
-
-        .captcha-refresh {
-            background: linear-gradient(to right, #059669, #047857);
-            border: none;
-            border-radius: 0.5rem;
-            color: white;
-            width: 2.5rem;
-            height: 2.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 0.625rem;
+        /* ── Left branding panel ── */
+        .brand-panel {
+            display: none;
+            width: 420px;
             flex-shrink: 0;
-            min-width: 2.5rem;
-            min-height: 2.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+            background: linear-gradient(160deg, #047857 0%, #059669 45%, #34d399 100%);
+            position: relative;
+            overflow: hidden;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3rem 2.5rem;
         }
 
-        .captcha-refresh:hover {
-            background: linear-gradient(to right, #047857, #065f46);
-            transform: rotate(180deg);
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-        }
+        @media (min-width: 1024px) { .brand-panel { display: flex; } }
 
-        .captcha-refresh:active {
-            transform: rotate(180deg) scale(0.95);
-        }
-
-        .captcha-refresh:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
-        }
-
-        .captcha-refresh i {
-            font-size: 1rem;
-        }
-
-        /* Captcha validation states */
-        .captcha-question.valid {
-            border-color: #10b981;
-            background: white;
-        }
-
-        .captcha-question.invalid {
-            border-color: #ef4444;
-            background: white;
-        }
-
-
-
-        /* Tablet optimizations */
-        @media (max-width: 768px) {
-            .login-container {
-                max-width: 80%;
-            }
-            
-            .login-card {
-                padding: 1.5rem 1.5rem;
-            }
-            
-            .captcha-question {
-                font-size: 1rem;
-                padding: 0.75rem 0.875rem;
-                min-height: 3rem;
-            }
-            
-            .captcha-refresh {
-                width: 2.25rem;
-                height: 2.25rem;
-            }
-        }
-
-        /* Mobile optimizations */
-        @media (max-width: 480px) {
-            body {
-                padding: 0.75rem;
-            }
-            
-            .login-container {
-                max-width: 100%;
-            }
-            
-            .login-card {
-                padding: 1.5rem 1.25rem;
-                border-radius: 0.5rem;
-                margin: 0;
-            }
-            
-            /* Stack sections vertically on mobile */
-            .flex.flex-col.lg\\:flex-row {
-                flex-direction: column;
-            }
-            
-            .login-header h1 {
-                font-size: 1.75rem;
-            }
-
-            .logo-icon {
-                font-size: 2.5rem;
-            }
-
-            /* Larger touch targets for mobile */
-            .form-control {
-                height: 3.25rem;
-                font-size: 1rem;
-                padding: 0.875rem 1rem;
-            }
-
-
-            .btn-login {
-                height: 3.25rem;
-                font-size: 1rem;
-                min-width: 100%;
-                width: 100%;
-            }
-
-            .form-check-input {
-                width: 1.5rem;
-                height: 1.5rem;
-            }
-            
-            /* Captcha mobile optimizations */
-            .captcha-container {
-                gap: 1rem;
-            }
-            
-            .captcha-question {
-                flex-direction: column;
-                gap: 0.625rem;
-                padding: 1rem 0.875rem;
-                min-height: auto;
-                text-align: center;
-            }
-            
-            .captcha-question span {
-                font-size: 1.375rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .captcha-refresh {
-                width: 3rem;
-                height: 3rem;
-                margin-left: 0;
-                align-self: center;
-            }
-            
-            .captcha-refresh i {
-                font-size: 1.25rem;
-            }
-            
-            /* Form group spacing */
-            .form-group {
-                margin-bottom: 1.25rem;
-            }
-            
-            /* Button container mobile */
-            .button-container {
-                margin-top: 1.5rem;
-            }
-        }
-
-        /* Extra small mobile devices */
-        @media (max-width: 360px) {
-            .login-card {
-                padding: 1.25rem 1rem;
-            }
-            
-            .login-header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .logo-icon {
-                font-size: 2rem;
-            }
-            
-            .captcha-question {
-                padding: 1rem 0.75rem;
-            }
-            
-            .captcha-question span {
-                font-size: 1.25rem;
-            }
-            
-            .form-control {
-                height: 3rem;
-                font-size: 0.9375rem;
-            }
-            
-            .btn-login {
-                height: 3rem;
-                font-size: 0.9375rem;
-            }
-        }
-
-        /* Touch device optimizations */
-        @media (hover: none) and (pointer: coarse) {
-
-            .captcha-refresh {
-                width: 3rem;
-                height: 3rem;
-            }
-
-            .btn-login:hover {
-                transform: none;
-                box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
-            }
-
-            .form-control:focus {
-                transform: none;
-            }
-            
-            .captcha-refresh:hover {
-                transform: none;
-                background: #047857;
-            }
-            
-            .captcha-refresh:active {
-                transform: scale(0.95);
-                background: #065f46;
-            }
-        }
-
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-            .form-control {
-                border-width: 3px;
-            }
-
-            .btn-login {
-                border: 2px solid var(--dark-color);
-            }
-        }
-
-        /* Landscape orientation support */
-        @media (max-height: 600px) and (orientation: landscape) {
-            body {
-                padding: 0.5rem;
-            }
-            
-            .login-card {
-                padding: 1.5rem 2rem;
-            }
-            
-            .login-header {
-                margin-bottom: 1rem;
-            }
-            
-            .login-header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .logo-icon {
-                font-size: 2rem;
-                margin-bottom: 0.75rem;
-            }
-            
-            .form-group {
-                margin-bottom: 0.875rem;
-            }
-            
-            .form-control {
-                height: 2.875rem;
-            }
-            
-            .captcha-question {
-                padding: 0.75rem 0.875rem;
-                min-height: 2.875rem;
-            }
-            
-            .captcha-question span {
-                font-size: 1rem;
-            }
-            
-            .button-container {
-                margin-top: 1rem;
-            }
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-            
-            .captcha-refresh:hover {
-                transform: none;
-            }
-            
-            .btn-login:hover {
-                transform: none;
-            }
-        }
-
-        /* Loading animation */
-        .btn-login.loading {
-            pointer-events: none;
-            opacity: 0.8;
-        }
-
-        .btn-login.loading::after {
+        .brand-panel::before {
             content: '';
             position: absolute;
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid transparent;
-            border-top: 2px solid white;
+            top: -80px; right: -80px;
+            width: 320px; height: 320px;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.06);
+        }
+        .brand-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; left: -60px;
+            width: 250px; height: 250px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
         }
 
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            position: relative;
+            z-index: 1;
+        }
+        .brand-logo-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.18);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.375rem;
+            color: #fff;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        .brand-logo-text { font-size: 1.5rem; font-weight: 700; color: #fff; letter-spacing: 0.04em; }
+        .brand-logo-sub  { font-size: 0.6875rem; color: rgba(255,255,255,0.7); font-weight: 400; margin-top: 1px; }
+
+        .brand-center {
+            position: relative;
+            z-index: 1;
+        }
+        .brand-headline {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.25;
+            margin: 0 0 1rem;
+        }
+        .brand-desc {
+            font-size: 0.9375rem;
+            color: rgba(255,255,255,0.75);
+            line-height: 1.6;
+            margin: 0 0 2rem;
         }
 
-        /* Focus management for better accessibility */
-        .form-control:focus,
-        .captcha-refresh:focus,
-        .btn-login:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
+        .brand-features { display: flex; flex-direction: column; gap: 0.75rem; }
+        .brand-feature {
+            display: flex; align-items: center; gap: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+        }
+        .brand-feature i { color: #a7f3d0; font-size: 0.875rem; width: 16px; text-align: center; }
+        .brand-feature span { font-size: 0.875rem; color: rgba(255,255,255,0.9); font-weight: 500; }
+
+        .brand-footer {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            position: relative;
+            z-index: 1;
         }
 
-        /* Better text selection */
-        .captcha-question span {
+        /* ── Right form panel ── */
+        .form-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .login-header { margin-bottom: 2rem; }
+        .login-header h2 {
+            font-size: 1.625rem; font-weight: 700;
+            color: var(--text); margin: 0 0 0.375rem;
+        }
+        .login-header p { font-size: 0.9375rem; color: var(--muted); margin: 0; }
+
+        /* Mobile brand strip (visible < 1024px) */
+        .mobile-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #059669, #047857);
+            border-radius: 1rem;
+        }
+        @media (min-width: 1024px) { .mobile-brand { display: none; } }
+        .mobile-brand i { font-size: 1.5rem; color: #fff; }
+        .mobile-brand-text span { display: block; font-size: 1.125rem; font-weight: 700; color: #fff; }
+        .mobile-brand-text small { font-size: 0.75rem; color: rgba(255,255,255,0.75); }
+
+        /* Form fields */
+        .field-group { margin-bottom: 1.25rem; }
+        .field-label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .field-label span { color: var(--muted); font-weight: 400; margin-left: 0.25rem; }
+
+        .input-wrap { position: relative; }
+        .input-icon {
+            position: absolute;
+            top: 50%; left: 0.875rem;
+            transform: translateY(-50%);
+            color: #9AB3A3;
+            font-size: 0.875rem;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+        .field-input {
+            width: 100%;
+            height: 2.875rem;
+            padding: 0 0.875rem 0 2.625rem;
+            font-size: 0.9375rem;
+            font-family: inherit;
+            border: 1.5px solid var(--border);
+            border-radius: 0.625rem;
+            background: #fff;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .field-input::placeholder { color: #b0bfb7; font-weight: 400; }
+        .field-input:hover { border-color: rgba(5,150,105,0.35); }
+        .field-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5,150,105,0.12);
+        }
+        .field-input:focus + .input-icon,
+        .input-wrap:focus-within .input-icon { color: var(--primary); }
+
+        /* Validation states */
+        .field-input.is-valid   { border-color: #10b981; }
+        .field-input.is-invalid { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+
+        .field-hint {
+            font-size: 0.75rem; color: var(--muted);
+            margin-top: 0.3rem;
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+        .field-error {
+            font-size: 0.75rem; color: #dc2626; font-weight: 500;
+            margin-top: 0.3rem;
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+
+        /* Password toggle */
+        .pw-toggle {
+            position: absolute;
+            top: 50%; right: 0.75rem;
+            transform: translateY(-50%);
+            background: none; border: none;
+            color: #9AB3A3; cursor: pointer;
+            padding: 0.25rem; font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+        .pw-toggle:hover { color: var(--primary); }
+
+        /* Captcha row */
+        .captcha-row {
+            display: flex;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+        .captcha-display {
+            flex: 1;
+            display: flex; align-items: center; justify-content: center;
+            background: #f8faf9;
+            border: 1.5px solid var(--border);
+            border-radius: 0.625rem;
+            padding: 0.5rem 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.1em;
+            color: var(--text);
             user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+            min-height: 2.875rem;
+        }
+        .captcha-display.valid   { border-color: #10b981; background: #f0fdf9; }
+        .captcha-display.invalid { border-color: #ef4444; background: #fef2f2; }
+
+        .captcha-refresh-btn {
+            width: 2.875rem;
+            border-radius: 0.625rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none; color: #fff;
+            cursor: pointer; font-size: 0.875rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.2s, transform 0.3s;
+            flex-shrink: 0;
+        }
+        .captcha-refresh-btn:hover { opacity: 0.88; }
+        .captcha-refresh-btn:active { transform: rotate(180deg) scale(0.95); }
+
+        /* Remember me */
+        .remember-row {
+            display: flex; align-items: center; gap: 0.625rem;
+            margin-top: 0.25rem;
+        }
+        .remember-row input[type="checkbox"] {
+            width: 1rem; height: 1rem;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        .remember-row label {
+            font-size: 0.875rem; color: var(--text);
+            cursor: pointer; font-weight: 500;
         }
 
-        /* Improved button states */
-        .btn-login:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .captcha-refresh:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Better error state visibility */
-        .form-control.is-invalid {
-            border-color: #dc2626;
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-        }
-
-        .captcha-question.invalid {
-            border-color: #dc2626;
+        /* Alert */
+        .login-alert {
+            display: flex; align-items: flex-start; gap: 0.625rem;
             background: #fef2f2;
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+            border: 1px solid #fecaca;
+            border-left: 3px solid #dc2626;
+            border-radius: 0.625rem;
+            padding: 0.75rem 0.875rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem; color: #991b1b;
+        }
+        .login-alert i { margin-top: 0.1rem; flex-shrink: 0; }
+
+        /* Submit button */
+        .btn-submit {
+            width: 100%;
+            height: 2.875rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 0.75rem;
+            color: #fff;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            transition: filter 0.2s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(5,150,105,0.25);
+            margin-top: 1.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-submit:hover {
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(5,150,105,0.3);
+        }
+        .btn-submit:active { transform: translateY(0); filter: brightness(0.97); }
+        .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+        /* Spinner inside button */
+        .btn-spinner {
+            width: 1rem; height: 1rem;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        .btn-submit.loading .btn-spinner { display: block; }
+        .btn-submit.loading .btn-label { display: none; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Section divider */
+        .section-sep {
+            display: flex; align-items: center; gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+        .section-sep::before, .section-sep::after {
+            content: ''; flex: 1;
+            height: 1px; background: var(--border);
+        }
+        .section-sep span { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+        /* Security note */
+        .security-note {
+            display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+            margin-top: 1.5rem;
+            font-size: 0.75rem; color: var(--muted);
+        }
+        .security-note i { font-size: 0.8125rem; color: #10b981; }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .form-panel { padding: 1.5rem 1rem; align-items: flex-start; padding-top: 2rem; }
+            .field-input, .btn-submit { height: 3.25rem; font-size: 1rem; }
+            .captcha-display { min-height: 3.25rem; }
+            .captcha-refresh-btn { width: 3.25rem; }
         }
 
-        /* Improved success state visibility */
-        .form-control.is-valid {
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
-
-        .captcha-question.valid {
-            border-color: #10b981;
-            background: #f0fdf4;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        @media (prefers-reduced-motion: reduce) {
+            * { animation: none !important; transition-duration: 0.01ms !important; }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-card">
-            <!-- Modern Header Section -->
-            <x-auth.login-header />
-            
-            <div class="login-body">
-                @if ($errors->any())
-                    <x-alert type="error" title="Erreur de connexion!">
-                        <ul class="mt-2">
-                            @php
-                                $uniqueErrors = array_unique($errors->all());
-                            @endphp
-                            @foreach ($uniqueErrors as $error)
-                                <li class="text-sm">{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </x-alert>
-                @endif
-                
-                <form method="POST" action="{{ route('login') }}" id="loginForm" class="space-y-6">
-                    @csrf
-                    
-                    <!-- Main Form Container with Flex -->
-                    <div class="flex flex-col lg:flex-row gap-4">
-                        <!-- Left Section: Credentials -->
-                        <div class="flex-1 space-y-4">
-                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                <div class="flex items-center gap-3 mb-3">
-                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                                        <i class="fas fa-user text-white text-sm"></i>
-                                    </div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Informations de connexion</h3>
-                                </div>
-                                
-                                <x-form.input 
-                                    type="number" 
-                                    name="ppr" 
-                                    label="PPR" 
-                                    :value="old('ppr')" 
-                                    placeholder="Entrez votre PPR" 
-                                    required
-                                    autocomplete="username"
-                                    help="(Numéro de personnel)"
-                                    autofocus
-                                />
-                                
-                                <x-form.input 
-                                    type="password" 
-                                    name="password" 
-                                    label="Mot de passe" 
-                                    placeholder="Entrez votre mot de passe" 
-                                    required
-                                    autocomplete="current-password"
-                                    help="Mot de passe sécurisé requis"
-                                />
-                                
-                                <!-- Remember Me Checkbox -->
-                                <div class="flex items-center mt-3">
-                                    <input type="checkbox" 
-                                           name="remember" 
-                                           id="remember" 
-                                           value="1"
-                                           {{ old('remember') ? 'checked' : '' }}
-                                           class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2">
-                                    <label for="remember" class="ml-2 text-sm font-medium text-gray-700 cursor-pointer flex items-center gap-2">
-                                        <i class="fas fa-clock" style="color: #059669;"></i>
-                                        <span>Se souvenir de moi</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Right Section: Security & Options -->
-                        <div class="flex-1 space-y-4">
-                            <!-- Security Verification Section -->
-                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                <div class="flex items-center gap-3 mb-3">
-                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
-                                        <i class="fas fa-shield-alt text-white text-sm"></i>
-                                    </div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Vérification de sécurité</h3>
-                                </div>
-                                <x-form.captcha 
-                                    name="captcha"
-                                    :question="$captcha_question ?? null"
-                                />
-                            </div>
-                            
-                        </div>
-                    </div>
-                    
-                    <!-- Form Actions -->
-                    <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">
-                        <x-button type="submit" variant="success" size="lg" id="loginBtn" icon="fas fa-sign-in-alt">
-                            <span class="btn-text">Se connecter</span>
-                        </x-button>
-                    </div>
-                </form>
+
+    <!-- LEFT: Branding Panel (desktop only) -->
+    <div class="brand-panel" aria-hidden="true">
+        <div class="brand-logo">
+            <div class="brand-logo-icon"><i class="fas fa-tree"></i></div>
+            <div>
+                <div class="brand-logo-text">DEFATP</div>
+                <div class="brand-logo-sub">Gestion Forestière</div>
             </div>
         </div>
+
+        <div class="brand-center">
+            <h1 class="brand-headline">Gestion forestière intégrée</h1>
+            <p class="brand-desc">Plateforme centralisée pour la gestion des articles, contrats, cessions et documents forestiers.</p>
+            <div class="brand-features">
+                <div class="brand-feature">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Suivi complet des articles & contrats</span>
+                </div>
+                <div class="brand-feature">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Gestion des cessions & carnets</span>
+                </div>
+                <div class="brand-feature">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Génération automatique de documents</span>
+                </div>
+                <div class="brand-feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Accès sécurisé & traçabilité complète</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="brand-footer">© {{ date('Y') }} DEFATP · Direction des Eaux et Forêts</div>
     </div>
-    
+
+    <!-- RIGHT: Form Panel -->
+    <div class="form-panel">
+        <div class="login-card">
+
+            <!-- Mobile brand strip -->
+            <div class="mobile-brand">
+                <i class="fas fa-tree"></i>
+                <div class="mobile-brand-text">
+                    <span>DEFATP</span>
+                    <small>Gestion Forestière</small>
+                </div>
+            </div>
+
+            <div class="login-header">
+                <h2>Bienvenue</h2>
+                <p>Connectez-vous à votre espace de travail</p>
+            </div>
+
+            @if ($errors->any())
+            <div class="login-alert" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>
+                    @foreach(array_unique($errors->all()) as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" id="loginForm" novalidate>
+                @csrf
+
+                <!-- PPR -->
+                <div class="field-group">
+                    <label class="field-label" for="ppr">
+                        Numéro PPR <span>(Personnel)</span>
+                    </label>
+                    <div class="input-wrap">
+                        <i class="fas fa-id-badge input-icon"></i>
+                        <input
+                            type="number"
+                            id="ppr"
+                            name="ppr"
+                            class="field-input"
+                            value="{{ old('ppr') }}"
+                            placeholder="Entrez votre PPR"
+                            required
+                            autocomplete="username"
+                            autofocus
+                        >
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="field-group">
+                    <label class="field-label" for="password">Mot de passe</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="field-input"
+                            placeholder="Entrez votre mot de passe"
+                            required
+                            autocomplete="current-password"
+                            style="padding-right: 2.75rem;"
+                        >
+                        <button type="button" class="pw-toggle" id="pwToggle" tabindex="-1" aria-label="Afficher/masquer le mot de passe">
+                            <i class="fas fa-eye" id="pwToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember me -->
+                <div class="remember-row">
+                    <input type="checkbox" id="remember" name="remember" value="1" {{ old('remember') ? 'checked' : '' }}>
+                    <label for="remember">Se souvenir de moi</label>
+                </div>
+
+                <!-- Separator -->
+                <div class="section-sep">
+                    <span>Vérification de sécurité</span>
+                </div>
+
+                <!-- Captcha -->
+                <div class="field-group">
+                    <label class="field-label" for="captcha">Répondez à la question ci-dessous</label>
+
+                    <div class="captcha-row" style="margin-bottom: 0.625rem;">
+                        <div class="captcha-display" id="captchaDisplay">
+                            <span id="captchaText">{{ $captcha_question ?? '? + ? = ?' }}</span>
+                        </div>
+                        <button type="button" class="captcha-refresh-btn" id="captchaRefresh" title="Nouvelle question" aria-label="Régénérer le captcha">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+
+                    <div class="input-wrap">
+                        <i class="fas fa-check-double input-icon"></i>
+                        <input
+                            type="number"
+                            id="captcha"
+                            name="captcha"
+                            class="field-input"
+                            placeholder="Votre réponse"
+                            required
+                            min="0"
+                            autocomplete="off"
+                        >
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-submit" id="loginBtn">
+                    <div class="btn-spinner"></div>
+                    <span class="btn-label">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Se connecter
+                    </span>
+                </button>
+            </form>
+
+            <div class="security-note">
+                <i class="fas fa-lock"></i>
+                Connexion sécurisée — vos données sont protégées
+            </div>
+
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
     <script>
-        const loginForm = document.getElementById('loginForm');
-        const pprField = document.getElementById('ppr');
+        // ── Field validation ──────────────────────────────────────
+        const pprField      = document.getElementById('ppr');
         const passwordField = document.getElementById('password');
-        const captchaField = document.getElementById('captcha');
+        const captchaField  = document.getElementById('captcha');
+        const captchaDisp   = document.getElementById('captchaDisplay');
 
         function validateField(field) {
-            if (!field) {
-                return false;
-            }
-
-            const value = field.value.trim();
-
+            const v = field.value.trim();
             field.classList.remove('is-valid', 'is-invalid');
-
-            if (value === '') {
-                return false;
-            }
-
-            if (field.name === 'ppr' && value.length >= 3) {
-                field.classList.add('is-valid');
-                return true;
-            }
-
-            if (field.name === 'password' && value.length >= 6) {
-                field.classList.add('is-valid');
-                return true;
-            }
-
+            if (!v) return false;
+            if (field.name === 'ppr'      && v.length >= 3) { field.classList.add('is-valid'); return true; }
+            if (field.name === 'password' && v.length >= 6) { field.classList.add('is-valid'); return true; }
             return false;
         }
 
-        function validateCaptchaInput(field) {
-            const captchaQuestion = document.querySelector('.captcha-question');
-
-            if (!field || !captchaQuestion) {
+        function validateCaptcha() {
+            if (!captchaField) return true;
+            const v = captchaField.value.trim();
+            captchaField.classList.remove('is-valid', 'is-invalid');
+            captchaDisp.classList.remove('valid', 'invalid');
+            if (!v || isNaN(parseInt(v))) {
+                captchaField.classList.add('is-invalid');
+                captchaDisp.classList.add('invalid');
                 return false;
             }
-
-            const rawValue = field.value.trim();
-            const parsedValue = Number.parseInt(rawValue, 10);
-
-            captchaQuestion.classList.remove('valid', 'invalid');
-            field.classList.remove('is-valid', 'is-invalid');
-
-            if (rawValue === '' || Number.isNaN(parsedValue) || parsedValue < 1 || parsedValue > 10) {
-                captchaQuestion.classList.add('invalid');
-                field.classList.add('is-invalid');
-                return false;
-            }
-
-            captchaQuestion.classList.add('valid');
-            field.classList.add('is-valid');
+            captchaField.classList.add('is-valid');
+            captchaDisp.classList.add('valid');
             return true;
         }
 
-        [pprField, passwordField].forEach((field) => {
-            if (!field) {
-                return;
-            }
-
-            field.addEventListener('input', () => validateField(field));
-            field.addEventListener('blur', () => validateField(field));
+        [pprField, passwordField].forEach(f => {
+            if (!f) return;
+            f.addEventListener('input', () => validateField(f));
+            f.addEventListener('blur',  () => validateField(f));
         });
 
-        document.querySelectorAll('.form-control').forEach((input) => {
-            input.addEventListener('focus', function() {
-                this.parentElement?.classList.add('focused');
-                this.setAttribute('aria-expanded', 'true');
+        if (captchaField) {
+            captchaField.addEventListener('input', validateCaptcha);
+            captchaField.addEventListener('blur',  validateCaptcha);
+        }
+
+        // ── Password toggle ──────────────────────────────────────
+        const pwToggle     = document.getElementById('pwToggle');
+        const pwToggleIcon = document.getElementById('pwToggleIcon');
+        if (pwToggle) {
+            pwToggle.addEventListener('click', () => {
+                const shown = passwordField.type === 'text';
+                passwordField.type = shown ? 'password' : 'text';
+                pwToggleIcon.classList.toggle('fa-eye',       shown);
+                pwToggleIcon.classList.toggle('fa-eye-slash', !shown);
             });
+        }
 
-            input.addEventListener('blur', function() {
-                this.parentElement?.classList.remove('focused');
-                this.setAttribute('aria-expanded', 'false');
-            });
-        });
-
-        if (loginForm) {
-            loginForm.addEventListener('submit', function(e) {
-                const btn = document.getElementById('loginBtn');
-                const btnText = btn?.querySelector('.btn-text');
-                const pprValid = validateField(pprField);
-                const passwordValid = validateField(passwordField);
-                const captchaValid = validateCaptchaInput(captchaField);
-
-                if (!pprValid || !passwordValid || !captchaValid) {
-                    e.preventDefault();
-
-                    if (!pprValid && pprField) {
-                        pprField.classList.add('is-invalid');
-                        pprField.focus();
-                    } else if (!passwordValid && passwordField) {
-                        passwordField.classList.add('is-invalid');
-                        passwordField.focus();
-                    } else if (captchaField) {
-                        captchaField.classList.add('is-invalid');
-                        captchaField.focus();
+        // ── Captcha refresh (AJAX) ────────────────────────────────
+        const refreshBtn = document.getElementById('captchaRefresh');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', async () => {
+                refreshBtn.disabled = true;
+                refreshBtn.style.opacity = '0.6';
+                try {
+                    const res = await fetch('/captcha/refresh', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.question) document.getElementById('captchaText').textContent = data.question;
+                        if (captchaField) {
+                            captchaField.value = '';
+                            captchaField.classList.remove('is-valid', 'is-invalid');
+                        }
+                        captchaDisp.classList.remove('valid', 'invalid');
                     }
+                } catch(e) { /* silent fail */ }
+                refreshBtn.disabled = false;
+                refreshBtn.style.opacity = '';
+            });
+        }
 
+        // ── Form submit ──────────────────────────────────────────
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', e => {
+                const pprOk      = validateField(pprField);
+                const passOk     = validateField(passwordField);
+                const captchaOk  = validateCaptcha();
+
+                if (!pprOk || !passOk || !captchaOk) {
+                    e.preventDefault();
+                    if (!pprOk)     pprField.focus();
+                    else if (!passOk) passwordField.focus();
+                    else             captchaField?.focus();
                     return;
                 }
 
-                if (btn && btnText) {
+                const btn = document.getElementById('loginBtn');
+                if (btn) {
                     btn.classList.add('loading');
-                    btnText.textContent = 'Connexion...';
                     btn.disabled = true;
-
-                    setTimeout(() => {
-                        btn.classList.remove('loading');
-                        btnText.textContent = 'Se connecter';
-                        btn.disabled = false;
-                    }, 10000);
+                    setTimeout(() => { btn.classList.remove('loading'); btn.disabled = false; }, 12000);
                 }
             });
         }
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.target?.id === 'password') {
-                loginForm?.requestSubmit();
-            }
-
-            if (e.key === 'Escape' && e.target?.id === 'password') {
-                e.target.value = '';
-                e.target.classList.remove('is-valid', 'is-invalid');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (pprField && !pprField.value) {
-                pprField.focus();
+        // ── Keyboard shortcuts ───────────────────────────────────
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && e.target?.id === 'password') loginForm?.requestSubmit();
+            if (e.key === 'Escape' && document.activeElement) {
+                document.activeElement.value = '';
+                document.activeElement.classList.remove('is-valid', 'is-invalid');
             }
         });
     </script>
 </body>
-</html> 
+</html>

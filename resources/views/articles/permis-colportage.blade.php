@@ -64,8 +64,8 @@
                         $detailRows = collect();
                         if (!empty($selectedPermisEnleverId ?? null) && isset($permisEnleversWithQuantities)) {
                             $permisSelected = $permisEnleversWithQuantities->firstWhere('id', (int) $selectedPermisEnleverId);
-                            if ($permisSelected && isset($permisSelected->quantities)) {
-                                $detailRows = collect($permisSelected->quantities);
+                            if ($permisSelected && isset($permisSelected->detail_rows)) {
+                                $detailRows = collect($permisSelected->detail_rows);
                             }
                         }
                     @endphp
@@ -83,16 +83,14 @@
                                 <tbody class="divide-y divide-gray-100 bg-white">
                                     @foreach($detailRows as $row)
                                         @php
-                                            $ess = $article->essences->firstWhere('id', $row['essence_id'] ?? null);
-                                            $prod = isset($products) ? $products->get($row['product_id'] ?? null) : null;
                                             $qty = (float)($row['quantity'] ?? 0);
                                         @endphp
                                         <tr>
                                             <td class="px-2 py-1 text-gray-800">
-                                                {{ $ess?->essence ?? '-' }}
+                                                {{ $row['essence_name'] ?? '-' }}
                                             </td>
                                             <td class="px-2 py-1 text-gray-600">
-                                                {{ $prod?->name ?? '-' }}
+                                                {{ $row['product_name'] ?? '-' }}
                                             </td>
                                             <td class="px-2 py-1 text-right text-gray-900">
                                                 {{ number_format($qty, 2, ',', ' ') }}

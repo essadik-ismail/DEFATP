@@ -790,12 +790,14 @@ class ArticleController extends Controller
 
         $resolvedPlaceholders = $lettreAdjudicataireService->getResolvedData($article);
         $templateAvailable = $lettreAdjudicataireService->hasTemplate();
+        $pdfAvailable = $lettreAdjudicataireService->canGeneratePdf();
 
         return view('articles.lettre-adjudicataire', compact(
             'article',
             'contractVente',
             'resolvedPlaceholders',
-            'templateAvailable'
+            'templateAvailable',
+            'pdfAvailable'
         ));
     }
 
@@ -841,6 +843,56 @@ class ArticleController extends Controller
 
             return redirect()->route('articles.lettre-adjudicataire', $article)
                 ->with('error', 'Erreur lors de la generation de la lettre adjudicataire: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generate and download the Lettre Adjudicataire PDF.
+     */
+    public function downloadLettreAdjudicatairePdf(Article $article, LettreAdjudicataireService $lettreAdjudicataireService): BinaryFileResponse|RedirectResponse
+    {
+        $article->load([
+            'contractVentes.exploitant',
+            'contractVentes.chargeApayer',
+            'contractVentes.permisExploiter',
+        ]);
+
+        if (!$article->contractVentes->first()) {
+            return redirect()->route('articles.show', $article)
+                ->with('error', 'Un contrat de vente doit etre cree avant de generer la lettre adjudicataire.');
+        }
+
+        if (!$lettreAdjudicataireService->canGeneratePdf()) {
+            return redirect()->route('articles.lettre-adjudicataire', $article)
+                ->with('error', 'La conversion PDF n\'est pas disponible sur ce serveur.');
+        }
+
+        try {
+            $document = $lettreAdjudicataireService->generatePdf($article);
+
+            ActivityLogger::log(
+                'export',
+                'Lettre adjudicataire PDF telechargee',
+                Article::class,
+                $article->id,
+                ['format' => 'pdf']
+            );
+
+            return response()->download(
+                $document['path'],
+                $document['download_name'],
+                [
+                    'Content-Type' => 'application/pdf',
+                ]
+            )->deleteFileAfterSend();
+        } catch (\Throwable $e) {
+            \Log::error('Erreur lors de la generation du PDF de la lettre adjudicataire: ' . $e->getMessage(), [
+                'article_id' => $article->id,
+                'exception' => $e,
+            ]);
+
+            return redirect()->route('articles.lettre-adjudicataire', $article)
+                ->with('error', 'Erreur lors de la generation du PDF de la lettre adjudicataire: ' . $e->getMessage());
         }
     }
 
@@ -1188,16 +1240,68 @@ class ArticleController extends Controller
     }
 
     /**
+     * Attach labeled essence/product quantity rows from permisenlever_product.
+     */
+    private function attachPermisEnleverDetailRows($permisEnlevers)
+    {
+        $permisIds = $permisEnlevers->pluck('id')->filter()->unique()->values();
+
+        if ($permisIds->isEmpty()) {
+            return $permisEnlevers;
+        }
+
+        $quantityRowsByPermis = DB::table('permisenlever_product')
+            ->whereIn('permis_id', $permisIds)
+            ->select('permis_id', 'id_essence', 'product_id', 'quantity')
+            ->get()
+            ->groupBy('permis_id')
+            ->map(function ($rows) {
+                return $rows->map(function ($item) {
+                    return [
+                        'essence_id' => (int) $item->id_essence,
+                        'product_id' => (int) $item->product_id,
+                        'quantity' => (float) $item->quantity,
+                    ];
+                })->values();
+            });
+
+        $allRows = $quantityRowsByPermis->flatMap(fn ($rows) => $rows);
+        $essenceIds = $allRows->pluck('essence_id')->filter()->unique()->values();
+        $productIds = $allRows->pluck('product_id')->filter()->unique()->values();
+
+        $essencesById = $essenceIds->isEmpty()
+            ? collect()
+            : Essence::whereIn('id', $essenceIds)->get()->keyBy('id');
+
+        $productsById = $productIds->isEmpty()
+            ? collect()
+            : Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+        return $permisEnlevers->map(function ($permis) use ($quantityRowsByPermis, $essencesById, $productsById) {
+            $quantities = collect($quantityRowsByPermis->get($permis->id, collect()))->values();
+
+            $permis->quantities = $quantities;
+            $permis->detail_rows = $quantities->map(function ($row) use ($essencesById, $productsById) {
+                $essence = $essencesById->get($row['essence_id']);
+                $product = $productsById->get($row['product_id']);
+
+                return $row + [
+                    'essence_name' => $essence?->essence ?? '-',
+                    'product_name' => $product?->name ?? '-',
+                ];
+            })->values();
+
+            return $permis;
+        });
+    }
+
+    /**
      * Show Permis de Colportage form
      */
     public function permisColportage(Article $article)
     {
         $article->load(['essences', 'products', 'depots']);
-        
-        // Load all products referenced in essences to avoid N+1 queries
-        $productIds = $article->essences->pluck('pivot.product_id')->filter()->unique();
-        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
-        
+
         $contractVente = $article->contractVentes()->with('chargeApayer.payments')->first();
         
         if (!$contractVente) {
@@ -1228,25 +1332,7 @@ class ArticleController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Load quantities from permisenlever_product table for each permis
-        // This table stores: permis_id, product_id, id_essence, quantity
-        $permisEnleversWithQuantities = $permisEnlevers->map(function($permis) {
-            $quantities = DB::table('permisenlever_product')
-                ->where('permis_id', $permis->id)
-                ->select('id_essence', 'product_id', 'quantity')
-                ->get()
-                ->map(function($item) {
-                    return [
-                        'essence_id' => (int)$item->id_essence,
-                        'product_id' => (int)$item->product_id,
-                        'quantity' => (float)$item->quantity
-                    ];
-                })
-                ->values(); // Reset array keys
-            
-            $permis->quantities = $quantities;
-            return $permis;
-        });
+        $permisEnleversWithQuantities = $this->attachPermisEnleverDetailRows($permisEnlevers);
 
         // Get pre-selected permis d'enlever ID from query parameter
         $selectedPermisEnleverId = request('permis_enlever_id');
@@ -1282,7 +1368,7 @@ class ArticleController extends Controller
 
         return view('articles.permis-colportage', compact(
             'article', 'contractVente', 'permisEnlevers', 'permisEnleversWithQuantities',
-            'selectedPermisEnleverId', 'products', 'carnetsDisponibles',
+            'selectedPermisEnleverId', 'carnetsDisponibles',
             'quantityInPermisEnlever', 'quantityUsedColportage', 'listPermisColportage'
         ));
     }
@@ -1293,9 +1379,6 @@ class ArticleController extends Controller
     public function permisColportageCreate(Article $article)
     {
         $article->load(['essences', 'products', 'depots']);
-
-        $productIds = $article->essences->pluck('pivot.product_id')->filter()->unique();
-        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
 
         $contractVente = $article->contractVentes()->with('chargeApayer.payments')->first();
 
@@ -1325,29 +1408,14 @@ class ArticleController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $permisEnleversWithQuantities = $permisEnlevers->map(function ($permis) {
-            $quantities = DB::table('permisenlever_product')
-                ->where('permis_id', $permis->id)
-                ->select('id_essence', 'product_id', 'quantity')
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'essence_id' => (int) $item->id_essence,
-                        'product_id' => (int) $item->product_id,
-                        'quantity' => (float) $item->quantity,
-                    ];
-                })
-                ->values();
-            $permis->quantities = $quantities;
-            return $permis;
-        });
+        $permisEnleversWithQuantities = $this->attachPermisEnleverDetailRows($permisEnlevers);
 
         $selectedPermisEnleverId = request('permis_enlever_id');
         $carnetsDisponibles = Carnet::disponible()->listable()->get();
 
         return view('articles.permis-colportage-create', compact(
             'article', 'contractVente', 'permisEnlevers', 'permisEnleversWithQuantities',
-            'selectedPermisEnleverId', 'products', 'carnetsDisponibles'
+            'selectedPermisEnleverId', 'carnetsDisponibles'
         ));
     }
 

@@ -2948,29 +2948,43 @@
                     </a>
                 </div>
 
-                <div class="nav-section-label" data-section="general">General</div>
+                <div class="nav-section-label" data-section="general">Général</div>
                 <div class="nav-item">
                     <a href="{{ route('auth.profile') }}" class="nav-link sidebar-item {{ request()->routeIs('auth.profile') ? 'active' : '' }}">
-                        <i class="fas fa-cog"></i>
-                        Settings
+                        <i class="fas fa-sliders-h"></i>
+                        Paramètres
                     </a>
                 </div>
+                @can('view activity logs')
                 <div class="nav-item">
-                    <a href="#" class="nav-link sidebar-item">
-                        <i class="fas fa-question-circle"></i>
-                        Help
+                    <a href="{{ route('activity-logs.index') }}" class="nav-link sidebar-item {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
+                        <i class="fas fa-history"></i>
+                        Journal d'activité
                     </a>
                 </div>
-                <div class="nav-item">
-                    <form action="{{ route('logout') }}" method="POST" class="inline">
+                @endcan
+            </nav>
+
+            <!-- Sidebar footer: user info + logout -->
+            <div class="sidebar-footer" style="position:sticky; bottom:0; background:#fff; border-top:1px solid rgba(154,179,163,0.25); padding:0.875rem 1.25rem; margin-top:auto;">
+                <div class="flex items-center gap-3">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'U') }}&background=059669&color=fff&bold=true&size=64"
+                         alt="" class="w-8 h-8 rounded-full flex-shrink-0" style="outline: 2px solid rgba(5,150,105,0.2); outline-offset: 1px;">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-semibold text-gray-800 truncate">{{ auth()->user()->name ?? 'Utilisateur' }}</p>
+                        <p class="text-xs text-gray-400 truncate" style="font-size:0.6875rem;">{{ auth()->user()->email ?? '' }}</p>
+                    </div>
+                    <form action="{{ route('logout') }}" method="POST" class="flex-shrink-0">
                         @csrf
-                        <button type="submit" class="nav-link sidebar-item w-full text-left" style="background: none; border: none; cursor: pointer;">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Logout
+                        <button type="submit"
+                                title="Se déconnecter"
+                                class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                style="border: none; cursor: pointer; background: transparent;">
+                            <i class="fas fa-sign-out-alt text-sm"></i>
                         </button>
                     </form>
                 </div>
-            </nav>
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -3000,55 +3014,115 @@
                 <div class="header-actions">
                     <!-- Notifications -->
                     @auth
-                    <button class="header-icon-btn hdr-bell" title="Notifications">
-                        <i class="far fa-bell"></i>
-                        <span class="notification-dot"></span>
-                    </button>
+                    <x-notifications-dropdown />
                     @endauth
 
                     <!-- Divider -->
-                    <div style="width:1px;height:1.5rem;background:rgba(154,179,163,0.3);"></div>
+                    <div style="width:1px;height:1.5rem;background:rgba(154,179,163,0.3);flex-shrink:0;"></div>
 
-                    <!-- User Profile -->
-                    <div class="user-profile" x-data="{ open: false }">
-                        <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'User' }}&background=059669&color=fff&bold=true"
-                             alt="Profile" class="profile-pic">
-                        <div class="user-info">
-                            <div class="user-name">{{ auth()->user()->name ?? 'User' }}</div>
-                            <div class="user-email">{{ auth()->user()->email ?? 'user@example.com' }}</div>
+                    <!-- User Profile Dropdown -->
+                    @auth
+                    <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                        <button @click="open = !open"
+                                class="user-profile focus:outline-none"
+                                :aria-expanded="open"
+                                aria-haspopup="true">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'User') }}&background=059669&color=fff&bold=true&size=64"
+                                 alt="Photo de profil" class="profile-pic" width="32" height="32">
+                            <div class="user-info">
+                                <div class="user-name">{{ auth()->user()->name ?? 'Utilisateur' }}</div>
+                                <div class="user-email">{{ auth()->user()->email ?? '' }}</div>
+                            </div>
+                            <i class="fas fa-chevron-down transition-transform duration-200"
+                               :class="{ 'rotate-180': open }"
+                               style="font-size:0.5rem;color:#9AB3A3;margin-left:0.25rem;flex-shrink:0;"></i>
+                        </button>
+
+                        <!-- Dropdown panel -->
+                        <div x-show="open"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                             class="absolute right-0 mt-2 w-56 rounded-xl bg-white border shadow-lg z-50 overflow-hidden"
+                             style="border-color: rgba(154,179,163,0.4); box-shadow: 0 12px 28px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04); display:none;">
+
+                            <!-- User info header -->
+                            <div class="px-4 py-3 border-b" style="border-color: rgba(154,179,163,0.2);">
+                                <p class="text-xs font-semibold text-gray-900 truncate">{{ auth()->user()->name ?? 'Utilisateur' }}</p>
+                                <p class="text-xs text-gray-400 truncate mt-0.5">{{ auth()->user()->email ?? '' }}</p>
+                            </div>
+
+                            <!-- Menu items -->
+                            <div class="py-1">
+                                <a href="{{ route('auth.profile') }}"
+                                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                                    <i class="fas fa-user-circle w-4 text-center text-gray-400"></i>
+                                    Mon profil
+                                </a>
+                                @can('manage users')
+                                <a href="{{ route('users.index') }}"
+                                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                                    <i class="fas fa-users-cog w-4 text-center text-gray-400"></i>
+                                    Gestion utilisateurs
+                                </a>
+                                @endcan
+                                <a href="{{ route('settings.index') }}"
+                                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                                    <i class="fas fa-sliders-h w-4 text-center text-gray-400"></i>
+                                    Paramètres
+                                </a>
+                            </div>
+
+                            <div class="border-t py-1" style="border-color: rgba(154,179,163,0.2);">
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit"
+                                            class="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left">
+                                        <i class="fas fa-sign-out-alt w-4 text-center"></i>
+                                        Se déconnecter
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <i class="fas fa-chevron-down" style="font-size:0.5625rem;color:#9AB3A3;margin-left:0.125rem;"></i>
                     </div>
+                    @endauth
                 </div>
             </header>
 
             <!-- Page Content -->
             <main class="content-area" id="main-content">
                 @if(session('success'))
-                    <div class="alert alert-success mb-5 p-5 rounded-2xl">
-                        <i class="fas fa-check-circle mr-2"></i>
-                        {{ session('success') }}
+                    <div class="flex items-center gap-3 mb-5 px-4 py-3.5 rounded-xl border"
+                         style="background:#f0fdf9; border-color:#6ee7b7; border-left:3px solid #059669;">
+                        <i class="fas fa-check-circle text-emerald-600 flex-shrink-0"></i>
+                        <span class="text-sm font-medium text-emerald-800">{{ session('success') }}</span>
                     </div>
                 @endif
 
                 @if(session('error'))
-                    <div class="alert alert-danger mb-5 p-5 rounded-2xl">
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                        {{ session('error') }}
+                    <div class="flex items-center gap-3 mb-5 px-4 py-3.5 rounded-xl border"
+                         style="background:#fef2f2; border-color:#fca5a5; border-left:3px solid #dc2626;">
+                        <i class="fas fa-exclamation-circle text-red-600 flex-shrink-0"></i>
+                        <span class="text-sm font-medium text-red-800">{{ session('error') }}</span>
                     </div>
                 @endif
 
                 @if(session('warning'))
-                    <div class="alert alert-warning mb-5 p-5 rounded-2xl">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        {{ session('warning') }}
+                    <div class="flex items-center gap-3 mb-5 px-4 py-3.5 rounded-xl border"
+                         style="background:#fffbeb; border-color:#fcd34d; border-left:3px solid #d97706;">
+                        <i class="fas fa-exclamation-triangle text-amber-600 flex-shrink-0"></i>
+                        <span class="text-sm font-medium text-amber-800">{{ session('warning') }}</span>
                     </div>
                 @endif
 
                 @if(session('info'))
-                    <div class="alert alert-info mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        {{ session('info') }}
+                    <div class="flex items-center gap-3 mb-5 px-4 py-3.5 rounded-xl border"
+                         style="background:#eff6ff; border-color:#93c5fd; border-left:3px solid #2563eb;">
+                        <i class="fas fa-info-circle text-blue-600 flex-shrink-0"></i>
+                        <span class="text-sm font-medium text-blue-800">{{ session('info') }}</span>
                     </div>
                 @endif
 
@@ -3284,24 +3358,15 @@
         });
 
 
-        // Auto-hide alerts after 5 seconds
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function(alert) {
-                    alert.style.opacity = '0';
-                    setTimeout(function() {
-                        alert.remove();
-                    }, 300);
-                });
-            }, 5000);
-        });
-
         // Global UX Enhancement Functions
         window.UXUtils = {
             // Enhanced Toast notification system
             showToast: function(message, type = 'info', options = {}) {
                 const container = document.getElementById('toastContainer');
+                if (!container || !message) {
+                    return null;
+                }
+
                 const toast = document.createElement('div');
                 const toastId = 'toast-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
                 
@@ -3311,13 +3376,18 @@
                     closable: true,
                     position: 'top-right',
                     sound: false,
-                    action: null
+                    action: null,
+                    dedupe: true,
+                    dedupeWindow: 4000,
+                    maxVisible: 3
                 };
                 
                 const config = { ...defaults, ...options };
-                
-                toast.className = `toast ${type}`;
-                toast.id = toastId;
+                const escapeHtml = (value) => {
+                    const temp = document.createElement('div');
+                    temp.textContent = value == null ? '' : String(value);
+                    return temp.innerHTML;
+                };
                 
                 const icons = {
                     success: 'fas fa-check-circle',
@@ -3335,6 +3405,49 @@
                 
                 const icon = icons[type] || icons.info;
                 const title = config.title || titles[type] || titles.info;
+                const signature = [type, title, message].join('|');
+                const now = Date.now();
+
+                this._toastHistory = this._toastHistory || new Map();
+
+                const existingToast = Array.from(container.querySelectorAll('.toast')).find((item) => item.dataset.signature === signature);
+                const lastShownAt = this._toastHistory.get(signature);
+
+                if (config.dedupe && (existingToast || (lastShownAt && (now - lastShownAt) < config.dedupeWindow))) {
+                    if (existingToast) {
+                        if (existingToast._dismissTimer) {
+                            clearTimeout(existingToast._dismissTimer);
+                        }
+
+                        if (config.duration > 0) {
+                            existingToast._dismissTimer = setTimeout(() => {
+                                this.closeToast(existingToast.id);
+                            }, config.duration);
+                        }
+                    }
+
+                    return existingToast ? existingToast.id : null;
+                }
+
+                while (config.maxVisible > 0 && container.children.length >= config.maxVisible) {
+                    const oldestToast = container.firstElementChild;
+
+                    if (!oldestToast) {
+                        break;
+                    }
+
+                    if (oldestToast._dismissTimer) {
+                        clearTimeout(oldestToast._dismissTimer);
+                    }
+
+                    oldestToast.remove();
+                }
+
+                this._toastHistory.set(signature, now);
+
+                toast.className = `toast ${type}`;
+                toast.id = toastId;
+                toast.dataset.signature = signature;
                 
                 toast.innerHTML = `
                     <div class="toast-header">
@@ -3342,11 +3455,11 @@
                             <div class="toast-icon">
                                 <i class="${icon}"></i>
                             </div>
-                            ${title}
+                            ${escapeHtml(title)}
                         </div>
                         ${config.closable ? '<button class="toast-close" onclick="UXUtils.closeToast(\'' + toastId + '\')"><i class="fas fa-times"></i></button>' : ''}
                     </div>
-                    <div class="toast-message">${message}</div>
+                    <div class="toast-message">${escapeHtml(message)}</div>
                     ${config.action ? '<div class="toast-action mt-2"><button class="btn btn-sm btn-outline-primary" onclick="' + config.action + '">Action</button></div>' : ''}
                 `;
                 
@@ -3362,7 +3475,7 @@
                 
                 // Auto remove
                 if (config.duration > 0) {
-                    setTimeout(() => {
+                    toast._dismissTimer = setTimeout(() => {
                         this.closeToast(toastId);
                     }, config.duration);
                 }
@@ -3374,6 +3487,10 @@
             closeToast: function(toastId) {
                 const toast = document.getElementById(toastId);
                 if (toast) {
+                    if (toast._dismissTimer) {
+                        clearTimeout(toast._dismissTimer);
+                    }
+
                     toast.classList.remove('show');
                     setTimeout(() => toast.remove(), 300);
                 }
@@ -3697,27 +3814,7 @@
                 });
             });
 
-            // Auto-hide alerts after 5 seconds and convert to toasts
-            document.querySelectorAll('.alert').forEach(alert => {
-                const alertType = alert.classList.contains('alert-success') ? 'success' :
-                                 alert.classList.contains('alert-danger') ? 'error' :
-                                 alert.classList.contains('alert-warning') ? 'warning' :
-                                 alert.classList.contains('alert-info') ? 'info' : 'info';
-                
-                const message = alert.textContent.trim();
-                
-                // Show toast notification
-                UXUtils.showToast(message, alertType, {
-                    duration: 5000,
-                    sound: true
-                });
-                
-                // Hide original alert
-                setTimeout(() => {
-                    alert.style.opacity = '0';
-                    setTimeout(() => alert.remove(), 300);
-                }, 1000);
-            });
+            // Inline alerts manage their own lifecycle; avoid turning every page alert into a toast.
 
             // Add success alerts for form submissions
             document.querySelectorAll('form').forEach(form => {
@@ -3841,13 +3938,23 @@
         // Global error handling
         window.addEventListener('error', function(e) {
             console.error('Global error:', e.error);
-            UXUtils.showToast('Une erreur inattendue s\'est produite', 'error');
+            UXUtils.showToast('Une erreur inattendue s\'est produite', 'error', {
+                duration: 4000,
+                dedupe: true,
+                dedupeWindow: 5000,
+                maxVisible: 1
+            });
         });
 
         // Global unhandled promise rejection handling
         window.addEventListener('unhandledrejection', function(e) {
             console.error('Unhandled promise rejection:', e.reason);
-            UXUtils.showToast('Une erreur réseau s\'est produite', 'error');
+            UXUtils.showToast('Une erreur réseau s\'est produite', 'error', {
+                duration: 4000,
+                dedupe: true,
+                dedupeWindow: 5000,
+                maxVisible: 1
+            });
         });
 
         // Anime.js-powered micro-animations for a modern SaaS feel

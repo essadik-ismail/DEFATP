@@ -1,50 +1,51 @@
 @props([
-    'type' => 'button',
-    'variant' => 'primary',
-    'size' => 'md',
-    'icon' => null,
-    'href' => null
+    'type'      => 'button',
+    'variant'   => 'primary',  // primary | secondary | success | danger | outline | ghost | white
+    'size'      => 'md',       // xs | sm | md | lg
+    'icon'      => null,
+    'iconRight' => null,
+    'href'      => null,
+    'disabled'  => false,
 ])
 
 @php
     $sizeClasses = [
-        'sm' => 'px-4 py-2 text-sm',
-        'md' => 'px-6 py-3',
-        'lg' => 'px-8 py-4 text-lg',
+        'xs' => 'px-3 py-1.5 text-xs gap-1.5',
+        'sm' => 'px-4 py-2 text-sm gap-2',
+        'md' => 'px-5 py-2.5 text-sm gap-2',
+        'lg' => 'px-6 py-3 text-base gap-2',
     ];
-    $base = 'inline-flex items-center gap-2 rounded-2xl font-semibold transition-all duration-300 ' . ($sizeClasses[$size] ?? $sizeClasses['md']);
-    $variantClass = 'btn-theme-' . $variant;
+
+    // Map variant names to the global btn-* classes already defined in app.css
+    $variantMap = [
+        'primary'   => 'btn-primary',
+        'secondary' => 'btn-secondary',
+        'success'   => 'btn-success',
+        'danger'    => 'btn-danger',
+        'outline'   => 'btn-outline',
+        'ghost'     => 'btn-white',
+        'white'     => 'btn-white',
+    ];
+
+    $sizeClass    = $sizeClasses[$size]    ?? $sizeClasses['md'];
+    $variantClass = $variantMap[$variant]  ?? $variantMap['primary'];
+    $base = 'inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed ' . $sizeClass . ' ' . $variantClass;
 @endphp
 
 @if($href)
-    <a href="{{ $href }}" 
-       {{ $attributes->merge(['class' => $base . ' ' . $variantClass]) }}>
-        @if($icon)
-            <i class="{{ $icon }}"></i>
-        @endif
+    <a href="{{ $href }}" {{ $attributes->merge(['class' => $base]) }}>
+        @if($icon)<i class="{{ $icon }}"></i>@endif
         {{ $slot }}
+        @if($iconRight)<i class="{{ $iconRight }}"></i>@endif
     </a>
 @else
-    <button type="{{ $type }}" 
-            {{ $attributes->merge(['class' => $base . ' ' . $variantClass]) }}>
-        @if($icon)
-            <i class="{{ $icon }}"></i>
-        @endif
+    <button
+        type="{{ $type }}"
+        {{ $disabled ? 'disabled' : '' }}
+        {{ $attributes->merge(['class' => $base]) }}
+    >
+        @if($icon)<i class="{{ $icon }}"></i>@endif
         {{ $slot }}
+        @if($iconRight)<i class="{{ $iconRight }}"></i>@endif
     </button>
 @endif
-
-@push('styles')
-<style>
-    .btn-theme-primary { background: linear-gradient(135deg, #059669, #047857); color: #FFFFFF; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .btn-theme-primary:hover { background: linear-gradient(135deg, #047857, #035d42); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .btn-theme-secondary { background-color: #9AB3A3; color: #1F2D24; border-radius: 1rem; }
-    .btn-theme-secondary:hover { background-color: #3E6A4B; color: #FFFFFF; }
-    .btn-theme-success { background: linear-gradient(135deg, #059669, #047857); color: #FFFFFF; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .btn-theme-success:hover { background: linear-gradient(135deg, #047857, #035d42); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .btn-theme-danger { background-color: #1F2D24; color: #FFFFFF; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .btn-theme-danger:hover { opacity: 0.9; }
-    .btn-theme-outline { background: transparent; color: #059669; border: 2px solid #059669; border-radius: 1rem; }
-    .btn-theme-outline:hover { background: linear-gradient(135deg, #059669, #047857); color: #FFFFFF; }
-</style>
-@endpush
