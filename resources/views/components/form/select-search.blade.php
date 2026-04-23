@@ -94,7 +94,7 @@
 
             @if($allowClear && !$multiple && $selected)
             <div class="clear-selection">
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearSelection('{{ $id }}')">
+                <button type="button" class="btn-secondary" onclick="clearSelection('{{ $id }}')">
                     <i class="fas fa-times me-1"></i>Effacer la sélection
                 </button>
             </div>

@@ -4,25 +4,31 @@ namespace App\Enums;
 
 enum UserRole: string
 {
-    case Agency = 'agency';
-    case Admin = 'admin';
+    case Admin      = 'admin';
+    case Central    = 'central';     // Direction Centrale — national oversight
+    case Dranef     = 'dranef';      // Direction Régionale — approves prorogations, issues mainlevée
+    case Dpanef     = 'dpanef';      // Direction Provinciale — supervises provincial operations
+    case ZdtfDpanef = 'zdtfdpanef'; // Superset: union of zdtf + dpanef + cpf permissions
+    case Zdtf       = 'zdtf';        // Zone de Travaux Forestiers — creates/manages articles
+    case Cpf        = 'cpf';         // Commission Provinciale des Forêts — submits PV de récolement
+    case Brigade    = 'brigade';     // Brigade — declares vehicles, issues colportage permits
+    case Dfp        = 'dfp';         // District Forestier Provincial — same field scope as Brigade
 
-    /**
-     * Get human-readable label.
-     */
     public function label(): string
     {
         return match ($this) {
-            self::Agency => 'Agence',
-            self::Admin => 'Administrateur',
+            self::Admin      => 'Administrateur',
+            self::Central    => 'Direction Centrale',
+            self::Dranef     => 'DRANEF',
+            self::Dpanef     => 'DPANEF',
+            self::ZdtfDpanef => 'ZDTF/DPANEF',
+            self::Zdtf       => 'ZDTF',
+            self::Cpf        => 'CPF',
+            self::Brigade    => 'Brigade',
+            self::Dfp        => 'DFP',
         };
     }
 
-    /**
-     * All values for validation/selects.
-     *
-     * @return array<string>
-     */
     public static function values(): array
     {
         return array_column(self::cases(), 'value');

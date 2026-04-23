@@ -8,30 +8,26 @@
 @endsection
 
 @section('page-actions')
-    <a href="{{ route('auth.users.index') }}" class="btn btn-secondary">
+    <a href="{{ route('auth.users.index') }}" class="btn-secondary">
         <i class="fas fa-arrow-left"></i> Retour aux Utilisateurs
     </a>
 @endsection
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <!-- Header Section -->
-    <div class="mb-8">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                <i class="fas fa-user-plus text-white text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">
-                    Créer un Utilisateur
-                </h1>
-                <p class="text-gray-600 text-lg mt-2">Ajoutez un nouvel utilisateur au système</p>
-            </div>
-        </div>
-    </div>
+<div class="min-w-0 max-w-full overflow-x-hidden">
+
+    <x-page-header
+        title="Créer un utilisateur"
+        subtitle="Ajouter un nouvel utilisateur au système"
+        icon="fas fa-user-plus"
+        :backRoute="route('auth.users.index')"
+        backText="Retour"
+    />
+
+    <x-flash-messages />
 
     <!-- Create Form -->
-    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+    <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
                 <i class="fas fa-user-plus text-white text-xl"></i>
@@ -45,7 +41,7 @@
             @csrf
             
             <!-- Section 1: Informations de Base -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+            <div style="background:#F3F6F4; border-radius:0.75rem; padding:1.25rem; border:1px solid #DDE5E1; margin-bottom:1rem;">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
                         <i class="fas fa-info-circle text-white"></i>
@@ -138,7 +134,7 @@
             </div>
 
             <!-- Section 3: Informations de Contact -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+            <div style="background:#F0FFF4; border-radius:0.75rem; padding:1.25rem; border:1px solid #C6F6D5; margin-bottom:1rem;">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
                         <i class="fas fa-envelope text-white"></i>
@@ -180,7 +176,7 @@
             </div>
 
             <!-- Section 4: Rôle et Permissions -->
-            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200">
+            <div style="background:#F3F6F4; border-radius:0.75rem; padding:1.25rem; border:1px solid #DDE5E1; margin-bottom:1rem;">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
                         <i class="fas fa-user-tag text-white"></i>

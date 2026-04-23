@@ -31,6 +31,8 @@ use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Imports\LocationsImport;
 use App\Services\ActivityLogger;
+use App\Services\AlertService;
+use App\Services\ArticleWorkflowService;
 use App\Services\LettreAdjudicataireService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -55,6 +57,8 @@ class ArticleController extends Controller
      */
     public function create(): View
     {
+        $this->authorize('create', Article::class);
+
         // Optimize: Use select() to load only necessary fields
         $communes = Commune::select('id', 'nom', 'province_id')
             ->with('province:id,nom')
@@ -231,7 +235,7 @@ class ArticleController extends Controller
                     ->with('success', 'Article créé avec succès. L\'import du plan de situation a échoué ; vous pouvez réessayer l\'import Excel ci-dessous.');
             }
 
-            return redirect()->route('cessions.index')
+            return redirect()->route('articles.show', $article)
                 ->with('success', $successMsg);
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
@@ -272,6 +276,7 @@ class ArticleController extends Controller
     {
         // Optimize: Load only necessary fields for each relationship
         $article->load([
+            'cession:id,mode_cession,numAO,DateAdj,dateAO,Exercice',
             'forets:id,foret',
             'provinces:id,nom',
             'communes:id,nom',
@@ -287,8 +292,12 @@ class ArticleController extends Controller
                         $q->with('payments');
                     },
                     'permisExploiter',
+                    'pvInstallations',
+                    'vehicleDeclarations',
+                    'prorogations',
+                    'recolement',
                     'exploitant' => function($q) {
-                        $q->select('id', 'nom_complet', 'numero', 'n_cin', 'adresse', 'categorie')
+                        $q->select('id', 'nom_complet', 'raison_sociale', 'numero', 'n_cin', 'adresse', 'categorie', 'activite', 'qualification_rc', 'date_obtention')
                           ->with('dranef:id,code,dranef');
                     }
                 ]);
@@ -310,12 +319,20 @@ class ArticleController extends Controller
                         $q->where('contract_vente_id', $contractVente->id);
                     });
                 })
-                ->with(['permis'])
+                ->with([
+                    'permis',
+                    'colportages' => fn($q) => $q->orderBy('date_debut', 'desc'),
+                ])
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
 
-        return view('articles.show', compact('article', 'exploitants', 'contractVente', 'permisEnlevers'));
+        // Workflow state panel data
+        $workflowService = app(ArticleWorkflowService::class);
+        $steps   = $workflowService->getStepStatuses($article);
+        $alerts  = app(AlertService::class)->getActiveAlertsForArticle($article);
+
+        return view('articles.show', compact('article', 'exploitants', 'contractVente', 'permisEnlevers', 'steps', 'alerts'));
     }
 
     /**
@@ -323,6 +340,8 @@ class ArticleController extends Controller
      */
     public function edit(Article $article): View
     {
+        $this->authorize('update', $article);
+
         // Optimize: Use select() to load only necessary fields
         $communes = Commune::select('id', 'nom', 'province_id')
             ->with('province:id,nom')
@@ -463,7 +482,7 @@ class ArticleController extends Controller
 
             ActivityLogger::log('update', 'Article modifié', Article::class, $article->id);
 
-            return redirect()->route('cessions.index')
+            return redirect()->route('articles.show', $article)
                 ->with('success', 'Article modifié avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -520,6 +539,8 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article): RedirectResponse
     {
+        $this->authorize('delete', $article);
+
         try {
             $articleId = $article->id;
             $article->delete();
@@ -575,6 +596,7 @@ class ArticleController extends Controller
             'payments.*.reference' => 'nullable|string|max:255',
             'payments.*.date_payment' => 'nullable|date',
             'payments.*.fichier_joint' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'payments.*.percepteur' => 'nullable|string|max:255',
             'payments.*.charge_id' => 'nullable|exists:charge_apayer,id',
             'payments.*.charge_nom' => 'required|string',
         ]);
@@ -602,6 +624,8 @@ class ArticleController extends Controller
                     continue;
                 }
 
+                $paymentType = $this->resolvePaymentType($charge->nom);
+
                 // Handle file upload
                 $fichierJoint = null;
                 if ($request->hasFile("payments.{$key}.fichier_joint")) {
@@ -615,8 +639,10 @@ class ArticleController extends Controller
                 if ($payment) {
                     // Update existing payment
                     $payment->update([
+                        'type' => $paymentType,
                         'is_paye' => $paymentData['statut'] == '1',
                         'num_quittace' => $paymentData['reference'] ?? null,
+                        'percepteur' => $paymentData['percepteur'] ?? null,
                         'date_payment' => $paymentData['date_payment'] ?? null,
                         'fichier_joint' => $fichierJoint ?? $payment->fichier_joint,
                     ]);
@@ -624,8 +650,10 @@ class ArticleController extends Controller
                     // Create new payment
                     Payment::create([
                         'nom' => $charge->nom,
+                        'type' => $paymentType,
                         'is_paye' => $paymentData['statut'] == '1',
                         'num_quittace' => $paymentData['reference'] ?? null,
+                        'percepteur' => $paymentData['percepteur'] ?? null,
                         'date_payment' => $paymentData['date_payment'] ?? null,
                         'fichier_joint' => $fichierJoint,
                         'chargeapayer_id' => $charge->id,
@@ -649,6 +677,21 @@ class ArticleController extends Controller
                 ->withInput()
                 ->with('error', 'Erreur lors de l\'enregistrement des paiements: ' . $e->getMessage());
         }
+    }
+
+    private function resolvePaymentType(string $chargeName): string
+    {
+        $normalizedName = strtolower($chargeName);
+
+        if (str_starts_with($normalizedName, 'tranche')) {
+            return 'tranche';
+        }
+
+        if (str_contains($normalizedName, 'caution')) {
+            return 'caution';
+        }
+
+        return 'taxe';
     }
 
     /**
@@ -690,6 +733,7 @@ class ArticleController extends Controller
             $payment->num_quittace = $validated['num_quittance'];
             $payment->date_payment = $validated['date_payment'];
             $payment->nom = $tranche->nom;
+            $payment->type = 'tranche';
 
             // Handle file upload
             if ($request->hasFile('fichier_joint')) {
@@ -802,6 +846,23 @@ class ArticleController extends Controller
     }
 
     /**
+     * Print the Lettre Adjudicataire (standalone A4 view).
+     */
+    public function printLettreAdjudicataire(Article $article, LettreAdjudicataireService $lettreAdjudicataireService): View|RedirectResponse
+    {
+        $contractVente = $article->contractVentes()->latest()->first();
+
+        if (!$contractVente) {
+            return redirect()->route('articles.show', $article)
+                ->with('error', 'Un contrat de vente doit être créé avant d\'imprimer la lettre adjudicataire.');
+        }
+
+        $resolvedPlaceholders = $lettreAdjudicataireService->getResolvedData($article);
+
+        return view('articles.lettre-adjudicataire-print', compact('article', 'resolvedPlaceholders'));
+    }
+
+    /**
      * Generate and download the Lettre Adjudicataire DOCX.
      */
     public function downloadLettreAdjudicataire(Article $article, LettreAdjudicataireService $lettreAdjudicataireService): BinaryFileResponse|RedirectResponse
@@ -908,7 +969,7 @@ class ArticleController extends Controller
         $productIds = $article->essences->pluck('pivot.product_id')->filter()->unique();
         $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
         
-        $contractVente = $article->contractVentes()->with('chargeApayer.payments')->first();
+        $contractVente = $article->contractVentes()->with(['chargeApayer.payments', 'permisExploiter'])->first();
         
         if (!$contractVente) {
             return redirect()->route('articles.show', $article)
@@ -938,7 +999,15 @@ class ArticleController extends Controller
                 ->with('error', 'Aucune tranche payée n\'est disponible pour générer un permis d\'enlever.');
         }
 
-        $tranchesByDate = $paidTranches->groupBy('date_paiement');
+        $tranchesByDate = $paidTranches
+            ->groupBy(fn ($tranche) => \Carbon\Carbon::parse($tranche['date_paiement'])->format('Y-m-d'))
+            ->map(function ($tranches, $date) {
+                return $tranches->map(function ($tranche) use ($date) {
+                    $tranche['date_paiement'] = $date;
+
+                    return $tranche;
+                })->values();
+            });
 
         // Get existing Permis d'Enlever for this article
         // Query records by contract_vente_id (direct relationship) or through permis relationship
@@ -1002,50 +1071,44 @@ class ArticleController extends Controller
     }
 
     /**
+     * Print a specific Permis d'Enlever.
+     */
+    public function printPermisEnlever(Article $article, PermiEnlever $permiEnlever)
+    {
+        $permiEnlever->load([
+            'contractVente.exploitant',
+            'contractVente.payments',
+            'products',
+        ]);
+
+        $article->load([
+            'cession.dranef.dpanefs',
+            'forets',
+        ]);
+
+        return view('articles.permis-enlever-print', compact('article', 'permiEnlever'));
+    }
+
+    /**
      * Store and generate Permis d'Enlever
      */
     public function storePermisEnlever(Request $request, Article $article)
     {
         $validated = $request->validate([
-            'date_paiement' => 'required|date',
             'num_quittance_enlever' => 'required|string|max:255',
             'date' => 'required|date',
             'percepteur_enlever' => 'required|string|max:255',
-            // Essences come from the article table; if the article has none,
-            // we'll return a clear error message below.
             'essences' => 'nullable|array',
             'essences.*.essence_id' => 'nullable|exists:essences,id',
             'essences.*.product_id' => 'nullable|exists:products,id',
-            // quantity is calculated server-side based on paid tranches count
+            'essences.*.quantity' => 'nullable|numeric|min:0',
         ]);
 
         $contractVente = $article->contractVentes()->with('chargeApayer.payments')->first();
-        
+
         if (!$contractVente) {
             return redirect()->back()
                 ->with('error', 'Un contrat de vente doit être créé.');
-        }
-
-        // Get tranches for the selected payment date
-        $tranches = collect();
-        
-        foreach ($contractVente->chargeApayer as $charge) {
-            if (str_starts_with($charge->nom, 'Tranche')) {
-                $payment = $charge->payments->first();
-                if ($payment && $payment->is_paye && $payment->date_payment == $validated['date_paiement']) {
-                    $tranches->push([
-                        'charge' => $charge,
-                        'payment' => $payment,
-                        'montant' => $charge->montant,
-                        'tranche_number' => $charge->nom,
-                    ]);
-                }
-            }
-        }
-
-        if ($tranches->isEmpty()) {
-            return redirect()->back()
-                ->with('error', 'Aucune tranche trouvée pour cette date de paiement.');
         }
 
         // Load article essences for validation
@@ -1056,28 +1119,32 @@ class ArticleController extends Controller
                 ->withInput()
                 ->with('error', 'Aucune essence n\'est associée à cet article. Ajoutez des essences à l\'article avant de générer un permis d\'enlever.');
         }
-        
-        // Calculate quantities: base quantity / number of tranches
-        $tranchesCount = $tranches->count();
-        
-        // Validate and calculate quantities for each essence
+
+        // Enforce max permis: one permis per paid tranche
+        $totalPaidTranches = $contractVente->chargeApayer->filter(function ($charge) {
+            if (!str_starts_with($charge->nom, 'Tranche')) return false;
+            $payment = $charge->payments->first();
+            return $payment && $payment->is_paye;
+        })->count();
+
+        $existingPermisCount = PermiEnlever::where('contract_vente_id', $contractVente->id)->count();
+        if ($existingPermisCount >= $totalPaidTranches) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Le nombre maximum de permis d\'enlever a été atteint (un permis par tranche payée).');
+        }
+
+        // Use quantities submitted from the form
         $essencesData = [];
         foreach (($validated['essences'] ?? []) as $essenceData) {
             if (empty($essenceData['essence_id']) || empty($essenceData['product_id'])) {
                 continue;
             }
-            $articleEssence = $article->essences->where('id', $essenceData['essence_id'])->first();
-            if ($articleEssence) {
-                // Calculate quantity: base quantity / number of tranches
-                $baseQuantity = $articleEssence->pivot->quantity;
-                $calculatedQuantity = $tranchesCount > 0 ? ($baseQuantity / $tranchesCount) : 0;
-                
-                $essencesData[] = [
-                    'essence_id' => $essenceData['essence_id'],
-                    'product_id' => $essenceData['product_id'],
-                    'quantity' => round($calculatedQuantity, 2), // Round to 2 decimal places
-                ];
-            }
+            $essencesData[] = [
+                'essence_id' => $essenceData['essence_id'],
+                'product_id' => $essenceData['product_id'],
+                'quantity' => round((float) ($essenceData['quantity'] ?? 0), 2),
+            ];
         }
 
         if (empty($essencesData)) {
@@ -1089,15 +1156,18 @@ class ArticleController extends Controller
         try {
             DB::beginTransaction();
 
+            $totalVolume = collect($essencesData)->sum('quantity');
+
             // Create PermiEnlever record (without Permis parent)
             $permiEnlever = PermiEnlever::create([
                 'permis_id' => null,
                 'contract_vente_id' => $contractVente->id,
                 'num_quittance' => $validated['num_quittance_enlever'],
                 'date' => $validated['date'],
-                'num_tranche_paye' => $tranchesCount,
-                'date_paiement' => $validated['date_paiement'],
+                'num_tranche_paye' => 1,
+                'date_paiement' => $validated['date'],
                 'percepteur' => $validated['percepteur_enlever'],
+                'volume' => $totalVolume,
             ]);
 
             // Insert calculated quantities into permisenlever_product
@@ -1117,7 +1187,7 @@ class ArticleController extends Controller
 
             ActivityLogger::log('create', 'Permis d\'enlever généré', PermiEnlever::class, $permiEnlever->id);
 
-            return redirect()->route('articles.permis-enlever', $article)
+            return redirect()->route('articles.show', $article)
                 ->with('success', 'Permis d\'enlever créé avec succès.');
 
         } catch (\Exception $e) {
@@ -1146,24 +1216,45 @@ class ArticleController extends Controller
         // Get existing permis exploiter if exists
         $permisExploiter = $contractVente->permisExploiter;
 
-        // Check if at least one tranche is paid
-        $hasPaidTranches = false;
-        foreach ($contractVente->chargeApayer as $charge) {
-            if (str_starts_with($charge->nom, 'Tranche')) {
-                $payment = $charge->payments->first();
-                if ($payment && $payment->is_paye) {
-                    $hasPaidTranches = true;
-                    break;
-                }
-            }
-        }
-
-        if (!$hasPaidTranches && !$permisExploiter) {
+        if (!$this->canGeneratePermisExploiter($contractVente) && !$permisExploiter) {
             return redirect()->route('articles.show', $article)
-                ->with('error', 'Au moins une tranche doit être payée avant de générer un permis d\'exploiter.');
+                ->with('error', 'La caution, toutes les taxes et le service rendu par l\'ANEF doivent être payés avant de générer un permis d\'exploiter.');
         }
 
-        return view('articles.permis-exploiter', compact('article', 'contractVente', 'permisExploiter'));
+        $percepteursFromTaxes = \App\Models\Payment::where('contract_vente_id', $contractVente->id)
+            ->whereNotNull('percepteur')
+            ->where('percepteur', '!=', '')
+            ->distinct()
+            ->pluck('percepteur')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        $percepteurs = $percepteursFromTaxes->implode(', ');
+
+        return view('articles.permis-exploiter', compact('article', 'contractVente', 'permisExploiter', 'percepteurs'));
+    }
+
+    /**
+     * Print the Permis d'Exploiter for an article.
+     */
+    public function printPermisExploiter(Article $article)
+    {
+        $contractVente = $article->contractVentes()
+            ->with(['exploitant', 'payments'])
+            ->latest()
+            ->first();
+
+        abort_if(!$contractVente, 404, 'Aucun contrat de vente trouvé.');
+
+        $permisExploiter = $contractVente->permisExploiter;
+
+        abort_if(!$permisExploiter, 404, 'Permis d\'exploiter non trouvé.');
+
+        $permisExploiter->load(['contractVente.article.cession.dranef.dpanefs', 'contractVente.article.forets', 'contractVente.exploitant']);
+
+        return view('articles.permis-exploiter-print', compact('permisExploiter'));
     }
 
     /**
@@ -1191,21 +1282,11 @@ class ArticleController extends Controller
                     ->with('error', 'Un contrat de vente doit être créé avant de générer un permis d\'exploiter.');
             }
 
-            // Check if at least one tranche is paid
-            $hasPaidTranches = false;
-            foreach ($contractVente->chargeApayer as $charge) {
-                if (str_starts_with($charge->nom, 'Tranche')) {
-                    $payment = $charge->payments->first();
-                    if ($payment && $payment->is_paye) {
-                        $hasPaidTranches = true;
-                        break;
-                    }
-                }
-            }
+            $contractVente->loadMissing('chargeApayer.payments');
 
-            if (!$hasPaidTranches) {
+            if (!$this->canGeneratePermisExploiter($contractVente)) {
                 return redirect()->back()
-                    ->with('error', 'Au moins une tranche doit être payée avant de générer un permis d\'exploiter.');
+                    ->with('error', 'La caution, toutes les taxes et le service rendu par l\'ANEF doivent être payés avant de générer un permis d\'exploiter.');
             }
 
             // Create permis exploiter record
@@ -1219,6 +1300,18 @@ class ArticleController extends Controller
                 'dfp' => $validated['dfp'] ?? null,
                 'clature' => $validated['clature'] ?? false,
             ]);
+
+            $workflow = app(ArticleWorkflowService::class);
+            $currentWorkflowState = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
+
+            if ($currentWorkflowState === ArticleWorkflowService::TAXES_PAID) {
+                $workflow->transition($article, ArticleWorkflowService::PERMIT_READY, Auth::id());
+                $currentWorkflowState = $article->fresh()->workflow_state ?? ArticleWorkflowService::PERMIT_READY;
+            }
+
+            if ($currentWorkflowState === ArticleWorkflowService::PERMIT_READY) {
+                $workflow->transition($article, ArticleWorkflowService::PERMIT_ISSUED, Auth::id());
+            }
 
             // Update article current step if needed
             // $article->update(['current_step' => 'permis_exploiter']);
@@ -1237,6 +1330,37 @@ class ArticleController extends Controller
                 ->withInput()
                 ->with('error', 'Erreur lors de la création du permis d\'exploiter: ' . $e->getMessage());
         }
+    }
+
+    private function canGeneratePermisExploiter(ContractVente $contractVente): bool
+    {
+        $contractVente->loadMissing('chargeApayer.payments');
+
+        $charges = $contractVente->chargeApayer ?? collect();
+
+        $cautionCharge = $charges->first(function ($charge) {
+            $name = strtolower((string) ($charge->nom ?? ''));
+
+            return str_contains($name, 'caution');
+        });
+
+        $taxCharges = $charges->filter(function ($charge) {
+            $name = strtolower((string) ($charge->nom ?? ''));
+
+            return !str_starts_with($name, 'tranche')
+                && !str_contains($name, 'caution');
+        });
+
+        $cautionPaid = (bool) $cautionCharge?->payments?->first()?->is_paye;
+        $allTaxesPaid = $taxCharges->isNotEmpty()
+            ? $taxCharges->every(fn ($charge) => (bool) $charge->payments->first()?->is_paye)
+            : true;
+
+        $article = $contractVente->article;
+        $serviceRenduPaid = !$article->service_rendu_anef
+            || ($article->date_payement_service_anef !== null);
+
+        return $cautionPaid && $allTaxesPaid && $serviceRenduPaid;
     }
 
     /**
@@ -1261,6 +1385,7 @@ class ArticleController extends Controller
                         'essence_id' => (int) $item->id_essence,
                         'product_id' => (int) $item->product_id,
                         'quantity' => (float) $item->quantity,
+                        'permis_quantity' => (float) $item->quantity,
                     ];
                 })->values();
             });
@@ -1284,8 +1409,10 @@ class ArticleController extends Controller
             $permis->detail_rows = $quantities->map(function ($row) use ($essencesById, $productsById) {
                 $essence = $essencesById->get($row['essence_id']);
                 $product = $productsById->get($row['product_id']);
+                $parentQuantity = (float) ($row['permis_quantity'] ?? $row['quantity'] ?? 0);
 
                 return $row + [
+                    'parent_quantity' => $parentQuantity,
                     'essence_name' => $essence?->essence ?? '-',
                     'product_name' => $product?->name ?? '-',
                 ];
@@ -1296,89 +1423,85 @@ class ArticleController extends Controller
     }
 
     /**
-     * Show Permis de Colportage form
+     * Attach labeled essence/product quantity rows from colportage_enlever_product.
      */
-    public function permisColportage(Article $article)
+    private function attachColportageDetailRows($colportages)
     {
-        $article->load(['essences', 'products', 'depots']);
+        $colportageIds = $colportages->pluck('id')->filter()->unique()->values();
 
-        $contractVente = $article->contractVentes()->with('chargeApayer.payments')->first();
-        
-        if (!$contractVente) {
-            return redirect()->route('articles.show', $article)
-                ->with('error', 'Un contrat de vente doit être créé avant de générer un permis de colportage.');
+        if ($colportageIds->isEmpty()) {
+            return $colportages;
         }
 
-        // Check if at least one tranche is paid
-        $hasPaidTranches = false;
-        foreach ($contractVente->chargeApayer as $charge) {
-            if (str_starts_with($charge->nom, 'Tranche')) {
-                $payment = $charge->payments->first();
-                if ($payment && $payment->is_paye) {
-                    $hasPaidTranches = true;
-                    break;
-                }
-            }
-        }
+        $quantityRowsByColportage = collect();
 
-        if (!$hasPaidTranches) {
-            return redirect()->route('articles.show', $article)
-                ->with('error', 'Au moins une tranche doit être payée avant de générer un permis de colportage.');
-        }
-
-        // Permis d'Enlever list (must select one for colportage) - load with essences and products
-        $permisEnlevers = PermiEnlever::where('contract_vente_id', $contractVente->id)
-            ->with(['essences', 'products'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        $permisEnleversWithQuantities = $this->attachPermisEnleverDetailRows($permisEnlevers);
-
-        // Get pre-selected permis d'enlever ID from query parameter
-        $selectedPermisEnleverId = request('permis_enlever_id');
-
-        // Carnets disponibles (pour liste déroulante optionnelle)
-        $carnetsDisponibles = Carnet::disponible()->listable()->get();
-
-        // Section 1 & 2: quantities and list for selected Permis d'Enlever
-        $quantityInPermisEnlever = 0;
-        $quantityUsedColportage = 0;
-        $listPermisColportage = collect();
-
-        if ($selectedPermisEnleverId) {
-            $quantityInPermisEnlever = (float) DB::table('permisenlever_product')
-                ->where('permis_id', $selectedPermisEnleverId)
-                ->sum('quantity');
-
-            $quantityUsedColportage = (float) ColportageEnlever::where('id_permis_enlever', $selectedPermisEnleverId)
-                ->sum('quantity');
-
-            $listPermisColportage = ColportageEnlever::where('id_permis_enlever', $selectedPermisEnleverId)
-                ->whereNotNull('numero_permis')
-                ->orderBy('date_debut', 'desc')
+        if (\Illuminate\Support\Facades\Schema::hasTable('colportage_enlever_product')) {
+            $quantityRowsByColportage = DB::table('colportage_enlever_product')
+                ->whereIn('colportage_enlever_id', $colportageIds)
+                ->select('colportage_enlever_id', 'id_essence', 'product_id', 'quantity')
                 ->get()
-                ->groupBy('numero_permis')
+                ->groupBy('colportage_enlever_id')
                 ->map(function ($rows) {
-                    $first = $rows->first();
-                    // Total volume for this permis de colportage (all essences/produits)
-                    $first->total_quantity = (float) $rows->sum('quantity');
-                    return $first;
+                    return $rows->map(function ($item) {
+                        return [
+                            'essence_id' => (int) $item->id_essence,
+                            'product_id' => (int) $item->product_id,
+                            'quantity' => (float) $item->quantity,
+                        ];
+                    })->values();
                 });
         }
 
-        return view('articles.permis-colportage', compact(
-            'article', 'contractVente', 'permisEnlevers', 'permisEnleversWithQuantities',
-            'selectedPermisEnleverId', 'carnetsDisponibles',
-            'quantityInPermisEnlever', 'quantityUsedColportage', 'listPermisColportage'
-        ));
+        $fallbackRowsByColportage = $colportages
+            ->filter(fn ($colportage) => $colportage->product_id && $colportage->id_essence)
+            ->mapWithKeys(function ($colportage) {
+                return [$colportage->id => collect([[
+                    'essence_id' => (int) $colportage->id_essence,
+                    'product_id' => (int) $colportage->product_id,
+                    'quantity' => (float) ($colportage->quantity ?? 0),
+                ]])];
+            });
+
+        $allRows = $quantityRowsByColportage->union($fallbackRowsByColportage)->flatMap(fn ($rows) => $rows);
+        $essenceIds = $allRows->pluck('essence_id')->filter()->unique()->values();
+        $productIds = $allRows->pluck('product_id')->filter()->unique()->values();
+
+        $essencesById = $essenceIds->isEmpty()
+            ? collect()
+            : Essence::whereIn('id', $essenceIds)->get()->keyBy('id');
+
+        $productsById = $productIds->isEmpty()
+            ? collect()
+            : Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+        return $colportages->map(function ($colportage) use ($quantityRowsByColportage, $fallbackRowsByColportage, $essencesById, $productsById) {
+            $quantities = collect(
+                $quantityRowsByColportage->get($colportage->id)
+                ?? $fallbackRowsByColportage->get($colportage->id, collect())
+            )->values();
+
+            $colportage->detail_rows = $quantities->map(function ($row) use ($essencesById, $productsById) {
+                $essence = $essencesById->get($row['essence_id']);
+                $product = $productsById->get($row['product_id']);
+
+                return $row + [
+                    'essence_name' => $essence?->essence ?? '-',
+                    'product_name' => $product?->name ?? '-',
+                ];
+            })->values();
+
+            $colportage->total_quantity = (float) $quantities->sum('quantity');
+
+            return $colportage;
+        });
     }
 
     /**
-     * Show the create Permis de Colportage form on a dedicated page.
+     * Show Permis de Colportage form
      */
     public function permisColportageCreate(Article $article)
     {
-        $article->load(['essences', 'products', 'depots']);
+        // No need to load article essences – volumes come from permisenlever_product, not article
 
         $contractVente = $article->contractVentes()->with('chargeApayer.payments')->first();
 
@@ -1410,12 +1533,45 @@ class ArticleController extends Controller
 
         $permisEnleversWithQuantities = $this->attachPermisEnleverDetailRows($permisEnlevers);
 
+        // Load already-used quantities from colportage per (permis_id, essence_id, product_id)
+        $permisIds = $permisEnlevers->pluck('id');
+        $usedByPermis = DB::table('colportage_enlever_product')
+            ->join('colportage_enlever', 'colportage_enlever.id', '=', 'colportage_enlever_product.colportage_enlever_id')
+            ->whereIn('colportage_enlever.id_permis_enlever', $permisIds)
+            ->select(
+                'colportage_enlever.id_permis_enlever',
+                'colportage_enlever_product.id_essence',
+                'colportage_enlever_product.product_id',
+                DB::raw('SUM(colportage_enlever_product.quantity) as used_quantity')
+            )
+            ->groupBy('colportage_enlever.id_permis_enlever', 'colportage_enlever_product.id_essence', 'colportage_enlever_product.product_id')
+            ->get()
+            ->groupBy('id_permis_enlever')
+            ->map(fn($rows) => $rows->keyBy(fn($r) => $r->id_essence . '_' . $r->product_id));
+
+        // Attach used_quantity and remaining to each detail row
+        $permisEnleversWithQuantities = $permisEnleversWithQuantities->map(function ($permis) use ($usedByPermis) {
+            $usedMap = $usedByPermis->get($permis->id, collect());
+            $permis->detail_rows = collect($permis->detail_rows ?? [])->map(function ($row) use ($usedMap) {
+                $key = ($row['essence_id'] ?? 0) . '_' . ($row['product_id'] ?? 0);
+                $used = (float) ($usedMap->get($key)?->used_quantity ?? 0);
+                $parent = (float) ($row['parent_quantity'] ?? $row['permis_quantity'] ?? $row['quantity'] ?? 0);
+                $row['used_quantity'] = $used;
+                $row['remaining_quantity'] = max(0, $parent - $used);
+                $row['used_pct'] = $parent > 0 ? round(($used / $parent) * 100, 1) : 0;
+                $row['parent_quantity'] = $parent;
+                return $row;
+            })->all();
+            return $permis;
+        });
+
         $selectedPermisEnleverId = request('permis_enlever_id');
         $carnetsDisponibles = Carnet::disponible()->listable()->get();
+        $vehicles = \App\Models\VehicleDeclaration::orderBy('immatriculation')->get();
 
         return view('articles.permis-colportage-create', compact(
             'article', 'contractVente', 'permisEnlevers', 'permisEnleversWithQuantities',
-            'selectedPermisEnleverId', 'carnetsDisponibles'
+            'selectedPermisEnleverId', 'carnetsDisponibles', 'vehicles'
         ));
     }
 
@@ -1426,13 +1582,20 @@ class ArticleController extends Controller
     {
         $validated = $request->validate([
             'id_permis_enlever' => 'required|exists:permi_enlevers,id',
-            'carnet_id' => 'required|exists:carnets,id',
+            'carnet_id' => [
+                'required',
+                \Illuminate\Validation\Rule::exists('carnets', 'id')
+                    ->where('status', \App\Models\Carnet::STATUS_DISPONIBLE)
+                    ->whereNull('deleted_at'),
+            ],
             'date_debut' => 'required|date',
             'date_fin' => 'required|date|after:date_debut',
             'vehicule_immatriculation' => 'required|string|max:255',
             'chauffeur_nom' => 'required|string|max:255',
             'chauffeur_cin' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
+            'transport_nuit' => 'nullable|boolean',
+            'distance_km' => 'nullable|numeric|min:0',
             'essences' => 'nullable|array',
             'essences.*.essence_id' => 'nullable|exists:essences,id',
             'essences.*.product_id' => 'nullable|exists:products,id',
@@ -1441,8 +1604,8 @@ class ArticleController extends Controller
         ], [
             'id_permis_enlever.required' => 'Le permis d\'enlever est obligatoire.',
             'id_permis_enlever.exists' => 'Le permis d\'enlever selectionne est invalide.',
-            'carnet_id.required' => 'Le numero de permis de colportage est obligatoire.',
-            'carnet_id.exists' => 'Le numero de permis de colportage selectionne est invalide.',
+            'carnet_id.required' => 'Le numéro de permis de colportage est obligatoire.',
+            'carnet_id.exists' => 'Le carnet sélectionné n\'est pas disponible (déjà utilisé, épuisé ou perdu).',
         ]);
 
         try {
@@ -1468,62 +1631,111 @@ class ArticleController extends Controller
                     ->with('error', 'Le Permis d\'Enlever sélectionné est invalide pour cet article.');
             }
 
+            // Load parent rows from permisenlever_product (NOT from article)
+            $parentRows = DB::table('permisenlever_product')
+                ->where('permis_id', $permiEnlever->id)
+                ->select('id_essence', 'product_id', 'quantity')
+                ->get();
+
+            if ($parentRows->isEmpty()) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Ce permis d\'enlever ne contient aucune essence enregistrée. Recréez le permis d\'enlever.');
+            }
+
+            $parentQuantityMap = $parentRows->keyBy(
+                fn ($row) => ((int) $row->id_essence) . '_' . ((int) $row->product_id)
+            );
+
+            $usedQuantityMap = DB::table('colportage_enlever_product')
+                ->join('colportage_enlever', 'colportage_enlever.id', '=', 'colportage_enlever_product.colportage_enlever_id')
+                ->where('colportage_enlever.id_permis_enlever', $permiEnlever->id)
+                ->select(
+                    'colportage_enlever_product.id_essence',
+                    'colportage_enlever_product.product_id',
+                    DB::raw('SUM(colportage_enlever_product.quantity) as used_quantity')
+                )
+                ->groupBy('colportage_enlever_product.id_essence', 'colportage_enlever_product.product_id')
+                ->get()
+                ->keyBy(fn ($row) => ((int) $row->id_essence) . '_' . ((int) $row->product_id));
+
             // Generate numero_permis
             $numeroPermis = 'PC-' . $article->numero . '-' . date('Y');
-            
-            // Create one row per essence/product combination in colportage_enlever table
-            // and update Permis d'Enlever quantities in permisenlever_product
-            $essencesInserted = false;
-            if (!empty($validated['essences'])) {
-                foreach ($validated['essences'] as $essenceData) {
-                    if (empty($essenceData['essence_id']) || empty($essenceData['product_id'])) {
-                        continue;
-                    }
-                    
-                    $essenceId = (int)$essenceData['essence_id'];
-                    $productId = (int)$essenceData['product_id'];
-                    $colportageQuantity = isset($essenceData['quantity']) ? (float)$essenceData['quantity'] : 0;
-                    
-                    // Only process if quantity > 0
-                    if ($colportageQuantity > 0) {
-                        // Create colportage record in colportage_enlever table
-                        // Table structure: id_permis_enlever, product_id, id_essence, quantity
-                        ColportageEnlever::create([
-                            'article_id' => $article->id,
-                            'id_permis_enlever' => $permiEnlever->id,
-                            'product_id' => $productId,
-                            'id_essence' => $essenceId,
-                            'quantity' => $colportageQuantity,
-                            'date_debut' => $validated['date_debut'],
-                            'date_fin' => $validated['date_fin'],
-                            'vehicule_immatriculation' => $validated['vehicule_immatriculation'],
-                            'chauffeur_nom' => $validated['chauffeur_nom'],
-                            'chauffeur_cin' => $validated['chauffeur_cin'],
-                            'destination' => $validated['destination'],
-                            'numero_permis' => $numeroPermis,
-                            'carnet_id' => $validated['carnet_id'],
-                            'fichier_joint' => $fichierJoint,
-                        ]);
-                        $essencesInserted = true;
-                    }
+
+            // Build colportage details from submitted form (sourced from permisenlever_product via the form)
+            $colportageDetails = collect($validated['essences'] ?? [])
+                ->filter(function ($essenceData) {
+                    return !empty($essenceData['essence_id']) && !empty($essenceData['product_id']);
+                })
+                ->map(function ($essenceData) {
+                    return [
+                        'id_essence' => (int) $essenceData['essence_id'],
+                        'product_id' => (int) $essenceData['product_id'],
+                        'quantity' => isset($essenceData['quantity']) ? (float) $essenceData['quantity'] : 0,
+                    ];
+                })
+                ->filter(fn ($detail) => $detail['quantity'] > 0)
+                ->values();
+
+            if ($colportageDetails->isEmpty()) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Veuillez saisir au moins un volume de colportage pour une essence.');
+            }
+
+            foreach ($colportageDetails as $detail) {
+                $rowKey = $detail['id_essence'] . '_' . $detail['product_id'];
+                $parentRow = $parentQuantityMap->get($rowKey);
+
+                if (!$parentRow) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Une essence soumise ne figure pas dans le permis d\'enlever sélectionné.');
+                }
+
+                $parentQuantity = (float) ($parentRow->quantity ?? 0);
+                $usedQuantity = (float) ($usedQuantityMap->get($rowKey)?->used_quantity ?? 0);
+                $remainingQuantity = max(0, $parentQuantity - $usedQuantity);
+
+                if ($detail['quantity'] > $remainingQuantity + 0.005) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Le volume de colportage dépasse le volume restant autorisé du permis d\'enlever.');
                 }
             }
-            
-            // If no essences were inserted, create at least one record with the main data
-            if (!$essencesInserted) {
-                ColportageEnlever::create([
-                    'article_id' => $article->id,
-                    'id_permis_enlever' => $permiEnlever->id,
-                    'date_debut' => $validated['date_debut'],
-                    'date_fin' => $validated['date_fin'],
-                    'vehicule_immatriculation' => $validated['vehicule_immatriculation'],
-                    'chauffeur_nom' => $validated['chauffeur_nom'],
-                    'chauffeur_cin' => $validated['chauffeur_cin'],
-                    'destination' => $validated['destination'],
-                    'numero_permis' => $numeroPermis,
-                    'carnet_id' => $validated['carnet_id'],
-                    'fichier_joint' => $fichierJoint,
-                ]);
+
+            $colportage = ColportageEnlever::create([
+                'article_id' => $article->id,
+                'id_permis_enlever' => $permiEnlever->id,
+                'date_debut' => $validated['date_debut'],
+                'date_fin' => $validated['date_fin'],
+                'vehicule_immatriculation' => $validated['vehicule_immatriculation'],
+                'chauffeur_nom' => $validated['chauffeur_nom'],
+                'chauffeur_cin' => $validated['chauffeur_cin'],
+                'destination' => $validated['destination'],
+                'transport_nuit' => !empty($validated['transport_nuit']),
+                'distance_km' => $validated['distance_km'] ?? null,
+                'numero_permis' => $numeroPermis,
+                'volume' => $colportageDetails->sum('quantity'),
+                'carnet_id' => $validated['carnet_id'],
+                'fichier_joint' => $fichierJoint,
+            ]);
+
+            if ($colportageDetails->isNotEmpty()) {
+                $timestamp = now();
+
+                DB::table('colportage_enlever_product')->insert(
+                    $colportageDetails->map(function ($detail) use ($colportage, $timestamp) {
+                        return [
+                            'colportage_enlever_id' => $colportage->id,
+                            'product_id' => $detail['product_id'],
+                            'id_essence' => $detail['id_essence'],
+                            'quantity' => $detail['quantity'],
+                            'created_at' => $timestamp,
+                            'updated_at' => $timestamp,
+                        ];
+                    })->all()
+                );
             }
 
             // Si un carnet a été choisi, le passer en "epuise" (un numéro = un seul permis)
@@ -1532,9 +1744,6 @@ class ArticleController extends Controller
                     ->where('status', Carnet::STATUS_DISPONIBLE)
                     ->update(['status' => Carnet::STATUS_EPUISE]);
             }
-            
-            // Get the first colportage record for logging
-            $colportage = ColportageEnlever::where('numero_permis', $numeroPermis)->first();
 
             // Do not update current_step to a value outside the workflow steps
 
@@ -1542,7 +1751,7 @@ class ArticleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('articles.permis-colportage', ['article' => $article, 'permis_enlever_id' => $permiEnlever->id])
+            return redirect()->route('articles.show', $article)
                 ->with('success', 'Permis de colportage généré avec succès.');
 
         } catch (\Exception $e) {
@@ -1568,27 +1777,35 @@ class ArticleController extends Controller
                 ->with('error', 'Un contrat de vente doit être créé avant de générer un PV d\'Installation.');
         }
 
-        // Check if at least one tranche is paid
-        $hasPaidTranches = false;
-        foreach ($contractVente->chargeApayer as $charge) {
-            if (str_starts_with($charge->nom, 'Tranche')) {
-                $payment = $charge->payments->first();
-                if ($payment && $payment->is_paye) {
-                    $hasPaidTranches = true;
-                    break;
-                }
-            }
-        }
-
-        if (!$hasPaidTranches) {
+        if (!$contractVente->permisExploiter) {
             return redirect()->route('articles.show', $article)
-                ->with('error', 'Au moins une tranche doit être payée avant de générer un PV d\'Installation.');
+                ->with('error', 'Le permis d\'exploiter doit être créé avant de générer un PV d\'Installation.');
         }
 
         // Get existing PV Installation if exists
         $pvInstallation = \App\Models\PvInstallation::where('contract_vente_id', $contractVente->id)->first();
 
         return view('articles.pv-installation', compact('article', 'contractVente', 'pvInstallation'));
+    }
+
+    /**
+     * Print the PV d'Installation (standalone A4 view).
+     */
+    public function printPvInstallation(Article $article)
+    {
+        $article->load(['cession.dranef.dpanefs', 'forets', 'modeExploitations', 'natureDeCoupes']);
+
+        $contractVente = $article->contractVentes()->with('exploitant')->latest()->first();
+
+        abort_if(!$contractVente, 404, 'Aucun contrat de vente trouvé.');
+
+        $pvInstallation = \App\Models\PvInstallation::where('contract_vente_id', $contractVente->id)
+            ->with('contractVente.exploitant')
+            ->first();
+
+        abort_if(!$pvInstallation, 404, 'PV d\'installation non trouvé.');
+
+        return view('articles.pv-installation-print', compact('article', 'pvInstallation'));
     }
 
     /**
@@ -1611,11 +1828,16 @@ class ArticleController extends Controller
             'invitation_caporal' => 'nullable|string|max:255',
         ]);
 
-        $contractVente = $article->contractVentes()->first();
+        $contractVente = $article->contractVentes()->with('permisExploiter')->first();
         
         if (!$contractVente) {
             return redirect()->back()
                 ->with('error', 'Un contrat de vente doit être créé.');
+        }
+
+        if (!$contractVente->permisExploiter) {
+            return redirect()->back()
+                ->with('error', 'Le permis d\'exploiter doit être créé avant de générer un PV d\'Installation.');
         }
 
         try {
@@ -1639,7 +1861,7 @@ class ArticleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('articles.pv-installation', $article)
+            return redirect()->route('articles.show', $article)
                 ->with('success', $message);
 
         } catch (\Exception $e) {

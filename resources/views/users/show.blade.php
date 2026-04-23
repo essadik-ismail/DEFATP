@@ -1,622 +1,409 @@
 @extends('layouts.app')
 
-@section('title', 'Détails de l\'Utilisateur')
+@section('title', 'Utilisateur — ' . $user->name)
 
 @section('breadcrumb')
 <li class="breadcrumb-item"><a href="{{ route('users.index') }}">Utilisateurs</a></li>
-<li class="breadcrumb-item active">Détail</li>
+<li class="breadcrumb-item active">{{ $user->name }}</li>
 @endsection
 
 @section('content')
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-user text-primary me-2"></i>
-                Détails de l'Utilisateur
-            </h1>
-            <p class="text-muted">Informations détaillées de {{ $user->name }}</p>
-        </div>
-        <div class="d-flex gap-2">
-            @can('edit users')
-            <a href="{{ route('users.edit', $user) }}" class="btn btn-warning">
-                <i class="fas fa-edit me-2"></i>Modifier
-            </a>
+<div class="min-w-0 max-w-full overflow-x-hidden">
+
+    <x-page-header
+        title="{{ $user->name }}"
+        subtitle="Détail du compte utilisateur"
+        icon="fas fa-user"
+        :backRoute="route('users.index')"
+        backText="Retour"
+    >
+        <x-slot name="actions">
+            @can('users.update')
+                <x-button href="{{ route('users.edit', $user) }}" variant="secondary" icon="fas fa-pen">Modifier</x-button>
             @endcan
-            <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Retour
-            </a>
-        </div>
-    </div>
+        </x-slot>
+    </x-page-header>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- User Information Cards -->
-            <div class="row">
-                <!-- Personal Information -->
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow h-100">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">
-                                <i class="fas fa-id-card me-2"></i>Informations Personnelles
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label text-muted">Nom complet</label>
-                                <p class="h6 mb-0">{{ $user->name }}</p>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label text-muted">Email</label>
-                                <p class="h6 mb-0">
-                                    <a href="mailto:{{ $user->email }}" class="text-decoration-none">
-                                        {{ $user->email }}
-                                    </a>
-                                </p>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label text-muted">PPR</label>
-                                <p class="h6 mb-0">
-                                    <span class="badge bg-info">{{ $user->ppr }}</span>
-                                </p>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label text-muted">Statut</label>
-                                <p class="h6 mb-0">
-                                    @if($user->is_deleted)
-                                        <span class="badge bg-danger">
-                                            <i class="fas fa-times-circle me-1"></i>Inactif
-                                        </span>
-                                    @else
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-check-circle me-1"></i>Actif
-                                        </span>
-                                    @endif
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <x-flash-messages />
 
-                <!-- Account Information -->
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow h-100">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-success">
-                                <i class="fas fa-user-shield me-2"></i>Informations du Compte
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label text-muted">ID Utilisateur</label>
-                                <p class="h6 mb-0">
-                                    <span class="badge bg-secondary">{{ $user->id }}</span>
-                                </p>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label text-muted">Membre depuis</label>
-                                <p class="h6 mb-0">{{ $user->created_at->format('d/m/Y à H:i') }}</p>
-                            </div>
-                            
-                            @if($user->updated_at != $user->created_at)
-                            <div class="mb-3">
-                                <label class="form-label text-muted">Dernière modification</label>
-                                <p class="h6 mb-0">{{ $user->updated_at->format('d/m/Y à H:i') }}</p>
-                            </div>
-                            @endif
-                            
-                            @if($user->email_verified_at)
-                            <div class="mb-3">
-                                <label class="form-label text-muted">Email vérifié</label>
-                                <p class="h6 mb-0">
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check me-1"></i>{{ $user->email_verified_at->format('d/m/Y à H:i') }}
-                                    </span>
-                                </p>
-                            </div>
-                            @else
-                            <div class="mb-3">
-                                <label class="form-label text-muted">Email vérifié</label>
-                                <p class="h6 mb-0">
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="fas fa-exclamation-triangle me-1"></i>Non vérifié
-                                    </span>
-                                </p>
-                            </div>
-                            @endif
-                        </div>
+    <div style="display:grid; grid-template-columns:1fr 300px; gap:1rem; align-items:start;">
+
+        {{-- ── Left column ─────────────────────────────────────────────────── --}}
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+
+            {{-- Personal info --}}
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem;
+                        padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <h2 style="font-size:0.9375rem; font-weight:700; color:#1A2D22; margin:0 0 1.25rem;
+                            padding-bottom:0.75rem; border-bottom:1px solid #EEF2EF;">
+                    <i class="fas fa-id-card" style="color:#276749; margin-right:0.375rem;"></i>
+                    Informations personnelles
+                </h2>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+                    <div>
+                        <p style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#9AB3A3; margin:0 0 0.25rem;">Nom complet</p>
+                        <p style="font-size:0.9rem; font-weight:600; color:#1A2D22; margin:0;">{{ $user->name }}</p>
                     </div>
+                    <div>
+                        <p style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#9AB3A3; margin:0 0 0.25rem;">Email</p>
+                        <a href="mailto:{{ $user->email }}" style="font-size:0.875rem; color:#276749; text-decoration:none;">{{ $user->email }}</a>
+                    </div>
+                    <div>
+                        <p style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#9AB3A3; margin:0 0 0.25rem;">PPR</p>
+                        @if($user->ppr)
+                            <span class="badge-info">{{ $user->ppr }}</span>
+                        @else
+                            <span style="color:#C6D9CE;">—</span>
+                        @endif
+                    </div>
+                    <div>
+                        <p style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#9AB3A3; margin:0 0 0.25rem;">Rôle organisationnel</p>
+                        @if($user->role)
+                            <span class="badge-neutral">{{ $user->role->label() }}</span>
+                        @else
+                            <span style="color:#C6D9CE;">—</span>
+                        @endif
+                    </div>
+                    <div>
+                        <p style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#9AB3A3; margin:0 0 0.25rem;">Statut</p>
+                        @if($user->is_deleted)
+                            <span class="badge-danger">Inactif</span>
+                        @else
+                            <span class="badge-success">Actif</span>
+                        @endif
+                    </div>
+                    <div>
+                        <p style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#9AB3A3; margin:0 0 0.25rem;">Email vérifié</p>
+                        @if($user->email_verified_at)
+                            <span class="badge-success">
+                                <i class="fas fa-check" style="font-size:0.6rem;"></i>
+                                {{ $user->email_verified_at->format('d/m/Y') }}
+                            </span>
+                        @else
+                            <span class="badge-warning">Non vérifié</span>
+                        @endif
+                    </div>
+                    <div>
+                        <p style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#9AB3A3; margin:0 0 0.25rem;">Membre depuis</p>
+                        <p style="font-size:0.875rem; color:#5F7A6B; margin:0;">{{ $user->created_at?->format('d/m/Y à H:i') ?? '—' }}</p>
+                    </div>
+                    @if($user->updated_at && $user->updated_at->ne($user->created_at))
+                    <div>
+                        <p style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#9AB3A3; margin:0 0 0.25rem;">Dernière modification</p>
+                        <p style="font-size:0.875rem; color:#5F7A6B; margin:0;">{{ $user->updated_at->format('d/m/Y à H:i') }}</p>
+                    </div>
+                    @endif
                 </div>
             </div>
 
-            <!-- Roles and Permissions -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-warning">
-                        <i class="fas fa-shield-alt me-2"></i>Rôles et Permissions
-                    </h6>
-                    @can('users.edit')
-                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#assignRolesPermissionsModal">
-                        <i class="fas fa-edit me-2"></i>Modifier
-                    </button>
+            {{-- Roles --}}
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem;
+                        padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;
+                            padding-bottom:0.75rem; border-bottom:1px solid #EEF2EF;">
+                    <h2 style="font-size:0.9375rem; font-weight:700; color:#1A2D22; margin:0;">
+                        <i class="fas fa-user-tag" style="color:#276749; margin-right:0.375rem;"></i>
+                        Rôles assignés
+                        <span class="badge-info" style="margin-left:0.5rem;">{{ $user->roles->count() }}</span>
+                    </h2>
+                    @can('users.assign_roles')
+                        <button type="button" onclick="document.getElementById('assignModal').style.display='flex'"
+                                class="btn-secondary" style="font-size:0.8rem; padding:0.375rem 0.75rem;">
+                            <i class="fas fa-edit"></i> Gérer les rôles
+                        </button>
                     @endcan
                 </div>
-                <div class="card-body">
-                    @if($user->roles->count() > 0)
-                        <div class="row">
-                            @foreach($user->roles as $role)
-                            <div class="col-md-6 mb-3">
-                                <div class="card border-left-warning">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 class="card-title mb-0">
-                                                <span class="badge bg-warning text-dark">{{ $role->name }}</span>
-                                            </h6>
-                                            <small class="text-muted">{{ $role->permissions->count() }} permissions</small>
+
+                @if($user->roles->isEmpty())
+                    <div style="text-align:center; padding:1.5rem; color:#9AB3A3;">
+                        <i class="fas fa-user-slash" style="font-size:1.75rem; opacity:0.4; display:block; margin-bottom:0.5rem;"></i>
+                        <p style="margin:0; font-size:0.875rem;">Aucun rôle assigné</p>
+                    </div>
+                @else
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:0.75rem;">
+                        @foreach($user->roles as $role)
+                            <div style="border:1px solid #DDE5E1; border-radius:0.625rem; padding:0.875rem;">
+                                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+                                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                                        <div style="width:28px; height:28px; border-radius:0.375rem; background:#E4F2EB;
+                                                    display:flex; align-items:center; justify-content:center;">
+                                            <i class="fas fa-shield-alt" style="color:#276749; font-size:0.7rem;"></i>
                                         </div>
-                                        
-                                        @if($role->permissions->count() > 0)
-                                        <div class="permissions-list">
-                                            @foreach($role->permissions->take(5) as $permission)
-                                                <span class="badge bg-light text-dark me-1 mb-1">{{ $permission->name }}</span>
-                                            @endforeach
-                                            @if($role->permissions->count() > 5)
-                                                <span class="badge bg-secondary">+{{ $role->permissions->count() - 5 }} autres</span>
-                                            @endif
-                                        </div>
-                                        @else
-                                        <p class="text-muted small mb-0">Aucune permission spécifique</p>
+                                        <span style="font-weight:600; color:#1A2D22; font-size:0.875rem;">{{ $role->name }}</span>
+                                    </div>
+                                    <span class="badge-neutral" style="font-size:0.6875rem;">{{ $role->permissions->count() }} perm.</span>
+                                </div>
+                                @if($role->permissions->isNotEmpty())
+                                    <div style="display:flex; flex-wrap:wrap; gap:0.25rem; max-height:72px; overflow:hidden;">
+                                        @foreach($role->permissions->take(6) as $perm)
+                                            <span style="background:#F0F4F2; color:#5F7A6B; border-radius:0.25rem;
+                                                         padding:0.1rem 0.35rem; font-size:0.6875rem; font-family:monospace;">
+                                                {{ $perm->name }}
+                                            </span>
+                                        @endforeach
+                                        @if($role->permissions->count() > 6)
+                                            <span style="background:#EBF5FB; color:#1A5276; border-radius:0.25rem;
+                                                         padding:0.1rem 0.35rem; font-size:0.6875rem;">
+                                                +{{ $role->permissions->count() - 6 }} autres
+                                            </span>
                                         @endif
                                     </div>
-                                </div>
+                                @endif
                             </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- Direct permissions --}}
+                @php $directPerms = $user->getDirectPermissions(); @endphp
+                @if($directPerms->isNotEmpty())
+                    <div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid #EEF2EF;">
+                        <p style="font-size:0.8125rem; font-weight:600; color:#1A2D22; margin:0 0 0.625rem;">
+                            <i class="fas fa-key" style="color:#276749; margin-right:0.25rem;"></i>
+                            Permissions directes ({{ $directPerms->count() }})
+                        </p>
+                        <div style="display:flex; flex-wrap:wrap; gap:0.35rem;">
+                            @foreach($directPerms as $perm)
+                                <span style="background:#EBF5FB; color:#1A5276; border:1px solid #AED6F1;
+                                             border-radius:0.375rem; padding:0.2rem 0.5rem;
+                                             font-size:0.75rem; font-family:monospace;">
+                                    {{ $perm->name }}
+                                </span>
                             @endforeach
                         </div>
-                    @else
-                        <div class="text-center py-4">
-                            <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Aucun rôle assigné à cet utilisateur</p>
-                        </div>
-                    @endif
-                    
-                    @php
-                        $directPermissions = $user->getDirectPermissions();
-                    @endphp
-                    @if($directPermissions->count() > 0)
-                        <div class="mt-4 pt-4 border-top">
-                            <h6 class="mb-3">
-                                <i class="fas fa-key me-2"></i>Permissions Directes
-                            </h6>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($directPermissions as $permission)
-                                    <span class="badge bg-info">{{ $permission->name }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </div>
 
-            <!-- Activity Log (if available) -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-history me-2"></i>Activité Récente
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-marker bg-primary">
-                                <i class="fas fa-user-plus text-white"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h6 class="timeline-title">Compte créé</h6>
-                                <p class="timeline-text">{{ $user->created_at->format('d/m/Y à H:i') }}</p>
-                            </div>
+            {{-- Effective permissions summary --}}
+            @php
+                $allPerms = $user->getAllPermissions()->sortBy('name');
+                $grouped  = $allPerms->groupBy(fn($p) => explode('.', $p->name)[0]);
+            @endphp
+            @if($allPerms->isNotEmpty())
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem;
+                        padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <h2 style="font-size:0.9375rem; font-weight:700; color:#1A2D22; margin:0 0 1.25rem;
+                            padding-bottom:0.75rem; border-bottom:1px solid #EEF2EF;">
+                    <i class="fas fa-list-check" style="color:#276749; margin-right:0.375rem;"></i>
+                    Permissions effectives
+                    <span class="badge-success" style="margin-left:0.5rem;">{{ $allPerms->count() }}</span>
+                </h2>
+                @foreach($grouped->sortKeys() as $module => $perms)
+                    <div style="margin-bottom:0.875rem;">
+                        <p style="font-size:0.6875rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+                                   color:#9AB3A3; margin:0 0 0.375rem;">{{ $module }}</p>
+                        <div style="display:flex; flex-wrap:wrap; gap:0.3rem;">
+                            @foreach($perms as $perm)
+                                <span style="background:#E4F2EB; color:#276749; border:1px solid #B2D8C2;
+                                             border-radius:0.25rem; padding:0.15rem 0.4rem;
+                                             font-size:0.7rem; font-family:monospace;">
+                                    {{ $perm->name }}
+                                </span>
+                            @endforeach
                         </div>
-                        
-                        @if($user->updated_at != $user->created_at)
-                        <div class="timeline-item">
-                            <div class="timeline-marker bg-info">
-                                <i class="fas fa-user-edit text-white"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h6 class="timeline-title">Dernière modification</h6>
-                                <p class="timeline-text">{{ $user->updated_at->format('d/m/Y à H:i') }}</p>
-                            </div>
-                        </div>
-                        @endif
-                        
-                        @if($user->is_deleted)
-                        <div class="timeline-item">
-                            <div class="timeline-marker bg-danger">
-                                <i class="fas fa-user-times text-white"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <h6 class="timeline-title">Compte désactivé</h6>
-                                <p class="timeline-text">Statut actuel: Inactif</p>
-                            </div>
-                        </div>
-                        @endif
                     </div>
-                </div>
+                @endforeach
             </div>
+            @endif
+
         </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Profile Image Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-image me-2"></i>Photo de Profil
-                    </h6>
+        {{-- ── Right sidebar ────────────────────────────────────────────────── --}}
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+
+            {{-- Avatar card --}}
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem;
+                        padding:1.25rem; box-shadow:0 1px 3px rgba(0,0,0,0.04); text-align:center;">
+                <div style="width:80px; height:80px; border-radius:50%; background:#E4F2EB;
+                             display:flex; align-items:center; justify-content:center;
+                             margin:0 auto 0.75rem; font-size:2rem; font-weight:700; color:#276749;">
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
                 </div>
-                <div class="card-body text-center">
-                    @if($user->image)
-                        <img src="{{ asset('storage/' . $user->image) }}" 
-                             alt="{{ $user->name }}" 
-                             class="img-fluid rounded-circle mb-3" 
-                             style="width: 150px; height: 150px; object-fit: cover;">
-                        <p class="text-muted small">{{ $user->image }}</p>
-                    @else
-                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
-                             style="width: 150px; height: 150px;">
-                            <span class="text-white fw-bold" style="font-size: 3rem;">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                <p style="font-weight:700; color:#1A2D22; margin:0 0 0.25rem;">{{ $user->name }}</p>
+                <p style="font-size:0.8rem; color:#9AB3A3; margin:0;">{{ $user->email }}</p>
+            </div>
+
+            {{-- Stats --}}
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem;
+                        padding:1.25rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <h3 style="font-size:0.875rem; font-weight:700; color:#1A2D22; margin:0 0 0.875rem;
+                            padding-bottom:0.625rem; border-bottom:1px solid #EEF2EF;">Statistiques</h3>
+                <div style="display:grid; gap:0.625rem;">
+                    @foreach([
+                        ['label' => 'Rôles', 'value' => $user->roles->count(), 'icon' => 'fas fa-shield-alt', 'color' => '#276749', 'bg' => '#E4F2EB'],
+                        ['label' => 'Permissions effectives', 'value' => $user->getAllPermissions()->count(), 'icon' => 'fas fa-key', 'color' => '#1A5276', 'bg' => '#EBF5FB'],
+                        ['label' => 'Permissions directes', 'value' => $user->getDirectPermissions()->count(), 'icon' => 'fas fa-user-shield', 'color' => '#7B341E', 'bg' => '#FEECE2'],
+                    ] as $stat)
+                    <div style="display:flex; align-items:center; gap:0.625rem; padding:0.5rem 0.625rem;
+                                border-radius:0.5rem; background:#FAFCFB; border:1px solid #EEF2EF;">
+                        <div style="width:28px; height:28px; border-radius:0.375rem; background:{{ $stat['bg'] }};
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="{{ $stat['icon'] }}" style="color:{{ $stat['color'] }}; font-size:0.75rem;"></i>
                         </div>
-                        <p class="text-muted small">Aucune image de profil</p>
-                    @endif
+                        <div style="flex:1;">
+                            <p style="font-size:0.6875rem; color:#9AB3A3; margin:0;">{{ $stat['label'] }}</p>
+                        </div>
+                        <span style="font-size:1rem; font-weight:700; color:#1A2D22;">{{ $stat['value'] }}</span>
+                    </div>
+                    @endforeach
                 </div>
             </div>
 
-            <!-- Quick Actions Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-success">
-                        <i class="fas fa-bolt me-2"></i>Actions Rapides
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        @can('edit users')
-                        <a href="{{ route('users.edit', $user) }}" class="btn btn-warning">
-                            <i class="fas fa-edit me-2"></i>Modifier l'utilisateur
+            {{-- Actions --}}
+            @canany(['users.update', 'users.delete'])
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem;
+                        padding:1.25rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <h3 style="font-size:0.875rem; font-weight:700; color:#1A2D22; margin:0 0 0.875rem;">Actions rapides</h3>
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                    @can('users.update')
+                        <a href="{{ route('users.edit', $user) }}"
+                           style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem;
+                                  border-radius:0.5rem; background:#FFF9E6; color:#92400E; font-size:0.8125rem;
+                                  font-weight:500; border:1px solid #FDE68A; text-decoration:none;
+                                  transition:background 0.15s;"
+                           onmouseover="this.style.background='#FEF3C7'" onmouseout="this.style.background='#FFF9E6'">
+                            <i class="fas fa-pen" style="font-size:0.75rem;"></i> Modifier l'utilisateur
                         </a>
-                        
-                        <button type="button" class="btn btn-outline-{{ $user->is_deleted ? 'success' : 'warning' }}" 
-                                onclick="toggleUserStatus({{ $user->id }}, {{ $user->is_deleted ? 'false' : 'true' }})">
-                            @if($user->is_deleted)
-                                <i class="fas fa-user-check me-2"></i>Activer l'utilisateur
-                            @else
-                                <i class="fas fa-user-times me-2"></i>Désactiver l'utilisateur
-                            @endif
+                        <button type="button"
+                                onclick="toggleUserStatus({{ $user->id }}, {{ $user->is_deleted ? 'false' : 'true' }})"
+                                style="width:100%; display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem;
+                                       border-radius:0.5rem; font-size:0.8125rem; font-weight:500; cursor:pointer;
+                                       border:1px solid {{ $user->is_deleted ? '#A7F3D0' : '#FDE68A' }};
+                                       background:{{ $user->is_deleted ? '#ECFDF5' : '#FFF9E6' }};
+                                       color:{{ $user->is_deleted ? '#065F46' : '#92400E' }};
+                                       transition:background 0.15s;">
+                            <i class="fas fa-{{ $user->is_deleted ? 'check' : 'ban' }}" style="font-size:0.75rem;"></i>
+                            {{ $user->is_deleted ? 'Activer le compte' : 'Désactiver le compte' }}
                         </button>
-                        @endcan
-                        
-                        @can('delete users')
-                        <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger w-100" 
-                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')">
-                                <i class="fas fa-trash me-2"></i>Supprimer l'utilisateur
+                    @endcan
+                    @can('users.delete')
+                        <form action="{{ route('users.destroy', $user) }}" method="POST"
+                              onsubmit="return confirm('Supprimer définitivement cet utilisateur ?')">
+                            @csrf @method('DELETE')
+                            <button type="submit"
+                                    style="width:100%; display:flex; align-items:center; gap:0.5rem;
+                                           padding:0.5rem 0.75rem; border-radius:0.5rem; background:#FEF2F2;
+                                           color:#991B1B; font-size:0.8125rem; font-weight:500;
+                                           border:1px solid #FCA5A5; cursor:pointer; transition:background 0.15s;"
+                                    onmouseover="this.style.background='#FEE2E2'" onmouseout="this.style.background='#FEF2F2'">
+                                <i class="fas fa-trash" style="font-size:0.75rem;"></i> Supprimer l'utilisateur
                             </button>
                         </form>
-                        @endcan
-                    </div>
+                    @endcan
                 </div>
             </div>
+            @endcanany
 
-            <!-- System Information Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-cog me-2"></i>Informations Système
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label text-muted">Type de compte</label>
-                        <p class="h6 mb-0">
-                            @if($user->hasRole('Super Admin'))
-                                <span class="badge bg-danger">Super Administrateur</span>
-                            @elseif($user->hasRole('Admin'))
-                                <span class="badge bg-warning text-dark">Administrateur</span>
-                            @elseif($user->hasRole('Manager'))
-                                <span class="badge bg-info">Manager</span>
-                            @elseif($user->hasRole('Operator'))
-                                <span class="badge bg-primary">Opérateur</span>
-                            @elseif($user->hasRole('Viewer'))
-                                <span class="badge bg-secondary">Lecteur</span>
-                            @else
-                                <span class="badge bg-light text-dark">Utilisateur standard</span>
-                            @endif
-                        </p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label text-muted">Permissions totales</label>
-                        <p class="h6 mb-0">
-                            @php
-                                $totalPermissions = $user->getAllPermissions()->count();
-                            @endphp
-                            <span class="badge bg-success">{{ $totalPermissions }}</span>
-                        </p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label text-muted">Dernière connexion</label>
-                        <p class="h6 mb-0">
-                            @if($user->last_login_at)
-                                {{ \Carbon\Carbon::parse($user->last_login_at)->format('d/m/Y à H:i') }}
-                            @else
-                                <span class="text-muted">Jamais connecté</span>
-                            @endif
-                        </p>
-                    </div>
-                </div>
-            </div>
+        </div>
+    </div>
+
+</div>
+
+{{-- Toggle status confirmation modal --}}
+<div id="toggleStatusModal" style="display:none; position:fixed; inset:0; z-index:9000;
+     background:rgba(0,0,0,0.4); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:0.75rem; padding:1.5rem; width:100%; max-width:400px;
+                margin:1rem; box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+        <h3 style="font-size:1rem; font-weight:700; color:#1A2D22; margin:0 0 0.5rem;">Changer le statut</h3>
+        <p style="font-size:0.875rem; color:#5F7A6B; margin:0 0 1.25rem;">
+            Êtes-vous sûr de vouloir changer le statut de cet utilisateur ?
+        </p>
+        <div style="display:flex; gap:0.625rem; justify-content:flex-end;">
+            <button type="button" class="btn-secondary" onclick="closeToggleModal()">Annuler</button>
+            <button type="button" class="btn-primary" id="confirmToggleStatus">Confirmer</button>
         </div>
     </div>
 </div>
 
-<!-- Toggle Status Modal -->
-<div class="modal fade" id="toggleStatusModal" tabindex="-1" aria-labelledby="toggleStatusModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="toggleStatusModalLabel">Confirmer le changement de statut</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+{{-- Assign roles & permissions modal --}}
+@can('users.assign_roles')
+<div id="assignModal" style="display:none; position:fixed; inset:0; z-index:9000;
+     background:rgba(0,0,0,0.4); align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:#fff; border-radius:0.75rem; width:100%; max-width:560px;
+                max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+
+        <form action="{{ route('users.assign-roles-permissions', $user) }}" method="POST">
+            @csrf
+
+            <div style="padding:1.25rem 1.5rem; border-bottom:1px solid #EEF2EF;
+                        display:flex; align-items:center; justify-content:space-between;">
+                <h3 style="font-size:1rem; font-weight:700; color:#1A2D22; margin:0;">
+                    <i class="fas fa-user-tag" style="color:#276749; margin-right:0.375rem;"></i>
+                    Gérer les rôles
+                </h3>
+                <button type="button" onclick="document.getElementById('assignModal').style.display='none'"
+                        style="background:none; border:none; cursor:pointer; color:#9AB3A3; font-size:1.125rem;">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir changer le statut de cet utilisateur ?</p>
+
+            <div style="padding:1.25rem 1.5rem;">
+                <p style="font-size:0.8125rem; color:#5F7A6B; margin:0 0 1rem;">
+                    Sélectionnez les rôles à assigner à <strong>{{ $user->name }}</strong>.
+                </p>
+                <div style="display:grid; gap:0.5rem;">
+                    @foreach($allRoles as $role)
+                        <label style="display:flex; align-items:center; gap:0.625rem; cursor:pointer;
+                                      padding:0.625rem 0.75rem; border-radius:0.5rem; border:1px solid #DDE5E1;
+                                      transition:background 0.15s;"
+                               onmouseover="this.style.background='#F0F4F2'" onmouseout="this.style.background='transparent'">
+                            <input type="checkbox" name="roles[]" value="{{ $role->name }}"
+                                   style="width:14px; height:14px; accent-color:#276749;"
+                                   {{ $user->hasRole($role->name) ? 'checked' : '' }}>
+                            <div style="flex:1;">
+                                <span style="font-weight:600; color:#1A2D22; font-size:0.875rem;">{{ $role->name }}</span>
+                                <span style="font-size:0.75rem; color:#9AB3A3; margin-left:0.5rem;">{{ $role->permissions->count() }} permissions</span>
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-primary" id="confirmToggleStatus">Confirmer</button>
+
+            <div style="padding:1rem 1.5rem; border-top:1px solid #EEF2EF;
+                        display:flex; gap:0.625rem; justify-content:flex-end;">
+                <button type="button" class="btn-secondary"
+                        onclick="document.getElementById('assignModal').style.display='none'">
+                    Annuler
+                </button>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
+@endcan
 
-<!-- Assign Roles and Permissions Modal -->
-<div class="modal fade" id="assignRolesPermissionsModal" tabindex="-1" aria-labelledby="assignRolesPermissionsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form action="{{ route('users.assign-roles-permissions', $user) }}" method="POST">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="assignRolesPermissionsModalLabel">
-                        <i class="fas fa-shield-alt me-2"></i>Assigner Rôles et Permissions
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Roles Section -->
-                    <div class="mb-4">
-                        <h6 class="mb-3">
-                            <i class="fas fa-user-tag me-2 text-warning"></i>Rôles
-                        </h6>
-                        <div class="form-group">
-                            <select class="form-select" id="roles" name="roles[]" multiple size="5">
-                                @foreach($allRoles as $role)
-                                    <option value="{{ $role->name }}" 
-                                        {{ $user->hasRole($role->name) ? 'selected' : '' }}>
-                                        {{ $role->name }} 
-                                        <small class="text-muted">({{ $role->permissions->count() }} permissions)</small>
-                                    </option>
-                                @endforeach
-                            </select>
-                            <small class="form-text text-muted">Maintenez Ctrl (Cmd sur Mac) pour sélectionner plusieurs rôles</small>
-                        </div>
-                    </div>
-
-                    <!-- Permissions Section -->
-                    <div>
-                        <h6 class="mb-3">
-                            <i class="fas fa-key me-2 text-info"></i>Permissions Directes
-                        </h6>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Les permissions directes sont en plus des permissions des rôles assignés.
-                        </div>
-                        
-                        <div class="accordion" id="permissionsAccordion">
-                            @foreach($allPermissions as $module => $permissions)
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="heading{{ $loop->index }}">
-                                        <button class="accordion-button {{ $loop->first ? '' : 'collapsed' }}" type="button" 
-                                                data-bs-toggle="collapse" data-bs-target="#collapse{{ $loop->index }}" 
-                                                aria-expanded="{{ $loop->first ? 'true' : 'false' }}" 
-                                                aria-controls="collapse{{ $loop->index }}">
-                                            <strong>{{ ucfirst(str_replace('-', ' ', $module)) }}</strong>
-                                            <span class="badge bg-secondary ms-2">{{ $permissions->count() }}</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapse{{ $loop->index }}" 
-                                         class="accordion-collapse collapse {{ $loop->first ? 'show' : '' }}" 
-                                         aria-labelledby="heading{{ $loop->index }}" 
-                                         data-bs-parent="#permissionsAccordion">
-                                        <div class="accordion-body">
-                                            <div class="row">
-                                                @foreach($permissions as $permission)
-                                                    <div class="col-md-6 mb-2">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" 
-                                                                   name="permissions[]" 
-                                                                   value="{{ $permission->name }}" 
-                                                                   id="permission_{{ $permission->id }}"
-                                                                   {{ $user->hasDirectPermission($permission->name) ? 'checked' : '' }}>
-                                                            <label class="form-check-label" for="permission_{{ $permission->id }}">
-                                                                {{ $permission->name }}
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-warning">
-                        <i class="fas fa-save me-2"></i>Enregistrer
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 @endsection
 
 @push('scripts')
 <script>
-function toggleUserStatus(userId, newStatus) {
-    const modal = new bootstrap.Modal(document.getElementById('toggleStatusModal'));
-    const confirmBtn = document.getElementById('confirmToggleStatus');
-    
-    confirmBtn.onclick = function() {
-        fetch(`/admin/users/${userId}/toggle-status`, {
-            method: 'PATCH',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Erreur lors du changement de statut');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Erreur lors du changement de statut');
-        });
-        
-        modal.hide();
-    };
-    
-    modal.show();
+let pendingToggleUrl = null;
+
+function toggleUserStatus(userId) {
+    pendingToggleUrl = `/admin/users/${userId}/toggle-status`;
+    document.getElementById('toggleStatusModal').style.display = 'flex';
 }
+function closeToggleModal() {
+    document.getElementById('toggleStatusModal').style.display = 'none';
+    pendingToggleUrl = null;
+}
+document.getElementById('confirmToggleStatus').onclick = function () {
+    if (!pendingToggleUrl) return;
+    fetch(pendingToggleUrl, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) { closeToggleModal(); window.location.reload(); }
+        else alert('Erreur lors du changement de statut');
+    })
+    .catch(() => alert('Erreur lors du changement de statut'));
+};
 </script>
-@endpush
-
-@push('styles')
-<style>
-.card {
-    border: none;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-}
-
-.card-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 1px solid #e3e6f0;
-}
-
-.border-left-primary {
-    border-left: 4px solid #007bff !important;
-}
-
-.border-left-success {
-    border-left: 4px solid #28a745 !important;
-}
-
-.border-left-warning {
-    border-left: 4px solid #ffc107 !important;
-}
-
-.border-left-info {
-    border-left: 4px solid #17a2b8 !important;
-}
-
-.badge {
-    font-size: 0.8rem;
-    padding: 0.5em 0.75em;
-}
-
-.btn {
-    border-radius: 0.35rem;
-    font-weight: 500;
-}
-
-.timeline {
-    position: relative;
-    padding-left: 30px;
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 20px;
-}
-
-.timeline-marker {
-    position: absolute;
-    left: -35px;
-    top: 0;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.8rem;
-}
-
-.timeline-content {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 3px solid #007bff;
-}
-
-.timeline-title {
-    margin: 0 0 5px 0;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #495057;
-}
-
-.timeline-text {
-    margin: 0;
-    font-size: 0.8rem;
-    color: #6c757d;
-}
-
-.permissions-list {
-    max-height: 100px;
-    overflow-y: auto;
-}
-
-.permissions-list::-webkit-scrollbar {
-    width: 4px;
-}
-
-.permissions-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 2px;
-}
-
-.permissions-list::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 2px;
-}
-
-.permissions-list::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
-</style>
 @endpush

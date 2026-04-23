@@ -16,11 +16,11 @@
                 <p class="text-muted mb-0">Administrez les forêts et leurs informations géographiques</p>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('settings.forets.map') }}" class="btn btn-info">
+                <a href="{{ route('settings.forets.map') }}" class="btn-secondary">
                     <i class="fas fa-map-marked-alt me-2"></i>
                     Carte des Forêts
                 </a>
-                <a href="{{ route('settings.forets.create') }}" class="btn btn-primary">
+                <a href="{{ route('settings.forets.create') }}" class="btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     Nouvelle Forêt
                 </a>
@@ -54,7 +54,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="d-grid">
-                        <a href="{{ route('settings.forets.export') }}" class="btn btn-success">
+                        <a href="{{ route('settings.forets.export') }}" class="btn-primary">
                             <i class="fas fa-download me-2"></i>Exporter les Forêts
                         </a>
                         <small class="text-muted mt-1">Télécharger la liste des forêts au format Excel</small>
@@ -62,7 +62,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="d-grid">
-                        <a href="{{ route('excel.import.forets') }}" class="btn btn-info">
+                        <a href="{{ route('excel.import.forets') }}" class="btn-secondary">
                             <i class="fas fa-upload me-2"></i>Importer des Forêts
                         </a>
                         <small class="text-muted mt-1">Importer des forêts depuis un fichier Excel</small>
@@ -96,7 +96,7 @@
                             . '</a>'
                             . '<form action="' . e(route('settings.forets.destroy', $foret)) . '" method="POST" class="d-inline" onsubmit="return confirm(\'Êtes-vous sûr de vouloir supprimer cette forêt ?\')">'
                             . csrf_field() . method_field('DELETE')
-                            . '<button type="submit" class="btn btn-sm btn-danger" title="Supprimer">'
+                            . '<button type="submit" class="btn-danger" title="Supprimer">'
                             . '<i class="fas fa-trash"></i>'
                             . '</button>'
                             . '</form>'
@@ -116,7 +116,7 @@
                     <i class="fas fa-tree text-muted" style="font-size: 3rem;"></i>
                     <p class="h5 mt-3 text-muted">Aucune forêt trouvée</p>
                     <p class="text-muted">Commencez par créer votre première forêt</p>
-                    <a href="{{ route('settings.forets.create') }}" class="btn btn-primary">
+                    <a href="{{ route('settings.forets.create') }}" class="btn-primary">
                         <i class="fas fa-plus me-2"></i>Créer la Première Forêt
                     </a>
                 </div>

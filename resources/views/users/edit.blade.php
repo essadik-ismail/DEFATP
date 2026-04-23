@@ -8,35 +8,21 @@
 @endsection
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <!-- Header Content -->
-    <div class="mb-8">
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                        <i class="fas fa-user-edit text-white text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">Modifier l'Utilisateur</h1>
-                        <p class="text-gray-600 text-lg mt-2">Modifier les informations de {{ $user->name }}</p>
-                    </div>
-                </div>
-                <div class="flex gap-3">
-                    <a href="{{ route('users.show', $user) }}" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
-                        <i class="fas fa-eye"></i>
-                        Voir
-                    </a>
-                    <a href="{{ route('users.index') }}" class="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
-                        <i class="fas fa-arrow-left"></i>
-                        Retour
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="min-w-0 max-w-full overflow-x-hidden">
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <x-page-header
+        title="Modifier l'utilisateur"
+        subtitle="Informations de {{ $user->name }}"
+        icon="fas fa-user-edit"
+        :backRoute="route('users.index')"
+        backText="Retour"
+    >
+        <x-slot name="actions">
+            <x-button href="{{ route('users.show', $user) }}" variant="secondary" icon="fas fa-eye">Voir</x-button>
+        </x-slot>
+    </x-page-header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2">
             <!-- User Edit Form -->
             <x-card 
@@ -112,9 +98,9 @@
                             </div>
 
                             <!-- Security & Roles -->
-                            <div class="col-md-6">
+                            <div class="w-1/2">
                                 <h6 class="text-primary mb-3">
-                                    <i class="fas fa-shield-alt me-2"></i>Sécurité et Rôles
+                                    <i class="fas fa-shield-alt mr-2"></i>Sécurité et Rôles
                                 </h6>
                                 
                                 <div class="mb-3">
@@ -122,7 +108,7 @@
                                     <div class="input-group">
                                         <input type="password" class="form-control @error('password') is-invalid @enderror" 
                                                id="password" name="password" placeholder="Laisser vide pour ne pas changer">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                                        <button class="btn-secondary" type="button" onclick="togglePassword()">
                                             <i class="fas fa-eye" id="passwordIcon"></i>
                                         </button>
                                     </div>
@@ -162,14 +148,14 @@
                         <div class="row mt-3">
                             <div class="col-12">
                                 <h6 class="text-primary mb-3">
-                                    <i class="fas fa-image me-2"></i>Photo de Profil
+                                    <i class="fas fa-image mr-2"></i>Photo de Profil
                                 </h6>
                                 
                                 <!-- Current Image -->
                                 @if($user->image)
                                 <div class="mb-3">
                                     <label class="form-label">Image actuelle</label>
-                                    <div class="d-flex align-items-center">
+                                    <div class="flex items-center">
                                         <img src="{{ asset('storage/' . $user->image) }}" 
                                              alt="{{ $user->name }}" 
                                              class="img-thumbnail me-3" 
@@ -205,12 +191,12 @@
                         <div class="row mt-4">
                             <div class="col-12">
                                 <hr>
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                                        <i class="fas fa-times me-2"></i>Annuler
+                                <div class="flex justify-content-end gap-2">
+                                    <a href="{{ route('users.index') }}" class="btn-secondary">
+                                        <i class="fas fa-times mr-2"></i>Annuler
                                     </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i>Mettre à jour
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-save mr-2"></i>Mettre à jour
                                     </button>
                                 </div>
                             </div>
@@ -226,7 +212,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-user me-2"></i>Informations Actuelles
+                        <i class="fas fa-user mr-2"></i>Informations Actuelles
                     </h6>
                 </div>
                 <div class="card-body">
@@ -242,7 +228,7 @@
                     <div class="mb-3">
                         <h6 class="text-info">Rôles actuels</h6>
                         @forelse($user->roles as $role)
-                            <span class="badge bg-success me-1 mb-1">{{ $role->name }}</span>
+                            <span class="badge bg-success mr-1 mb-1">{{ $role->name }}</span>
                         @empty
                             <span class="badge bg-light text-dark">Aucun rôle</span>
                         @endforelse
@@ -266,7 +252,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-warning">
-                        <i class="fas fa-question-circle me-2"></i>Aide
+                        <i class="fas fa-question-circle mr-2"></i>Aide
                     </h6>
                 </div>
                 <div class="card-body">
@@ -291,13 +277,13 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-success">
-                        <i class="fas fa-shield-alt me-2"></i>Rôles Disponibles
+                        <i class="fas fa-shield-alt mr-2"></i>Rôles Disponibles
                     </h6>
                 </div>
                 <div class="card-body">
                     @foreach($roles as $role)
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="badge bg-success me-2">{{ $role->name }}</span>
+                        <div class="flex items-center mb-2">
+                            <span class="badge bg-success mr-2">{{ $role->name }}</span>
                             <small class="text-muted">{{ $role->permissions->count() }} permissions</small>
                         </div>
                     @endforeach

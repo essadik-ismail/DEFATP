@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -r ' *)",
+      "Bash(php -r *)",
+      "Bash(cat)",
+      "Bash(php /tmp/extract_mapping.php)",
+      "Bash(php /tmp/check_remaining.php)",
+      "Bash(xargs grep *)",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

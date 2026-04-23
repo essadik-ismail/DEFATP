@@ -15,12 +15,14 @@ class Payment extends Model
 
     protected $fillable = [
         'nom',
+        'type',
         'date_decheace',
         'date_payment',
         'is_paye',
         'fichier_join',
         'fichier_joint',
         'num_quittace',
+        'percepteur',
         'order',
         'contract_vente_id',
         'chargeapayer_id',

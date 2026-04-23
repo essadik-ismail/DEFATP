@@ -6,6 +6,7 @@ use App\Models\Cession;
 use App\Models\Dranef;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class CessionController extends Controller
@@ -14,15 +15,20 @@ class CessionController extends Controller
     {
         $dranefs = Dranef::orderBy('dranef')->get();
 
-        $adjudications = Cession::with('dranef')
+        $user = Auth::user();
+        $userDranefId = ($user?->dranef_id && !$user->hasRole('admin')) ? $user->dranef_id : null;
+
+        $baseQuery = fn() => Cession::with(['dranef', 'articles.contractVentes.recolement'])
             ->withCount('articles')
+            ->when($userDranefId, fn($q) => $q->where('dranef_id', $userDranefId));
+
+        $adjudications = $baseQuery()
             ->where('mode_cession', 'adjudication')
             ->orderByDesc('Exercice')
             ->orderByDesc('DateAdj')
             ->get();
 
-        $appelOffres = Cession::with('dranef')
-            ->withCount('articles')
+        $appelOffres = $baseQuery()
             ->where('mode_cession', 'appel_offre')
             ->orderByDesc('Exercice')
             ->orderByDesc('dateAO')
@@ -73,19 +79,26 @@ class CessionController extends Controller
 
         $validated = $request->validate($rules);
 
-        $cession = new Cession();
-        $cession->dranef_id = $validated['dranef_id'];
-        $cession->type = $validated['type'];
-        $cession->annee_exercice = $validated['annee_exercice'];
-
-        if ($validated['type'] === 'adjudication') {
-            $cession->date_adjudication = $validated['date_adjudication'];
-        } else {
-            $cession->numero_ao = $validated['numero_ao'] ?? null;
-            $cession->date_attribution = $validated['date_attribution'] ?? null;
+        $user = Auth::user();
+        if ($user?->dranef_id && !$user->hasRole('admin') && $user->dranef_id != $validated['dranef_id']) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['dranef_id' => 'Vous ne pouvez créer une cession que pour votre DRANEF.']);
         }
 
-        $cession->status = '';
+        $cession = new Cession();
+        $cession->dranef_id = $validated['dranef_id'];
+        $cession->mode_cession = $validated['type'];
+        $cession->Exercice = $validated['annee_exercice'];
+
+        if ($validated['type'] === 'adjudication') {
+            $cession->DateAdj = $validated['date_adjudication'];
+        } else {
+            $cession->numAO = $validated['numero_ao'] ?? null;
+            $cession->dateAO = $validated['date_attribution'] ?? null;
+        }
+
+        $cession->Statut = 'ouvert';
         $cession->save();
 
         return redirect()
@@ -112,18 +125,25 @@ class CessionController extends Controller
 
         $validated = $request->validate($rules);
 
+        $user = Auth::user();
+        if ($user?->dranef_id && $user->dranef_id != $validated['dranef_id']) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['dranef_id' => 'Vous ne pouvez modifier que les cessions de votre DRANEF.']);
+        }
+
         $cession->dranef_id = $validated['dranef_id'];
-        $cession->type = $validated['type'];
-        $cession->annee_exercice = $validated['annee_exercice'];
+        $cession->mode_cession = $validated['type'];
+        $cession->Exercice = $validated['annee_exercice'];
 
         if ($validated['type'] === 'adjudication') {
-            $cession->date_adjudication = $validated['date_adjudication'];
-            $cession->numero_ao = null;
-            $cession->date_attribution = null;
+            $cession->DateAdj = $validated['date_adjudication'];
+            $cession->numAO = null;
+            $cession->dateAO = null;
         } else {
-            $cession->numero_ao = $validated['numero_ao'] ?? null;
-            $cession->date_attribution = $validated['date_attribution'] ?? null;
-            $cession->date_adjudication = null;
+            $cession->numAO = $validated['numero_ao'] ?? null;
+            $cession->dateAO = $validated['date_attribution'] ?? null;
+            $cession->DateAdj = null;
         }
 
         $cession->save();
@@ -144,9 +164,22 @@ class CessionController extends Controller
 
     /**
      * Set cession status to "Clôturée".
+     * All articles must have a completed recolement before closing.
      */
     public function cloture(Cession $cession): RedirectResponse
     {
+        $cession->load('articles.contractVentes.recolement');
+
+        $allRecoled = $cession->articles->isNotEmpty()
+            && $cession->articles->every(
+                fn($article) => $article->contractVentes->first()?->recolement !== null
+            );
+
+        if (!$allRecoled) {
+            return redirect()->back()
+                ->with('error', 'Impossible de clôturer : tous les articles doivent avoir un récolement complété.');
+        }
+
         $cession->update(['Statut' => 'cloture']);
 
         return redirect()

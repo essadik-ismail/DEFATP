@@ -46,7 +46,7 @@ class ActivityLogController extends Controller
             $query->where('description', 'like', '%' . $request->search . '%');
         }
 
-        $activityLogs = $query->latest()->paginate(20);
+        $activityLogs = $query->latest()->paginate(20)->withQueryString();
 
         // Get available filters
         $users = User::orderBy('name')->get();
@@ -87,7 +87,7 @@ class ActivityLogController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $activityLogs = $query->latest()->paginate(20);
+        $activityLogs = $query->latest()->paginate(20)->withQueryString();
         $actions = $user->activityLogs()->distinct()->pluck('action')->sort();
 
         return view('activity-logs.user-activity', compact('user', 'activityLogs', 'actions'));

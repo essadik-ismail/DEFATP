@@ -41,7 +41,7 @@
 
         @if(isset($pvInstallation) && $pvInstallation)
             <!-- Display PV d'Installation Information -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="px-6 py-4" style="background: linear-gradient(135deg, #059669, #047857);">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-clipboard-check"></i>
@@ -146,19 +146,19 @@
                             <i class="fas fa-arrow-left"></i>
                             <span>Retour à l'Article</span>
                         </a>
-                        <button type="button"
-                                onclick="window.print()"
-                                class="inline-flex items-center gap-2 px-8 py-4 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-                                style="background: linear-gradient(135deg, #059669, #047857);">
+                        <a href="{{ route('articles.pv-installation.print', $article) }}"
+                           target="_blank"
+                           class="inline-flex items-center gap-2 px-8 py-4 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                           style="background: linear-gradient(135deg, #059669, #047857);">
                             <i class="fas fa-print"></i>
                             <span>Imprimer</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
         @else
             <!-- Create Form -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="px-6 py-4" style="background: linear-gradient(135deg, #059669, #047857);">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-clipboard-check"></i>

@@ -35,7 +35,7 @@
                 </select>
             </div>
             <a href="{{ route('settings.essences.create') }}" 
-               class="btn btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium">
+               class="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium">
                 <i class="fas fa-plus"></i>
                 <span>Nouvelle Essence</span>
             </a>
@@ -112,7 +112,7 @@
                                 <i class="fas fa-leaf text-4xl mb-2 d-block"></i>
                                 <p class="h5 mb-2">Aucune essence trouvée</p>
                                 <p class="text-muted mb-3">Aucune essence ne correspond à vos critères de recherche</p>
-                                <a href="{{ route('settings.essences.create') }}" class="btn btn-primary">
+                                <a href="{{ route('settings.essences.create') }}" class="btn-primary">
                                     <i class="fas fa-plus me-2"></i>Créer la Première Essence
                                 </a>
                             </div>

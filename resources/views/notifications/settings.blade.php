@@ -11,26 +11,26 @@
 <div class="main-content">
     <!-- Header Section -->
     <div class="page-header mb-4">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="flex justify-between items-center">
             <div>
                 <h1 class="page-title">
-                    <i class="fas fa-cog me-2 text-primary"></i>Paramètres des Notifications
+                    <i class="fas fa-cog mr-2 text-primary"></i>Paramètres des Notifications
                 </h1>
                 <p class="text-muted mb-0">Configurez vos préférences de notification</p>
             </div>
             <a href="{{ route('notifications.index') }}" class="btn btn-outline-light">
-                <i class="fas fa-arrow-left me-2"></i>Retour aux Notifications
+                <i class="fas fa-arrow-left mr-2"></i>Retour aux Notifications
             </a>
         </div>
     </div>
 
     <div class="row">
         <!-- Notification Preferences -->
-        <div class="col-md-8">
+        <div class="w-2/3">
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-bell me-2"></i>Préférences de Notification
+                        <i class="fas fa-bell mr-2"></i>Préférences de Notification
                     </h5>
                 </div>
                 <div class="card-body">
@@ -68,13 +68,13 @@
                         <div class="mb-4">
                             <h6 class="mb-3">Types de Notifications</h6>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="w-1/2">
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="checkbox" id="type_success" 
                                                name="notification_types[]" value="success"
                                                {{ in_array('success', $user->notification_types ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="type_success">
-                                            <i class="fas fa-check-circle text-success me-2"></i>Succès
+                                            <i class="fas fa-check-circle text-success mr-2"></i>Succès
                                         </label>
                                     </div>
                                     <div class="form-check mb-3">
@@ -82,7 +82,7 @@
                                                name="notification_types[]" value="error"
                                                {{ in_array('error', $user->notification_types ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="type_error">
-                                            <i class="fas fa-exclamation-circle text-danger me-2"></i>Erreurs
+                                            <i class="fas fa-exclamation-circle text-danger mr-2"></i>Erreurs
                                         </label>
                                     </div>
                                     <div class="form-check mb-3">
@@ -90,17 +90,17 @@
                                                name="notification_types[]" value="warning"
                                                {{ in_array('warning', $user->notification_types ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="type_warning">
-                                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>Avertissements
+                                            <i class="fas fa-exclamation-triangle text-warning mr-2"></i>Avertissements
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="w-1/2">
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="checkbox" id="type_info" 
                                                name="notification_types[]" value="info"
                                                {{ in_array('info', $user->notification_types ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="type_info">
-                                            <i class="fas fa-info-circle text-info me-2"></i>Informations
+                                            <i class="fas fa-info-circle text-info mr-2"></i>Informations
                                         </label>
                                     </div>
                                     <div class="form-check mb-3">
@@ -108,7 +108,7 @@
                                                name="notification_types[]" value="system"
                                                {{ in_array('system', $user->notification_types ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="type_system">
-                                            <i class="fas fa-cog text-secondary me-2"></i>Système
+                                            <i class="fas fa-cog text-secondary mr-2"></i>Système
                                         </label>
                                     </div>
                                     <div class="form-check mb-3">
@@ -116,19 +116,19 @@
                                                name="notification_types[]" value="exploitant"
                                                {{ in_array('exploitant', $user->notification_types ?? []) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="type_exploitant">
-                                            <i class="fas fa-user-tie text-primary me-2"></i>Exploitants
+                                            <i class="fas fa-user-tie text-primary mr-2"></i>Exploitants
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end gap-2">
-                            <a href="{{ route('notifications.index') }}" class="btn btn-outline-secondary">
+                        <div class="flex justify-content-end gap-2">
+                            <a href="{{ route('notifications.index') }}" class="btn-secondary">
                                 Annuler
                             </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Sauvegarder
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save mr-2"></i>Sauvegarder
                             </button>
                         </div>
                     </form>
@@ -137,11 +137,11 @@
         </div>
 
         <!-- Test Notifications -->
-        <div class="col-md-4">
+        <div class="w-1/3">
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-flask me-2"></i>Test des Notifications
+                        <i class="fas fa-flask mr-2"></i>Test des Notifications
                     </h5>
                 </div>
                 <div class="card-body">
@@ -167,8 +167,8 @@
                             <textarea class="form-control" id="test_message" name="message" rows="3" 
                                       placeholder="Message de la notification" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-paper-plane me-2"></i>Envoyer Test
+                        <button type="submit" class="btn-outline w-100">
+                            <i class="fas fa-paper-plane mr-2"></i>Envoyer Test
                         </button>
                     </form>
                 </div>
@@ -178,7 +178,7 @@
             <div class="card mt-4">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-chart-bar me-2"></i>Statistiques
+                        <i class="fas fa-chart-bar mr-2"></i>Statistiques
                     </h5>
                 </div>
                 <div class="card-body">
@@ -205,19 +205,19 @@
             <div class="card mt-4">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-bolt me-2"></i>Actions Rapides
+                        <i class="fas fa-bolt mr-2"></i>Actions Rapides
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <button type="button" class="btn btn-outline-success" onclick="markAllAsRead()">
-                            <i class="fas fa-check-double me-2"></i>Marquer tout comme lu
+                            <i class="fas fa-check-double mr-2"></i>Marquer tout comme lu
                         </button>
-                        <button type="button" class="btn btn-outline-danger" onclick="deleteReadNotifications()">
-                            <i class="fas fa-trash me-2"></i>Supprimer les lues
+                        <button type="button" class="btn-danger" onclick="deleteReadNotifications()">
+                            <i class="fas fa-trash mr-2"></i>Supprimer les lues
                         </button>
-                        <a href="{{ route('notifications.index') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-list me-2"></i>Voir toutes les notifications
+                        <a href="{{ route('notifications.index') }}" class="btn-outline">
+                            <i class="fas fa-list mr-2"></i>Voir toutes les notifications
                         </a>
                     </div>
                 </div>

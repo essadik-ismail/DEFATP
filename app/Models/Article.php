@@ -41,6 +41,9 @@ class Article extends Model
         'coordonnee_x',
         'coordonnee_y',
         'current_step',
+        'workflow_state',
+        'workflow_state_updated_at',
+        'workflow_state_updated_by',
     ];
 
     protected $casts = [
@@ -55,9 +58,10 @@ class Article extends Model
         'date_echeance_mise_en_charge' => 'date',
         'date_payement_service_anef' => 'date',
         'date_livaison_mise_en_charge_bf' => 'date',
-        'invandu' => 'boolean',
-        'coordonnee_x' => 'decimal:6',
-        'coordonnee_y' => 'decimal:6',
+        'invandu'                    => 'boolean',
+        'coordonnee_x'               => 'decimal:6',
+        'coordonnee_y'               => 'decimal:6',
+        'workflow_state_updated_at'  => 'datetime',
     ];
 
     /**

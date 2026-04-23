@@ -111,6 +111,14 @@
                     Retour à l'article
                 </a>
 
+                <a href="{{ route('articles.lettre-adjudicataire.print', $article) }}"
+                   target="_blank"
+                   class="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0"
+                   style="background: linear-gradient(135deg, #1a3a1a, #2d5a2d); box-shadow: 0 3px 10px rgba(26,58,26,0.3);">
+                    <i class="fas fa-print text-xs"></i>
+                    Imprimer
+                </a>
+
                 <a href="{{ route('articles.lettre-adjudicataire.download', $article) }}"
                    class="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all {{ $templateAvailable ? 'hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0' : 'opacity-50 pointer-events-none' }}"
                    style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: {{ $templateAvailable ? '0 3px 10px rgba(37,99,235,0.3)' : 'none' }};">

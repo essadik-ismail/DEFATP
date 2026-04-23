@@ -9,22 +9,22 @@
 @section('content')
 <div class="min-w-0 max-w-full overflow-x-hidden">
 
-    {{-- ─── Page header ─────────────────────────────────────────────── --}}
+    {{-- Page header --}}
     <x-page-header
         title="Carnets"
-        subtitle="Séries de carnets par série et date de création"
+        subtitle="S&eacute;ries de carnets par s&eacute;rie et date de cr&eacute;ation"
         icon="fas fa-book"
     >
         <x-slot name="actions">
             <x-button href="{{ route('carnets.create') }}" icon="fas fa-plus">
-                Créer des numéros
+                Cr&eacute;er des num&eacute;ros
             </x-button>
         </x-slot>
     </x-page-header>
 
-    {{-- ─── Flash messages ──────────────────────────────────────────── --}}
+    {{-- Flash messages --}}
     @if(session('success'))
-        <x-alert type="success" title="Succès !" dismissible class="mb-4">{{ session('success') }}</x-alert>
+        <x-alert type="success" title="Succ&egrave;s !" dismissible class="mb-4">{{ session('success') }}</x-alert>
     @endif
     @if(session('info'))
         <x-alert type="info" title="Information" dismissible class="mb-4">{{ session('info') }}</x-alert>
@@ -33,7 +33,7 @@
         <x-alert type="error" title="Erreur" dismissible class="mb-4">{{ session('error') }}</x-alert>
     @endif
 
-    {{-- ─── Table with client-side search ──────────────────────────── --}}
+    {{-- Table with client-side search --}}
     <div
         x-data="{ search: '' }"
         class="rounded-2xl border bg-white overflow-hidden"
@@ -46,14 +46,14 @@
                 <input
                     x-model="search"
                     type="search"
-                    placeholder="Rechercher par série, type…"
+                    placeholder="Rechercher par s&eacute;rie, type..."
                     class="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-4 py-2 text-sm text-gray-700
                            focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-emerald-400
                            placeholder:text-gray-400 transition"
                 >
             </div>
             <span class="text-xs text-gray-500">
-                {{ $series->total() }} série(s)
+                {{ $series->total() }} s&eacute;rie(s)
             </span>
         </div>
 
@@ -61,14 +61,13 @@
             <table class="w-full divide-y divide-gray-100">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Série</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date création</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">S&eacute;rie</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date cr&eacute;ation</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Plage</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Disponible</th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Épuisé</th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Utilisé</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">&Eacute;puis&eacute;</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Perdu</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -92,7 +91,7 @@
                                 {{ $serieGroup->type }}
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-600 font-mono">
-                                {{ $serieGroup->first_num }} – {{ $serieGroup->last_num }}
+                                {{ $serieGroup->first_num }} &ndash; {{ $serieGroup->last_num }}
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <span class="text-sm font-semibold text-gray-800">{{ $serieGroup->total_carnets }}</span>
@@ -102,9 +101,6 @@
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <x-status-badge type="pending">{{ $serieGroup->epuise_count }}</x-status-badge>
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <x-status-badge type="warning">{{ $serieGroup->utilise_count }}</x-status-badge>
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <x-status-badge type="danger">{{ $serieGroup->perdu_count }}</x-status-badge>
@@ -119,15 +115,15 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="py-4">
+                            <td colspan="9" class="py-4">
                                 <x-empty-state
                                     icon="fas fa-book-open"
-                                    title="Aucune série de carnet"
-                                    message="Commencez par créer une première série de numéros."
+                                    title="Aucune s&eacute;rie de carnet"
+                                    message="Commencez par cr&eacute;er une premi&egrave;re s&eacute;rie de num&eacute;ros."
                                     color="green"
                                 >
                                     <x-button href="{{ route('carnets.create') }}" icon="fas fa-plus" size="sm">
-                                        Créer des numéros
+                                        Cr&eacute;er des num&eacute;ros
                                     </x-button>
                                 </x-empty-state>
                             </td>
@@ -144,7 +140,7 @@
             class="py-10 text-center text-sm text-gray-500"
         >
             <i class="fas fa-search mb-2 block text-2xl text-gray-300"></i>
-            Aucun résultat pour "<span x-text="search" class="font-medium text-gray-700"></span>"
+            Aucun r&eacute;sultat pour "<span x-text="search" class="font-medium text-gray-700"></span>"
         </div>
         @endif
 

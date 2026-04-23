@@ -1,43 +1,43 @@
 @props([
-    'type' => 'default',
+    'type' => 'neutral',  // success | warning | danger | info | neutral | green | earth
     'icon' => null,
-    'size' => 'md'
+    'dot'  => true,
+    'size' => 'md',       // sm | md | lg
 ])
 
 @php
-    $typeClasses = [
-        'success' => 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20',
-        'warning' => 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20',
-        'danger'  => 'bg-red-50 text-red-700 ring-1 ring-red-600/20',
-        'info'    => 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20',
-        'pending' => 'bg-gray-50 text-gray-600 ring-1 ring-gray-500/20',
-        'default' => 'bg-gray-50 text-gray-700 ring-1 ring-gray-500/20',
-    ];
-    
-    $dotColors = [
-        'success' => 'bg-emerald-500',
-        'warning' => 'bg-amber-500',
-        'danger'  => 'bg-red-500',
-        'info'    => 'bg-blue-500',
-        'pending' => 'bg-gray-400',
-        'default' => 'bg-gray-400',
-    ];
-    
-    $sizeClasses = [
-        'sm' => 'px-2 py-0.5 text-xs',
-        'md' => 'px-2.5 py-1 text-xs',
-        'lg' => 'px-3 py-1.5 text-sm',
-    ];
-    
-    $classes = ($typeClasses[$type] ?? $typeClasses['default']) . ' ' . ($sizeClasses[$size] ?? $sizeClasses['md']);
-    $dot = $dotColors[$type] ?? $dotColors['default'];
+    $classes = match($type) {
+        'success' => 'badge-success',
+        'warning' => 'badge-warning',
+        'danger'  => 'badge-danger',
+        'info'    => 'badge-info',
+        'green'   => 'badge-green',
+        'earth'   => 'badge-earth',
+        default   => 'badge-neutral',
+    };
+
+    $dotColor = match($type) {
+        'success' => '#16A34A',
+        'warning' => '#D97706',
+        'danger'  => '#DC2626',
+        'info'    => '#2563EB',
+        'green'   => '#2D7A54',
+        'earth'   => '#B7791F',
+        default   => '#7A9B8A',
+    };
+
+    $sizeStyle = match($size) {
+        'sm' => 'padding:0.125rem 0.5rem;font-size:0.625rem;',
+        'lg' => 'padding:0.3125rem 0.875rem;font-size:0.75rem;',
+        default => '',
+    };
 @endphp
 
-<span {{ $attributes->merge(['class' => "inline-flex items-center gap-1.5 rounded-full font-medium {$classes}"]) }}>
+<span {{ $attributes->merge(['class' => $classes]) }} style="{{ $sizeStyle }}">
     @if($icon)
-        <i class="{{ $icon }} text-[0.65rem]"></i>
-    @else
-        <span class="w-1.5 h-1.5 rounded-full {{ $dot }}"></span>
+        <i class="{{ $icon }}" style="font-size:0.6rem;"></i>
+    @elseif($dot)
+        <span class="badge-dot" style="background:{{ $dotColor }};"></span>
     @endif
     {{ $slot }}
 </span>

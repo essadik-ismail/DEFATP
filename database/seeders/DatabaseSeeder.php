@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            RbacSeeder::class,   // must run first — other seeders may assign roles
             UserSeeder::class,
             EssenceSeeder::class,
             ForetSeeder::class,

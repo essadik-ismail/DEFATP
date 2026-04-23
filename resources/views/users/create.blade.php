@@ -8,31 +8,17 @@
 @endsection
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <!-- Header Content -->
-    <div class="mb-8">
-        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg" style="background: linear-gradient(to bottom right, #059669, #047857);">
-                        <i class="fas fa-user-plus text-white text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #059669, #047857); -webkit-background-clip: text; background-clip: text;">Créer un Utilisateur</h1>
-                        <p class="text-gray-600 text-lg mt-2">Ajouter un nouvel utilisateur au système</p>
-                    </div>
-                </div>
-                <div class="flex gap-3">
-                    <a href="{{ route('users.index') }}" class="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2">
-                        <i class="fas fa-arrow-left"></i>
-                        Retour
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="min-w-0 max-w-full overflow-x-hidden">
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <x-page-header
+        title="Créer un utilisateur"
+        subtitle="Ajouter un nouvel utilisateur au système"
+        icon="fas fa-user-plus"
+        :backRoute="route('users.index')"
+        backText="Retour"
+    />
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2">
             <!-- User Creation Form -->
             <x-card 

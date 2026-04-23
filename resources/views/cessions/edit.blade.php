@@ -26,12 +26,6 @@
         icon="fas fa-gavel"
     >
         <x-slot name="actions">
-            <x-button href="{{ route('cessions.show', $cession) }}" variant="secondary" icon="fas fa-eye" size="sm">
-                Voir
-            </x-button>
-            <x-button href="{{ route('cessions.index') }}" variant="secondary" icon="fas fa-arrow-left" size="sm">
-                Retour
-            </x-button>
         </x-slot>
     </x-page-header>
 
@@ -74,7 +68,7 @@
                     <x-form-input
                         name="annee_exercice"
                         type="number"
-                        label="Année / Exercice"
+                        label="Année"
                         required
                         min="2000"
                         :max="now()->year + 1"
@@ -82,32 +76,28 @@
                     />
                 </div>
 
-                {{-- Type toggle --}}
+                {{-- Type toggle (readonly — cannot change type after creation) --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Type de cession <span class="text-red-500">*</span>
+                        Type de cession
                     </label>
-                    <div class="inline-flex rounded-xl border border-gray-200 bg-gray-100 p-1 text-sm gap-1">
-                        <button
-                            type="button"
-                            @click="type = 'adjudication'"
+                    <div class="inline-flex rounded-xl border border-gray-200 bg-gray-100 p-1 text-sm gap-1 opacity-75 pointer-events-none">
+                        <span
                             :class="type === 'adjudication'
                                 ? 'bg-white text-emerald-700 shadow-sm font-semibold'
-                                : 'text-gray-500 hover:text-gray-700'"
-                            class="rounded-lg px-4 py-1.5 transition-all"
+                                : 'text-gray-400'"
+                            class="rounded-lg px-4 py-1.5"
                         >
                             <i class="fas fa-gavel mr-1.5 text-xs"></i>Adjudication
-                        </button>
-                        <button
-                            type="button"
-                            @click="type = 'appel_offre'"
+                        </span>
+                        <span
                             :class="type === 'appel_offre'
                                 ? 'bg-white text-emerald-700 shadow-sm font-semibold'
-                                : 'text-gray-500 hover:text-gray-700'"
-                            class="rounded-lg px-4 py-1.5 transition-all"
+                                : 'text-gray-400'"
+                            class="rounded-lg px-4 py-1.5"
                         >
                             <i class="fas fa-file-signature mr-1.5 text-xs"></i>Appel d'offre
-                        </button>
+                        </span>
                     </div>
                 </div>
 
@@ -118,6 +108,8 @@
                         type="date"
                         label="Date d'adjudication"
                         :value="old('date_adjudication', optional($cession->date_adjudication)->format('Y-m-d'))"
+                        x-bind:required="type === 'adjudication'"
+                        x-bind:disabled="type !== 'adjudication'"
                     />
                 </div>
 
@@ -128,19 +120,23 @@
                         label="Numéro AO"
                         placeholder="Ex : AO-2026-001"
                         :value="old('numero_ao', $cession->numero_ao)"
+                        x-bind:required="type === 'appel_offre'"
+                        x-bind:disabled="type !== 'appel_offre'"
                     />
                     <x-form-input
                         name="date_attribution"
                         type="date"
                         label="Date d'attribution"
                         :value="old('date_attribution', optional($cession->date_attribution)->format('Y-m-d'))"
+                        x-bind:required="type === 'appel_offre'"
+                        x-bind:disabled="type !== 'appel_offre'"
                     />
                 </div>
 
             </div>
 
             <x-slot name="footer">
-                <x-button href="{{ route('cessions.show', $cession) }}" variant="secondary">
+                <x-button href="{{ route('cessions.index', ['tab' => $cession->type ?? 'adjudication']) }}" variant="secondary">
                     Annuler
                 </x-button>
                 <x-button type="submit" icon="fas fa-save">

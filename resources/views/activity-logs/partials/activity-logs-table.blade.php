@@ -15,7 +15,7 @@
             @forelse($activityLogs as $log)
                 <tr>
                     <td>
-                        <div class="d-flex align-items-center">
+                        <div class="flex items-center">
                             <div class="avatar-sm me-3">
                                 @if($log->user && $log->user->image)
                                     <img src="{{ asset('storage/' . $log->user->image) }}" 
@@ -23,7 +23,7 @@
                                          class="rounded-circle" 
                                          width="32" height="32">
                                 @else
-                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                    <div class="bg-primary text-white rounded-circle flex items-center justify-content-center" 
                                          style="width: 32px; height: 32px;">
                                         <i class="fas fa-user"></i>
                                     </div>
@@ -39,7 +39,7 @@
                     </td>
                     <td>
                         <span class="badge bg-{{ $log->action_color }} rounded-pill">
-                            <i class="{{ $log->action_icon }} me-1"></i>
+                            <i class="{{ $log->action_icon }} mr-1"></i>
                             {{ ucfirst($log->action) }}
                         </span>
                     </td>
@@ -51,7 +51,7 @@
                     <td>
                         @if($log->model_type && $log->model_id)
                             <span class="badge bg-info rounded-pill">
-                                <i class="fas fa-cube me-1"></i>
+                                <i class="fas fa-cube mr-1"></i>
                                 {{ class_basename($log->model_type) }} #{{ $log->model_id }}
                             </span>
                         @else
@@ -62,7 +62,7 @@
                         <code class="small">{{ $log->ip_address ?? '-' }}</code>
                     </td>
                     <td>
-                        <div class="d-flex flex-column">
+                        <div class="flex flex-column">
                             <span class="fw-bold">{{ $log->formatted_date }}</span>
                             <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
                         </div>
@@ -70,13 +70,13 @@
                     <td>
                         <div class="btn-group" role="group">
                             <a href="{{ route('activity-logs.show', $log) }}" 
-                               class="btn btn-sm btn-outline-primary" 
+                               class="tbl-action bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200" 
                                title="Voir les détails">
                                 <i class="fas fa-eye"></i>
                             </a>
                             @if($log->user)
                                 <a href="{{ route('activity-logs.user-activity', $log->user) }}" 
-                                   class="btn btn-sm btn-outline-info" 
+                                   class="tbl-action bg-cyan-50 hover:bg-cyan-100 text-cyan-700 border border-cyan-200" 
                                    title="Voir les activités de l'utilisateur">
                                     <i class="fas fa-user-clock"></i>
                                 </a>

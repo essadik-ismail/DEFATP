@@ -8,46 +8,22 @@
 @endsection
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <!-- Header Section -->
-    <div class="mb-8">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-16 h-16 bg-gradient-to-br rounded-2xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #6366f1, #8b5cf6);">
-                <i class="fas fa-file-contract text-white text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-4xl font-bold bg-clip-text text-transparent" style="background: linear-gradient(to right, #6366f1, #8b5cf6); -webkit-background-clip: text; background-clip: text;">
-                    Modifier Avenant
-                </h1>
-                <p class="text-gray-600 text-lg mt-2">Modifiez les informations de l'avenant</p>
-            </div>
-        </div>
-    </div>
+<div class="min-w-0 max-w-full overflow-x-hidden">
+    <x-page-header
+        title="Modifier l'Avenant"
+        icon="fas fa-file-contract"
+        :backRoute="route('contracts.index')"
+        backText="Retour"
+    />
+
+    <x-flash-messages />
+
+
 
     <!-- Alert Messages -->
-    @if(session('success'))
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-700 p-6 rounded-xl mb-6 shadow-lg">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-check-circle text-2xl"></i>
-                <div>
-                    <h3 class="font-semibold text-lg">Succès!</h3>
-                    <p>{{ session('success') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
+        <x-flash-messages />
 
-    @if(session('error'))
-        <div class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 text-red-700 p-6 rounded-xl mb-6 shadow-lg">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-exclamation-triangle text-2xl"></i>
-                <div>
-                    <h3 class="font-semibold text-lg">Erreur!</h3>
-                    <p>{{ session('error') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
+    
 
     @if ($errors->any())
     <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
@@ -64,28 +40,18 @@
     @endif
 
     <!-- Edit Form -->
-    <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #6366f1, #8b5cf6);">
-                <i class="fas fa-edit text-white text-xl"></i>
-            </div>
-            <div>
-                <h2 class="text-2xl font-bold" style="color: #6366f1;">Formulaire de modification</h2>
-                <p class="text-gray-600">Modifiez les informations de l'avenant</p>
-            </div>
-        </div>
-
-        <form action="{{ route('contracts.avenants.update', $avenant) }}" method="POST" class="space-y-8">
+    <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <form action="{{ route('contracts.avenants.update', $avenant) }}" method="POST" class="space-y-8">
             @csrf
             @method('PUT')
             
             <!-- Section 1: Informations de Base -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+            <div style="background:#F3F6F4; border-radius:0.75rem; padding:1.25rem; border:1px solid #DDE5E1; margin-bottom:1rem;">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #6366f1, #8b5cf6);">
+                    <div style="width:36px; height:36px; border-radius:0.5rem; display:flex; align-items:center; justify-content:center; background:#1A3D2B;">
                         <i class="fas fa-info-circle text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold" style="color: #6366f1;">Informations de Base</h3>
+                    <h3 style="font-size:0.9375rem; font-weight:600; color:#1A2D22; margin:0 0 1rem;">Informations de Base</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="form-group">
@@ -198,12 +164,12 @@
             </div>
 
             <!-- Section 2: Prestations -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+            <div style="background:#F0FFF4; border-radius:0.75rem; padding:1.25rem; border:1px solid #C6F6D5; margin-bottom:1rem;">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #6366f1, #8b5cf6);">
+                    <div style="width:36px; height:36px; border-radius:0.5rem; display:flex; align-items:center; justify-content:center; background:#1A3D2B;">
                         <i class="fas fa-tools text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold" style="color: #6366f1;">Prestations</h3>
+                    <h3 style="font-size:0.9375rem; font-weight:600; color:#1A2D22; margin:0 0 1rem;">Prestations</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Gardiennage Section -->
@@ -417,10 +383,10 @@
             <!-- Section 4: Valeurs Financières -->
             <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(to bottom right, #6366f1, #8b5cf6);">
+                    <div style="width:36px; height:36px; border-radius:0.5rem; display:flex; align-items:center; justify-content:center; background:#1A3D2B;">
                         <i class="fas fa-coins text-white"></i>
                     </div>
-                    <h3 class="text-xl font-bold" style="color: #6366f1;">Valeurs Financières</h3>
+                    <h3 style="font-size:0.9375rem; font-weight:600; color:#1A2D22; margin:0 0 1rem;">Valeurs Financières</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="form-group">

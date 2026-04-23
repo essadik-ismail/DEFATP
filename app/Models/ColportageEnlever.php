@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ColportageEnlever extends Model
 {
@@ -23,15 +24,21 @@ class ColportageEnlever extends Model
         'chauffeur_nom',
         'chauffeur_cin',
         'destination',
+        'transport_nuit',
+        'distance_km',
         'numero_permis',
+        'volume',
         'carnet_id',
         'fichier_joint',
     ];
 
     protected $casts = [
         'quantity' => 'decimal:2',
-        'date_debut' => 'date',
-        'date_fin' => 'date',
+        'volume' => 'decimal:2',
+        'date_debut' => 'datetime',
+        'date_fin' => 'datetime',
+        'transport_nuit' => 'boolean',
+        'distance_km' => 'decimal:2',
     ];
 
     /**
@@ -72,5 +79,13 @@ class ColportageEnlever extends Model
     public function carnet()
     {
         return $this->belongsTo(Carnet::class);
+    }
+
+    /**
+     * Get the quantity rows attached to this colportage.
+     */
+    public function detailRows(): HasMany
+    {
+        return $this->hasMany(ColportageEnleverProduct::class, 'colportage_enlever_id');
     }
 }

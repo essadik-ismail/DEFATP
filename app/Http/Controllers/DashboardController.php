@@ -34,13 +34,15 @@ class DashboardController extends Controller
         $totalPrixVente = 0;
         $totalPrixRetrait = 0;
         
-        // Get volume statistics from products
+        // Get volume statistics from products.
+        // Use the already-loaded relationship collection (no parentheses = no extra query per article).
         $articles = (clone $articlesQuery)->with('products')->get();
         $totalVolume = 0;
         foreach ($articles as $article) {
-            $boProduct = $article->products()->where('name', 'BO (m³)')->first();
-            $biProduct = $article->products()->where('name', 'BI (m³)')->first();
-            $totalVolume += ($boProduct ? $boProduct->pivot->quantity : 0) + ($biProduct ? $biProduct->pivot->quantity : 0);
+            $boProduct = $article->products->firstWhere('name', 'BO (m³)');
+            $biProduct = $article->products->firstWhere('name', 'BI (m³)');
+            $totalVolume += ($boProduct ? $boProduct->pivot->quantity : 0)
+                          + ($biProduct ? $biProduct->pivot->quantity : 0);
         }
         
         // Get validation statistics (no validation column exists, so all articles are considered valid)

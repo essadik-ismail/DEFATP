@@ -15,7 +15,7 @@
                 <h1 class="h3 mb-0">Gestion des Situations Administratives</h1>
                 <p class="text-muted mb-0">Administrez les situations administratives</p>
             </div>
-            <a href="{{ route('settings.situation-administratives.create') }}" class="btn btn-primary">
+            <a href="{{ route('settings.situation-administratives.create') }}" class="btn-primary">
                 <i class="fas fa-plus me-2"></i>
                 Nouvelle Situation Administrative
             </a>
@@ -48,7 +48,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="d-grid">
-                        <a href="{{ route('settings.situation-administratives.export') }}" class="btn btn-success">
+                        <a href="{{ route('settings.situation-administratives.export') }}" class="btn-primary">
                             <i class="fas fa-download me-2"></i>Exporter les Situations
                         </a>
                         <small class="text-muted mt-1">Télécharger la liste des situations au format Excel</small>
@@ -56,7 +56,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="d-grid">
-                        <a href="{{ route('excel.import.situation-administratives') }}" class="btn btn-info">
+                        <a href="{{ route('excel.import.situation-administratives') }}" class="btn-secondary">
                             <i class="fas fa-upload me-2"></i>Importer des Situations
                         </a>
                         <small class="text-muted mt-1">Importer des situations depuis un fichier Excel</small>
@@ -109,7 +109,7 @@
                                             <form action="{{ route('settings.situation-administratives.destroy', $situation) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette situation ?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                <button type="submit" class="btn-danger">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -131,7 +131,7 @@
                     <i class="fas fa-building text-muted" style="font-size: 3rem;"></i>
                     <p class="h5 mt-3 text-muted">Aucune situation administrative trouvée</p>
                     <p class="text-muted">Commencez par créer votre première situation</p>
-                    <a href="{{ route('settings.situation-administratives.create') }}" class="btn btn-primary">
+                    <a href="{{ route('settings.situation-administratives.create') }}" class="btn-primary">
                         <i class="fas fa-plus me-2"></i>Créer la Première Situation
                     </a>
                 </div>

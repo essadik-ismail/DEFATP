@@ -33,25 +33,7 @@ class ContractVenteController extends Controller
      */
     public function store(Request $request, Article $article): RedirectResponse
     {
-        $validated = $request->validate([
-            'type' => 'nullable|in:adjudication,appel_doffre,marche_negocie',
-            'date_adjudication' => 'nullable|date',
-            'numeraAO' => 'nullable|string|max:255',
-            'exploitant_id' => 'required|exists:exploitants,id',
-            'prix_vente' => 'required|numeric|min:0',
-            'prix_de_retrait' => 'nullable|numeric|min:0',
-            'nombre_tranche' => 'required|integer|min:1',
-            'date_limite_tranche' => 'nullable|date',
-            'date_limite_taxes' => 'nullable|date',
-            'duree_decheache' => 'nullable|string|max:255',
-            'charges' => 'required|array',
-            'charges.*.nom' => 'required|string',
-            'charges.*.montant' => 'required|numeric|min:0',
-            'charges.*.date_echeance' => 'required|date',
-            'tranches' => 'required|array',
-            'tranches.*.montant' => 'required|numeric|min:0',
-            'tranches.*.date_echeance' => 'required|date',
-        ]);
+        $validated = $this->validateContractRequest($request);
 
         try {
             DB::beginTransaction();
@@ -59,19 +41,7 @@ class ContractVenteController extends Controller
             // Create or update contract vente
             $contractVente = ContractVente::updateOrCreate(
                 ['article_id' => $article->id],
-                [
-                    'type' => $validated['type'] ?? null,
-                    'date_adjudication' => isset($validated['date_adjudication']) ? $validated['date_adjudication'] : null,
-                    'numeraAO' => $validated['numeraAO'] ?? null,
-                    'exploitant_id' => $validated['exploitant_id'],
-                    'prix_vente' => $validated['prix_vente'],
-                    'prix_de_retrait' => $validated['prix_de_retrait'] ?? null,
-                    'nombre_tranche' => $validated['nombre_tranche'],
-                    'date_limite_tranche' => $validated['date_limite_tranche'] ?? null,
-                    'date_limite_taxes' => $validated['date_limite_taxes'] ?? null,
-                    'duree_decheache' => $validated['duree_decheache'] ?? null,
-                    'Current_state' => 'contrat_vente',
-                ]
+                $this->buildContractPayload($validated, $article) + ['Current_state' => 'contrat_vente']
             );
 
             // Delete existing charges
@@ -161,42 +131,13 @@ class ContractVenteController extends Controller
      */
     public function update(Request $request, Article $article, ContractVente $contractVente): RedirectResponse
     {
-        $validated = $request->validate([
-            'type' => 'nullable|in:adjudication,appel_doffre,marche_negocie',
-            'date_adjudication' => 'nullable|date',
-            'numeraAO' => 'nullable|string|max:255',
-            'exploitant_id' => 'required|exists:exploitants,id',
-            'prix_vente' => 'required|numeric|min:0',
-            'prix_de_retrait' => 'nullable|numeric|min:0',
-            'nombre_tranche' => 'required|integer|min:1',
-            'date_limite_tranche' => 'nullable|date',
-            'date_limite_taxes' => 'nullable|date',
-            'duree_decheache' => 'nullable|string|max:255',
-            'charges' => 'required|array',
-            'charges.*.nom' => 'required|string',
-            'charges.*.montant' => 'required|numeric|min:0',
-            'charges.*.date_echeance' => 'required|date',
-            'tranches' => 'required|array',
-            'tranches.*.montant' => 'required|numeric|min:0',
-            'tranches.*.date_echeance' => 'required|date',
-        ]);
+        $validated = $this->validateContractRequest($request);
 
         try {
             DB::beginTransaction();
 
             // Update contract vente
-            $contractVente->update([
-                'type' => $validated['type'] ?? null,
-                'date_adjudication' => isset($validated['date_adjudication']) ? $validated['date_adjudication'] : null,
-                'numeraAO' => $validated['numeraAO'] ?? null,
-                'exploitant_id' => $validated['exploitant_id'],
-                'prix_vente' => $validated['prix_vente'],
-                'prix_de_retrait' => $validated['prix_de_retrait'] ?? null,
-                'nombre_tranche' => $validated['nombre_tranche'],
-                'date_limite_tranche' => $validated['date_limite_tranche'] ?? null,
-                'date_limite_taxes' => $validated['date_limite_taxes'] ?? null,
-                'duree_decheache' => $validated['duree_decheache'] ?? null,
-            ]);
+            $contractVente->update($this->buildContractPayload($validated, $article, $contractVente));
 
             // Delete existing charges
             $contractVente->chargeApayer()->delete();
@@ -257,6 +198,70 @@ class ContractVenteController extends Controller
                 ->withInput()
                 ->with('error', 'Erreur lors de la mise à jour du contrat de vente: ' . $e->getMessage());
         }
+    }
+
+    private function validateContractRequest(Request $request): array
+    {
+        $requestedTranches = (int) $request->input('nombre_tranche', 0);
+        $tranchesRule = ['required', 'array'];
+
+        if (in_array($requestedTranches, [1, 2, 4], true)) {
+            $tranchesRule[] = 'size:' . $requestedTranches;
+        }
+
+        return $request->validate([
+            'exploitant_id' => 'required|exists:exploitants,id',
+            'prix_vente' => 'required|numeric|min:0',
+            'nombre_tranche' => 'required|integer|in:1,2,4',
+            'duree_decheache' => 'nullable|string|max:255',
+            'date_limite_tranche' => 'nullable|date',
+            'date_limite_taxes' => 'nullable|date',
+            'bois_chauffage_volume_st' => 'nullable|numeric|min:0',
+            'charges' => 'required|array',
+            'charges.*.nom' => 'required|string',
+            'charges.*.montant' => 'required|numeric|min:0',
+            'charges.*.date_echeance' => 'required|date',
+            'tranches' => $tranchesRule,
+            'tranches.*.montant' => 'required|numeric|min:0',
+            'tranches.*.date_echeance' => 'required|date',
+        ]);
+    }
+
+    private function buildContractPayload(array $validated, Article $article, ?ContractVente $existingContract = null): array
+    {
+        $charges = collect($validated['charges'] ?? []);
+        $tranches = collect($validated['tranches'] ?? []);
+        $selectedType = $article->cession?->mode_cession ?? $existingContract?->type;
+
+        $cautionCharge = $charges->first(function ($charge) {
+            $name = strtolower((string) ($charge['nom'] ?? ''));
+
+            return str_contains($name, 'caution');
+        });
+
+        $taxDates = $charges->filter(function ($charge) {
+            $name = strtolower((string) ($charge['nom'] ?? ''));
+
+            return !str_contains($name, 'caution') && !blank($charge['date_echeance'] ?? null);
+        })->pluck('date_echeance');
+
+        $trancheDates = $tranches->pluck('date_echeance')->filter();
+
+        return [
+            'type' => $selectedType,
+            'date_adjudication' => $article->cession?->DateAdj ?? $existingContract?->date_adjudication,
+            'numeraAO' => $selectedType === 'appel_doffre'
+                ? ($article->cession?->numAO ?? $existingContract?->numeraAO)
+                : null,
+            'exploitant_id' => $validated['exploitant_id'],
+            'prix_vente' => $validated['prix_vente'],
+            'nombre_tranche' => $validated['nombre_tranche'],
+            'date_limite_tranche' => $validated['date_limite_tranche'] ?? ($trancheDates->max() ?: null),
+            'date_limite_taxes' => $validated['date_limite_taxes'] ?? ($taxDates->min() ?: null),
+            'date_de_decheance' => $cautionCharge['date_echeance'] ?? null,
+            'duree_decheache' => $validated['duree_decheache'] ?? null,
+            'bois_chauffage_volume_st' => $validated['bois_chauffage_volume_st'] ?? null,
+        ];
     }
 
     /**

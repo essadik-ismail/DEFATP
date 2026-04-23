@@ -8,7 +8,7 @@
 @endsection
 
 @section('content')
-<div class="min-h-screen py-8">
+<div class="min-w-0 max-w-full overflow-x-hidden">
     <div class="container mx-auto px-4">
         <!-- Header Section -->
         <x-page-header 
@@ -41,7 +41,7 @@
 
         <x-validation-errors />
 
-        <form id="archiveEditForm" action="{{ route('archives.update', $archive) }}" method="POST" enctype="multipart/form-data" class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+        <form id="archiveEditForm" action="{{ route('archives.update', $archive) }}" method="POST" enctype="multipart/form-data" style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
             @csrf
             @method('PUT')
 

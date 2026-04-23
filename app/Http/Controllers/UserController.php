@@ -69,7 +69,7 @@ class UserController extends Controller
             $perPage = 15;
         }
         
-        $users = $query->paginate($perPage);
+        $users = $query->paginate($perPage)->withQueryString();
         
         // Calculate statistics
         $stats = [

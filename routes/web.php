@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\DocumentController;
@@ -50,6 +51,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/profile', [AuthController::class, 'showProfile'])->name('auth.profile');
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('auth.profile.update');
+    Route::put('/profile/info', [AuthController::class, 'updateProfileInfo'])->name('auth.profile.update.info');
+    Route::put('/profile/affectation', [AuthController::class, 'updateProfileAffectation'])->name('auth.profile.update.affectation');
+    Route::put('/profile/password', [AuthController::class, 'updateProfilePassword'])->name('auth.profile.update.password');
     
     // Activity Journals Routes - Disabled (missing views)
     // TODO: Create activity-journals views or remove this feature
@@ -70,28 +74,43 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{user}', [AuthController::class, 'destroyUser'])->name('destroy');
     });
 
+    // Role Management Routes
+    Route::prefix('admin/roles')->name('roles.')->middleware('can:roles.view')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('index');
+        Route::get('/create', [RoleController::class, 'create'])->name('create');
+        Route::post('/', [RoleController::class, 'store'])->name('store');
+        Route::get('/{role}', [RoleController::class, 'show'])->name('show');
+        Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('edit');
+        Route::put('/{role}', [RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('destroy');
+    });
+
     // New User Management Routes (UserController with Spatie)
-    Route::prefix('admin/users')->name('users.')->group(function () {
+    Route::prefix('admin/users')->name('users.')->middleware('can:users.view')->group(function () {
+        // Static routes MUST come before the /{user} wildcard or they are unreachable
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::get('/create', [UserController::class, 'create'])->name('create');
+        Route::get('/export', [UserController::class, 'export'])->name('export');
         Route::post('/', [UserController::class, 'store'])->name('store');
+        // Parameterized routes below
         Route::get('/{user}', [UserController::class, 'show'])->name('show');
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('/{user}', [UserController::class, 'update'])->name('update');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
         Route::patch('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
         Route::post('/{user}/assign-roles-permissions', [UserController::class, 'assignRolesPermissions'])->name('assign-roles-permissions');
-        Route::get('/export', [UserController::class, 'export'])->name('export');
     });
 
     // Activity Logs Routes
-    Route::prefix('admin/activity-logs')->name('activity-logs.')->group(function () {
+    Route::prefix('admin/activity-logs')->name('activity-logs.')->middleware('can:activity_logs.view')->group(function () {
+        // Static routes MUST come before /{activityLog} wildcard
         Route::get('/', [ActivityLogController::class, 'index'])->name('index');
-        Route::get('/{activityLog}', [ActivityLogController::class, 'show'])->name('show');
         Route::get('/user/{user}', [ActivityLogController::class, 'userActivity'])->name('user-activity');
         Route::get('/ajax/logs', [ActivityLogController::class, 'getActivityLogs'])->name('ajax-logs');
         Route::get('/export', [ActivityLogController::class, 'export'])->name('export');
         Route::get('/statistics', [ActivityLogController::class, 'getStatistics'])->name('statistics');
+        // Parameterized route last
+        Route::get('/{activityLog}', [ActivityLogController::class, 'show'])->name('show');
     });
 
 
@@ -99,7 +118,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Articles Routes
-    Route::prefix('articles')->name('articles.')->group(function () {
+    Route::prefix('articles')->name('articles.')->middleware('can:articles.view')->group(function () {
         Route::put('{article}/charge-payments', [ArticleController::class, 'updateChargePayments'])->name('update-charge-payments');
         Route::put('{article}/pay-tranches', [ArticleController::class, 'payTranches'])->name('pay-tranches');
         Route::put('{article}/update-step', [ArticleController::class, 'updateStep'])->name('update-step');
@@ -107,15 +126,18 @@ Route::middleware('auth')->group(function () {
         Route::get('{article}/lettre-adjudicataire', [ArticleController::class, 'lettreAdjudicataire'])->name('lettre-adjudicataire');
         Route::get('{article}/lettre-adjudicataire/download', [ArticleController::class, 'downloadLettreAdjudicataire'])->name('lettre-adjudicataire.download');
         Route::get('{article}/lettre-adjudicataire/download-pdf', [ArticleController::class, 'downloadLettreAdjudicatairePdf'])->name('lettre-adjudicataire.download-pdf');
+        Route::get('{article}/lettre-adjudicataire/print', [ArticleController::class, 'printLettreAdjudicataire'])->name('lettre-adjudicataire.print');
         Route::get('{article}/permis-enlever', [ArticleController::class, 'permisEnlever'])->name('permis-enlever');
         Route::post('{article}/permis-enlever', [ArticleController::class, 'storePermisEnlever'])->name('store-permis-enlever');
+        Route::get('{article}/permis-enlever/{permiEnlever}/print', [ArticleController::class, 'printPermisEnlever'])->name('print-permis-enlever');
         Route::get('{article}/permis-exploiter', [ArticleController::class, 'permisExploiter'])->name('permis-exploiter');
         Route::post('{article}/permis-exploiter', [ArticleController::class, 'storePermisExploiter'])->name('store-permis-exploiter');
-        Route::get('{article}/permis-colportage', [ArticleController::class, 'permisColportage'])->name('permis-colportage');
+        Route::get('{article}/permis-exploiter/print', [ArticleController::class, 'printPermisExploiter'])->name('print-permis-exploiter');
         Route::get('{article}/permis-colportage/create', [ArticleController::class, 'permisColportageCreate'])->name('permis-colportage.create');
         Route::post('{article}/permis-colportage', [ArticleController::class, 'storePermisColportage'])->name('store-permis-colportage');
         Route::get('{article}/pv-installation', [ArticleController::class, 'pvInstallation'])->name('pv-installation');
         Route::post('{article}/pv-installation', [ArticleController::class, 'storePvInstallation'])->name('store-pv-installation');
+        Route::get('{article}/pv-installation/print', [ArticleController::class, 'printPvInstallation'])->name('pv-installation.print');
         Route::get('/', [ArticleController::class, 'index'])->name('index');
         Route::get('/create', [ArticleController::class, 'create'])->name('create');
         Route::post('/', [ArticleController::class, 'store'])->name('store');
@@ -261,6 +283,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('carnets', CarnetController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::get('carnets/series/{serie}/{createdDate}', [CarnetController::class, 'showSerie'])->name('carnets.show-serie');
     Route::patch('carnets/{carnet}/perdu', [CarnetController::class, 'markPerdu'])->name('carnets.mark-perdu');
+    Route::get('vehicles', [\App\Http\Controllers\VehicleDeclarationController::class, 'overview'])->name('vehicles.overview');
+    Route::get('vehicles/create', [\App\Http\Controllers\VehicleDeclarationController::class, 'createStandalone'])->name('vehicles.standalone.create');
+    Route::post('vehicles', [\App\Http\Controllers\VehicleDeclarationController::class, 'storeStandalone'])->name('vehicles.standalone.store');
+    Route::get('vehicles/{vehicle}/edit', [\App\Http\Controllers\VehicleDeclarationController::class, 'edit'])->name('vehicles.standalone.edit');
+    Route::put('vehicles/{vehicle}', [\App\Http\Controllers\VehicleDeclarationController::class, 'update'])->name('vehicles.standalone.update');
+    Route::delete('vehicles/{vehicle}', [\App\Http\Controllers\VehicleDeclarationController::class, 'destroyStandalone'])->name('vehicles.standalone.destroy');
 
     // Excel Import/Export Routes
     Route::prefix('excel')->name('excel.')->group(function () {
@@ -324,6 +352,57 @@ Route::middleware('auth')->group(function () {
             Route::put('/{vocation}', [ContractController::class, 'updateVocation'])->name('update');
             Route::delete('/{vocation}', [ContractController::class, 'destroyVocation'])->name('destroy');
         });
+    });
+
+    // -------------------------------------------------------------------------
+    // Workflow routes
+    // -------------------------------------------------------------------------
+    Route::prefix('workflow')->name('workflow.')->group(function () {
+        // Generic state transition (admin use)
+        Route::post('/articles/{article}/transition', [\App\Http\Controllers\WorkflowController::class, 'transition'])
+            ->name('transition');
+
+        // Signed letter upload
+        Route::post('/articles/{article}/upload-signed-letter', [\App\Http\Controllers\WorkflowController::class, 'uploadSignedLetter'])
+            ->name('upload-signed-letter');
+
+        // Prorogation
+        Route::get('/articles/{article}/prorogation/create', [\App\Http\Controllers\WorkflowController::class, 'createProrogation'])
+            ->name('prorogation.create');
+        Route::post('/articles/{article}/prorogation', [\App\Http\Controllers\WorkflowController::class, 'storeProrogation'])
+            ->name('prorogation.store');
+        Route::post('/prorogations/{prorogation}/approve', [\App\Http\Controllers\WorkflowController::class, 'approveProrogation'])
+            ->name('prorogation.approve');
+        Route::post('/prorogations/{prorogation}/reject', [\App\Http\Controllers\WorkflowController::class, 'rejectProrogation'])
+            ->name('prorogation.reject');
+
+        // Récolement / Mainlevée
+        Route::get('/articles/{article}/recolement/create', [\App\Http\Controllers\WorkflowController::class, 'createRecolement'])
+            ->name('recolement.create');
+        Route::post('/articles/{article}/recolement', [\App\Http\Controllers\WorkflowController::class, 'storeRecolement'])
+            ->name('recolement.store');
+        Route::post('/articles/{article}/mainlevee', [\App\Http\Controllers\WorkflowController::class, 'issueMainlevee'])
+            ->name('mainlevee.issue');
+        Route::post('/articles/{article}/close', [\App\Http\Controllers\WorkflowController::class, 'closeDossier'])
+            ->name('close');
+
+        // Alerts — per article
+        Route::get('/articles/{article}/alerts', [\App\Http\Controllers\WorkflowController::class, 'alerts'])
+            ->name('alerts');
+        Route::post('/alerts/{alert}/archive', [\App\Http\Controllers\WorkflowController::class, 'archiveAlert'])
+            ->name('alert.archive');
+
+        // Alerts — global dashboard (all contracts)
+        Route::get('/alerts', [\App\Http\Controllers\WorkflowController::class, 'alertsIndex'])
+            ->name('alerts.index');
+    });
+
+    // Vehicle declarations
+    Route::prefix('articles/{article}/vehicles')->name('vehicles.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\VehicleDeclarationController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\VehicleDeclarationController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\VehicleDeclarationController::class, 'store'])->name('store');
+        Route::delete('/{vehicle}', [\App\Http\Controllers\VehicleDeclarationController::class, 'destroy'])->name('destroy');
     });
 
 });

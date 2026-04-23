@@ -8,7 +8,7 @@
                 <span class="text-xs font-medium" style="color: #6B7C72;">Total: {{ $situationsAdministratives->count() }} situations</span>
             </div>
             <a href="{{ route('settings.situation-administratives.create') }}" 
-               class="btn btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium">
+               class="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium">
                 <i class="fas fa-plus"></i>
                 <span>Nouvelle Situation</span>
             </a>

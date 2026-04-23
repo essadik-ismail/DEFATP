@@ -8,7 +8,7 @@
 @endsection
 
 @section('content')
-<div class="min-h-screen py-8">
+<div class="min-w-0 max-w-full overflow-x-hidden">
     <div class="container mx-auto px-4">
         <!-- Header Section -->
         <x-page-header 
@@ -29,7 +29,7 @@
         </x-page-header>
 
         <!-- Archive Information -->
-        <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden mb-6">
+        <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-bottom:1.5rem;">
             <div class="bg-green-500 px-6 py-4">
                 <h2 class="text-xl font-bold text-white flex items-center gap-3">
                     <i class="fas fa-info-circle"></i>
@@ -90,7 +90,7 @@
         </div>
 
         <!-- Documents Section -->
-        <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+        <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
             <div class="bg-green-500 px-6 py-4">
                 <h2 class="text-xl font-bold text-white flex items-center gap-3">
                     <i class="fas fa-file-alt"></i>

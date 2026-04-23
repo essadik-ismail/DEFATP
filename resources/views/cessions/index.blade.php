@@ -12,7 +12,6 @@
     {{-- ─── Page header ─────────────────────────────────────────────── --}}
     <x-page-header
         title="Cessions"
-        subtitle="Pilotez les cessions par adjudication et appel d'offre"
         icon="fas fa-gavel"
     >
         <x-slot name="actions">
@@ -73,7 +72,7 @@
                     <thead class="bg-gray-50 index-thead">
                         <tr>
                             <th>DRANEF</th>
-                            <th>Année / Exercice</th>
+                            <th>Année</th>
                             <th>Date d'adjudication</th>
                             <th class="text-center">Articles</th>
                             <th>Statut</th>
@@ -91,8 +90,9 @@
                                 </td>
                                 <td>
                                     @php
-                                        $statusMap = ['en_cours'=>['type'=>'warning','label'=>'En cours'],'cloture'=>['type'=>'success','label'=>'Clôturée']];
-                                        $s = $statusMap[$cession->status ?? ''] ?? ['type'=>'pending','label'=>$cession->status ? ucfirst($cession->status) : '—'];
+                                        $statusMap = ['ouvert'=>['type'=>'info','label'=>'Ouvert'],'en_cours'=>['type'=>'warning','label'=>'En cours'],'cloture'=>['type'=>'success','label'=>'Clôturée']];
+                                        $s = $statusMap[$cession->status ?? ''] ?? ['type'=>'pending','label'=>$cession->status ? ucfirst($cession->status) : 'Ouvert'];
+                                        $canClose = $cession->articles->isNotEmpty() && $cession->articles->every(fn($a) => $a->contractVentes->first()?->recolement !== null);
                                     @endphp
                                     <x-status-badge :type="$s['type']">{{ $s['label'] }}</x-status-badge>
                                 </td>
@@ -114,6 +114,7 @@
                                                title="Ajouter un article">
                                                 <i class="fas fa-plus"></i>
                                             </a>
+                                            @if($canClose)
                                             <button
                                                 type="button"
                                                 class="tbl-action bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 focus:ring-teal-300"
@@ -129,6 +130,16 @@
                                             >
                                                 <i class="fas fa-check-circle"></i>
                                             </button>
+                                            @else
+                                            <button
+                                                type="button"
+                                                class="tbl-action bg-gray-50 text-gray-300 border border-gray-200 cursor-not-allowed"
+                                                title="Clôture impossible : récolements non complétés"
+                                                disabled
+                                            >
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
@@ -161,7 +172,7 @@
                     <thead class="bg-gray-50 index-thead">
                         <tr>
                             <th>DRANEF</th>
-                            <th>Année / Exercice</th>
+                            <th>Année</th>
                             <th>N° AO</th>
                             <th>Date d'attribution</th>
                             <th class="text-center">Articles</th>
@@ -181,8 +192,9 @@
                                 </td>
                                 <td>
                                     @php
-                                        $statusMap = ['en_cours'=>['type'=>'warning','label'=>'En cours'],'cloture'=>['type'=>'success','label'=>'Clôturée']];
-                                        $s = $statusMap[$cession->status ?? ''] ?? ['type'=>'pending','label'=>$cession->status ? ucfirst($cession->status) : '—'];
+                                        $statusMap = ['ouvert'=>['type'=>'info','label'=>'Ouvert'],'en_cours'=>['type'=>'warning','label'=>'En cours'],'cloture'=>['type'=>'success','label'=>'Clôturée']];
+                                        $s = $statusMap[$cession->status ?? ''] ?? ['type'=>'pending','label'=>$cession->status ? ucfirst($cession->status) : 'Ouvert'];
+                                        $canClose = $cession->articles->isNotEmpty() && $cession->articles->every(fn($a) => $a->contractVentes->first()?->recolement !== null);
                                     @endphp
                                     <x-status-badge :type="$s['type']">{{ $s['label'] }}</x-status-badge>
                                 </td>
@@ -204,6 +216,7 @@
                                                title="Ajouter un article">
                                                 <i class="fas fa-plus"></i>
                                             </a>
+                                            @if($canClose)
                                             <button
                                                 type="button"
                                                 class="tbl-action bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 focus:ring-teal-300"
@@ -219,6 +232,16 @@
                                             >
                                                 <i class="fas fa-check-circle"></i>
                                             </button>
+                                            @else
+                                            <button
+                                                type="button"
+                                                class="tbl-action bg-gray-50 text-gray-300 border border-gray-200 cursor-not-allowed"
+                                                title="Clôture impossible : récolements non complétés"
+                                                disabled
+                                            >
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>

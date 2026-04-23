@@ -47,7 +47,7 @@ class NotificationController extends Controller
             $query->where('priority', $request->priority);
         }
 
-        $notifications = $query->paginate(20);
+        $notifications = $query->paginate(20)->withQueryString();
 
         // Get unread count
         $unreadCount = $this->notificationService->getUnreadCount($user->id);

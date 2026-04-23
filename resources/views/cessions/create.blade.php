@@ -64,7 +64,7 @@
                     <x-form-input
                         name="annee_exercice"
                         type="number"
-                        label="Année / Exercice"
+                        label="Année"
                         required
                         min="2000"
                         :max="now()->year + 1"
@@ -107,8 +107,9 @@
                         name="date_adjudication"
                         type="date"
                         label="Date d'adjudication"
-                        required
                         :value="old('date_adjudication')"
+                        x-bind:required="type === 'adjudication'"
+                        x-bind:disabled="type !== 'adjudication'"
                     />
                 </div>
 
@@ -118,15 +119,17 @@
                         name="numero_ao"
                         label="Numéro AO"
                         placeholder="Ex : AO-2026-001"
-                        required
                         :value="old('numero_ao')"
+                        x-bind:required="type === 'appel_offre'"
+                        x-bind:disabled="type !== 'appel_offre'"
                     />
                     <x-form-input
                         name="date_attribution"
                         type="date"
                         label="Date d'attribution"
-                        required
                         :value="old('date_attribution')"
+                        x-bind:required="type === 'appel_offre'"
+                        x-bind:disabled="type !== 'appel_offre'"
                     />
                 </div>
 

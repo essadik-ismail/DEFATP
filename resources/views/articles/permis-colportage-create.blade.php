@@ -5,8 +5,7 @@
 @section('breadcrumb')
 <li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
 <li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Detail #{{ $article->numero ?? $article->id }}</a></li>
-<li class="breadcrumb-item"><a href="{{ route('articles.permis-colportage', $article) }}">Permis de colportage</a></li>
-<li class="breadcrumb-item active">Creer</li>
+<li class="breadcrumb-item active">Permis de colportage</li>
 @endsection
 
 @section('content')
@@ -35,14 +34,14 @@
         ->all();
 @endphp
 
-<div class="min-h-screen py-8">
+<div class="min-w-0 max-w-full overflow-x-hidden">
     <div class="container mx-auto max-w-7xl px-4">
         <x-page-header
             title="Creer un Permis de Colportage"
             :subtitle="'Article #' . ($article->numero ?? $article->id)"
             icon="fas fa-file-signature"
-            :backRoute="route('articles.permis-colportage', array_filter([$article, 'permis_enlever_id' => $currentPermisEnleverId]))"
-            backText="Retour a la liste"
+            :backRoute="route('articles.show', $article)"
+            backText="Retour au detail"
         />
 
         @if(session('success'))
@@ -129,18 +128,68 @@
                         </x-form-section>
 
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <x-form-input type="date" name="date_debut" label="Date de debut" :required="true" :value="old('date_debut')" focusColor="blue" />
-                            <x-form-input type="date" name="date_fin" label="Date de fin" :required="true" :value="old('date_fin')" focusColor="blue" />
+                            <x-form-input type="datetime-local" name="date_debut" label="Date et heure de début" :required="true" :value="old('date_debut')" focusColor="blue" />
+                            <x-form-input type="datetime-local" name="date_fin" label="Date et heure de fin" :required="true" :value="old('date_fin')" focusColor="blue" />
                         </div>
 
-                        <x-form-input type="text" name="vehicule_immatriculation" label="Immatriculation du vehicule" :required="true" :value="old('vehicule_immatriculation')" focusColor="blue" placeholder="Ex: A-12345-B" />
-
-                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <x-form-input type="text" name="chauffeur_nom" label="Nom du chauffeur" :required="true" :value="old('chauffeur_nom')" focusColor="blue" placeholder="Nom complet" />
-                            <x-form-input type="text" name="chauffeur_cin" label="CIN du chauffeur" :required="true" :value="old('chauffeur_cin')" focusColor="blue" placeholder="Ex: AB123456" />
+                        {{-- Vehicle select --}}
+                        <div class="form-group">
+                            <label for="vehicle_select" class="mb-2 block text-sm font-semibold text-gray-700">
+                                Véhicule <span class="text-red-500">*</span>
+                            </label>
+                            @if(isset($vehicles) && $vehicles->isNotEmpty())
+                                <select id="vehicle_select"
+                                        class="form-input w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                        required>
+                                    <option value="">— Sélectionner un véhicule —</option>
+                                    @foreach($vehicles as $v)
+                                        <option value="{{ $v->immatriculation }}"
+                                                data-chauffeur-nom="{{ $v->chauffeur_nom }}"
+                                                data-chauffeur-cin="{{ $v->chauffeur_cin }}"
+                                                {{ old('vehicule_immatriculation') === $v->immatriculation ? 'selected' : '' }}>
+                                            {{ $v->immatriculation }}
+                                            @if($v->marque) — {{ $v->marque }} @endif
+                                            @if($v->chauffeur_nom) — {{ $v->chauffeur_nom }} @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <p class="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    Aucun véhicule déclaré.
+                                    <a href="{{ route('vehicles.create', $article) }}" class="underline font-medium">Déclarer un véhicule</a>
+                                </p>
+                            @endif
+                            <input type="hidden" name="vehicule_immatriculation" id="vehicule_immatriculation" value="{{ old('vehicule_immatriculation') }}" required>
+                            <input type="hidden" name="chauffeur_nom"            id="chauffeur_nom"            value="{{ old('chauffeur_nom') }}">
+                            <input type="hidden" name="chauffeur_cin"            id="chauffeur_cin"            value="{{ old('chauffeur_cin') }}">
                         </div>
 
                         <x-form-input type="text" name="destination" label="Destination" :required="true" :value="old('destination')" focusColor="blue" placeholder="Adresse de destination" />
+
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            {{-- Transport pendant la nuit --}}
+                            <div class="form-group">
+                                <label class="mb-2 block text-sm font-semibold text-gray-700">Transport pendant la nuit</label>
+                                <div class="flex gap-6 mt-1">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="transport_nuit" value="1"
+                                               {{ old('transport_nuit') == '1' ? 'checked' : '' }}
+                                               class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Oui</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="transport_nuit" value="0"
+                                               {{ old('transport_nuit', '0') == '0' ? 'checked' : '' }}
+                                               class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Non</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {{-- Distance --}}
+                            <x-form-input type="number" name="distance_km" label="Distance (km)" :value="old('distance_km')" focusColor="blue" placeholder="0.00" />
+                        </div>
 
                         <div class="mt-4">
                             <label for="fichier_joint" class="mb-2 block text-sm font-semibold text-gray-700">
@@ -166,32 +215,56 @@
                                 <h3 class="text-lg font-semibold text-gray-900">Essences du Permis d'Enlever</h3>
                             </div>
 
+                            @if($currentPermisEnleverId && $selectedPermisEnleverRows->isEmpty())
+                                <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 mb-4">
+                                    <p class="text-sm text-red-700">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        Ce permis d'enlever ne contient aucune essence enregistrée. Veuillez recréer le permis d'enlever pour que les essences soient correctement sauvegardées.
+                                    </p>
+                                </div>
+                            @endif
+
                             <div class="overflow-x-auto">
                                 <table class="w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-100">
                                         <tr>
                                             <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">Essence</th>
                                             <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">Produit</th>
-                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">Volume dans Permis d'Enlever</th>
-                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">Volume</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">Volume permis d'enlever</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">Déjà utilisé</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">Restant</th>
+                                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">Volume colportage</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200 bg-white" id="essences-table-body">
                                         @forelse($selectedPermisEnleverRows as $index => $row)
                                             @php
-                                                $rowKey = ((int) ($row['essence_id'] ?? 0)) . '_' . ((int) ($row['product_id'] ?? 0));
+                                                $rowKey    = ((int) ($row['essence_id'] ?? 0)) . '_' . ((int) ($row['product_id'] ?? 0));
+                                                $parent    = (float) ($row['parent_quantity'] ?? $row['permis_quantity'] ?? $row['quantity'] ?? 0);
+                                                $used      = (float) ($row['used_quantity'] ?? 0);
+                                                $remaining = (float) ($row['remaining_quantity'] ?? max(0, $parent - $used));
+                                                $usedPct   = $parent > 0 ? round(($used / $parent) * 100, 1) : 0;
                                             @endphp
                                             <tr class="essence-row hover:bg-gray-50" data-row-key="{{ $rowKey }}" data-essence-id="{{ $row['essence_id'] ?? 0 }}" data-product-id="{{ $row['product_id'] ?? 0 }}">
                                                 <td class="px-4 py-3">
                                                     <span class="text-sm font-semibold text-gray-900">{{ $row['essence_name'] ?? 'N/A' }}</span>
                                                     <input type="hidden" name="essences[{{ $index }}][essence_id]" value="{{ $row['essence_id'] ?? 0 }}">
-                                                </td>
-                                                <td class="px-4 py-3">
-                                                    <span class="text-sm text-gray-700">{{ $row['product_name'] ?? 'N/A' }}</span>
                                                     <input type="hidden" name="essences[{{ $index }}][product_id]" value="{{ $row['product_id'] ?? 0 }}">
                                                 </td>
                                                 <td class="px-4 py-3">
-                                                    <span class="permis-enlever-quantity text-sm font-bold text-gray-900">{{ number_format((float) ($row['quantity'] ?? 0), 2, ',', ' ') }}</span>
+                                                    <span class="text-sm text-gray-600">{{ $row['product_name'] ?? 'N/A' }}</span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <span class="text-sm font-bold text-gray-900">{{ number_format($parent, 2, ',', ' ') }}</span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <span class="text-sm text-gray-700">{{ number_format($used, 2, ',', ' ') }}</span>
+                                                    <span class="text-xs text-gray-400 ml-1">({{ $usedPct }} %)</span>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <span class="text-sm font-semibold {{ $remaining <= 0 ? 'text-red-600' : 'text-green-700' }}">
+                                                        {{ number_format($remaining, 2, ',', ' ') }}
+                                                    </span>
                                                 </td>
                                                 <td class="px-4 py-3">
                                                     <input
@@ -199,7 +272,8 @@
                                                         name="essences[{{ $index }}][quantity]"
                                                         step="0.01"
                                                         min="0"
-                                                        value="{{ $oldColportageQuantities[$rowKey] ?? '0' }}"
+                                                        max="{{ $remaining }}"
+                                                        value="{{ $oldColportageQuantities[$rowKey] ?? ($parent > 0 ? number_format($parent, 2, '.', '') : '0') }}"
                                                         class="form-input w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500"
                                                         placeholder="0.00"
                                                     >
@@ -207,8 +281,8 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">
-                                                    {{ $currentPermisEnleverId ? "Aucune essence / produit enregistre pour ce Permis d'Enlever." : "Selectionnez un Permis d'Enlever pour afficher ses essences et produits." }}
+                                                <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">
+                                                    {{ $currentPermisEnleverId ? "Aucune essence enregistrée pour ce permis d'enlever." : "Sélectionnez un permis d'enlever pour afficher ses essences." }}
                                                 </td>
                                             </tr>
                                         @endforelse
@@ -230,7 +304,7 @@
                     </div>
 
                     <div class="flex justify-end gap-4 border-t border-green-200 pt-6">
-                        <a href="{{ route('articles.permis-colportage', array_filter([$article, 'permis_enlever_id' => $currentPermisEnleverId])) }}"
+                        <a href="{{ route('articles.show', $article) }}"
                            class="inline-flex items-center gap-2 rounded-xl border border-green-300 px-6 py-3 text-green-700 transition-all hover:bg-green-50">
                             <i class="fas fa-times"></i>
                             <span>Annuler</span>
@@ -254,6 +328,20 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
+    // ── Vehicle select → hidden fields ──
+    var vehicleSelect = document.getElementById('vehicle_select');
+    if (vehicleSelect) {
+        function syncVehicle() {
+            var opt = vehicleSelect.options[vehicleSelect.selectedIndex];
+            document.getElementById('vehicule_immatriculation').value = opt.value;
+            document.getElementById('chauffeur_nom').value = opt.dataset.chauffeurNom || '';
+            document.getElementById('chauffeur_cin').value = opt.dataset.chauffeurCin || '';
+        }
+        vehicleSelect.addEventListener('change', syncVehicle);
+        if (vehicleSelect.value) syncVehicle();
+    }
+
     var permisEnleverSelect = document.getElementById('id_permis_enlever');
     var tableBody = document.getElementById('essences-table-body');
     var permisEnleversData = @json($permisEnleversWithQuantities->mapWithKeys(function($permis) {
@@ -288,31 +376,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderEmptyState(message) {
-        if (!tableBody) {
-            return;
-        }
-
-        tableBody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500">' + escapeHtml(message) + '</td></tr>';
+        if (!tableBody) return;
+        tableBody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">' + escapeHtml(message) + '</td></tr>';
     }
 
     function buildRow(item, index, initialQuantity) {
-        var essenceId = parseInt(item.essence_id) || 0;
-        var productId = parseInt(item.product_id) || 0;
+        var essenceId  = parseInt(item.essence_id) || 0;
+        var productId  = parseInt(item.product_id) || 0;
+        var parent     = parseFloat(
+            item.parent_quantity !== undefined
+                ? item.parent_quantity
+                : (item.permis_quantity !== undefined ? item.permis_quantity : item.quantity)
+        ) || 0;
+        var used       = parseFloat(item.used_quantity) || 0;
+        var remaining  = parseFloat(item.remaining_quantity !== undefined ? item.remaining_quantity : Math.max(0, parent - used));
+        var usedPct    = parent > 0 ? (used / parent * 100).toFixed(1) : '0.0';
+        var remColor   = remaining <= 0 ? 'text-red-600' : 'text-green-700';
 
         return '<tr class="essence-row hover:bg-gray-50" data-row-key="' + essenceId + '_' + productId + '" data-essence-id="' + essenceId + '" data-product-id="' + productId + '">' +
             '<td class="px-4 py-3">' +
                 '<span class="text-sm font-semibold text-gray-900">' + escapeHtml(item.essence_name || 'N/A') + '</span>' +
                 '<input type="hidden" name="essences[' + index + '][essence_id]" value="' + essenceId + '">' +
-            '</td>' +
-            '<td class="px-4 py-3">' +
-                '<span class="text-sm text-gray-700">' + escapeHtml(item.product_name || 'N/A') + '</span>' +
                 '<input type="hidden" name="essences[' + index + '][product_id]" value="' + productId + '">' +
             '</td>' +
             '<td class="px-4 py-3">' +
-                '<span class="permis-enlever-quantity text-sm font-bold text-gray-900">' + formatQuantity(item.quantity) + '</span>' +
+                '<span class="text-sm text-gray-600">' + escapeHtml(item.product_name || 'N/A') + '</span>' +
             '</td>' +
             '<td class="px-4 py-3">' +
-                '<input type="number" name="essences[' + index + '][quantity]" step="0.01" min="0" value="' + escapeHtml(initialQuantity) + '" class="form-input w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500" placeholder="0.00">' +
+                '<span class="text-sm font-bold text-gray-900">' + formatQuantity(parent) + '</span>' +
+            '</td>' +
+            '<td class="px-4 py-3">' +
+                '<span class="text-sm text-gray-700">' + formatQuantity(used) + '</span>' +
+                '<span class="text-xs text-gray-400 ml-1">(' + usedPct + ' %)</span>' +
+            '</td>' +
+            '<td class="px-4 py-3">' +
+                '<span class="text-sm font-semibold ' + remColor + '">' + formatQuantity(remaining) + '</span>' +
+            '</td>' +
+            '<td class="px-4 py-3">' +
+                '<input type="number" name="essences[' + index + '][quantity]" step="0.01" min="0" max="' + remaining + '" value="' + escapeHtml(initialQuantity) + '" class="form-input w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500" placeholder="0.00">' +
             '</td>' +
         '</tr>';
     }
@@ -336,9 +437,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tableBody.innerHTML = essencesData.map(function(item, index) {
             var rowKey = (parseInt(item.essence_id) || 0) + '_' + (parseInt(item.product_id) || 0);
+            var remaining = parseFloat(item.remaining_quantity !== undefined ? item.remaining_quantity : Math.max(0, (parseFloat(item.parent_quantity || item.permis_quantity || item.quantity) || 0) - (parseFloat(item.used_quantity) || 0)));
+            var parentQty = parseFloat(item.parent_quantity || item.permis_quantity || item.quantity) || 0;
             var initialQuantity = useOldValues && oldColportageQuantities[rowKey] !== undefined
                 ? String(oldColportageQuantities[rowKey])
-                : '0';
+                : (parentQty > 0 ? parentQty.toFixed(2) : '0');
 
             return buildRow(item, index, initialQuantity);
         }).join('');

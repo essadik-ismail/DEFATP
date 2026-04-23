@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         DB::statement('ALTER TABLE contract_ventes MODIFY date_adjudication DATE NULL');
 
         if (Schema::hasColumn('contract_ventes', 'type')) {
@@ -24,6 +28,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         DB::statement('ALTER TABLE contract_ventes MODIFY date_adjudication DATE NOT NULL');
 
         if (Schema::hasColumn('contract_ventes', 'type')) {

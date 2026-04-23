@@ -128,6 +128,8 @@
                             type="date"
                             name="date_adjudication"
                             class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500"
+                            :required="type === 'adjudication'"
+                            :disabled="type !== 'adjudication'"
                         />
                     </div>
 
@@ -142,6 +144,8 @@
                                 name="numero_ao"
                                 class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500"
                                 placeholder="Ex: AO-2026-001"
+                                :required="type === 'appel_offre'"
+                                :disabled="type !== 'appel_offre'"
                             />
                         </div>
                         <div>
@@ -152,6 +156,8 @@
                                 type="date"
                                 name="date_attribution"
                                 class="w-full rounded-lg border-gray-300 text-sm focus:ring-emerald-500 focus:border-emerald-500"
+                                :required="type === 'appel_offre'"
+                                :disabled="type !== 'appel_offre'"
                             />
                         </div>
                     </div>
@@ -178,4 +184,3 @@
         </div>
     </div>
 </div>
-

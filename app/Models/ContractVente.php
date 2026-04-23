@@ -29,21 +29,29 @@ class ContractVente extends Model
         'nombre_tranche',
         'date_limite_tranche',
         'date_limite_taxes',
+        'date_expiration',
         'type',
         'numeraAO',
         'Current_state',
+        'letter_generated_at',
+        'letter_signed_file',
+        'letter_signed_at',
+        'bois_chauffage_volume_st',
     ];
 
     protected $casts = [
-        'date_adjudication' => 'date',
-        'date_de_decheance' => 'date',
-        'date_de_resiliation' => 'date',
-        'date_limite_tranche' => 'date',
-        'date_limite_taxes' => 'date',
-        'prix_vente' => 'decimal:2',
-        'prix_de_retrait' => 'decimal:2',
-        'is_resiliation' => 'boolean',
-        'nombre_tranche' => 'integer',
+        'date_adjudication'  => 'date',
+        'date_de_decheance'  => 'date',
+        'date_de_resiliation'=> 'date',
+        'date_limite_tranche'=> 'date',
+        'date_limite_taxes'  => 'date',
+        'date_expiration'    => 'date',
+        'letter_generated_at'=> 'datetime',
+        'letter_signed_at'   => 'datetime',
+        'prix_vente'              => 'decimal:2',
+        'bois_chauffage_volume_st' => 'decimal:2',
+        'is_resiliation'     => 'boolean',
+        'nombre_tranche'     => 'integer',
     ];
 
     /**
@@ -119,5 +127,20 @@ class ContractVente extends Model
         return $this->belongsToMany(Product::class, 'contract_vente_product', 'contract_id', 'product_id')
             ->withPivot('quantity')
             ->withTimestamps();
+    }
+
+    public function vehicleDeclarations(): HasMany
+    {
+        return $this->hasMany(VehicleDeclaration::class, 'contract_vente_id');
+    }
+
+    public function prorogations(): HasMany
+    {
+        return $this->hasMany(Prorogation::class, 'contract_vente_id');
+    }
+
+    public function recolement(): HasOne
+    {
+        return $this->hasOne(Recolement::class, 'contract_vente_id');
     }
 }

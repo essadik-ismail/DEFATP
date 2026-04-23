@@ -15,7 +15,7 @@
                 <h1 class="h3 mb-0">Gestion des Natures de Coupe</h1>
                 <p class="text-muted mb-0">Administrez les types de coupe forestière</p>
             </div>
-            <a href="{{ route('settings.nature-de-coupes.create') }}" class="btn btn-primary">
+            <a href="{{ route('settings.nature-de-coupes.create') }}" class="btn-primary">
                 <i class="fas fa-plus me-2"></i>
                 Nouvelle Nature de Coupe
             </a>
@@ -48,7 +48,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="d-grid">
-                        <a href="{{ route('settings.nature-de-coupes.export') }}" class="btn btn-success">
+                        <a href="{{ route('settings.nature-de-coupes.export') }}" class="btn-primary">
                             <i class="fas fa-download me-2"></i>Exporter les Natures de Coupe
                         </a>
                         <small class="text-muted mt-1">Télécharger la liste des natures de coupe au format Excel</small>
@@ -56,7 +56,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="d-grid">
-                        <a href="{{ route('excel.import.nature-de-coupes') }}" class="btn btn-info">
+                        <a href="{{ route('excel.import.nature-de-coupes') }}" class="btn-secondary">
                             <i class="fas fa-upload me-2"></i>Importer des Natures de Coupe
                         </a>
                         <small class="text-muted mt-1">Importer des natures de coupe depuis un fichier Excel</small>
@@ -107,7 +107,7 @@
                                             <form action="{{ route('settings.nature-de-coupes.destroy', $nature) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette nature de coupe ?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                <button type="submit" class="btn-danger">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -129,7 +129,7 @@
                     <i class="fas fa-cut text-muted" style="font-size: 3rem;"></i>
                     <p class="h5 mt-3 text-muted">Aucune nature de coupe trouvée</p>
                     <p class="text-muted">Commencez par créer votre première nature de coupe</p>
-                    <a href="{{ route('settings.nature-de-coupes.create') }}" class="btn btn-primary">
+                    <a href="{{ route('settings.nature-de-coupes.create') }}" class="btn-primary">
                         <i class="fas fa-plus me-2"></i>Créer la Première Nature de Coupe
                     </a>
                 </div>

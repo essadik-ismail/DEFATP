@@ -10,17 +10,17 @@
 @section('content')
 <div class="container-fluid">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="flex justify-between items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-eye text-primary me-2"></i>
+                <i class="fas fa-eye text-primary mr-2"></i>
                 Détails de l'Activité
             </h1>
             <p class="text-muted">Informations détaillées sur cette action</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('activity-logs.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Retour
+        <div class="flex gap-2">
+            <a href="{{ route('activity-logs.index') }}" class="btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i>Retour
             </a>
         </div>
     </div>
@@ -31,23 +31,23 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-info-circle me-2"></i>Informations de l'Activité
+                        <i class="fas fa-info-circle mr-2"></i>Informations de l'Activité
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="w-1/2">
                             <div class="mb-3">
                                 <label class="form-label fw-bold text-muted">Action</label>
                                 <div>
                                     <span class="badge bg-{{ $activityLog->action_color }} rounded-pill fs-6">
-                                        <i class="{{ $activityLog->action_icon }} me-2"></i>
+                                        <i class="{{ $activityLog->action_icon }} mr-2"></i>
                                         {{ ucfirst($activityLog->action) }}
                                     </span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="w-1/2">
                             <div class="mb-3">
                                 <label class="form-label fw-bold text-muted">Date et Heure</label>
                                 <div class="fs-6">
@@ -71,7 +71,7 @@
                             <label class="form-label fw-bold text-muted">Modèle Affecté</label>
                             <div>
                                 <span class="badge bg-info rounded-pill fs-6">
-                                    <i class="fas fa-cube me-2"></i>
+                                    <i class="fas fa-cube mr-2"></i>
                                     {{ class_basename($activityLog->model_type) }} #{{ $activityLog->model_id }}
                                 </span>
                             </div>
@@ -96,12 +96,12 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-user me-2"></i>Utilisateur
+                        <i class="fas fa-user mr-2"></i>Utilisateur
                     </h6>
                 </div>
                 <div class="card-body">
                     @if($activityLog->user)
-                        <div class="d-flex align-items-center mb-3">
+                        <div class="flex items-center mb-3">
                             <div class="avatar-lg me-3">
                                 @if($activityLog->user->image)
                                     <img src="{{ asset('storage/' . $activityLog->user->image) }}" 
@@ -109,7 +109,7 @@
                                          class="rounded-circle" 
                                          width="64" height="64">
                                 @else
-                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                    <div class="bg-primary text-white rounded-circle flex items-center justify-content-center" 
                                          style="width: 64px; height: 64px;">
                                         <i class="fas fa-user fa-2x"></i>
                                     </div>
@@ -124,12 +124,12 @@
                         
                         <div class="d-grid">
                             <a href="{{ route('users.show', $activityLog->user) }}" 
-                               class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-user me-2"></i>Voir le profil
+                               class="btn-outline btn-sm">
+                                <i class="fas fa-user mr-2"></i>Voir le profil
                             </a>
                             <a href="{{ route('activity-logs.user-activity', $activityLog->user) }}" 
-                               class="btn btn-outline-info btn-sm mt-2">
-                                <i class="fas fa-history me-2"></i>Voir les activités
+                               class="btn-secondary">
+                                <i class="fas fa-history mr-2"></i>Voir les activités
                             </a>
                         </div>
                     @else
@@ -145,7 +145,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-cogs me-2"></i>Détails Techniques
+                        <i class="fas fa-cogs mr-2"></i>Détails Techniques
                     </h6>
                 </div>
                 <div class="card-body">

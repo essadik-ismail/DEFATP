@@ -1,170 +1,125 @@
 @extends('layouts.app')
 
-@section('title', 'Tableau de Bord - DEFATP')
+@section('title', 'Tableau de bord — ANEF Gestion Forestière')
 
 @section('content')
-<div class="min-w-0 max-w-full overflow-x-hidden">
-    @php
-        $statsData = [
-            ['title' => 'Articles', 'value' => $stats['totalArticles'], 'icon' => 'fas fa-file-alt', 'color' => 'green', 'route' => route('articles.index')],
-            ['title' => 'Forêts', 'value' => $stats['totalForests'], 'icon' => 'fas fa-tree', 'color' => 'teal', 'route' => route('entity-data.index', ['tab' => 'forets'])],
-            ['title' => 'Exploitants actifs', 'value' => $stats['activeExploitants'], 'icon' => 'fas fa-user-tie', 'color' => 'blue', 'route' => route('entity-data.index', ['tab' => 'exploitants'])],
-            ['title' => 'Essences', 'value' => $stats['totalEssences'], 'icon' => 'fas fa-leaf', 'color' => 'purple', 'route' => route('entity-data.index', ['tab' => 'essences'])],
-        ];
-    @endphp
 
-    <!-- Header -->
-    <x-page-header
-        title="Tableau de bord"
-        subtitle="Vue d'ensemble de votre gestion forestière"
-        icon="fas fa-chart-line"
-    >
-        <x-slot name="actions">
-            <a href="{{ route('cessions.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white shadow-sm" style="background: var(--primary-gradient); box-shadow: var(--shadow-md);">
-                <i class="fas fa-gavel"></i>
-                Cessions
-            </a>
-            <a href="{{ route('articles.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                <i class="fas fa-file-alt"></i>
-                Articles
-            </a>
-        </x-slot>
-    </x-page-header>
-
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        @foreach($statsData as $index => $stat)
-        @php
-            $gradients = [
-                'green'  => ['from'=>'#059669','to'=>'#047857','light'=>'rgba(5,150,105,0.08)','ring'=>'rgba(5,150,105,0.2)', 'glow'=>'rgba(5,150,105,0.15)'],
-                'teal'   => ['from'=>'#0d9488','to'=>'#0f766e','light'=>'rgba(13,148,136,0.08)','ring'=>'rgba(13,148,136,0.2)', 'glow'=>'rgba(13,148,136,0.15)'],
-                'blue'   => ['from'=>'#2563eb','to'=>'#1d4ed8','light'=>'rgba(37,99,235,0.08)','ring'=>'rgba(37,99,235,0.2)', 'glow'=>'rgba(37,99,235,0.15)'],
-                'purple' => ['from'=>'#7c3aed','to'=>'#6d28d9','light'=>'rgba(124,58,237,0.08)','ring'=>'rgba(124,58,237,0.2)', 'glow'=>'rgba(124,58,237,0.15)'],
-            ];
-            $g = $gradients[$stat['color']] ?? $gradients['green'];
-        @endphp
-        <a href="{{ $stat['route'] }}"
-           class="stat-card group block rounded-2xl bg-white p-5 transition-all duration-200"
-           style="border: 1px solid {{ $g['ring'] }}; box-shadow: var(--shadow-card);">
-            <div class="flex items-start justify-between gap-3">
-                <div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
-                     style="background: linear-gradient(135deg, {{ $g['from'] }}, {{ $g['to'] }}); box-shadow: 0 4px 12px {{ $g['glow'] }};">
-                    <i class="{{ $stat['icon'] }} text-white text-base"></i>
-                </div>
-                <i class="fas fa-arrow-right text-gray-300 text-xs mt-1 flex-shrink-0 transition-all duration-200 group-hover:text-gray-400 group-hover:translate-x-0.5"></i>
-            </div>
-            <div class="mt-4">
-                <p class="text-3xl font-bold text-gray-900 leading-none tracking-tight">{{ number_format($stat['value']) }}</p>
-                <div class="flex items-center justify-between mt-1.5">
-                    <p class="text-xs font-medium text-gray-500">{{ $stat['title'] }}</p>
-                    <span class="inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded-full"
-                          style="background: {{ $g['light'] }}; color: {{ $g['from'] }};">
-                        <i class="fas fa-layer-group" style="font-size:0.55rem;"></i>
-                        Total
-                    </span>
-                </div>
-            </div>
+{{-- ── Page header ──────────────────────────────────────────────────────── --}}
+<x-page-header
+    title="Tableau de bord"
+    subtitle="Vue d'ensemble de la gestion forestière — ANEF"
+    icon="fas fa-th-large">
+    <x-slot:actions>
+        <a href="{{ route('cessions.index') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-gavel"></i>
+            Cessions
         </a>
-        @endforeach
-    </div>
+        <a href="{{ route('articles.index') }}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-file-alt"></i>
+            Articles
+        </a>
+    </x-slot:actions>
+</x-page-header>
 
-    <!-- Actions Required (if any) -->
-    @if(count($actionsRequired) > 0)
-    <div class="rounded-2xl border bg-white mb-8 overflow-hidden" style="border-color: rgba(245,158,11,0.3); box-shadow: 0 0 0 1px rgba(245,158,11,0.08), var(--shadow-card);">
-        <div class="px-6 py-4 border-b flex items-center justify-between" style="border-color: rgba(245,158,11,0.2); background: rgba(255,251,235,0.6);">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg,#f59e0b,#d97706); box-shadow: 0 2px 6px rgba(245,158,11,0.3);">
-                    <i class="fas fa-exclamation-triangle text-white text-sm"></i>
+{{-- ── KPI Stats grid ───────────────────────────────────────────────────── --}}
+@php
+    $kpis = [
+        [
+            'label'      => 'Articles',
+            'value'      => $stats['totalArticles'],
+            'icon'       => 'fas fa-file-alt',
+            'route'      => route('articles.index'),
+            'icon-bg'    => '#163326',
+            'icon-color' => '#FFFFFF',
+        ],
+        [
+            'label'      => 'Forêts',
+            'value'      => $stats['totalForests'],
+            'icon'       => 'fas fa-tree',
+            'route'      => route('entity-data.index', ['tab' => 'forets']),
+            'icon-bg'    => '#2D7A54',
+            'icon-color' => '#FFFFFF',
+        ],
+        [
+            'label'      => 'Exploitants actifs',
+            'value'      => $stats['activeExploitants'],
+            'icon'       => 'fas fa-user-tie',
+            'route'      => route('entity-data.index', ['tab' => 'exploitants']),
+            'icon-bg'    => '#1A5276',
+            'icon-color' => '#FFFFFF',
+        ],
+        [
+            'label'      => 'Essences',
+            'value'      => $stats['totalEssences'],
+            'icon'       => 'fas fa-leaf',
+            'route'      => route('entity-data.index', ['tab' => 'essences']),
+            'icon-bg'    => '#7A4210',
+            'icon-color' => '#FFFFFF',
+        ],
+    ];
+@endphp
+
+<div class="kpi-grid">
+    @foreach($kpis as $kpi)
+        <a href="{{ $kpi['route'] }}" class="stat-card">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;">
+                <div style="min-width:0;">
+                    <p class="kpi-label">{{ $kpi['label'] }}</p>
+                    <p class="kpi-value">{{ number_format($kpi['value']) }}</p>
+                </div>
+                <div class="kpi-icon" style="background:{{ $kpi['icon-bg'] }};color:{{ $kpi['icon-color'] }};">
+                    <i class="{{ $kpi['icon'] }}"></i>
+                </div>
+            </div>
+            <p class="kpi-link">
+                <i class="fas fa-arrow-right" style="font-size:0.625rem;"></i>
+                Voir les détails
+            </p>
+        </a>
+    @endforeach
+</div>
+
+{{-- ── Actions Required ─────────────────────────────────────────────────── --}}
+@if(count($actionsRequired) > 0)
+    <div class="card" style="margin-bottom:1.75rem;">
+        <div class="card-header" style="background:#FFFBEB;border-bottom-color:#FDE68A;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div style="width:2rem;height:2rem;background:#D97706;border-radius:0.4375rem;
+                            display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-exclamation-triangle" style="color:#fff;font-size:0.8125rem;"></i>
                 </div>
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-900">Actions requises</h3>
-                    <p class="text-xs text-amber-600 font-medium">{{ count($actionsRequired) }} élément(s) nécessitent votre attention</p>
+                    <h3 class="card-header-title" style="color:#78350F;">Actions requises</h3>
+                    <p class="card-header-subtitle" style="color:#92400E;">
+                        {{ count($actionsRequired) }} élément(s) nécessitent votre attention
+                    </p>
                 </div>
             </div>
         </div>
-        <div class="p-4">
-            <div class="flex flex-col sm:flex-row flex-wrap gap-3">
+        <div class="card-body">
+            <div class="actions-grid">
                 @foreach($actionsRequired as $action)
-                <a href="{{ $action['route'] }}" class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border bg-white hover:shadow-md hover:border-amber-200 transition-all group"
-                   style="border-color: rgba(154,179,163,0.4);">
-                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-100 transition-colors">
-                        <i class="fas {{ $action['icon'] }}"></i>
-                    </span>
-                    <div class="text-left">
-                        <p class="font-semibold text-gray-900 text-sm">{{ $action['title'] }}</p>
-                        <p class="text-xs text-gray-500 mt-0.5">{{ $action['description'] }} —
-                            <span class="font-semibold text-amber-600">{{ $action['count'] }} concerné(s)</span>
-                        </p>
-                    </div>
-                    <i class="fas fa-arrow-right text-gray-300 text-xs ml-auto group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all"></i>
-                </a>
+                    <a href="{{ $action['route'] }}" class="action-card">
+                        <span class="action-icon">
+                            <i class="fas {{ $action['icon'] }}"></i>
+                        </span>
+                        <div style="flex:1;min-width:0;">
+                            <p class="action-title">{{ $action['title'] }}</p>
+                            <p class="action-desc">
+                                {{ $action['description'] }} —
+                                <span style="font-weight:700;color:#D97706;">{{ $action['count'] }} concerné(s)</span>
+                            </p>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color:#DDE6E2;font-size:0.5625rem;flex-shrink:0;"></i>
+                    </a>
                 @endforeach
             </div>
         </div>
     </div>
-    @endif
+@endif
 
-    <!-- Welcome Guide -->
-    <x-welcome-guide :show="true" />
+{{-- ── Welcome guide ───────────────────────────────────────────────────── --}}
+<x-welcome-guide :show="true" />
 
-    <!-- Recent Articles -->
-    @if($recentArticles->isNotEmpty())
-    <div class="rounded-2xl border bg-white overflow-hidden" style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);">
-        <div class="px-6 py-4 border-b flex items-center justify-between" style="border-color: rgba(154,179,163,0.3);">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-                    <i class="fas fa-file-alt text-white text-sm"></i>
-                </div>
-                <h3 class="text-base font-semibold text-gray-900">Articles récents</h3>
-            </div>
-            <a href="{{ route('articles.index') }}" class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
-                Voir tout →
-            </a>
-        </div>
-        <div class="divide-y" style="border-color:rgba(154,179,163,0.15);">
-            @foreach($recentArticles as $article)
-            <a href="{{ route('articles.show', $article) }}"
-               class="flex items-center gap-4 px-5 py-3.5 hover:bg-emerald-50/40 transition-colors group">
-                <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                    {{ is_numeric($article->numero) ? $article->numero : substr($article->numero ?? $article->id, 0, 3) }}
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold text-gray-800 truncate">Article #{{ $article->numero ?? $article->id }}</p>
-                    <p class="text-xs text-gray-400 mt-0.5">{{ $article->created_at ? $article->created_at->format('d/m/Y') : '-' }}</p>
-                </div>
-                <i class="fas fa-arrow-right text-gray-300 text-xs group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all flex-shrink-0"></i>
-            </a>
-            @endforeach
-        </div>
-    </div>
-    @else
-    <div class="rounded-2xl border bg-white p-8" style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);">
-        <x-empty-state
-            icon="fas fa-file-alt"
-            title="Aucun article récent"
-            message="Les derniers articles créés apparaîtront ici."
-            color="gray"
-        >
-            <a href="{{ route('articles.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white mt-4" style="background: var(--primary-gradient);">
-                <i class="fas fa-file-alt"></i>
-                Voir les articles
-            </a>
-        </x-empty-state>
-    </div>
-    @endif
-</div>
 
-@push('styles')
-<style>
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.stat-card { animation: fadeInUp 0.5s ease-out; animation-fill-mode: both; }
-.stat-card:nth-child(1) { animation-delay: 0.05s; }
-.stat-card:nth-child(2) { animation-delay: 0.1s; }
-.stat-card:nth-child(3) { animation-delay: 0.15s; }
-.stat-card:nth-child(4) { animation-delay: 0.2s; }
-</style>
-@endpush
 @endsection

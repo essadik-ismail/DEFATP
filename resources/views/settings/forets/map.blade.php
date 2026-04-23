@@ -163,7 +163,7 @@
                 <a href="{{ route('settings.forets') }}" class="btn btn-outline">
                     <i class="fas fa-list me-2"></i>Liste des Forêts
                 </a>
-                <a href="{{ route('settings.forets.create') }}" class="btn btn-primary">
+                <a href="{{ route('settings.forets.create') }}" class="btn-primary">
                     <i class="fas fa-plus me-2"></i>Nouvelle Forêt
                 </a>
             </div>
@@ -202,7 +202,7 @@
                 <button id="toggleFullscreen" class="btn btn-outline">
                     <i class="fas fa-expand-arrows-alt me-2"></i>Plein écran
                 </button>
-                <button id="centerMap" class="btn btn-primary">
+                <button id="centerMap" class="btn-primary">
                     <i class="fas fa-crosshairs me-2"></i>Centrer
                 </button>
                 <button id="resetZoom" class="btn btn-outline">

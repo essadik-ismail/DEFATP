@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-<div class="min-h-screen py-8">
+<div class="min-w-0 max-w-full overflow-x-hidden">
     <div class="container mx-auto px-4">
         <!-- Header Section -->
         <x-page-header 
@@ -105,7 +105,7 @@
         @endif
 
         <!-- Archives Table -->
-        <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+        <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-green-50 border-b border-green-100">

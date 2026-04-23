@@ -193,7 +193,6 @@ class CarnetController extends Controller
             ->selectRaw('COUNT(*) as total_carnets')
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as disponible_count', [Carnet::STATUS_DISPONIBLE])
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as epuise_count', [Carnet::STATUS_EPUISE])
-            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as utilise_count', [Carnet::STATUS_UTILISE])
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as perdu_count', [Carnet::STATUS_PERDU]);
     }
 

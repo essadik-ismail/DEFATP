@@ -8,11 +8,11 @@
 @endsection
 
 @section('content')
-<div class="min-h-screen py-8">
+<div class="min-w-0 max-w-full overflow-x-hidden">
     <div class="container mx-auto px-4">
         <!-- Header Section -->
         <div class="mb-8">
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; padding:1.25rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div class="flex items-center gap-4">
                         <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg">
@@ -48,7 +48,7 @@
         <div class="space-y-8">
             
             <!-- Section 1: Informations Générales -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-info-circle"></i>
@@ -164,7 +164,7 @@
             </div>
 
             <!-- Section 2: Prestations -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-info-circle"></i>
@@ -194,7 +194,7 @@
             </div>
 
             <!-- Section 2.5: Valeurs Financières -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="bg-gradient-to-r from-yellow-500 to-orange-600 px-6 py-4">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-coins"></i>
@@ -248,7 +248,7 @@
             </div>
 
             <!-- Section 3: Produits du Contrat -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="bg-gradient-to-r from-purple-500 to-pink-600 px-6 py-4">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-boxes"></i>
@@ -281,7 +281,7 @@
 
             <!-- Section 3.6: Prestations du Contrat -->
             @if($contract->prestations && $contract->prestations->count() > 0)
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-tasks"></i>
@@ -308,7 +308,7 @@
 
             <!-- Section 4: Résiliation -->
             @if($contract->resiliation || $contract->date_resiliation)
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="bg-gradient-to-r from-red-500 to-pink-600 px-6 py-4">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-ban"></i>
@@ -351,7 +351,7 @@
             @endif
 
             <!-- Section 5: Données des Entités -->
-            <div class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
                     <h2 class="text-xl font-bold text-white flex items-center gap-3">
                         <i class="fas fa-database"></i>
