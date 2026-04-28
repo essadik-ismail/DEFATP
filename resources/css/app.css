@@ -1563,7 +1563,7 @@
     --anef-700: #204A37;
     --anef-650: #265742;
     --anef-600: #2C644E;
-    --anef-500: #2D7A54;
+    --anef-500: #00bc7d;
     --anef-400: #3DA870;
     --anef-300: #71CE9C;
     --anef-200: #B3E6CA;
@@ -1741,11 +1741,11 @@ body {
     border-radius: 6px;
     background: var(--sb-icon-bg);
     display: flex; align-items: center; justify-content: center;
-    color: rgba(0,0,0,0.45);
+    color: #00bc7d;
     font-size: 0.6875rem; flex-shrink: 0;
     transition: background 0.16s, color 0.16s;
 }
-.sb-link:hover .sb-icon        { background: rgba(0,0,0,0.08); color: rgba(0,0,0,0.75); }
+.sb-link:hover .sb-icon        { background: rgba(0,0,0,0.08); color: #00bc7d; }
 .sb-link.active .sb-icon       { background: var(--anef-500); color: #FFFFFF; }
 
 .sb-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1762,7 +1762,7 @@ body {
     font-family: inherit;
 }
 .sb-group-btn:hover                    { background: var(--sb-hover-bg); color: var(--sb-text-hover); }
-.sb-group-btn:hover .sb-icon          { background: rgba(0,0,0,0.08); color: rgba(0,0,0,0.75); }
+.sb-group-btn:hover .sb-icon          { background: rgba(0,0,0,0.08); color: #00bc7d; }
 .sb-item.expanded .sb-group-btn       { color: var(--sb-text-hover); }
 .sb-item.expanded .sb-group-btn .sb-icon { background: var(--anef-500); color: #FFFFFF; }
 .sb-group-btn .sb-label { flex: 1; }
@@ -1796,8 +1796,8 @@ body {
 }
 .sb-sub-link:hover  { background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.85); padding-left: 0.875rem; }
 .sb-sub-link.active { background: rgba(22,51,38,0.10); color: #163326; font-weight: 600; }
-.sb-sub-link i      { width: 14px; text-align: center; font-size: 0.6875rem; color: rgba(0,0,0,0.30); flex-shrink: 0; transition: color 0.13s; }
-.sb-sub-link:hover i  { color: rgba(0,0,0,0.55); }
+.sb-sub-link i      { width: 14px; text-align: center; font-size: 0.6875rem; color: #00bc7d; flex-shrink: 0; transition: color 0.13s; }
+.sb-sub-link:hover i  { color: #00bc7d; }
 .sb-sub-link.active i { color: var(--anef-500); }
 
 .sb-badge {
@@ -1909,7 +1909,7 @@ body {
     width: 100%; text-align: left; font-family: inherit;
 }
 .usr-dd-item:hover           { background: var(--anef-50); color: var(--anef-800); }
-.usr-dd-item i               { width: 1rem; text-align: center; color: var(--text-muted); font-size: 0.75rem; }
+.usr-dd-item i               { width: 1rem; text-align: center; color: #00bc7d; font-size: 0.75rem; }
 .usr-dd-item:hover i         { color: var(--anef-500); }
 .usr-dd-item.danger          { color: var(--danger); }
 .usr-dd-item.danger:hover    { background: #FFF5F5; color: #991B1B; }

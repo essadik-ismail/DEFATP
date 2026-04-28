@@ -47,6 +47,20 @@ class WorkflowController extends Controller
     // -------------------------------------------------------------------------
 
     /**
+     * Explicitly validate the article creation step (DRAFT_ARTICLE → ARTICLE_READY).
+     */
+    public function validateArticle(Article $article): RedirectResponse
+    {
+        try {
+            $this->workflow->transition($article, ArticleWorkflowService::ARTICLE_READY, Auth::id());
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['workflow' => $e->getMessage()]);
+        }
+
+        return back()->with('success', 'Article validé. Vous pouvez maintenant créer le contrat de vente.');
+    }
+
+    /**
      * Upload the signed adjudication letter.
      */
     public function uploadSignedLetter(Request $request, Article $article): RedirectResponse
@@ -63,10 +77,11 @@ class WorkflowController extends Controller
             'letter_signed_at'   => now(),
         ]);
 
-        try {
-            $this->workflow->transition($article, ArticleWorkflowService::LETTER_SIGNED_UPLOADED, Auth::id());
-        } catch (\RuntimeException $e) {
-            // Letter saved, but workflow transition failed — do not block
+        $current = $article->fresh()->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
+        if ($current === ArticleWorkflowService::CONTRACT_CREATED) {
+            try {
+                $this->workflow->transition($article, ArticleWorkflowService::LETTER_SIGNED_UPLOADED, Auth::id());
+            } catch (\RuntimeException) {}
         }
 
         return back()->with('success', 'Lettre signée uploadée avec succès.');

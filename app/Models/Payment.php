@@ -19,7 +19,6 @@ class Payment extends Model
         'date_decheace',
         'date_payment',
         'is_paye',
-        'fichier_join',
         'fichier_joint',
         'num_quittace',
         'percepteur',

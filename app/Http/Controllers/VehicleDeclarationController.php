@@ -67,11 +67,11 @@ class VehicleDeclarationController extends Controller
             ['declared_by' => Auth::id()]
         ));
 
-        // Advance workflow if not already past VEHICLES_DECLARED
+        // Advance workflow to TRANCHES_IN_PROGRESS once first vehicle is declared
         $current = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
-        if (in_array($current, [ArticleWorkflowService::PV_INSTALLATION_DONE], true)) {
+        if ($current === ArticleWorkflowService::PV_INSTALLATION_DONE) {
             try {
-                $this->workflow->transition($article, ArticleWorkflowService::VEHICLES_DECLARED, Auth::id());
+                $this->workflow->transition($article, ArticleWorkflowService::TRANCHES_IN_PROGRESS, Auth::id());
             } catch (\RuntimeException) {}
         }
 

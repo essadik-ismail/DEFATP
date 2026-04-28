@@ -44,6 +44,9 @@ class Article extends Model
         'workflow_state',
         'workflow_state_updated_at',
         'workflow_state_updated_by',
+        'statut_special',
+        'date_statut_special',
+        'motif_statut_special',
     ];
 
     protected $casts = [

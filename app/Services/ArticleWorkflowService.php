@@ -16,26 +16,20 @@ use Illuminate\Support\Facades\DB;
 /**
  * Central workflow state machine for Article dossiers.
  *
- * Each state describes where the dossier currently stands. Transitions are
- * guarded Ã¢â‚¬â€ attempting an illegal transition throws a WorkflowException.
- *
- * Allowed progression:
- *   DRAFT_ARTICLE
- *     Ã¢â€ â€™ ARTICLE_READY           (article fully filled in)
- *     Ã¢â€ â€™ CONTRACT_CREATED        (contract vente attached)
- *     Ã¢â€ â€™ LETTER_GENERATED        (adjudication letter generated)
- *     Ã¢â€ â€™ LETTER_SIGNED_UPLOADED  (signed letter uploaded)
- *     Ã¢â€ â€™ CAUTION_PAID            (caution payment marked paid)
- *     Ã¢â€ â€™ TAXES_PAID              (taxes payment marked paid)
- *     Ã¢â€ â€™ PERMIT_READY            (all financial obligations met)
- *     Ã¢â€ â€™ PERMIT_ISSUED           (permis exploiter issued)
- *     Ã¢â€ â€™ PV_INSTALLATION_DONE    (PV d'installation completed)
- *     Ã¢â€ â€™ VEHICLES_DECLARED       (at least one vehicle declared)
- *     Ã¢â€ â€™ TRANCHES_IN_PROGRESS    (tranche payments started)
- *     Ã¢â€ â€™ COLPORTAGE_ACTIVE       (colportage permits issued)
- *     Ã¢â€ â€™ RECOLEMENT_PENDING      (contract expired, rÃƒÂ©colement initiated)
- *     Ã¢â€ â€™ MAINLEVEE_DONE          (mainlevÃƒÂ©e issued)
- *     Ã¢â€ â€™ CLOSED                  (dossier definitively closed)
+ * Primary 12-step progression:
+ *   DRAFT_ARTICLE          (article created, awaiting explicit validation)
+ *     -> ARTICLE_READY     (article validated by user — unlocks next steps)
+ *     -> CONTRACT_CREATED  (contrat de vente attached)
+ *     -> LETTER_SIGNED_UPLOADED (lettre adjudicataire signée)
+ *     -> CAUTION_PAID
+ *     -> TAXES_PAID
+ *     -> PERMIT_ISSUED
+ *     -> PV_INSTALLATION_DONE
+ *     -> TRANCHES_IN_PROGRESS
+ *     -> COLPORTAGE_ACTIVE
+ *     -> RECOLEMENT_PENDING
+ *     -> MAINLEVEE_DONE
+ *     -> CLOSED
  *
  * Prorogation is a side-effect, not a primary state change.
  */
@@ -65,41 +59,40 @@ class ArticleWorkflowService
 
     // Side-states not in the primary workflow; map each to its effective parent for display
     const SIDE_STATE_PARENTS = [
-        self::PROROGATION_PENDING  => self::TRANCHES_IN_PROGRESS,
-        self::PROROGATION_APPROVED => self::TRANCHES_IN_PROGRESS,
+        self::PROROGATION_PENDING    => self::TRANCHES_IN_PROGRESS,
+        self::PROROGATION_APPROVED   => self::TRANCHES_IN_PROGRESS,
+        // Backwards compatibility: old intermediate states removed from primary flow
+        self::LETTER_GENERATED       => self::CONTRACT_CREATED,
+        self::PERMIT_READY           => self::TAXES_PAID,
+        self::VEHICLES_DECLARED      => self::PV_INSTALLATION_DONE,
     ];
 
-    // Human-readable labels for UI (only primary workflow steps Ã¢â‚¬â€ not side-states like prorogation)
+    // Human-readable labels for UI — exactly 12 primary workflow steps
     const LABELS = [
-        self::DRAFT_ARTICLE          => 'Brouillon',
-        self::CONTRACT_CREATED       => 'Contrat crÃƒÂ©ÃƒÂ©',
-        self::LETTER_GENERATED       => 'Lettre gÃƒÂ©nÃƒÂ©rÃƒÂ©e',
-        self::LETTER_SIGNED_UPLOADED => 'Lettre signÃƒÂ©e uploadÃƒÂ©e',
-        self::CAUTION_PAID           => 'Caution payÃƒÂ©e',
-        self::TAXES_PAID             => 'Taxes payÃƒÂ©es',
-        self::PERMIT_READY           => 'Permis d\'exploiter',
+        self::DRAFT_ARTICLE          => 'Création de l\'article',
+        self::CONTRACT_CREATED       => 'Contrat de vente',
+        self::LETTER_SIGNED_UPLOADED => 'Lettre adjudicataire',
+        self::CAUTION_PAID           => 'Paiement caution',
+        self::TAXES_PAID             => 'Paiement des taxes',
         self::PERMIT_ISSUED          => 'Permis d\'exploiter',
-        self::PV_INSTALLATION_DONE   => 'PV d\'installation fait',
-        self::VEHICLES_DECLARED      => 'VÃƒÂ©hicules dÃƒÂ©clarÃƒÂ©s',
-        self::TRANCHES_IN_PROGRESS   => 'Tranches en cours',
-        self::COLPORTAGE_ACTIVE      => 'Colportage actif',
-        self::RECOLEMENT_PENDING     => 'RÃƒÂ©colement en attente',
-        self::MAINLEVEE_DONE         => 'MainlevÃƒÂ©e ÃƒÂ©mise',
-        self::CLOSED                 => 'ClÃƒÂ´turÃƒÂ©',
+        self::PV_INSTALLATION_DONE   => 'PV d\'installation',
+        self::TRANCHES_IN_PROGRESS   => 'Paiement des tranches',
+        self::COLPORTAGE_ACTIVE      => 'Colportage',
+        self::RECOLEMENT_PENDING     => 'Récolement',
+        self::MAINLEVEE_DONE         => 'Mainlevée',
+        self::CLOSED                 => 'Clôture',
     ];
 
     // Allowed forward transitions per state
     const TRANSITIONS = [
-        self::DRAFT_ARTICLE          => [self::CONTRACT_CREATED],
-        self::CONTRACT_CREATED       => [self::LETTER_GENERATED],
-        self::LETTER_GENERATED       => [self::LETTER_SIGNED_UPLOADED],
+        self::DRAFT_ARTICLE          => [self::ARTICLE_READY],
+        self::ARTICLE_READY          => [self::CONTRACT_CREATED],
+        self::CONTRACT_CREATED       => [self::LETTER_SIGNED_UPLOADED],
         self::LETTER_SIGNED_UPLOADED => [self::CAUTION_PAID],
         self::CAUTION_PAID           => [self::TAXES_PAID],
-        self::TAXES_PAID             => [self::PERMIT_READY],
-        self::PERMIT_READY           => [self::PERMIT_ISSUED],
+        self::TAXES_PAID             => [self::PERMIT_ISSUED],
         self::PERMIT_ISSUED          => [self::PV_INSTALLATION_DONE],
-        self::PV_INSTALLATION_DONE   => [self::VEHICLES_DECLARED],
-        self::VEHICLES_DECLARED      => [self::TRANCHES_IN_PROGRESS],
+        self::PV_INSTALLATION_DONE   => [self::TRANCHES_IN_PROGRESS],
         self::TRANCHES_IN_PROGRESS   => [self::COLPORTAGE_ACTIVE, self::RECOLEMENT_PENDING],
         self::COLPORTAGE_ACTIVE      => [self::RECOLEMENT_PENDING],
         self::PROROGATION_PENDING    => [self::PROROGATION_APPROVED, self::TRANCHES_IN_PROGRESS],
@@ -163,14 +156,11 @@ class ArticleWorkflowService
     {
         match ($newState) {
             self::CONTRACT_CREATED       => $this->requireContract($article),
-            self::LETTER_GENERATED       => $this->requireContract($article),
             self::LETTER_SIGNED_UPLOADED => $this->requireLetterSigned($article),
             self::CAUTION_PAID           => $this->requireLetterSigned($article),
             self::TAXES_PAID             => $this->requireCautionPaid($article),
-            self::PERMIT_READY           => $this->requireTaxesPaid($article),
             self::PERMIT_ISSUED          => $this->requirePermitExists($article),
-            self::PV_INSTALLATION_DONE   => $this->requirePermitIssued($article),
-            self::VEHICLES_DECLARED      => $this->requireVehiclesDeclared($article),
+            self::PV_INSTALLATION_DONE   => $this->requirePermitExists($article),
             self::RECOLEMENT_PENDING     => $this->requireContractExpired($article),
             self::MAINLEVEE_DONE         => $this->requireRecolementSubmitted($article),
             self::CLOSED                 => $this->requireMainlevee($article),
@@ -178,12 +168,12 @@ class ArticleWorkflowService
         };
     }
 
-    // Individual guards Ã¢â‚¬â€ keep these focused and reusable
+    // Individual guards — keep these focused and reusable
 
     private function requireContract(Article $article): void
     {
         if (!$article->contractVentes()->exists()) {
-            throw new \RuntimeException('Un contrat de vente doit ÃƒÂªtre crÃƒÂ©ÃƒÂ© pour passer ÃƒÂ  l\'ÃƒÂ©tape Contrat de vente.');
+            throw new \RuntimeException('Un contrat de vente doit être créé pour passer à l\'étape Contrat de vente.');
         }
     }
 
@@ -191,7 +181,7 @@ class ArticleWorkflowService
     {
         $contract = $article->contractVentes()->latest()->first();
         if (!$contract || !$contract->letter_signed_file) {
-            throw new \RuntimeException('La lettre adjudicataire signÃƒÂ©e doit ÃƒÂªtre uploadÃƒÂ©e avant cette ÃƒÂ©tape.');
+            throw new \RuntimeException('La lettre adjudicataire signée doit être uploadée avant cette étape.');
         }
     }
 
@@ -199,7 +189,7 @@ class ArticleWorkflowService
     {
         $contract = $article->contractVentes()->with('chargeApayer.payments')->latest()->first();
         if (!$contract) {
-            throw new \RuntimeException('Aucun contrat trouvÃƒÂ©.');
+            throw new \RuntimeException('Aucun contrat trouvé.');
         }
 
         $cautionCharge = $contract->chargeApayer
@@ -213,7 +203,7 @@ class ArticleWorkflowService
                 ->exists();
 
         if (!$paid) {
-            throw new \RuntimeException('La caution doit ÃƒÂªtre payÃƒÂ©e avant cette ÃƒÂ©tape.');
+            throw new \RuntimeException('La caution doit être payée avant cette étape.');
         }
     }
 
@@ -221,7 +211,7 @@ class ArticleWorkflowService
     {
         $contract = $article->contractVentes()->with('chargeApayer.payments')->latest()->first();
         if (!$contract) {
-            throw new \RuntimeException('Aucun contrat trouvÃƒÂ©.');
+            throw new \RuntimeException('Aucun contrat trouvé.');
         }
 
         $taxCharges = $contract->chargeApayer->filter(function ($charge) {
@@ -239,7 +229,7 @@ class ArticleWorkflowService
                 ->doesntExist();
 
         if (!$allTaxesPaid) {
-            throw new \RuntimeException('Toutes les taxes doivent ÃƒÂªtre payÃƒÂ©es avant cette ÃƒÂ©tape.');
+            throw new \RuntimeException('Toutes les taxes doivent être payées avant cette étape.');
         }
     }
 
@@ -247,24 +237,7 @@ class ArticleWorkflowService
     {
         $contract = $article->contractVentes()->latest()->first();
         if (!$contract || !$contract->permisExploiter()->exists()) {
-            throw new \RuntimeException('Le permis d\'exploiter doit ÃƒÂªtre crÃƒÂ©ÃƒÂ© avant cette ÃƒÂ©tape.');
-        }
-    }
-
-    private function requirePermitIssued(Article $article): void
-    {
-        $contract = $article->contractVentes()->latest()->first();
-        $permit = $contract?->permisExploiter()->first();
-        if (!$permit) {
-            throw new \RuntimeException('Le permis d\'exploiter doit ÃƒÂªtre ÃƒÂ©mis avant cette ÃƒÂ©tape.');
-        }
-    }
-
-    private function requireVehiclesDeclared(Article $article): void
-    {
-        $contract = $article->contractVentes()->latest()->first();
-        if (!$contract || !$contract->vehicleDeclarations()->exists()) {
-            throw new \RuntimeException('Au moins un vÃƒÂ©hicule doit ÃƒÂªtre dÃƒÂ©clarÃƒÂ© avant cette ÃƒÂ©tape.');
+            throw new \RuntimeException('Le permis d\'exploiter doit être créé avant cette étape.');
         }
     }
 
@@ -272,10 +245,10 @@ class ArticleWorkflowService
     {
         $contract = $article->contractVentes()->latest()->first();
         if (!$contract || !$contract->date_expiration) {
-            throw new \RuntimeException('La date d\'expiration du contrat est requise pour initier le rÃƒÂ©colement.');
+            throw new \RuntimeException('La date d\'expiration du contrat est requise pour initier le récolement.');
         }
         if ($contract->date_expiration->isFuture()) {
-            throw new \RuntimeException('Le contrat n\'a pas encore expirÃƒÂ©.');
+            throw new \RuntimeException('Le contrat n\'a pas encore expiré.');
         }
     }
 
@@ -286,7 +259,7 @@ class ArticleWorkflowService
             ->where('status', Recolement::STATUS_PV_SUBMITTED)
             ->exists() : false;
         if (!$recolement) {
-            throw new \RuntimeException('Le PV de rÃƒÂ©colement doit ÃƒÂªtre soumis avant d\'ÃƒÂ©mettre la mainlevÃƒÂ©e.');
+            throw new \RuntimeException('Le PV de récolement doit être soumis avant d\'émettre la mainlevée.');
         }
     }
 
@@ -297,7 +270,7 @@ class ArticleWorkflowService
             ->where('status', Recolement::STATUS_MAINLEVEE_ISSUED)
             ->exists() : false;
         if (!$done) {
-            throw new \RuntimeException('La mainlevÃƒÂ©e doit ÃƒÂªtre ÃƒÂ©mise avant la clÃƒÂ´ture.');
+            throw new \RuntimeException('La mainlevée doit être émise avant la clôture.');
         }
     }
 
@@ -311,16 +284,25 @@ class ArticleWorkflowService
      */
     public function getStepStatuses(Article $article): array
     {
-        $currentState = $article->workflow_state ?? self::DRAFT_ARTICLE;
+        $actualState  = $article->workflow_state ?? self::DRAFT_ARTICLE;
+        $currentState = $actualState;
 
-        // Map side-states (e.g. prorogation) to their effective parent state for display
-        if (isset(self::SIDE_STATE_PARENTS[$currentState])) {
+        // ARTICLE_READY means step 1 (DRAFT_ARTICLE) is explicitly validated.
+        // Display: step 1 done, step 2 (CONTRACT_CREATED) is next to act on.
+        $articleValidated = ($actualState === self::ARTICLE_READY);
+
+        // Map side-states (e.g. prorogation, old intermediate states) to their effective parent
+        if (!$articleValidated && isset(self::SIDE_STATE_PARENTS[$currentState])) {
             $currentState = self::SIDE_STATE_PARENTS[$currentState];
         }
 
-        $allStates = array_keys(self::LABELS);
+        if ($articleValidated) {
+            $currentState = self::DRAFT_ARTICLE; // step 0 in allStates
+        }
+
+        $allStates    = array_keys(self::LABELS);
         $currentIndex = array_search($currentState, $allStates, true);
-        $lastIndex = count($allStates) - 1;
+        $lastIndex    = count($allStates) - 1;
 
         if ($currentIndex === false) {
             $currentIndex = 0;
@@ -328,7 +310,25 @@ class ArticleWorkflowService
 
         $steps = [];
         foreach ($allStates as $i => $state) {
-            if ($currentIndex === 0) {
+            if ($articleValidated) {
+                // Step 0 (DRAFT_ARTICLE) is done; step 1 (CONTRACT_CREATED) is next
+                if ($i === 0) {
+                    $status = 'done';
+                    $blockedReason = null;
+                } elseif ($i === 1) {
+                    try {
+                        $this->guardPrerequisites($article, $state);
+                        $status = 'pending';
+                        $blockedReason = null;
+                    } catch (\RuntimeException $e) {
+                        $status = 'blocked';
+                        $blockedReason = $e->getMessage();
+                    }
+                } else {
+                    $status = 'blocked';
+                    $blockedReason = 'Les étapes précédentes doivent être complétées d\'abord.';
+                }
+            } elseif ($currentIndex === 0) {
                 if ($i === 0) {
                     $status = 'active';
                     $blockedReason = null;
@@ -343,7 +343,7 @@ class ArticleWorkflowService
                     }
                 } else {
                     $status = 'blocked';
-                    $blockedReason = 'Les ÃƒÂ©tapes prÃƒÂ©cÃƒÂ©dentes doivent ÃƒÂªtre complÃƒÂ©tÃƒÂ©es d\'abord.';
+                    $blockedReason = 'Les étapes précédentes doivent être complétées d\'abord.';
                 }
             } elseif ($currentIndex === $lastIndex) {
                 if ($i < $currentIndex) {
@@ -370,7 +370,7 @@ class ArticleWorkflowService
                 }
             } else {
                 $status = 'blocked';
-                $blockedReason = 'Les ÃƒÂ©tapes prÃƒÂ©cÃƒÂ©dentes doivent ÃƒÂªtre complÃƒÂ©tÃƒÂ©es d\'abord.';
+                $blockedReason = 'Les étapes précédentes doivent être complétées d\'abord.';
             }
 
             $steps[$state] = [

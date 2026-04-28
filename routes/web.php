@@ -117,9 +117,20 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Téléchargement sécurisé des fichiers joints (quittances, justificatifs)
+    Route::get('payments/{payment}/download', function (\App\Models\Payment $payment) {
+        $file = $payment->fichier_joint;
+        abort_unless($file && \Illuminate\Support\Facades\Storage::disk('public')->exists($file), 404);
+        return \Illuminate\Support\Facades\Storage::disk('public')->download($file);
+    })->name('payments.download');
+
     // Articles Routes
     Route::prefix('articles')->name('articles.')->middleware('can:articles.view')->group(function () {
         Route::put('{article}/charge-payments', [ArticleController::class, 'updateChargePayments'])->name('update-charge-payments');
+        Route::get('{article}/pay-tranches', function (Article $article) {
+            return redirect()->route('articles.show', $article)
+                ->with('info', 'Soumettez le formulaire de paiement depuis la fiche article.');
+        })->name('pay-tranches.get');
         Route::put('{article}/pay-tranches', [ArticleController::class, 'payTranches'])->name('pay-tranches');
         Route::put('{article}/update-step', [ArticleController::class, 'updateStep'])->name('update-step');
         Route::patch('{article}/toggle-invendu', [ArticleController::class, 'toggleInvendu'])->name('toggle-invendu');
@@ -138,6 +149,10 @@ Route::middleware('auth')->group(function () {
         Route::get('{article}/pv-installation', [ArticleController::class, 'pvInstallation'])->name('pv-installation');
         Route::post('{article}/pv-installation', [ArticleController::class, 'storePvInstallation'])->name('store-pv-installation');
         Route::get('{article}/pv-installation/print', [ArticleController::class, 'printPvInstallation'])->name('pv-installation.print');
+        Route::get('{article}/denombrement', [ArticleController::class, 'denombrement'])->name('denombrement');
+        Route::post('{article}/denombrement', [ArticleController::class, 'storeDenombrement'])->name('store-denombrement');
+        Route::get('{article}/denombrement/download', [ArticleController::class, 'downloadDenombrementPv'])->name('denombrement.download');
+        Route::patch('{article}/statut-special', [ArticleController::class, 'updateStatutSpecial'])->name('statut-special');
         Route::get('/', [ArticleController::class, 'index'])->name('index');
         Route::get('/create', [ArticleController::class, 'create'])->name('create');
         Route::post('/', [ArticleController::class, 'store'])->name('store');
@@ -361,6 +376,10 @@ Route::middleware('auth')->group(function () {
         // Generic state transition (admin use)
         Route::post('/articles/{article}/transition', [\App\Http\Controllers\WorkflowController::class, 'transition'])
             ->name('transition');
+
+        // Article creation explicit validation (step 1)
+        Route::post('/articles/{article}/validate', [\App\Http\Controllers\WorkflowController::class, 'validateArticle'])
+            ->name('validate');
 
         // Signed letter upload
         Route::post('/articles/{article}/upload-signed-letter', [\App\Http\Controllers\WorkflowController::class, 'uploadSignedLetter'])

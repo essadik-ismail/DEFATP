@@ -703,7 +703,7 @@ class ArticleController extends Controller
             'selected_tranche' => 'required',
             'num_quittance' => 'required|string|max:255',
             'date_payment' => 'required|date',
-            'fichier_joint' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'fichier_joint' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         try {
@@ -1067,7 +1067,10 @@ class ArticleController extends Controller
         // Check if can create more permis
         $canCreateMore = $permisEnlevers->count() < $totalPaidTranches;
 
-        return view('articles.permis-enlever', compact('article', 'tranchesByDate', 'products', 'permisEnlevers', 'totalPaidTranches', 'canCreateMore', 'nombreTranche', 'contractVente'));
+        // Récupérer la quittance de la dernière tranche payée pour pré-remplir le permis d'enlever
+        $lastQuittance = $paidTranches->sortByDesc('date_paiement')->first()['payment']->num_quittace ?? '';
+
+        return view('articles.permis-enlever', compact('article', 'tranchesByDate', 'products', 'permisEnlevers', 'totalPaidTranches', 'canCreateMore', 'nombreTranche', 'contractVente', 'lastQuittance'));
     }
 
     /**
@@ -1305,12 +1308,7 @@ class ArticleController extends Controller
             $currentWorkflowState = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
 
             if ($currentWorkflowState === ArticleWorkflowService::TAXES_PAID) {
-                $workflow->transition($article, ArticleWorkflowService::PERMIT_READY, Auth::id());
-                $currentWorkflowState = $article->fresh()->workflow_state ?? ArticleWorkflowService::PERMIT_READY;
-            }
-
-            if ($currentWorkflowState === ArticleWorkflowService::PERMIT_READY) {
-                $workflow->transition($article, ArticleWorkflowService::PERMIT_ISSUED, Auth::id());
+                try { $workflow->transition($article, ArticleWorkflowService::PERMIT_ISSUED, Auth::id()); } catch (\RuntimeException) {}
             }
 
             // Update article current step if needed
@@ -1761,6 +1759,92 @@ class ArticleController extends Controller
                 ->withInput()
                 ->with('error', 'Erreur lors de la création du permis de colportage: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Appliquer un statut spécial (délai, résiliation, maintenance)
+     */
+    public function updateStatutSpecial(Request $request, Article $article): RedirectResponse
+    {
+        $validated = $request->validate([
+            'statut_special'       => 'required|in:delai,resiliation,maintenance',
+            'date_statut_special'  => 'required|date',
+            'motif_statut_special' => 'nullable|string|max:500',
+        ]);
+
+        $article->update($validated);
+
+        $labels = ['delai' => 'Délai', 'resiliation' => 'Résiliation', 'maintenance' => 'Maintenance'];
+        ActivityLogger::log('update', 'Statut spécial : ' . ($labels[$validated['statut_special']] ?? $validated['statut_special']), Article::class, $article->id);
+
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Statut spécial enregistré : ' . ($labels[$validated['statut_special']] ?? $validated['statut_special']));
+    }
+
+    /**
+     * Show Dénombrement form
+     */
+    public function denombrement(Article $article)
+    {
+        $contractVente = $article->contractVentes()->first();
+
+        if (!$contractVente) {
+            return redirect()->route('articles.show', $article)
+                ->with('error', 'Un contrat de vente doit être créé avant de saisir un dénombrement.');
+        }
+
+        $denombrement = \App\Models\Denombrement::where('contract_vente_id', $contractVente->id)->first();
+
+        return view('articles.denombrement', compact('article', 'contractVente', 'denombrement'));
+    }
+
+    /**
+     * Store or update Dénombrement
+     */
+    public function storeDenombrement(Request $request, Article $article): RedirectResponse
+    {
+        $validated = $request->validate([
+            'date_denombrement'  => 'required|date',
+            'agent_responsable'  => 'nullable|string|max:255',
+            'volume_denombre'    => 'nullable|numeric|min:0',
+            'observations'       => 'nullable|string',
+            'fichier_pv'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $contractVente = $article->contractVentes()->firstOrFail();
+
+        if ($request->hasFile('fichier_pv')) {
+            $validated['fichier_pv'] = $request->file('fichier_pv')->store('denombrements', 'public');
+        }
+
+        $validated['contract_vente_id'] = $contractVente->id;
+
+        \App\Models\Denombrement::updateOrCreate(
+            ['contract_vente_id' => $contractVente->id],
+            $validated
+        );
+
+        ActivityLogger::log('create', 'Dénombrement enregistré', Article::class, $article->id);
+
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Dénombrement enregistré avec succès.');
+    }
+
+    /**
+     * Download PV du dénombrement
+     */
+    public function downloadDenombrementPv(Article $article)
+    {
+        $contractVente = $article->contractVentes()->firstOrFail();
+        $denombrement = \App\Models\Denombrement::where('contract_vente_id', $contractVente->id)->firstOrFail();
+
+        abort_unless(
+            $denombrement->fichier_pv && \Illuminate\Support\Facades\Storage::disk('public')->exists($denombrement->fichier_pv),
+            404,
+            'Fichier PV introuvable.'
+        );
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->download($denombrement->fichier_pv);
     }
 
     /**

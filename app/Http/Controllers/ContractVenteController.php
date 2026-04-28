@@ -7,7 +7,9 @@ use App\Models\Article;
 use App\Models\Exploitant;
 use App\Models\ChargeApayer;
 use App\Services\ActivityLogger;
+use App\Services\ArticleWorkflowService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
@@ -78,9 +80,19 @@ class ContractVenteController extends Controller
             // Single insert for all charges and tranches
             ChargeApayer::insert($charges->merge($tranches)->toArray());
 
-            // Update article status to "contrat_vente" (done)
-            // This marks "Contrat de vente" as completed and "Paiement des charges" as in progress
             $article->update(['current_step' => 'contrat_vente']);
+
+            // Advance workflow to CONTRACT_CREATED if article is validated (ARTICLE_READY)
+            // or still in DRAFT_ARTICLE (backwards compat: auto-validate + create contract)
+            $workflow = app(ArticleWorkflowService::class);
+            $currentState = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
+            if ($currentState === ArticleWorkflowService::DRAFT_ARTICLE) {
+                try { $workflow->transition($article, ArticleWorkflowService::ARTICLE_READY, Auth::id()); } catch (\RuntimeException) {}
+                $currentState = $article->fresh()->workflow_state;
+            }
+            if ($currentState === ArticleWorkflowService::ARTICLE_READY) {
+                try { $workflow->transition($article, ArticleWorkflowService::CONTRACT_CREATED, Auth::id()); } catch (\RuntimeException) {}
+            }
 
             DB::commit();
 
