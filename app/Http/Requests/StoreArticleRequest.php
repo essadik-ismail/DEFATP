@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreArticleRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreArticleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can(\App\Enums\Permission::ARTICLE_CREATE) ?? false;
     }
 
     /**
@@ -22,7 +23,10 @@ class StoreArticleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'numero' => ['required', 'string', 'max:255'],
+            'numero' => [
+                'required', 'string', 'max:255',
+                Rule::unique('articles')->where(fn ($q) => $q->where('groupe_cession_id', $this->cession_id)),
+            ],
             'lot' => ['required', 'string', 'max:255'],
             'parcelle' => ['nullable', 'string', 'max:255'],
             'superficie' => ['required', 'numeric', 'min:0'],
@@ -43,9 +47,9 @@ class StoreArticleRequest extends FormRequest
             'date_payement_service_anef' => ['nullable', 'date'],
             'date_livaison_mise_en_charge_bf' => ['nullable', 'date'],
             'invandu' => ['nullable', 'boolean'],
-            'mode_exploitation_ids' => ['nullable', 'array', 'min:1'],
+            'mode_exploitation_ids' => ['nullable', 'array'],
             'mode_exploitation_ids.*' => ['exists:mode_exploitations,id'],
-            'nature_de_coupe_ids' => ['required', 'array', 'min:1'],
+            'nature_de_coupe_ids' => ['nullable', 'array'],
             'nature_de_coupe_ids.*' => ['exists:nature_de_coupes,id'],
             'commune_id' => ['nullable', 'exists:communes,id'],
             'province_id' => ['nullable', 'exists:provinces,id'],
@@ -60,6 +64,11 @@ class StoreArticleRequest extends FormRequest
             'limite_sud' => ['nullable', 'string', 'max:255'],
             'limite_est' => ['nullable', 'string', 'max:255'],
             'limite_ouest' => ['nullable', 'string', 'max:255'],
+            'limite_se' => ['nullable', 'string', 'max:255'],
+            'limite_so' => ['nullable', 'string', 'max:255'],
+            'limite_ne' => ['nullable', 'string', 'max:255'],
+            'limite_no' => ['nullable', 'string', 'max:255'],
+            'date_livraison_bois_chauffage' => ['nullable', 'date'],
             'coordonnee_x' => ['required', 'numeric'],
             'coordonnee_y' => ['required', 'numeric'],
             'foret_ids' => ['nullable', 'array'],
@@ -88,6 +97,7 @@ class StoreArticleRequest extends FormRequest
     {
         return [
             'numero.required'               => 'Le numéro de l\'article est obligatoire.',
+            'numero.unique'                 => 'Ce numéro d\'article existe déjà dans cette cession.',
             'lot.required'                  => 'Le numéro de lot est obligatoire.',
             'superficie.required'           => 'La superficie est obligatoire.',
             'superficie.numeric'            => 'La superficie doit être un nombre.',
@@ -96,9 +106,6 @@ class StoreArticleRequest extends FormRequest
             'dpanef_code.exists'            => 'La DPANEF sélectionnée est invalide.',
             'zdtf_code.exists'              => 'La ZDTF sélectionnée est invalide.',
             'dfp_code.exists'               => 'La DFP sélectionnée est invalide.',
-            'nature_de_coupe_ids.required'  => 'La nature de coupe est obligatoire.',
-            'nature_de_coupe_ids.min'       => 'Sélectionnez au moins une nature de coupe.',
-            'mode_exploitation_ids.min'     => 'Sélectionnez au moins un mode d\'exploitation.',
             'locations_file.mimes' => 'Le fichier plan de situation doit être au format Excel (.xlsx ou .xls).',
             'locations_file.max' => 'Le fichier plan de situation ne doit pas dépasser 10 Mo.',
             'limite_nord.required' => 'La limite Nord est requise.',

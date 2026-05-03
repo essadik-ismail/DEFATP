@@ -7,14 +7,14 @@
 
 @php
     $iconBg = match($color) {
-        'green'   => 'background:#E8F7EF;color:#2D7A54;border-color:#B3E6CA;',
+        'green'   => 'background:#E8F7EF;color:#00bc7d;border-color:#B3E6CA;',
         'blue'    => 'background:#EFF6FF;color:#2563EB;border-color:#BFDBFE;',
         'warning' => 'background:#FFFBEB;color:#D97706;border-color:#FDE68A;',
         'danger'  => 'background:#FFF5F5;color:#DC2626;border-color:#FED7D7;',
         default   => 'background:#F3F6F5;color:#9DB8AE;border-color:#E4EDE8;',
     };
     $titleColor = match($color) {
-        'green'   => '#163326',
+        'green'   => '#00bc7d',
         'blue'    => '#1E3A8A',
         'warning' => '#78350F',
         'danger'  => '#7F1D1D',

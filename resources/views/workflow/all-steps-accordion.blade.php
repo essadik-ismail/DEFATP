@@ -23,6 +23,7 @@ $permisExploiter     = $contractVente?->permisExploiter;
 $pvInstallation      = $contractVente?->pvInstallations?->first();
 $vehicleDeclarations = $contractVente?->vehicleDeclarations ?? collect();
 $prorogations        = $contractVente?->prorogations ?? collect();
+$denombrements       = $contractVente?->denombrements ?? collect();
 $recolement          = $contractVente?->recolement;
 
 // 12-step definitions matching WF::LABELS order
@@ -295,6 +296,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 <form action="{{ route('workflow.validate', $article) }}" method="POST">
                                     @csrf
                                     <button type="submit"
+                                            onclick="return confirm('Attention : cette action est irréversible.\nUne fois validé, cet article ne pourra plus être modifié.\n\nConfirmez-vous la validation ?')"
                                             class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
                                         <i class="fas fa-check"></i> Valider la création de l'article
                                     </button>
@@ -342,10 +344,24 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             </div>
                         </div>
                         <div class="flex gap-2 flex-wrap">
-                            <a href="{{ route('contract-ventes.edit', [$article, $contractVente]) }}"
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-edit text-gray-500"></i> Modifier
-                            </a>
+                            @if($contractVente->is_validated)
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-green-50 border border-green-300 text-green-700 rounded-lg">
+                                    <i class="fas fa-check-circle"></i> Contrat validé
+                                </span>
+                                <a href="{{ route('contract-ventes.show', [$article, $contractVente]) }}"
+                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-eye"></i> Consulter contrat
+                                </a>
+                            @else
+                                <a href="{{ route('contract-ventes.edit', [$article, $contractVente]) }}"
+                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-edit text-gray-500"></i> Modifier
+                                </a>
+                                <a href="{{ route('contract-ventes.show', [$article, $contractVente]) }}"
+                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-eye text-gray-500"></i> Consulter
+                                </a>
+                            @endif
                         </div>
                     @endif
 
@@ -373,54 +389,142 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         @endif
                     @endif
 
-                    {{-- Signed letter status + upload form --}}
+                    {{-- Signed letter status --}}
                     @if($contractVente?->letter_signed_file)
                         <div class="flex items-center gap-2 text-sm text-emerald-700 mb-4">
                             <i class="fas fa-check-circle"></i>
-                            <span>Uploadée le {{ $contractVente->letter_signed_at?->format('d/m/Y') ?? '—' }}</span>
-                            <a href="{{ asset('storage/' . $contractVente->letter_signed_file) }}" target="_blank"
-                               class="ml-2 text-blue-600 hover:underline text-xs">Voir le fichier</a>
+                            <span>Importée le {{ $contractVente->letter_signed_at?->format('d/m/Y') ?? '—' }}</span>
+                            <a href="{{ route('workflow.view-signed-letter', $article) }}" target="_blank"
+                               class="ml-2 inline-flex items-center gap-1 text-blue-600 hover:underline text-xs font-medium">
+                                <i class="fas fa-file-pdf text-red-500"></i> Ouvrir le fichier
+                            </a>
                         </div>
                     @else
-                        <p class="text-sm text-gray-600 mb-4">Uploadez la lettre adjudicataire signée par l'adjudicataire.</p>
+                        <p class="text-sm text-gray-600 mb-4">Importez la lettre adjudicataire signée par l'adjudicataire (PDF uniquement).</p>
                     @endif
 
-                    @if($contractVente)
+                    {{-- Upload form: only shown when step is not yet validated --}}
+                    @if($contractVente && !$isDone)
+                        @if($errors->has('signed_letter'))
+                            <div class="flex items-center gap-2 p-3 mb-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>{{ $errors->first('signed_letter') }}</span>
+                            </div>
+                        @endif
                         <form action="{{ route('workflow.upload-signed-letter', $article) }}" method="POST"
                               enctype="multipart/form-data" class="flex items-end gap-3 flex-wrap">
                             @csrf
                             <div>
                                 <label class="block text-xs font-medium text-gray-700 mb-1">
-                                    {{ $contractVente->letter_signed_file ? 'Remplacer le fichier' : 'Fichier signé (PDF/image)' }}
+                                    {{ $contractVente->letter_signed_file ? 'Remplacer le fichier (PDF)' : 'Fichier signé (PDF uniquement)' }}
                                 </label>
-                                <input type="file" name="signed_letter" accept=".pdf,.jpg,.jpeg,.png"
+                                <input type="file" name="signed_letter" accept=".pdf"
                                        class="block text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700 file:font-medium hover:file:bg-emerald-100">
                             </div>
                             <button type="submit"
                                     class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
-                                <i class="fas fa-upload"></i> Uploader
+                                <i class="fas fa-upload"></i> Importer et valider
                             </button>
                         </form>
+                    @elseif($isDone && $contractVente?->letter_signed_file)
+                        <div class="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-800">
+                            <i class="fas fa-lock"></i>
+                            <span>Document verrouillé — la lettre adjudicataire a été validée.</span>
+                        </div>
                     @endif
 
                 {{-- ============================================================
-                     Step 6 ? CAUTION_PAID
+                     Step 6 — CAUTION_PAID
                 ============================================================ --}}
                 @elseif($state === WF::CAUTION_PAID)
+                    @php
+                        $cautionPayment   = $cautionCharge?->payments?->first();
+                        $cautionDateLimite = $cautionCharge?->date_limite;
+                        $cautionPayDate   = $cautionPayment?->date_payment ? \Carbon\Carbon::parse($cautionPayment->date_payment) : null;
+                        $cautionDateDepassee = $cautionDateLimite && $cautionPayDate && $cautionPayDate->gt($cautionDateLimite);
+                        $cautionOverdue   = $cautionDateLimite && !$cautionPaid && now()->gt($cautionDateLimite);
+                    @endphp
+
                     @if(!$cautionPaid)
-                        @php $validateBlocked = true; $validateBlockedReason = 'La caution doit ?tre marqu?e comme pay?e avant de valider.'; @endphp
+                        @php $validateBlocked = true; $validateBlockedReason = 'La caution doit être marquée comme payée avant de valider.'; @endphp
+                    @elseif(!$cautionPayment?->date_payment)
+                        @php $validateBlocked = true; $validateBlockedReason = 'La date de paiement de la caution est obligatoire.'; @endphp
+                    @elseif(!$cautionPayment?->fichier_joint)
+                        @php $validateBlocked = true; $validateBlockedReason = 'La quittance (fichier) est obligatoire.'; @endphp
                     @endif
+
+                    {{-- Overdue alert --}}
+                    @if($cautionOverdue)
+                        <div class="flex items-start gap-3 p-3 mb-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
+                            <i class="fas fa-exclamation-triangle mt-0.5 flex-shrink-0 text-red-500"></i>
+                            <span><strong>Caution non payée – action requise.</strong> La date limite ({{ $cautionDateLimite->format('d/m/Y') }}) est dépassée.</span>
+                        </div>
+                    @endif
+
                     @if(!$cautionCharge)
-                        <p class="text-sm text-gray-400 italic">Aucune charge "Cautionnement" trouv?e dans le contrat.</p>
+                        <p class="text-sm text-gray-400 italic">Aucune charge "Cautionnement" trouvée dans le contrat.</p>
+                    @elseif($cautionPayment?->is_paye)
+                        {{-- ---- LOCKED: caution already validated ---- --}}
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-800">
+                                <i class="fas fa-lock"></i>
+                                <span>Caution validée — champs verrouillés.</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-xs text-gray-500 mb-1">Charge</p>
+                                    <p class="font-medium text-gray-800">{{ $cautionCharge->nom }}</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-xs text-gray-500 mb-1">Montant</p>
+                                    <p class="font-medium text-gray-800">{{ number_format($cautionCharge->montant ?? 0, 2) }} MAD</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-xs text-gray-500 mb-1">Date de paiement</p>
+                                    <p class="font-medium text-gray-800">{{ $cautionPayDate?->format('d/m/Y') ?? '—' }}</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-xs text-gray-500 mb-1">N° quittance</p>
+                                    <p class="font-medium text-gray-800">{{ $cautionPayment->num_quittace ?? '—' }}</p>
+                                </div>
+                                @if($cautionPayment->percepteur)
+                                <div class="p-3 bg-gray-50 rounded-lg col-span-2">
+                                    <p class="text-xs text-gray-500 mb-1">Percepteur</p>
+                                    <p class="font-medium text-gray-800">{{ $cautionPayment->percepteur }}</p>
+                                </div>
+                                @endif
+                            </div>
+                            @if($cautionPayment->fichier_joint)
+                                <a href="{{ asset('storage/' . $cautionPayment->fichier_joint) }}" target="_blank"
+                                   class="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100">
+                                    <i class="fas fa-file-alt"></i> Voir quittance
+                                </a>
+                            @endif
+                        </div>
+
+                        {{-- Déchéance — DRANEF only --}}
+                        @can('forfeiture.create')
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <form action="{{ route('workflow.caution-decheance', $article) }}" method="POST"
+                                  onsubmit="return confirm('Confirmez-vous la mise en déchéance ?\n\nCette action est irréversible.')">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                    <i class="fas fa-ban"></i> Mettre en déchéance
+                                </button>
+                            </form>
+                        </div>
+                        @endcan
                     @else
-                        @php $cautionPayment = $cautionCharge->payments->first(); @endphp
+                        {{-- ---- FORM: mark caution as paid ---- --}}
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
                                     <tr class="border-b border-gray-200">
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Charge</th>
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Montant</th>
-                                        <th class="text-left py-2 pr-4 text-gray-600 font-medium">?ch?ance</th>
+                                        <th class="text-left py-2 pr-4 text-gray-600 font-medium">Échéance</th>
+                                        <th class="text-left py-2 pr-4 text-gray-600 font-medium">Date limite</th>
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Statut</th>
                                         <th class="text-left py-2 text-gray-600 font-medium">Actions</th>
                                     </tr>
@@ -434,45 +538,68 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                         <tr>
                                             <td class="py-2 pr-4 font-medium">{{ $cautionCharge->nom }}</td>
                                             <td class="py-2 pr-4">{{ number_format($cautionCharge->montant ?? 0, 2) }} MAD</td>
-                                            <td class="py-2 pr-4">{{ $cautionCharge->date_echeance ? \Carbon\Carbon::parse($cautionCharge->date_echeance)->format('d/m/Y') : '?' }}</td>
+                                            <td class="py-2 pr-4">{{ $cautionCharge->date_echeance ? \Carbon\Carbon::parse($cautionCharge->date_echeance)->format('d/m/Y') : '—' }}</td>
                                             <td class="py-2 pr-4">
-                                                @if($cautionPayment?->is_paye)
-                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium"><i class="fas fa-check-circle"></i> Pay?</span>
+                                                @if($cautionDateLimite)
+                                                    <span class="{{ $cautionOverdue ? 'text-red-600 font-semibold' : 'text-gray-700' }}">
+                                                        {{ $cautionDateLimite->format('d/m/Y') }}
+                                                    </span>
                                                 @else
-                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium"><i class="fas fa-times-circle"></i> Impay?</span>
+                                                    <span class="text-gray-400">—</span>
                                                 @endif
+                                            </td>
+                                            <td class="py-2 pr-4">
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                                                    <i class="fas fa-times-circle"></i> Impayée
+                                                </span>
                                             </td>
                                             <td class="py-2">
                                                 <input type="hidden" name="payments[{{ $cautionCharge->id }}][statut]" value="0">
-                                                <div class="space-y-1">
-                                                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs">
+                                                <div class="space-y-2" x-data="{ checked: {{ $cautionPayment?->is_paye ? 'true' : 'false' }}, dateVal: '{{ $cautionPayment?->date_payment ? \Carbon\Carbon::parse($cautionPayment->date_payment)->format('Y-m-d') : '' }}' }">
+                                                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-medium">
                                                         <input type="checkbox" name="payments[{{ $cautionCharge->id }}][statut]" value="1"
-                                                               {{ $cautionPayment?->is_paye ? 'checked' : '' }}
+                                                               x-model="checked"
                                                                class="w-4 h-4 rounded text-emerald-600">
-                                                        Marquer pay?
+                                                        Marquer payée
                                                     </label>
                                                     <input type="text" name="payments[{{ $cautionCharge->id }}][reference]"
                                                            value="{{ $cautionPayment?->num_quittace ?? '' }}"
-                                                           placeholder="N? quittance"
-                                                           class="block w-36 px-2 py-1 text-xs border border-gray-300 rounded">
+                                                           placeholder="N° quittance"
+                                                           class="block w-40 px-2 py-1 text-xs border border-gray-300 rounded">
                                                     <input type="text" name="payments[{{ $cautionCharge->id }}][percepteur]"
                                                            value="{{ $cautionPayment?->percepteur ?? '' }}"
                                                            placeholder="Percepteur"
-                                                           class="block w-36 px-2 py-1 text-xs border border-gray-300 rounded">
-                                                    <input type="date" name="payments[{{ $cautionCharge->id }}][date_payment]"
-                                                           value="{{ $cautionPayment?->date_payment ? \Carbon\Carbon::parse($cautionPayment->date_payment)->format('Y-m-d') : '' }}"
-                                                           class="block w-36 px-2 py-1 text-xs border border-gray-300 rounded">
-                                                    <input type="file" name="payments[{{ $cautionCharge->id }}][fichier_joint]"
-                                                           accept=".pdf,.jpg,.jpeg,.png"
-                                                           class="block w-36 text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-emerald-50 file:px-2 file:py-1 file:font-medium file:text-emerald-700 hover:file:bg-emerald-100">
-                                                    @if($cautionPayment?->fichier_joint)
-                                                        <a href="{{ asset('storage/' . $cautionPayment->fichier_joint) }}" target="_blank"
-                                                           class="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline">
-                                                            <i class="fas fa-paperclip"></i> Voir fichier
-                                                        </a>
-                                                    @endif
+                                                           class="block w-40 px-2 py-1 text-xs border border-gray-300 rounded">
+                                                    <div>
+                                                        <input type="date" name="payments[{{ $cautionCharge->id }}][date_payment]"
+                                                               x-model="dateVal"
+                                                               class="block w-40 px-2 py-1 text-xs border border-gray-300 rounded"
+                                                               :class="checked && !dateVal ? 'border-red-400 bg-red-50' : ''">
+                                                        <template x-if="checked && !dateVal">
+                                                            <p class="text-xs text-red-600 mt-0.5">Date de paiement obligatoire</p>
+                                                        </template>
+                                                        @if($cautionDateLimite && $cautionPayDate && $cautionDateDepassee)
+                                                            <p class="text-xs text-amber-600 mt-0.5">
+                                                                <i class="fas fa-exclamation-triangle"></i>
+                                                                La date dépasse la date limite autorisée ({{ $cautionDateLimite->format('d/m/Y') }})
+                                                            </p>
+                                                        @endif
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-xs text-gray-600 mb-1">Quittance <span class="text-red-500">*</span></label>
+                                                        <input type="file" name="payments[{{ $cautionCharge->id }}][fichier_joint]"
+                                                               accept=".pdf,.jpg,.jpeg,.png"
+                                                               class="block w-40 text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-emerald-50 file:px-2 file:py-1 file:font-medium file:text-emerald-700 hover:file:bg-emerald-100">
+                                                        <p class="text-xs text-gray-400 mt-0.5">PDF / JPG / PNG</p>
+                                                        @if($cautionPayment?->fichier_joint)
+                                                            <a href="{{ asset('storage/' . $cautionPayment->fichier_joint) }}" target="_blank"
+                                                               class="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-1">
+                                                                <i class="fas fa-paperclip"></i> Voir quittance
+                                                            </a>
+                                                        @endif
+                                                    </div>
                                                     <button type="submit"
-                                                            class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700">
+                                                            class="inline-flex items-center gap-1 px-3 py-1.5 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700">
                                                         <i class="fas fa-save"></i> Sauvegarder
                                                     </button>
                                                 </div>
@@ -482,6 +609,22 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 </tbody>
                             </table>
                         </div>
+
+                        {{-- Déchéance — DRANEF only, shown when overdue --}}
+                        @if($cautionOverdue)
+                            @can('forfeiture.create')
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <form action="{{ route('workflow.caution-decheance', $article) }}" method="POST"
+                                      onsubmit="return confirm('Confirmez-vous la mise en déchéance ?\n\nCette action est irréversible.')">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                        <i class="fas fa-ban"></i> Mettre en déchéance
+                                    </button>
+                                </form>
+                            </div>
+                            @endcan
+                        @endif
                     @endif
 
                 {{-- ============================================================
@@ -509,60 +652,85 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     @foreach($taxeCharges as $charge)
-                                        @php $payment = $charge->payments->first(); @endphp
-                                        <form action="{{ route('articles.update-charge-payments', $article) }}" method="POST"
-                                              enctype="multipart/form-data" class="contents">
-                                            @csrf @method('PUT')
-                                            <input type="hidden" name="payments[{{ $charge->id }}][charge_id]" value="{{ $charge->id }}">
-                                            <input type="hidden" name="payments[{{ $charge->id }}][charge_nom]" value="{{ $charge->nom }}">
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="py-2 pr-4 font-medium">{{ $charge->nom }}</td>
-                                                <td class="py-2 pr-4">{{ number_format($charge->montant ?? 0, 2) }} MAD</td>
-                                                <td class="py-2 pr-4">{{ $charge->date_echeance ? \Carbon\Carbon::parse($charge->date_echeance)->format('d/m/Y') : '?' }}</td>
-                                                <td class="py-2 pr-4">
-                                                    @if($payment?->is_paye)
-                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium"><i class="fas fa-check-circle"></i> Pay?</span>
-                                                    @else
-                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium"><i class="fas fa-times-circle"></i> Impay?</span>
+                                        @php
+                                            $payment = $charge->payments->first();
+                                            $isOverdue = !$payment?->is_paye && $charge->date_echeance && now()->gt(\Carbon\Carbon::parse($charge->date_echeance));
+                                            $paidLate = $payment?->is_paye && $payment->date_payment && $charge->date_echeance
+                                                && \Carbon\Carbon::parse($payment->date_payment)->gt(\Carbon\Carbon::parse($charge->date_echeance));
+                                        @endphp
+                                        <tr class="hover:bg-gray-50 {{ $isOverdue ? 'bg-red-50' : '' }}">
+                                            <td class="py-2 pr-4 font-medium">{{ $charge->nom }}</td>
+                                            <td class="py-2 pr-4">{{ number_format($charge->montant ?? 0, 2) }} MAD</td>
+                                            <td class="py-2 pr-4">
+                                                {{ $charge->date_echeance ? \Carbon\Carbon::parse($charge->date_echeance)->format('d/m/Y') : '—' }}
+                                                @if($isOverdue)
+                                                    <span class="ml-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium"><i class="fas fa-clock"></i> En retard</span>
+                                                @endif
+                                            </td>
+                                            <td class="py-2 pr-4">
+                                                @if($payment?->is_paye)
+                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium"><i class="fas fa-check-circle"></i> Payée</span>
+                                                    @if($paidLate)
+                                                        <span class="ml-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs"><i class="fas fa-exclamation-triangle"></i> Hors délai</span>
                                                     @endif
-                                                </td>
-                                                <td class="py-2">
-                                                    <input type="hidden" name="payments[{{ $charge->id }}][statut]" value="0">
-                                                    <div class="space-y-1">
-                                                        <label class="inline-flex items-center gap-1 cursor-pointer text-xs">
-                                                            <input type="checkbox" name="payments[{{ $charge->id }}][statut]" value="1"
-                                                                   {{ $payment?->is_paye ? 'checked' : '' }}
-                                                                   class="w-4 h-4 rounded text-emerald-600">
-                                                            Pay?
-                                                        </label>
-                                                        <input type="text" name="payments[{{ $charge->id }}][reference]"
-                                                               value="{{ $payment?->num_quittace ?? '' }}"
-                                                               placeholder="N? quittance"
-                                                               class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded">
-                                                        <input type="text" name="payments[{{ $charge->id }}][percepteur]"
-                                                               value="{{ $payment?->percepteur ?? '' }}"
-                                                               placeholder="Percepteur"
-                                                               class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded">
-                                                        <input type="date" name="payments[{{ $charge->id }}][date_payment]"
-                                                               value="{{ $payment?->date_payment ? \Carbon\Carbon::parse($payment->date_payment)->format('Y-m-d') : '' }}"
-                                                               class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded">
-                                                        <input type="file" name="payments[{{ $charge->id }}][fichier_joint]"
-                                                               accept=".pdf,.jpg,.jpeg,.png"
-                                                               class="block w-32 text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-emerald-50 file:px-2 file:py-1 file:font-medium file:text-emerald-700 hover:file:bg-emerald-100">
-                                                        @if($payment?->fichier_joint)
+                                                @else
+                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium"><i class="fas fa-times-circle"></i> Impayée</span>
+                                                @endif
+                                            </td>
+                                            <td class="py-2">
+                                                @if($payment?->is_paye)
+                                                    {{-- LOCKED: taxe already validated --}}
+                                                    <div class="space-y-1 text-xs text-gray-600">
+                                                        <p><span class="text-gray-400">Date :</span> {{ $payment->date_payment ? \Carbon\Carbon::parse($payment->date_payment)->format('d/m/Y') : '—' }}</p>
+                                                        <p><span class="text-gray-400">Quittance :</span> {{ $payment->num_quittace ?? '—' }}</p>
+                                                        @if($payment->percepteur)
+                                                            <p><span class="text-gray-400">Percepteur :</span> {{ $payment->percepteur }}</p>
+                                                        @endif
+                                                        @if($payment->fichier_joint)
                                                             <a href="{{ asset('storage/' . $payment->fichier_joint) }}" target="_blank"
                                                                class="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline">
-                                                                <i class="fas fa-paperclip"></i> Voir fichier
+                                                                <i class="fas fa-file-alt"></i> Voir quittance
                                                             </a>
                                                         @endif
-                                                        <button type="submit"
-                                                                class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700">
-                                                            <i class="fas fa-save"></i>
-                                                        </button>
+                                                        <p class="text-xs text-gray-400 italic"><i class="fas fa-lock mr-0.5"></i>Modification non autorisée</p>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        </form>
+                                                @else
+                                                    <form action="{{ route('articles.update-charge-payments', $article) }}" method="POST"
+                                                          enctype="multipart/form-data">
+                                                        @csrf @method('PUT')
+                                                        <input type="hidden" name="payments[{{ $charge->id }}][charge_id]" value="{{ $charge->id }}">
+                                                        <input type="hidden" name="payments[{{ $charge->id }}][charge_nom]" value="{{ $charge->nom }}">
+                                                        <input type="hidden" name="payments[{{ $charge->id }}][statut]" value="0">
+                                                        <div class="space-y-1">
+                                                            <label class="inline-flex items-center gap-1 cursor-pointer text-xs">
+                                                                <input type="checkbox" name="payments[{{ $charge->id }}][statut]" value="1"
+                                                                       class="w-4 h-4 rounded text-emerald-600">
+                                                                Marquer payée
+                                                            </label>
+                                                            <input type="text" name="payments[{{ $charge->id }}][reference]"
+                                                                   placeholder="N° quittance *"
+                                                                   class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded" required>
+                                                            <input type="text" name="payments[{{ $charge->id }}][percepteur]"
+                                                                   placeholder="Percepteur"
+                                                                   class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded">
+                                                            <input type="date" name="payments[{{ $charge->id }}][date_payment]"
+                                                                   class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded" required>
+                                                            <div>
+                                                                <label class="block text-xs text-gray-600 mb-0.5">Quittance <span class="text-red-500">*</span></label>
+                                                                <input type="file" name="payments[{{ $charge->id }}][fichier_joint]"
+                                                                       accept=".pdf,.jpg,.jpeg,.png"
+                                                                       class="block w-32 text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-emerald-50 file:px-2 file:py-1 file:font-medium file:text-emerald-700 hover:file:bg-emerald-100">
+                                                                <p class="text-xs text-gray-400 mt-0.5">PDF / JPG / PNG</p>
+                                                            </div>
+                                                            <button type="submit"
+                                                                    class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700">
+                                                                <i class="fas fa-save"></i> Enregistrer
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                @endif
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -686,18 +854,28 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     @foreach($tranches as $tranche)
-                                        @php $tp = $tranche->payments->first(); @endphp
+                                        @php
+                                            $tp = $tranche->payments->first();
+                                            $trancheOverdue = !$tp?->is_paye && $tranche->date_echeance && now()->gt(\Carbon\Carbon::parse($tranche->date_echeance));
+                                        @endphp
                                         <form action="{{ route('articles.pay-tranches', $article) }}" method="POST"
                                               enctype="multipart/form-data" class="contents">
                                             @csrf @method('PUT')
                                             <input type="hidden" name="selected_tranche" value="{{ $tranche->id }}">
-                                            <tr class="hover:bg-gray-50">
+                                            <tr class="hover:bg-gray-50 {{ $trancheOverdue ? 'bg-red-50' : '' }}">
                                                 <td class="py-2 pr-4 font-medium">{{ $tranche->nom }}</td>
                                                 <td class="py-2 pr-4">{{ number_format($tranche->montant ?? 0, 2) }} MAD</td>
-                                                <td class="py-2 pr-4">{{ $tranche->date_echeance ? \Carbon\Carbon::parse($tranche->date_echeance)->format('d/m/Y') : '?' }}</td>
+                                                <td class="py-2 pr-4">
+                                                    {{ $tranche->date_echeance ? \Carbon\Carbon::parse($tranche->date_echeance)->format('d/m/Y') : '—' }}
+                                                    @if($trancheOverdue)
+                                                        <span class="ml-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium"><i class="fas fa-clock"></i> En retard</span>
+                                                    @endif
+                                                </td>
                                                 <td class="py-2 pr-4">
                                                     @if($tp?->is_paye)
-                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium"><i class="fas fa-check-circle"></i> Pay?</span>
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium"><i class="fas fa-check-circle"></i> Payée</span>
+                                                    @elseif($trancheOverdue)
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium"><i class="fas fa-exclamation-circle"></i> En retard</span>
                                                     @else
                                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium"><i class="fas fa-clock"></i> En attente</span>
                                                     @endif
@@ -711,13 +889,17 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                     @endphp
                                                     @if(!$tp?->is_paye)
                                                     <div class="space-y-1">
-                                                        <input type="text" name="num_quittance" placeholder="N? quittance *"
+                                                        <input type="text" name="num_quittance" placeholder="N° quittance *"
                                                                class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded" required>
                                                         <input type="date" name="date_payment"
                                                                class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded" required>
-                                                        <input type="file" name="fichier_joint"
-                                                               accept=".pdf,.jpg,.jpeg,.png"
-                                                               class="block w-32 text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-emerald-50 file:px-2 file:py-1 file:font-medium file:text-emerald-700 hover:file:bg-emerald-100">
+                                                        <div>
+                                                            <label class="block text-xs text-gray-600 mb-0.5">Quittance <span class="text-red-500">*</span></label>
+                                                            <input type="file" name="fichier_joint"
+                                                                   accept=".pdf,.jpg,.jpeg,.png"
+                                                                   class="block w-32 text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-emerald-50 file:px-2 file:py-1 file:font-medium file:text-emerald-700 hover:file:bg-emerald-100"
+                                                                   required>
+                                                        </div>
                                                         <button type="submit"
                                                                 class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700">
                                                             <i class="fas fa-check"></i> Payer
@@ -725,18 +907,19 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                     </div>
                                                     @else
                                                         <div class="space-y-2">
-                                                            <div>
-                                                                <span class="text-xs text-gray-500">{{ $tp?->num_quittace ?? '' }}</span>
-                                                                @if($tp?->date_payment)
-                                                                    <span class="block text-xs text-gray-400">{{ \Carbon\Carbon::parse($tp->date_payment)->format('d/m/Y') }}</span>
+                                                            <div class="text-xs">
+                                                                <p><span class="text-gray-400">Quittance :</span> {{ $tp->num_quittace ?? '—' }}</p>
+                                                                @if($tp->date_payment)
+                                                                    <p><span class="text-gray-400">Date :</span> {{ \Carbon\Carbon::parse($tp->date_payment)->format('d/m/Y') }}</p>
                                                                 @endif
-                                                                @if($tp?->fichier_joint)
+                                                                @if($tp->fichier_joint)
                                                                     <a href="{{ asset('storage/' . $tp->fichier_joint) }}" target="_blank"
                                                                        class="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline">
-                                                                        <i class="fas fa-paperclip"></i> Voir fichier
+                                                                        <i class="fas fa-file-alt"></i> Voir quittance
                                                                     </a>
                                                                 @endif
                                                             </div>
+                                                        </div>
                                                             @if($hasPermisForDate)
                                                                 <a href="{{ route('articles.permis-enlever', $article) }}"
                                                                    class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700">
@@ -773,6 +956,72 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             </button>
                         </div>
                     @endif
+
+                    {{-- Dénombrement --}}
+                    <div class="mt-4 pt-4 border-t border-gray-100" x-data="{ showDenombrement: {{ $denombrements->isNotEmpty() ? 'true' : 'false' }} }">
+                        <label class="inline-flex items-center gap-2 cursor-pointer mb-3">
+                            <input type="checkbox" x-model="showDenombrement" class="w-4 h-4 rounded text-emerald-600">
+                            <span class="text-sm font-semibold text-gray-700">Dénombrement</span>
+                        </label>
+                        <div x-show="showDenombrement">
+                            @if($denombrements->isNotEmpty())
+                                <div class="space-y-2 mb-3">
+                                    @foreach($denombrements as $denombrement)
+                                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <div>
+                                                    <p class="font-medium text-emerald-800">{{ $denombrement->date_denombrement?->format('d/m/Y') ?? '—' }}</p>
+                                                    <p class="text-emerald-600">Agent : {{ $denombrement->agent_responsable ?? '—' }} | Volume : {{ $denombrement->volume_denombre ?? '—' }}</p>
+                                                </div>
+                                                @if($denombrement->fichier_pv)
+                                                    <a href="{{ route('articles.denombrement.download', $article) }}" target="_blank"
+                                                       class="inline-flex items-center gap-1 px-2 py-1 text-xs text-blue-600 border border-blue-200 rounded hover:bg-blue-50">
+                                                        <i class="fas fa-file-alt"></i> Voir PV
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <a href="{{ route('articles.denombrement', $article) }}"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+                                <i class="fas fa-plus"></i> {{ $denombrements->isNotEmpty() ? 'Nouveau dénombrement' : 'Saisir un dénombrement' }}
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Résiliation contrat --}}
+                    @can('termination.create')
+                    @if($contractVente && !$contractVente->is_resiliation)
+                        <div class="mt-4 pt-4 border-t border-gray-100" x-data="{ confirmResilier: false }">
+                            <button type="button" @click="confirmResilier = true"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                <i class="fas fa-ban"></i> Résilier le contrat
+                            </button>
+                            <div x-show="confirmResilier" x-cloak class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p class="text-sm font-medium text-red-800 mb-3">Confirmer la résiliation du contrat ? Cette action est irréversible.</p>
+                                <form action="{{ route('workflow.resilier', $article) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 mr-2">
+                                        <i class="fas fa-check"></i> Confirmer
+                                    </button>
+                                    <button type="button" @click="confirmResilier = false"
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                        Annuler
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @elseif($contractVente?->is_resiliation)
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-100 text-red-800 rounded-lg">
+                                <i class="fas fa-ban"></i> Contrat résilié le {{ $contractVente->date_de_resiliation?->format('d/m/Y') ?? '—' }}
+                            </span>
+                        </div>
+                    @endif
+                    @endcan
 
                     {{-- Prorogations sub-section --}}
                     @if($contractVente)
@@ -1109,7 +1358,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                     @csrf
                                     <input type="hidden" name="state" value="{{ $transitionTargetState }}">
                                     <button type="submit"
-                                            onclick="return confirm('Attention : cette action est irr?versible. Une fois valid?, cet article ne pourra plus ?tre modifi?. Confirmez-vous ?')"
+                                            onclick="return confirm(@if($state === \App\Services\ArticleWorkflowService::CAUTION_PAID)'Confirmez-vous la validation du paiement de la caution ?\n\nCette action est irréversible.'@else'Attention : cette action est irréversible. Confirmez-vous ?'@endif)"
                                             class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all duration-150 hover:shadow-md active:scale-95"
                                             style="background:linear-gradient(135deg,#059669,#047857);box-shadow:0 2px 8px rgba(5,150,105,0.3);">
                                         <i class="fas fa-check-circle"></i>

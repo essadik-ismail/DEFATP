@@ -13,7 +13,9 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -36,12 +38,12 @@
 
             {{-- Brand --}}
             <div class="sb-brand">
-                <div class="sb-brand-mark" aria-hidden="true">
+                <div class="sb-brand-mark"  style="background: #00bc7d;" aria-hidden="true">
                     <i class="fas fa-tree"></i>
                 </div>
                 <div class="sb-brand-text">
                     <h1 class="sb-brand-name">DEFATP</h1>
-                    <p class="sb-brand-sub">ANEF — Eaux &amp; Forêts Maroc</p>
+                    <p class="sb-brand-sub">ANEF — Eaux &amp; Forêts</p>
                 </div>
                 <button class="sb-close" id="sbCloseBtn" onclick="closeSidebar()" aria-label="Fermer le menu">
                     <i class="fas fa-times" style="font-size:0.625rem;pointer-events:none;"></i>
@@ -55,8 +57,8 @@
 
                 <div class="sb-item">
                     <a href="{{ route('dashboard') }}"
-                       class="sb-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                       aria-current="{{ request()->routeIs('dashboard') ? 'page' : 'false' }}">
+                        class="sb-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                        aria-current="{{ request()->routeIs('dashboard') ? 'page' : 'false' }}">
                         <span class="sb-icon"><i class="fas fa-th-large"></i></span>
                         <span class="sb-label">Tableau de bord</span>
                     </a>
@@ -64,41 +66,47 @@
 
                 {{-- Exploitation group --}}
                 @php
-                    $exploitActive = request()->routeIs('cessions.*','exploitants.*','carnets.*','vehicles.*','workflow.alerts.index');
+                    $exploitActive = request()->routeIs(
+                        'cessions.*',
+                        'exploitants.*',
+                        'carnets.*',
+                        'vehicles.*',
+                        'workflow.alerts.index',
+                    );
                 @endphp
                 <div class="sb-item has-submenu {{ $exploitActive ? 'expanded' : '' }}" id="nav-exploitation">
                     <button type="button" class="sb-group-btn" id="toggle-exploitation"
-                            aria-expanded="{{ $exploitActive ? 'true' : 'false' }}"
-                            aria-controls="submenu-exploitation">
+                        aria-expanded="{{ $exploitActive ? 'true' : 'false' }}" aria-controls="submenu-exploitation">
                         <span class="sb-icon"><i class="fas fa-folder-open"></i></span>
                         <span class="sb-label">Exploitation</span>
                         <i class="fas fa-chevron-right sb-chevron" aria-hidden="true"></i>
                     </button>
                     <div class="sb-submenu {{ $exploitActive ? '' : 'collapsed' }}" id="submenu-exploitation"
-                         role="region" aria-label="Sous-menu Exploitation">
+                        role="region" aria-label="Sous-menu Exploitation">
                         <a href="{{ route('cessions.index') }}"
-                           class="sb-sub-link {{ request()->routeIs('cessions.*') ? 'active' : '' }}">
+                            class="sb-sub-link {{ request()->routeIs('cessions.*') ? 'active' : '' }}">
                             <i class="fas fa-layer-group"></i><span>Cessions</span>
                         </a>
                         <a href="{{ route('carnets.index') }}"
-                           class="sb-sub-link {{ request()->routeIs('carnets.*') ? 'active' : '' }}">
+                            class="sb-sub-link {{ request()->routeIs('carnets.*') ? 'active' : '' }}">
                             <i class="fas fa-book"></i><span>Carnets</span>
                         </a>
                         @can('vehicles.declare')
                             <a href="{{ route('vehicles.overview') }}"
-                               class="sb-sub-link {{ request()->routeIs('vehicles.*') ? 'active' : '' }}">
+                                class="sb-sub-link {{ request()->routeIs('vehicles.*') ? 'active' : '' }}">
                                 <i class="fas fa-truck"></i><span>Véhicules</span>
                             </a>
                         @endcan
                         <a href="{{ route('exploitants.index') }}"
-                           class="sb-sub-link {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
+                            class="sb-sub-link {{ request()->routeIs('exploitants.*') ? 'active' : '' }}">
                             <i class="fas fa-user-tie"></i><span>Exploitants forestiers</span>
                         </a>
                         <a href="{{ route('workflow.alerts.index') }}"
-                           class="sb-sub-link {{ request()->routeIs('workflow.alerts.index') ? 'active' : '' }}">
+                            class="sb-sub-link {{ request()->routeIs('workflow.alerts.index') ? 'active' : '' }}">
                             <i class="fas fa-bell"></i><span>Alertes</span>
-                            @if(($sidebarAlertCount ?? 0) > 0)
-                                <span class="sb-badge">{{ $sidebarAlertCount > 99 ? '99+' : $sidebarAlertCount }}</span>
+                            @if (($sidebarAlertCount ?? 0) > 0)
+                                <span
+                                    class="sb-badge">{{ $sidebarAlertCount > 99 ? '99+' : $sidebarAlertCount }}</span>
                             @endif
                         </a>
                     </div>
@@ -107,7 +115,7 @@
                 {{-- Entity data --}}
                 <div class="sb-item">
                     <a href="{{ route('entity-data.index') }}"
-                       class="sb-link {{ request()->routeIs('entity-data.*','essences.*','forets.*','situations.*','natures.*','vocations.*','coperatives.*','products.*','prestations.*') ? 'active' : '' }}">
+                        class="sb-link {{ request()->routeIs('entity-data.*', 'essences.*', 'forets.*', 'situations.*', 'natures.*', 'vocations.*', 'coperatives.*', 'products.*', 'prestations.*') ? 'active' : '' }}">
                         <span class="sb-icon"><i class="fas fa-database"></i></span>
                         <span class="sb-label">Données des entités</span>
                     </a>
@@ -117,7 +125,7 @@
 
                 <div class="sb-item">
                     <a href="{{ route('auth.profile') }}"
-                       class="sb-link {{ request()->routeIs('auth.profile') ? 'active' : '' }}">
+                        class="sb-link {{ request()->routeIs('auth.profile') ? 'active' : '' }}">
                         <span class="sb-icon"><i class="fas fa-sliders-h"></i></span>
                         <span class="sb-label">Paramètres</span>
                     </a>
@@ -126,7 +134,7 @@
                 @can('activity_logs.view')
                     <div class="sb-item">
                         <a href="{{ route('activity-logs.index') }}"
-                           class="sb-link {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
+                            class="sb-link {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
                             <span class="sb-icon"><i class="fas fa-history"></i></span>
                             <span class="sb-label">Journal d'activité</span>
                         </a>
@@ -139,7 +147,7 @@
                     @can('users.view')
                         <div class="sb-item">
                             <a href="{{ route('users.index') }}"
-                               class="sb-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                                class="sb-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                                 <span class="sb-icon"><i class="fas fa-users-cog"></i></span>
                                 <span class="sb-label">Utilisateurs</span>
                             </a>
@@ -149,7 +157,7 @@
                     @can('roles.view')
                         <div class="sb-item">
                             <a href="{{ route('roles.index') }}"
-                               class="sb-link {{ request()->routeIs('roles.*') ? 'active' : '' }}">
+                                class="sb-link {{ request()->routeIs('roles.*') ? 'active' : '' }}">
                                 <span class="sb-icon"><i class="fas fa-shield-alt"></i></span>
                                 <span class="sb-label">Rôles &amp; Permissions</span>
                             </a>
@@ -167,7 +175,7 @@
                 </div>
                 <div class="sb-user">
                     <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'U') }}&background=163326&color=ffffff&bold=true&size=64"
-                         alt="Avatar" class="sb-avatar">
+                        alt="Avatar" class="sb-avatar">
                     <div class="sb-user-info">
                         <div class="sb-user-name">{{ auth()->user()->name ?? 'Utilisateur' }}</div>
                         <div class="sb-user-email">{{ auth()->user()->email ?? 'agent@anef.ma' }}</div>
@@ -189,14 +197,14 @@
             {{-- Top Header --}}
             <header class="top-header no-print" role="banner">
 
-                <button id="sbHamburger" onclick="toggleSidebar()"
-                        aria-label="Ouvrir le menu" aria-controls="sidebar">
+                <button id="sbHamburger" onclick="toggleSidebar()" aria-label="Ouvrir le menu"
+                    aria-controls="sidebar">
                     <i class="fas fa-bars" style="font-size:0.875rem;pointer-events:none;"></i>
                 </button>
 
                 <nav class="bc-wrap" aria-label="Fil d'Ariane">
                     <ol class="bc">
-                        @if(request()->routeIs('dashboard'))
+                        @if (request()->routeIs('dashboard'))
                             <li class="bc-item active">Tableau de bord</li>
                         @else
                             <li class="bc-item">
@@ -215,25 +223,23 @@
                         <div class="relative" x-data="{ open: false }" @click.away="open = false">
                             <button @click="open = !open" class="usr-btn" :aria-expanded="open" aria-haspopup="true">
                                 <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'U') }}&background=163326&color=ffffff&bold=true&size=64"
-                                     alt="Profil" class="usr-avatar">
+                                    alt="Profil" class="usr-avatar">
                                 <div class="user-info-text">
                                     <span class="usr-name">{{ auth()->user()->name ?? 'Utilisateur' }}</span>
                                     <span class="usr-role">{{ auth()->user()->email ?? '' }}</span>
                                 </div>
-                                <i class="fas fa-chevron-down"
-                                   :class="{ 'rotate-180': open }"
-                                   style="font-size:0.4375rem;color:var(--text-muted);margin-left:0.25rem;transition:transform 0.2s;flex-shrink:0;"
-                                   aria-hidden="true"></i>
+                                <i class="fas fa-chevron-down" :class="{ 'rotate-180': open }"
+                                    style="font-size:0.4375rem;color:var(--text-muted);margin-left:0.25rem;transition:transform 0.2s;flex-shrink:0;"
+                                    aria-hidden="true"></i>
                             </button>
 
-                            <div x-show="open"
-                                 x-transition:enter="transition ease-out duration-100"
-                                 x-transition:enter-start="opacity-0 -translate-y-1 scale-95"
-                                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                                 x-transition:leave-end="opacity-0 -translate-y-1 scale-95"
-                                 class="usr-dropdown" style="display:none;">
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 -translate-y-1 scale-95"
+                                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                x-transition:leave-end="opacity-0 -translate-y-1 scale-95" class="usr-dropdown"
+                                style="display:none;">
                                 <div class="usr-dd-header">
                                     <div class="usr-dd-name">{{ auth()->user()->name ?? 'Utilisateur' }}</div>
                                     <div class="usr-dd-email">{{ auth()->user()->email ?? '' }}</div>
@@ -269,25 +275,25 @@
             <main class="content-area" id="main-content" role="main">
 
                 {{-- Session flash messages --}}
-                @if(session('success'))
+                @if (session('success'))
                     <div class="flash-msg flash-success" role="alert">
                         <i class="fas fa-check-circle flex-shrink-0" style="margin-top:0.0625rem;"></i>
                         <span>{{ session('success') }}</span>
                     </div>
                 @endif
-                @if(session('error'))
+                @if (session('error'))
                     <div class="flash-msg flash-error" role="alert">
                         <i class="fas fa-exclamation-circle flex-shrink-0" style="margin-top:0.0625rem;"></i>
                         <span>{{ session('error') }}</span>
                     </div>
                 @endif
-                @if(session('warning'))
+                @if (session('warning'))
                     <div class="flash-msg flash-warning" role="alert">
                         <i class="fas fa-exclamation-triangle flex-shrink-0" style="margin-top:0.0625rem;"></i>
                         <span>{{ session('warning') }}</span>
                     </div>
                 @endif
-                @if(session('info'))
+                @if (session('info'))
                     <div class="flash-msg flash-info" role="alert">
                         <i class="fas fa-info-circle flex-shrink-0" style="margin-top:0.0625rem;"></i>
                         <span>{{ session('info') }}</span>
@@ -311,8 +317,8 @@
         /* ── Sidebar toggle ──────────────────────────────────────────── */
         function toggleSidebar() {
             if (window.innerWidth >= 1024) return;
-            const sb  = document.getElementById('sidebar');
-            const bd  = document.getElementById('sbBackdrop');
+            const sb = document.getElementById('sidebar');
+            const bd = document.getElementById('sbBackdrop');
             const btn = document.getElementById('sbHamburger');
             const open = sb.classList.toggle('open');
             bd?.classList.toggle('active', open);
@@ -325,8 +331,8 @@
         }
 
         function closeSidebar() {
-            const sb  = document.getElementById('sidebar');
-            const bd  = document.getElementById('sbBackdrop');
+            const sb = document.getElementById('sidebar');
+            const bd = document.getElementById('sbBackdrop');
             const btn = document.getElementById('sbHamburger');
             sb.classList.remove('open');
             bd?.classList.remove('active');
@@ -337,12 +343,16 @@
             }
         }
 
-        window.addEventListener('resize', () => { if (window.innerWidth >= 1024) closeSidebar(); });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) closeSidebar();
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeSidebar();
+        });
 
         /* ── Exploitation submenu ────────────────────────────────────── */
-        document.getElementById('toggle-exploitation')?.addEventListener('click', function () {
-            const item    = document.getElementById('nav-exploitation');
+        document.getElementById('toggle-exploitation')?.addEventListener('click', function() {
+            const item = document.getElementById('nav-exploitation');
             const submenu = document.getElementById('submenu-exploitation');
             if (!item || !submenu) return;
             item.classList.toggle('expanded');
@@ -355,22 +365,50 @@
             showToast(message, type = 'info', options = {}) {
                 const container = document.getElementById('toastContainer');
                 if (!container || !message) return null;
-                const cfg = { duration: 5000, title: null, closable: true, dedupe: true, dedupeWindow: 4000, maxVisible: 3, ...options };
-                const esc = v => { const d = document.createElement('div'); d.textContent = v == null ? '' : String(v); return d.innerHTML; };
-                const icons  = { success: 'fas fa-check-circle', error: 'fas fa-exclamation-circle', warning: 'fas fa-exclamation-triangle', info: 'fas fa-info-circle' };
-                const titles = { success: 'Succès', error: 'Erreur', warning: 'Attention', info: 'Information' };
-                const icon  = icons[type]  || icons.info;
+                const cfg = {
+                    duration: 5000,
+                    title: null,
+                    closable: true,
+                    dedupe: true,
+                    dedupeWindow: 4000,
+                    maxVisible: 3,
+                    ...options
+                };
+                const esc = v => {
+                    const d = document.createElement('div');
+                    d.textContent = v == null ? '' : String(v);
+                    return d.innerHTML;
+                };
+                const icons = {
+                    success: 'fas fa-check-circle',
+                    error: 'fas fa-exclamation-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info: 'fas fa-info-circle'
+                };
+                const titles = {
+                    success: 'Succès',
+                    error: 'Erreur',
+                    warning: 'Attention',
+                    info: 'Information'
+                };
+                const icon = icons[type] || icons.info;
                 const title = cfg.title || titles[type] || titles.info;
-                const sig   = [type, title, message].join('|');
+                const sig = [type, title, message].join('|');
                 this._history = this._history || new Map();
                 const existing = [...container.querySelectorAll('.toast')].find(t => t.dataset.sig === sig);
                 if (cfg.dedupe && (existing || (Date.now() - (this._history.get(sig) || 0)) < cfg.dedupeWindow)) {
-                    if (existing?._t) { clearTimeout(existing._t); existing._t = setTimeout(() => this.closeToast(existing.id), cfg.duration); }
+                    if (existing?._t) {
+                        clearTimeout(existing._t);
+                        existing._t = setTimeout(() => this.closeToast(existing.id), cfg.duration);
+                    }
                     return existing?.id || null;
                 }
                 while (cfg.maxVisible > 0 && container.children.length >= cfg.maxVisible) {
                     const oldest = container.firstElementChild;
-                    if (oldest) { if (oldest._t) clearTimeout(oldest._t); oldest.remove(); }
+                    if (oldest) {
+                        if (oldest._t) clearTimeout(oldest._t);
+                        oldest.remove();
+                    }
                 }
                 this._history.set(sig, Date.now());
                 const id = 'toast-' + Date.now();
@@ -378,7 +416,8 @@
                 el.className = `toast ${type}`;
                 el.id = id;
                 el.dataset.sig = sig;
-                el.innerHTML = `<div class="toast-header"><span class="toast-title"><i class="${icon}"></i>${esc(title)}</span>${cfg.closable ? `<button class="toast-close" onclick="UXUtils.closeToast('${id}')"><i class="fas fa-times"></i></button>` : ''}</div><div class="toast-message">${esc(message)}</div>`;
+                el.innerHTML =
+                    `<div class="toast-header"><span class="toast-title"><i class="${icon}"></i>${esc(title)}</span>${cfg.closable ? `<button class="toast-close" onclick="UXUtils.closeToast('${id}')"><i class="fas fa-times"></i></button>` : ''}</div><div class="toast-message">${esc(message)}</div>`;
                 container.appendChild(el);
                 requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
                 if (cfg.duration > 0) el._t = setTimeout(() => this.closeToast(id), cfg.duration);
@@ -391,13 +430,25 @@
                 el.classList.remove('show');
                 setTimeout(() => el.remove(), 350);
             },
-            closeAllToasts() { document.querySelectorAll('.toast').forEach(t => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); }); },
-            setLoading(el, on = true) { el.classList.toggle('loading', on); el.disabled = on; },
+            closeAllToasts() {
+                document.querySelectorAll('.toast').forEach(t => {
+                    t.classList.remove('show');
+                    setTimeout(() => t.remove(), 350);
+                });
+            },
+            setLoading(el, on = true) {
+                el.classList.toggle('loading', on);
+                el.disabled = on;
+            },
             validateForm(form) {
                 let ok = true;
                 form.querySelectorAll('[required]').forEach(i => {
-                    if (!i.value.trim()) { i.classList.add('is-invalid'); ok = false; }
-                    else { i.classList.remove('is-invalid'); }
+                    if (!i.value.trim()) {
+                        i.classList.add('is-invalid');
+                        ok = false;
+                    } else {
+                        i.classList.remove('is-invalid');
+                    }
                 });
                 return ok;
             }
@@ -418,4 +469,5 @@
 
     @stack('scripts')
 </body>
+
 </html>

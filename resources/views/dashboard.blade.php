@@ -29,7 +29,7 @@
             'value'      => $stats['totalArticles'],
             'icon'       => 'fas fa-file-alt',
             'route'      => route('articles.index'),
-            'icon-bg'    => '#163326',
+            'icon-bg'    => '#00bc7d',
             'icon-color' => '#FFFFFF',
         ],
         [
@@ -37,7 +37,7 @@
             'value'      => $stats['totalForests'],
             'icon'       => 'fas fa-tree',
             'route'      => route('entity-data.index', ['tab' => 'forets']),
-            'icon-bg'    => '#2D7A54',
+            'icon-bg'    => '#00bc7d',
             'icon-color' => '#FFFFFF',
         ],
         [

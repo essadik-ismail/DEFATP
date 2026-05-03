@@ -20,11 +20,11 @@
         }
 
         :root {
-            --green-900: #0B1F14;
-            --green-800: #163326;
-            --green-700: #204A37;
-            --green-600: #2C644E;
-            --green-500: #2D7A54;
+            --green-900: #00bc7d;
+            --green-800: #00bc7d;
+            --green-700: #00bc7d;
+            --green-600: #00bc7d;
+            --green-500: #00bc7d;
             --green-400: #3DA870;
             --green-300: #71CE9C;
             --green-200: #B3E6CA;
@@ -396,11 +396,15 @@
                 <p class="form-subtitle">Entrez vos identifiants pour accéder au portail.</p>
 
                 @if ($errors->any())
-                    <div class="error-alert" role="alert">
+                    <div class="error-alert" role="alert" id="server-error-alert">
                         <i class="fas fa-exclamation-circle"></i>
                         <span>{{ $errors->first() }}</span>
                     </div>
                 @endif
+                <div class="error-alert" role="alert" id="client-error-alert" style="display:none;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="client-error-text">Champs obligatoires manquants.</span>
+                </div>
 
                 <form method="POST" action="{{ route('login') }}" novalidate>
                     @csrf
@@ -484,6 +488,7 @@
     </div>
 
     <script>
+        // ── Captcha refresh ──────────────────────────────────────────────────
         document.getElementById('refresh-captcha').addEventListener('click', function() {
             this.disabled = true;
             const icon = this.querySelector('i');
@@ -494,14 +499,87 @@
                 .then(data => {
                     document.getElementById('captcha-text').textContent = data.question + ' = ?';
                     document.getElementById('captcha').value = '';
+                    setInvalid(document.getElementById('captcha'), false);
                 })
                 .catch(() => {})
                 .finally(() => {
                     this.disabled = false;
-                    setTimeout(() => {
-                        icon.style.transform = 'rotate(0deg)';
-                    }, 120);
+                    setTimeout(() => { icon.style.transform = 'rotate(0deg)'; }, 120);
                 });
+        });
+
+        // ── Client-side validation ───────────────────────────────────────────
+        function setInvalid(el, state) {
+            el.classList.toggle('is-invalid', state);
+        }
+
+        function clearFieldError(el) {
+            setInvalid(el, false);
+            const wrap = el.closest('.field');
+            if (wrap) {
+                const existing = wrap.querySelector('.field-error.client-err');
+                if (existing) existing.remove();
+            }
+        }
+
+        function showFieldError(el, msg) {
+            setInvalid(el, true);
+            const wrap = el.closest('.field');
+            if (!wrap) return;
+            if (!wrap.querySelector('.field-error.client-err')) {
+                const p = document.createElement('p');
+                p.className = 'field-error client-err';
+                p.innerHTML = '<i class="fas fa-exclamation-circle"></i>' + msg;
+                // Insert after the captcha-row or field-wrap
+                const ref = wrap.querySelector('.captcha-row') || wrap.querySelector('.field-wrap');
+                if (ref) ref.after(p); else wrap.appendChild(p);
+            }
+        }
+
+        const form    = document.querySelector('form');
+        const fPpr    = document.getElementById('ppr');
+        const fPass   = document.getElementById('password');
+        const fCaptcha= document.getElementById('captcha');
+        const alertEl = document.getElementById('client-error-alert');
+
+        // Clear client errors on input
+        [fPpr, fPass, fCaptcha].forEach(function(el) {
+            el.addEventListener('input', function() {
+                clearFieldError(el);
+                // Hide client banner if no field has client errors
+                if (!form.querySelector('.field-input.is-invalid')) alertEl.style.display = 'none';
+            });
+        });
+
+        form.addEventListener('submit', function(e) {
+            // Remove previous client-side inline errors
+            form.querySelectorAll('.field-error.client-err').forEach(function(n) { n.remove(); });
+            [fPpr, fPass, fCaptcha].forEach(function(el) { setInvalid(el, false); });
+            alertEl.style.display = 'none';
+
+            let hasEmpty = false;
+
+            if (!fPpr.value.trim()) {
+                showFieldError(fPpr, 'Ce champ est obligatoire.');
+                hasEmpty = true;
+            }
+            if (!fPass.value) {
+                showFieldError(fPass, 'Ce champ est obligatoire.');
+                hasEmpty = true;
+            }
+            if (!fCaptcha.value.trim()) {
+                showFieldError(fCaptcha, 'Ce champ est obligatoire.');
+                hasEmpty = true;
+            }
+
+            if (hasEmpty) {
+                alertEl.style.display = 'flex';
+                document.getElementById('client-error-text').textContent = 'Champs obligatoires manquants.';
+                e.preventDefault();
+                // Focus first invalid field
+                const first = form.querySelector('.field-input.is-invalid');
+                if (first) first.focus();
+            }
         });
     </script>
 </body>

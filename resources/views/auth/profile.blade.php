@@ -50,7 +50,7 @@
                                      style="box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                             @else
                                 <div class="w-20 h-20 rounded-2xl ring-4 ring-white flex items-center justify-center"
-                                     style="background: var(--anef-800); box-shadow: 0 4px 12px rgba(22,51,38,0.25);">
+                                     style="background: var(--anef-800); box-shadow: 0 4px 12px rgba(0,188,125,0.25);">
                                     <span class="text-white text-2xl font-bold">
                                         {{ strtoupper(substr($user->name, 0, 1)) }}
                                     </span>

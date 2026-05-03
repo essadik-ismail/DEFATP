@@ -31,7 +31,7 @@ class LoginRequest extends FormRequest
         return [
             'ppr' => ['required', 'string'],
             'password' => ['required', 'string'],
-            'captcha' => ['required', 'integer', 'min:1', 'max:10'],
+            'captcha' => ['required', 'integer', 'min:2', 'max:18'],
             'remember' => ['boolean'],
         ];
     }
@@ -47,9 +47,9 @@ class LoginRequest extends FormRequest
             'ppr.required'      => 'Champs obligatoires manquants.',
             'password.required' => 'Champs obligatoires manquants.',
             'captcha.required'  => 'Champs obligatoires manquants.',
-            'captcha.integer'   => 'La réponse doit être un nombre entier.',
-            'captcha.min'       => 'La réponse doit être un nombre positif.',
-            'captcha.max'       => 'La réponse doit être un nombre entre 1 et 10.',
+            'captcha.integer'   => 'Résultat incorrect. Veuillez réessayer.',
+            'captcha.min'       => 'Résultat incorrect. Veuillez réessayer.',
+            'captcha.max'       => 'Résultat incorrect. Veuillez réessayer.',
         ];
     }
 }

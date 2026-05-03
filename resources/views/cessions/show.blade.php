@@ -146,7 +146,7 @@
                     <a href="{{ route('articles.create', ['cession_id' => $cession->id]) }}"
                         class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-sm">
                         <i class="fas fa-plus"></i>
-                        Ajouter
+                        Ajouter article
                     </a>
                 @endif
             </div>
@@ -179,6 +179,10 @@
                         @forelse($cession->articles as $article)
                             @php
                                 $stepLabels = [
+                                    'article_cree' => [
+                                        'label' => 'Article créé',
+                                        'class' => 'bg-slate-100 text-slate-700',
+                                    ],
                                     'cahier_affiche' => [
                                         'label' => 'Cahier & Affiche',
                                         'class' => 'bg-gray-100 text-gray-700',
@@ -204,7 +208,7 @@
                                         'class' => 'bg-emerald-100 text-emerald-700',
                                     ],
                                 ];
-                                $currentStep = $article->current_step ?? 'cahier_affiche';
+                                $currentStep = $article->current_step ?? 'article_cree';
                                 $stepInfo = $stepLabels[$currentStep] ?? [
                                     'label' => ucfirst(str_replace('_', ' ', $currentStep)),
                                     'class' => 'bg-gray-100 text-gray-700',

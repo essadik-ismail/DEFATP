@@ -24,6 +24,8 @@ class PermiEnlever extends Model
         'date_paiement',
         'percepteur',
         'volume',
+        'fichier_permis_signe',
+        'signed_at',
     ];
 
     protected $casts = [
@@ -31,6 +33,7 @@ class PermiEnlever extends Model
         'date_paiement' => 'date',
         'num_tranche_paye' => 'integer',
         'volume' => 'decimal:2',
+        'signed_at' => 'datetime',
     ];
 
     /**

@@ -21,7 +21,7 @@
         'warning' => '#D97706',
         'danger'  => '#DC2626',
         'info'    => '#2563EB',
-        'green'   => '#2D7A54',
+        'green'   => '#00bc7d',
         'earth'   => '#B7791F',
         default   => '#7A9B8A',
     };

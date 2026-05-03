@@ -15,6 +15,7 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CessionController;
 use App\Http\Controllers\CarnetController;
+use App\Models\Article;
 
 // Health Check Routes
 Route::get('/health', [HealthController::class, 'index'])->name('health');
@@ -140,9 +141,11 @@ Route::middleware('auth')->group(function () {
         Route::get('{article}/lettre-adjudicataire/print', [ArticleController::class, 'printLettreAdjudicataire'])->name('lettre-adjudicataire.print');
         Route::get('{article}/permis-enlever', [ArticleController::class, 'permisEnlever'])->name('permis-enlever');
         Route::post('{article}/permis-enlever', [ArticleController::class, 'storePermisEnlever'])->name('store-permis-enlever');
+        Route::post('{article}/permis-enlever/{permiEnlever}/upload-signe', [ArticleController::class, 'uploadPermisEnleverSigne'])->name('permis-enlever.upload-signe');
         Route::get('{article}/permis-enlever/{permiEnlever}/print', [ArticleController::class, 'printPermisEnlever'])->name('print-permis-enlever');
         Route::get('{article}/permis-exploiter', [ArticleController::class, 'permisExploiter'])->name('permis-exploiter');
         Route::post('{article}/permis-exploiter', [ArticleController::class, 'storePermisExploiter'])->name('store-permis-exploiter');
+        Route::post('{article}/permis-exploiter/upload-signe', [ArticleController::class, 'uploadPermisExploiterSigne'])->name('permis-exploiter.upload-signe');
         Route::get('{article}/permis-exploiter/print', [ArticleController::class, 'printPermisExploiter'])->name('print-permis-exploiter');
         Route::get('{article}/permis-colportage/create', [ArticleController::class, 'permisColportageCreate'])->name('permis-colportage.create');
         Route::post('{article}/permis-colportage', [ArticleController::class, 'storePermisColportage'])->name('store-permis-colportage');
@@ -167,8 +170,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('articles/{article}/contract-ventes')->name('contract-ventes.')->group(function () {
         Route::get('/create', [App\Http\Controllers\ContractVenteController::class, 'create'])->name('create');
         Route::post('/', [App\Http\Controllers\ContractVenteController::class, 'store'])->name('store');
+        Route::get('/{contractVente}', [App\Http\Controllers\ContractVenteController::class, 'show'])->name('show');
         Route::get('/{contractVente}/edit', [App\Http\Controllers\ContractVenteController::class, 'edit'])->name('edit');
         Route::put('/{contractVente}', [App\Http\Controllers\ContractVenteController::class, 'update'])->name('update');
+        Route::post('/{contractVente}/validate', [App\Http\Controllers\ContractVenteController::class, 'validateContract'])->name('validate');
     });
 
     // AJAX route for exploitant details
@@ -385,6 +390,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/articles/{article}/upload-signed-letter', [\App\Http\Controllers\WorkflowController::class, 'uploadSignedLetter'])
             ->name('upload-signed-letter');
 
+        // View signed letter (streams file inline, no raw storage URL exposed)
+        Route::get('/articles/{article}/view-signed-letter', [\App\Http\Controllers\WorkflowController::class, 'viewSignedLetter'])
+            ->name('view-signed-letter');
+
         // Prorogation
         Route::get('/articles/{article}/prorogation/create', [\App\Http\Controllers\WorkflowController::class, 'createProrogation'])
             ->name('prorogation.create');
@@ -404,6 +413,14 @@ Route::middleware('auth')->group(function () {
             ->name('mainlevee.issue');
         Route::post('/articles/{article}/close', [\App\Http\Controllers\WorkflowController::class, 'closeDossier'])
             ->name('close');
+
+        // Déchéance caution
+        Route::post('/articles/{article}/caution-decheance', [\App\Http\Controllers\WorkflowController::class, 'cautionDecheance'])
+            ->name('caution-decheance');
+
+        // Résiliation contrat (DRANEF)
+        Route::post('/articles/{article}/resilier', [\App\Http\Controllers\WorkflowController::class, 'resilierContrat'])
+            ->name('resilier');
 
         // Alerts — per article
         Route::get('/articles/{article}/alerts', [\App\Http\Controllers\WorkflowController::class, 'alerts'])

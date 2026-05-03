@@ -95,6 +95,15 @@ class ArticleController extends Controller
 
         $currentUser = Auth::user()?->load(['dranef', 'dpanef', 'zdtf', 'dfp', 'province']);
 
+        // Load forets with dpanef_id for dynamic filtering (Bug 7)
+        $forets = Foret::select('id', 'foret', 'dpanef_id')->orderBy('foret')->get();
+
+        // Load cession context if provided (Bug 3, 5)
+        $cession = null;
+        if (request('cession_id')) {
+            $cession = \App\Models\Cession::with('dranef')->find(request('cession_id'));
+        }
+
         return view('articles.create', compact(
             'communes',
             'provinces',
@@ -110,7 +119,8 @@ class ArticleController extends Controller
             'essences',
             'products',
             'depots',
-            'currentUser'
+            'currentUser',
+            'cession'
         ));
     }
 
@@ -125,6 +135,42 @@ class ArticleController extends Controller
             $data = $request->validated();
             $data['groupe_cession_id'] = $data['cession_id'] ?? null;
             unset($data['cession_id']);
+
+            // Security: non-admin users must use their own DRANEF/DPANEF/ZDTF/DFP
+            // Auto-fill from user profile if the field was not submitted (locked in the form)
+            $user = Auth::user()?->load(['dranef', 'dpanef', 'zdtf']);
+            if ($user && !$user->hasRole('admin')) {
+                if ($user->dranef?->code) {
+                    if (empty($data['dranef_code'])) {
+                        $data['dranef_code'] = $user->dranef->code;
+                    } elseif ($data['dranef_code'] !== $user->dranef->code) {
+                        DB::rollBack();
+                        return redirect()->back()->withInput()
+                            ->withErrors(['dranef_code' => 'Vous ne pouvez créer un article que pour votre DRANEF.']);
+                    }
+                }
+                if ($user->dpanef?->code) {
+                    if (empty($data['dpanef_code'])) {
+                        $data['dpanef_code'] = $user->dpanef->code;
+                    } elseif ($data['dpanef_code'] !== $user->dpanef->code) {
+                        DB::rollBack();
+                        return redirect()->back()->withInput()
+                            ->withErrors(['dpanef_code' => 'Vous ne pouvez créer un article que pour votre DPANEF.']);
+                    }
+                }
+                if ($user->zdtf?->code) {
+                    if (empty($data['zdtf_code'])) {
+                        $data['zdtf_code'] = $user->zdtf->code;
+                    } elseif ($data['zdtf_code'] !== $user->zdtf->code) {
+                        DB::rollBack();
+                        return redirect()->back()->withInput()
+                            ->withErrors(['zdtf_code' => 'Vous ne pouvez créer un article que pour votre ZDTF.']);
+                    }
+                }
+            }
+
+            // Bug 16 – default status is "Article créé"
+            $data['current_step'] = $data['current_step'] ?? 'article_cree';
 
             // Create the article
             $article = Article::create($data);
@@ -171,41 +217,28 @@ class ArticleController extends Controller
                 $article->depots()->detach();
             }
 
-            // Optimize: Handle products (essence, product, quantity) with bulk operations
             if ($request->has('products') && is_array($request->products)) {
-                // Get existing combinations once
-                $existingCombinations = DB::table('article_essence')
-                    ->where('article_id', $article->id)
-                    ->get(['essence_id', 'product_id'])
-                    ->map(fn($row) => $row->essence_id . '-' . $row->product_id)
-                    ->toArray();
-
-                // Prepare data for bulk insert
-                $essencesToAttach = [];
+                $rows = [];
+                $now  = now();
                 foreach ($request->products as $productData) {
-                    if (isset($productData['essence_id']) && isset($productData['product_id']) && isset($productData['quantity'])) {
-                        $key = $productData['essence_id'] . '-' . $productData['product_id'];
-                        
-                        // Only add if not exists
-                        if (!in_array($key, $existingCombinations)) {
-                            $essencesToAttach[$productData['essence_id']] = [
-                                'product_id' => $productData['product_id'],
-                                'quantity' => $productData['quantity']
-                            ];
-                        }
+                    if (
+                        isset($productData['essence_id'], $productData['product_id'], $productData['quantity'])
+                        && is_numeric($productData['essence_id'])
+                        && is_numeric($productData['product_id'])
+                    ) {
+                        $rows[] = [
+                            'article_id'  => $article->id,
+                            'essence_id'  => (int) $productData['essence_id'],
+                            'product_id'  => (int) $productData['product_id'],
+                            'quantity'    => $productData['quantity'],
+                            'created_at'  => $now,
+                            'updated_at'  => $now,
+                        ];
                     }
                 }
-
-                // Bulk attach if any
-                if (!empty($essencesToAttach)) {
-                    $article->essences()->attach($essencesToAttach);
+                if ($rows) {
+                    DB::table('article_essence')->insert($rows);
                 }
-            }
-
-            // Handle depot if checkbox is checked
-            if ($request->has('is_on_depot') && $request->is_on_depot) {
-                // You might want to attach to a specific depot or handle this differently
-                // For now, we'll just mark it in the article
             }
 
             DB::commit();
@@ -235,7 +268,13 @@ class ArticleController extends Controller
                     ->with('success', 'Article créé avec succès. L\'import du plan de situation a échoué ; vous pouvez réessayer l\'import Excel ci-dessous.');
             }
 
-            return redirect()->route('articles.show', $article)
+            // Bug 13 – redirect to cession articles list, not single article view
+            if ($article->groupe_cession_id) {
+                return redirect()->route('cessions.show', $article->groupe_cession_id)
+                    ->with('success', $successMsg);
+            }
+
+            return redirect()->route('cessions.index')
                 ->with('success', $successMsg);
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
@@ -296,6 +335,7 @@ class ArticleController extends Controller
                     'vehicleDeclarations',
                     'prorogations',
                     'recolement',
+                    'denombrements',
                     'exploitant' => function($q) {
                         $q->select('id', 'nom_complet', 'raison_sociale', 'numero', 'n_cin', 'adresse', 'categorie', 'activite', 'qualification_rc', 'date_obtention')
                           ->with('dranef:id,code,dranef');
@@ -482,7 +522,12 @@ class ArticleController extends Controller
 
             ActivityLogger::log('update', 'Article modifié', Article::class, $article->id);
 
-            return redirect()->route('articles.show', $article)
+            if ($article->groupe_cession_id) {
+                return redirect()->route('cessions.show', $article->groupe_cession_id)
+                    ->with('success', 'Article modifié avec succès.');
+            }
+
+            return redirect()->route('cessions.index')
                 ->with('success', 'Article modifié avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -601,6 +646,26 @@ class ArticleController extends Controller
             'payments.*.charge_nom' => 'required|string',
         ]);
 
+        // Validation: date and quittance file are required when marking any charge as paid
+        foreach ($validated['payments'] as $key => $paymentData) {
+            if (($paymentData['statut'] ?? '0') == '1') {
+                $chargeName = $paymentData['charge_nom'] ?? '';
+                if (empty($paymentData['date_payment'])) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', "Date de paiement obligatoire pour « {$chargeName} ».");
+                }
+                $chargeId = $paymentData['charge_id'] ?? null;
+                $existingPayment = $chargeId ? Payment::where('chargeapayer_id', $chargeId)->first() : null;
+                $hasFile = $request->hasFile("payments.{$key}.fichier_joint") || ($existingPayment?->fichier_joint);
+                if (!$hasFile) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', "La quittance (PDF/JPG/PNG) est obligatoire pour « {$chargeName} ».");
+                }
+            }
+        }
+
         try {
             DB::beginTransaction();
 
@@ -658,6 +723,40 @@ class ArticleController extends Controller
                         'fichier_joint' => $fichierJoint,
                         'chargeapayer_id' => $charge->id,
                         'contract_vente_id' => $contractVente->id,
+                    ]);
+                }
+            }
+
+            // Check for late payments: warn and update contract status for overdue unpaid taxes
+            $overdueNames = [];
+            $contractVente->loadMissing('chargeApayer.payments');
+            foreach ($contractVente->chargeApayer as $charge) {
+                if (str_starts_with(strtolower($charge->nom), 'tranche')) {
+                    continue;
+                }
+                $chargePayment = $charge->payments->first();
+                if (!$chargePayment?->is_paye && $charge->date_limite && now()->gt($charge->date_limite)) {
+                    $overdueNames[] = $charge->nom;
+                }
+                // Warn if payment date is after echeance
+                if ($chargePayment?->is_paye && $chargePayment->date_payment && $charge->date_echeance) {
+                    $payDate = \Carbon\Carbon::parse($chargePayment->date_payment);
+                    $echeance = \Carbon\Carbon::parse($charge->date_echeance);
+                    if ($payDate->gt($echeance)) {
+                        session()->push('warnings', "Paiement de « {$charge->nom} » effectué après l'échéance ({$echeance->format('d/m/Y')}).");
+                    }
+                }
+            }
+            if (!empty($overdueNames)) {
+                $contractVente->update(['Current_state' => 'Taxe impayée : en attente de décision']);
+                $notifService = app(\App\Services\NotificationService::class);
+                $actionUrl = route('articles.show', $article);
+                foreach ($overdueNames as $nom) {
+                    $notifService->sendToAllUsers('taxe_retard', 'Taxe impayée', "Article {$article->numero} — taxe impayée après échéance : {$nom}", [], [
+                        'action_url' => $actionUrl,
+                        'icon' => 'fas fa-exclamation-triangle',
+                        'color' => 'warning',
+                        'priority' => 'high',
                     ]);
                 }
             }
@@ -924,7 +1023,7 @@ class ArticleController extends Controller
         }
 
         if (!$lettreAdjudicataireService->canGeneratePdf()) {
-            return redirect()->route('articles.lettre-adjudicataire', $article)
+            return redirect()->back()
                 ->with('error', 'La conversion PDF n\'est pas disponible sur ce serveur.');
         }
 
@@ -952,7 +1051,7 @@ class ArticleController extends Controller
                 'exception' => $e,
             ]);
 
-            return redirect()->route('articles.lettre-adjudicataire', $article)
+            return redirect()->back()
                 ->with('error', 'Erreur lors de la generation du PDF de la lettre adjudicataire: ' . $e->getMessage());
         }
     }
@@ -1236,7 +1335,20 @@ class ArticleController extends Controller
 
         $percepteurs = $percepteursFromTaxes->implode(', ');
 
-        return view('articles.permis-exploiter', compact('article', 'contractVente', 'permisExploiter', 'percepteurs'));
+        // Pre-fill caution quittance number
+        $cautionCharge = $contractVente->chargeApayer
+            ->first(fn($c) => str_contains(strtolower($c->nom), 'caution'));
+        $cautionQuittance = $cautionCharge?->payments?->first()?->num_quittace ?? '';
+
+        // Pre-fill tax quittance numbers (concatenated)
+        $taxQuittances = $contractVente->chargeApayer
+            ->filter(fn($c) => !str_starts_with(strtolower($c->nom), 'tranche') && !str_contains(strtolower($c->nom), 'caution'))
+            ->map(fn($c) => $c->payments->first()?->num_quittace)
+            ->filter()
+            ->unique()
+            ->implode(', ');
+
+        return view('articles.permis-exploiter', compact('article', 'contractVente', 'permisExploiter', 'percepteurs', 'cautionQuittance', 'taxQuittances'));
     }
 
     /**
@@ -1328,6 +1440,57 @@ class ArticleController extends Controller
                 ->withInput()
                 ->with('error', 'Erreur lors de la création du permis d\'exploiter: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Upload the signed Permis d'Exploiter file.
+     */
+    public function uploadPermisExploiterSigne(Request $request, Article $article): RedirectResponse
+    {
+        $request->validate([
+            'fichier_permis_signe' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $contractVente = $article->contractVentes()->first();
+        $permisExploiter = $contractVente?->permisExploiter;
+
+        if (!$permisExploiter) {
+            return redirect()->back()->with('error', 'Permis d\'exploiter introuvable.');
+        }
+
+        $path = $request->file('fichier_permis_signe')->store('permis-exploiter/signes', 'public');
+
+        $permisExploiter->update([
+            'fichier_permis_signe' => $path,
+            'signed_at' => now(),
+        ]);
+
+        ActivityLogger::log('update', 'Permis d\'exploiter signé importé', PermisExploiter::class, $permisExploiter->id);
+
+        return redirect()->route('articles.permis-exploiter', $article)
+            ->with('success', 'Permis d\'exploiter signé importé avec succès.');
+    }
+
+    /**
+     * Upload signed Permis d'Enlever file.
+     */
+    public function uploadPermisEnleverSigne(Request $request, Article $article, \App\Models\PermiEnlever $permiEnlever): RedirectResponse
+    {
+        $request->validate([
+            'fichier_permis_signe' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+
+        $path = $request->file('fichier_permis_signe')->store('permis-enlever/signes', 'public');
+
+        $permiEnlever->update([
+            'fichier_permis_signe' => $path,
+            'signed_at' => now(),
+        ]);
+
+        ActivityLogger::log('update', 'Permis d\'enlever signé importé', \App\Models\PermiEnlever::class, $permiEnlever->id);
+
+        return redirect()->route('articles.permis-enlever', $article)
+            ->with('success', 'Permis d\'enlever signé importé avec succès.');
     }
 
     private function canGeneratePermisExploiter(ContractVente $contractVente): bool
@@ -1898,10 +2061,10 @@ class ArticleController extends Controller
     public function storePvInstallation(Request $request, Article $article)
     {
         $validated = $request->validate([
-            'pvn' => 'nullable|string|max:255',
+            'pvn' => 'required|string|max:255',
             'date' => 'required|date',
-            'participants' => 'nullable|string',
-            'exploitant' => 'nullable|string|max:255',
+            'participants' => 'required|string',
+            'exploitant' => 'required|string|max:255',
             'reserve' => 'nullable|string',
             'emo' => 'nullable|string|max:255',
             'charbonniére' => 'nullable|string|max:255',
@@ -1910,6 +2073,7 @@ class ArticleController extends Controller
             'remarient' => 'nullable|string|max:255',
             'mise_en_defens' => 'nullable|string|max:255',
             'invitation_caporal' => 'nullable|string|max:255',
+            'fichier_pv_signe' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
         $contractVente = $article->contractVentes()->with('permisExploiter')->first();
@@ -1927,20 +2091,35 @@ class ArticleController extends Controller
         try {
             DB::beginTransaction();
 
+            // Handle signed PV file upload
+            $fileData = [];
+            if ($request->hasFile('fichier_pv_signe')) {
+                $fileData['fichier_pv_signe'] = $request->file('fichier_pv_signe')->store('pv-installations/signes', 'public');
+                $fileData['pv_signed_at'] = now();
+            }
+
             // Check if PV Installation already exists
             $pvInstallation = \App\Models\PvInstallation::where('contract_vente_id', $contractVente->id)->first();
+            unset($validated['fichier_pv_signe']);
 
             if ($pvInstallation) {
-                // Update existing
-                $pvInstallation->update($validated);
+                $pvInstallation->update(array_merge($validated, $fileData));
                 ActivityLogger::log('update', 'PV d\'Installation modifié', \App\Models\PvInstallation::class, $pvInstallation->id);
                 $message = 'PV d\'Installation modifié avec succès.';
             } else {
-                // Create new
                 $validated['contract_vente_id'] = $contractVente->id;
-                $pvInstallation = \App\Models\PvInstallation::create($validated);
+                $pvInstallation = \App\Models\PvInstallation::create(array_merge($validated, $fileData));
                 ActivityLogger::log('create', 'PV d\'Installation créé', \App\Models\PvInstallation::class, $pvInstallation->id);
                 $message = 'PV d\'Installation créé avec succès.';
+            }
+
+            // Auto-transition workflow to TRANCHES_IN_PROGRESS
+            $workflow = app(ArticleWorkflowService::class);
+            $currentState = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
+            if ($currentState === ArticleWorkflowService::PV_INSTALLATION_DONE) {
+                try {
+                    $workflow->transition($article, ArticleWorkflowService::TRANCHES_IN_PROGRESS, Auth::id());
+                } catch (\RuntimeException) {}
             }
 
             DB::commit();

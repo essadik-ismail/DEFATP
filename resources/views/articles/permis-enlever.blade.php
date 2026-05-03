@@ -129,7 +129,7 @@
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        <div class="flex items-center justify-center gap-2">
+                                        <div class="flex items-center justify-center gap-2 flex-wrap">
                                             <x-table-action-button
                                                 icon="fas fa-eye"
                                                 color="blue"
@@ -142,6 +142,24 @@
                                                title="Imprimer le Permis d'Enlever">
                                                 <i class="fas fa-print text-sm"></i>
                                             </a>
+                                            @if($permis->fichier_permis_signe)
+                                                <a href="{{ asset('storage/' . $permis->fichier_permis_signe) }}" target="_blank"
+                                                   class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700"
+                                                   title="Voir permis signé">
+                                                    <i class="fas fa-file-signature text-sm"></i>
+                                                </a>
+                                            @else
+                                                <label class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-amber-500 hover:bg-amber-600 cursor-pointer"
+                                                       title="Importer permis signé">
+                                                    <i class="fas fa-upload text-sm"></i>
+                                                    <form action="{{ route('articles.permis-enlever.upload-signe', ['article' => $article, 'permiEnlever' => $permis->id]) }}"
+                                                          method="POST" enctype="multipart/form-data" class="hidden" id="upload-signe-{{ $permis->id }}">
+                                                        @csrf
+                                                        <input type="file" name="fichier_permis_signe" accept=".pdf,.jpg,.jpeg,.png"
+                                                               onchange="document.getElementById('upload-signe-{{ $permis->id }}').submit()">
+                                                    </form>
+                                                </label>
+                                            @endif
                                             <a href="{{ route('articles.permis-colportage.create', ['article' => $article, 'permis_enlever_id' => $permis->id]) }}"
                                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-white transition-colors duration-200 shadow-sm hover:shadow-md bg-purple-600 hover:bg-purple-700"
                                                title="Créer un permis de colportage">

@@ -15,6 +15,7 @@ class CessionController extends Controller
     {
         $dranefs = Dranef::orderBy('dranef')->get();
 
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
         $userDranefId = ($user?->dranef_id && !$user->hasRole('admin')) ? $user->dranef_id : null;
 
@@ -79,6 +80,7 @@ class CessionController extends Controller
 
         $validated = $request->validate($rules);
 
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
         if ($user?->dranef_id && !$user->hasRole('admin') && $user->dranef_id != $validated['dranef_id']) {
             return redirect()->back()
@@ -108,12 +110,12 @@ class CessionController extends Controller
 
     public function update(Request $request, Cession $cession): RedirectResponse
     {
-        $type = $request->input('type', $cession->type);
+        // Type is immutable after creation — always use the stored value
+        $type = $cession->mode_cession;
 
         $rules = [
             'dranef_id' => ['required', 'exists:dranefs,id'],
             'annee_exercice' => ['required', 'integer', 'min:2000', 'max:' . (now()->year + 1)],
-            'type' => ['required', 'in:adjudication,appel_offre'],
         ];
 
         if ($type === 'adjudication') {
@@ -125,18 +127,18 @@ class CessionController extends Controller
 
         $validated = $request->validate($rules);
 
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        if ($user?->dranef_id && $user->dranef_id != $validated['dranef_id']) {
+        if ($user?->dranef_id && !$user->hasRole('admin') && $user->dranef_id != $validated['dranef_id']) {
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['dranef_id' => 'Vous ne pouvez modifier que les cessions de votre DRANEF.']);
         }
 
         $cession->dranef_id = $validated['dranef_id'];
-        $cession->mode_cession = $validated['type'];
         $cession->Exercice = $validated['annee_exercice'];
 
-        if ($validated['type'] === 'adjudication') {
+        if ($type === 'adjudication') {
             $cession->DateAdj = $validated['date_adjudication'];
             $cession->numAO = null;
             $cession->dateAO = null;

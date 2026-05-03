@@ -139,6 +139,54 @@
                         @endif
                     </div>
 
+                    <!-- Section PV Signé -->
+                    <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <i class="fas fa-file-signature text-green-600"></i> PV Signé
+                        </h3>
+                        @if($pvInstallation->fichier_pv_signe)
+                            <div class="flex items-center gap-3 mb-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                                <i class="fas fa-check-circle text-emerald-600"></i>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-emerald-800">PV signé importé</p>
+                                    @if($pvInstallation->pv_signed_at)
+                                        <p class="text-xs text-emerald-600">Le {{ $pvInstallation->pv_signed_at->format('d/m/Y à H:i') }}</p>
+                                    @endif
+                                </div>
+                                <a href="{{ asset('storage/' . $pvInstallation->fichier_pv_signe) }}" target="_blank"
+                                   class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-white border border-emerald-300 text-emerald-700 rounded-lg hover:bg-emerald-50">
+                                    <i class="fas fa-eye"></i> Voir
+                                </a>
+                            </div>
+                        @endif
+                        <form action="{{ route('articles.store-pv-installation', $article) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            {{-- carry all existing values so update doesn't reset them --}}
+                            <input type="hidden" name="pvn" value="{{ $pvInstallation->pvn }}">
+                            <input type="hidden" name="date" value="{{ $pvInstallation->date?->format('Y-m-d') }}">
+                            <input type="hidden" name="participants" value="{{ $pvInstallation->participants }}">
+                            <input type="hidden" name="exploitant" value="{{ $pvInstallation->exploitant }}">
+                            <input type="hidden" name="reserve" value="{{ $pvInstallation->reserve }}">
+                            <input type="hidden" name="emo" value="{{ $pvInstallation->emo }}">
+                            <div class="flex items-end gap-3 flex-wrap">
+                                <div class="flex-1 min-w-48">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">
+                                        {{ $pvInstallation->fichier_pv_signe ? 'Remplacer le PV signé' : 'Importer le PV signé' }}
+                                    </label>
+                                    <input type="file" name="fichier_pv_signe" accept=".pdf,.jpg,.jpeg,.png"
+                                           class="block w-full text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-green-50 file:px-2 file:py-1.5 file:font-medium file:text-green-700 hover:file:bg-green-100"
+                                           required>
+                                    <p class="text-xs text-gray-400 mt-0.5">PDF / JPG / PNG</p>
+                                </div>
+                                <button type="submit"
+                                        class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg font-medium transition-colors"
+                                        style="background:#059669;">
+                                    <i class="fas fa-upload"></i> Importer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="flex justify-end gap-4 pt-6 border-t border-green-200">
                         <a href="{{ route('articles.show', $article) }}"
@@ -166,7 +214,7 @@
                     </h2>
                 </div>
                 <div class="p-6">
-                    <form action="{{ route('articles.store-pv-installation', $article) }}" method="POST">
+                    <form action="{{ route('articles.store-pv-installation', $article) }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <x-validation-errors />
@@ -292,6 +340,17 @@
                                     rows="3"
                                     focusColor="yellow"
                                 />
+                            </x-form-section>
+
+                            <!-- Section 5: PV Signé -->
+                            <x-form-section title="PV Signé" icon="fas fa-file-signature" color="green" columns="1">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Importer le PV signé <span class="text-red-500">*</span></label>
+                                    <input type="file" name="fichier_pv_signe" accept=".pdf,.jpg,.jpeg,.png"
+                                           class="block w-full text-sm text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-green-50 file:px-3 file:py-2 file:font-medium file:text-green-700 hover:file:bg-green-100"
+                                           required>
+                                    <p class="text-xs text-gray-400 mt-0.5">PDF / JPG / PNG, max 10 Mo — requis pour la validation</p>
+                                </div>
                             </x-form-section>
                         </div>
 

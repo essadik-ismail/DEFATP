@@ -37,6 +37,9 @@ class ContractVente extends Model
         'letter_signed_file',
         'letter_signed_at',
         'bois_chauffage_volume_st',
+        'percepteur',
+        'is_validated',
+        'validated_at',
     ];
 
     protected $casts = [
@@ -52,6 +55,8 @@ class ContractVente extends Model
         'bois_chauffage_volume_st' => 'decimal:2',
         'is_resiliation'     => 'boolean',
         'nombre_tranche'     => 'integer',
+        'is_validated'       => 'boolean',
+        'validated_at'       => 'datetime',
     ];
 
     /**
@@ -84,6 +89,14 @@ class ContractVente extends Model
     public function pvInstallations(): HasMany
     {
         return $this->hasMany(PvInstallation::class, 'contract_vente_id');
+    }
+
+    /**
+     * Get the denombrements for this contract.
+     */
+    public function denombrements(): HasMany
+    {
+        return $this->hasMany(\App\Models\Denombrement::class, 'contract_vente_id');
     }
 
     /**

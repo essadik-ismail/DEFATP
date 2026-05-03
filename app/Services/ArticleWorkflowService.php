@@ -157,8 +157,8 @@ class ArticleWorkflowService
         match ($newState) {
             self::CONTRACT_CREATED       => $this->requireContract($article),
             self::LETTER_SIGNED_UPLOADED => $this->requireLetterSigned($article),
-            self::CAUTION_PAID           => $this->requireLetterSigned($article),
-            self::TAXES_PAID             => $this->requireCautionPaid($article),
+            self::CAUTION_PAID           => $this->requireCautionPaid($article),
+            self::TAXES_PAID             => $this->requireTaxesPaid($article),
             self::PERMIT_ISSUED          => $this->requirePermitExists($article),
             self::PV_INSTALLATION_DONE   => $this->requirePermitExists($article),
             self::RECOLEMENT_PENDING     => $this->requireContractExpired($article),
@@ -204,6 +204,18 @@ class ArticleWorkflowService
 
         if (!$paid) {
             throw new \RuntimeException('La caution doit être payée avant cette étape.');
+        }
+
+        if ($cautionCharge) {
+            $payment = $cautionCharge->payments->first();
+            if ($payment) {
+                if (!$payment->date_payment) {
+                    throw new \RuntimeException('La date de paiement de la caution est obligatoire.');
+                }
+                if (!$payment->fichier_joint) {
+                    throw new \RuntimeException('La quittance (fichier) de la caution est obligatoire.');
+                }
+            }
         }
     }
 

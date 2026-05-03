@@ -26,10 +26,13 @@ class PvInstallation extends Model
         'mise_en_defens',
         'invitation_caporal',
         'contract_vente_id',
+        'fichier_pv_signe',
+        'pv_signed_at',
     ];
 
     protected $casts = [
         'date' => 'date',
+        'pv_signed_at' => 'datetime',
     ];
 
     /**

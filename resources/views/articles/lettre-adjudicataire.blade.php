@@ -119,6 +119,8 @@
                     Imprimer
                 </a>
 
+                @can('adjudicataire_letter.download')
+                @if($contractVente->is_validated)
                 <a href="{{ route('articles.lettre-adjudicataire.download', $article) }}"
                    class="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all {{ $templateAvailable ? 'hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0' : 'opacity-50 pointer-events-none' }}"
                    style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: {{ $templateAvailable ? '0 3px 10px rgba(37,99,235,0.3)' : 'none' }};">
@@ -132,6 +134,13 @@
                     <i class="fas fa-file-pdf text-xs"></i>
                     Télécharger PDF
                 </a>
+                @else
+                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-amber-700 bg-amber-50 border border-amber-200">
+                    <i class="fas fa-lock text-xs"></i>
+                    Téléchargement disponible après validation du contrat
+                </span>
+                @endif
+                @endcan
             </div>
         </div>
     </div>

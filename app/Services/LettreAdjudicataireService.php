@@ -11,7 +11,7 @@ use RuntimeException;
 
 class LettreAdjudicataireService
 {
-    private const PDF_HEADER_IMAGE_PATH = 'C:\\Users\\SEIFN\\Desktop\\Image1.png';
+    private const PDF_HEADER_IMAGE_PATH = 'app/pdf-header.png';
 
     public function __construct(
         private readonly DocxTemplateService $docxTemplateService,
@@ -110,7 +110,8 @@ class LettreAdjudicataireService
             'echeancierboischauffage' => $this->formatDate($article->date_echeance_mise_en_charge ?? $article->date_livaison_mise_en_charge_bf),
             'entite' => $dranef?->ENTITE ?? $dranef?->DPANEF ?? $dranef?->dranef ?? '',
             'province' => $province,
-            'percepteur' => $contractVente->permisExploiter?->percepteur
+            'percepteur' => $contractVente->percepteur
+                ?? $contractVente->permisExploiter?->percepteur
                 ?? $permisEnlevers->pluck('percepteur')->filter()->first()
                 ?? $dranef?->dranef
                 ?? $province,
@@ -276,7 +277,7 @@ TEXT;
 
     private function getPdfHeaderImageDataUri(): ?string
     {
-        $path = self::PDF_HEADER_IMAGE_PATH;
+        $path = storage_path(self::PDF_HEADER_IMAGE_PATH);
 
         if (!is_file($path)) {
             return null;

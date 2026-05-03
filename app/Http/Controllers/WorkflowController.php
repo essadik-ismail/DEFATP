@@ -66,10 +66,17 @@ class WorkflowController extends Controller
     public function uploadSignedLetter(Request $request, Article $article): RedirectResponse
     {
         $request->validate([
-            'signed_letter' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'signed_letter' => 'required|file|mimes:pdf|max:10240',
+        ], [
+            'signed_letter.mimes' => 'Seuls les fichiers PDF sont acceptés.',
         ]);
 
         $contract = $article->contractVentes()->latest()->firstOrFail();
+
+        // Delete old file if it exists
+        if ($contract->letter_signed_file && Storage::disk('public')->exists($contract->letter_signed_file)) {
+            Storage::disk('public')->delete($contract->letter_signed_file);
+        }
 
         $path = $request->file('signed_letter')->store('letters/signed', 'public');
         $contract->update([
@@ -77,14 +84,36 @@ class WorkflowController extends Controller
             'letter_signed_at'   => now(),
         ]);
 
-        $current = $article->fresh()->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
+        $article->refresh();
+        $current = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
+
         if ($current === ArticleWorkflowService::CONTRACT_CREATED) {
             try {
                 $this->workflow->transition($article, ArticleWorkflowService::LETTER_SIGNED_UPLOADED, Auth::id());
-            } catch (\RuntimeException) {}
+            } catch (\RuntimeException $e) {
+                return back()->withErrors(['workflow' => $e->getMessage()]);
+            }
         }
 
-        return back()->with('success', 'Lettre signée uploadée avec succès.');
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Lettre signée importée avec succès. Statut mis à jour : Lettre d\'adjudicataire validée.');
+    }
+
+    public function viewSignedLetter(Article $article): \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
+    {
+        $contract = $article->contractVentes()->latest()->firstOrFail();
+
+        if (!$contract->letter_signed_file || !Storage::disk('public')->exists($contract->letter_signed_file)) {
+            return back()->withErrors(['letter' => 'Fichier introuvable.']);
+        }
+
+        $mimeType = Storage::disk('public')->mimeType($contract->letter_signed_file) ?: 'application/pdf';
+
+        return Storage::disk('public')->response(
+            $contract->letter_signed_file,
+            null,
+            ['Content-Type' => $mimeType, 'Content-Disposition' => 'inline']
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -233,7 +262,10 @@ class WorkflowController extends Controller
 
         try {
             $this->workflow->transition($article, ArticleWorkflowService::RECOLEMENT_PENDING, Auth::id());
-        } catch (\RuntimeException) {}
+        } catch (\RuntimeException $e) {
+            return redirect()->route('articles.show', $article)
+                ->with('warning', 'PV soumis, mais la transition de statut a échoué : ' . $e->getMessage());
+        }
 
         return redirect()->route('articles.show', $article)
             ->with('success', 'PV de récolement soumis.');
@@ -277,6 +309,23 @@ class WorkflowController extends Controller
             ->with('success', 'Mainlevée émise avec succès.');
     }
 
+    public function cautionDecheance(Article $article): RedirectResponse
+    {
+        $this->authorize('forfeiture.create');
+
+        $contract = $article->contractVentes()->latest()->first();
+        if (!$contract) {
+            return back()->withErrors(['workflow' => 'Aucun contrat trouvé.']);
+        }
+
+        $contract->update(['Current_state' => 'Déchu']);
+
+        \App\Services\ActivityLogger::log('update', 'Mise en déchéance de la caution', Article::class, $article->id);
+
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Le dossier a été mis en déchéance.');
+    }
+
     public function closeDossier(Article $article): RedirectResponse
     {
         $this->authorize('mainlevee.issue');
@@ -289,6 +338,35 @@ class WorkflowController extends Controller
 
         return redirect()->route('articles.show', $article)
             ->with('success', 'Dossier clôturé définitivement.');
+    }
+
+    public function resilierContrat(Request $request, Article $article): RedirectResponse
+    {
+        $this->authorize('termination.create');
+
+        $contractVente = $article->contractVentes()->first();
+        if (!$contractVente) {
+            return back()->with('error', 'Aucun contrat de vente trouvé.');
+        }
+
+        $contractVente->update([
+            'is_resiliation' => true,
+            'date_de_resiliation' => now(),
+            'Current_state' => 'Résilié',
+        ]);
+
+        $notifService = app(\App\Services\NotificationService::class);
+        $notifService->sendToAllUsers('resiliation', 'Contrat résilié', "Le contrat de l'article {$article->numero} a été résilié.", [], [
+            'action_url' => route('articles.show', $article),
+            'icon' => 'fas fa-ban',
+            'color' => 'danger',
+            'priority' => 'high',
+        ]);
+
+        \App\Services\ActivityLogger::log('update', 'Contrat résilié', ContractVente::class, $contractVente->id);
+
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Contrat résilié avec succès.');
     }
 
     // -------------------------------------------------------------------------

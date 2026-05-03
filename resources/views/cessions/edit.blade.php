@@ -43,7 +43,7 @@
     <form action="{{ route('cessions.update', $cession) }}" method="POST">
         @csrf
         @method('PUT')
-        <input type="hidden" name="type" :value="type">
+        <input type="hidden" name="type" value="{{ $cession->type ?? 'adjudication' }}">
 
         <x-form-card title="Modifier la cession" max-width="3xl">
 

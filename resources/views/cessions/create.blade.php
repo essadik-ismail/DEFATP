@@ -16,7 +16,6 @@
     {{-- ─── Page header ─────────────────────────────────────────────── --}}
     <x-page-header
         title="Nouvelle cession"
-        subtitle="Créer une cession par adjudication ou appel d'offre"
         icon="fas fa-gavel"
     >
         <x-slot name="actions">

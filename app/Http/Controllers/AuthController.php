@@ -63,20 +63,36 @@ class AuthController extends Controller
             ]);
         }
 
-        // Check account lockout before attempting credentials
+        // Find user and run pre-auth checks in the correct order
         $user = User::where('ppr', $request->ppr)->first();
-        if ($user) {
-            if ($user->locked_until && now()->lt($user->locked_until)) {
-                session()->forget('captcha_answer');
-                $minutes = (int) now()->diffInMinutes($user->locked_until) + 1;
-                throw ValidationException::withMessages([
-                    'ppr' => "Compte temporairement verrouillé. Réessayez dans {$minutes} minute(s).",
-                ]);
-            }
-            // Reset stale lock
-            if ($user->locked_until && now()->gte($user->locked_until)) {
-                $user->update(['login_attempts' => 0, 'locked_until' => null]);
-            }
+
+        // 3. Account existence
+        if (!$user) {
+            session()->forget('captcha_answer');
+            throw ValidationException::withMessages([
+                'ppr' => 'Compte introuvable. Vérifiez vos informations.',
+            ]);
+        }
+
+        // 4. Account status
+        if (!$user->is_active) {
+            session()->forget('captcha_answer');
+            throw ValidationException::withMessages([
+                'ppr' => 'Votre compte est inactif. Veuillez contacter l\'administration.',
+            ]);
+        }
+
+        // Account lockout
+        if ($user->locked_until && now()->lt($user->locked_until)) {
+            session()->forget('captcha_answer');
+            $minutes = (int) now()->diffInMinutes($user->locked_until) + 1;
+            throw ValidationException::withMessages([
+                'ppr' => "Compte temporairement verrouillé. Réessayez dans {$minutes} minute(s).",
+            ]);
+        }
+        // Reset stale lock
+        if ($user->locked_until && now()->gte($user->locked_until)) {
+            $user->update(['login_attempts' => 0, 'locked_until' => null]);
         }
 
         $credentials = $request->only('ppr', 'password');
@@ -95,21 +111,19 @@ class AuthController extends Controller
 
         session()->forget('captcha_answer');
 
-        // Increment failed attempts; lock after 5
-        if ($user) {
-            $attempts = $user->login_attempts + 1;
-            $lockedUntil = $attempts >= 5 ? now()->addMinutes(15) : null;
-            $user->update(['login_attempts' => $attempts, 'locked_until' => $lockedUntil]);
+        // 5. Password incorrect — increment failed attempts; lock after 5
+        $attempts = $user->login_attempts + 1;
+        $lockedUntil = $attempts >= 5 ? now()->addMinutes(15) : null;
+        $user->update(['login_attempts' => $attempts, 'locked_until' => $lockedUntil]);
 
-            if ($lockedUntil) {
-                throw ValidationException::withMessages([
-                    'ppr' => 'Trop de tentatives échouées. Compte verrouillé pendant 15 minutes.',
-                ]);
-            }
+        if ($lockedUntil) {
+            throw ValidationException::withMessages([
+                'ppr' => 'Trop de tentatives échouées. Compte verrouillé pendant 15 minutes.',
+            ]);
         }
 
         throw ValidationException::withMessages([
-            'ppr' => 'Compte introuvable. Vérifiez vos informations.',
+            'password' => 'Mot de passe incorrect.',
         ]);
     }
 

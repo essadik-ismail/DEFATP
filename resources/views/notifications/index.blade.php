@@ -119,7 +119,7 @@
                         <p style="font-size:0.8125rem; font-weight:600; color:#1A2D22; margin:0;">
                             {{ $notification->title }}
                             @if($notification->isUnread())
-                                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#2D7A54; margin-left:0.375rem; vertical-align:middle;"></span>
+                                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#00bc7d; margin-left:0.375rem; vertical-align:middle;"></span>
                             @endif
                         </p>
                         <div style="display:flex; align-items:center; gap:0.375rem; flex-shrink:0;">
@@ -184,7 +184,7 @@
 @push('styles')
 <style>
 .notif-item:hover { background: #FAFCFB; }
-.notif-unread { background: #F4FAF7; border-left: 3px solid #2D7A54; }
+.notif-unread { background: #F4FAF7; border-left: 3px solid #00bc7d; }
 .notif-unread:hover { background: #EDF7F2; }
 </style>
 @endpush

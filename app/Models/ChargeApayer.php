@@ -17,12 +17,14 @@ class ChargeApayer extends Model
         'nom',
         'montant',
         'date_echeance',
+        'date_limite',
         'contrat_vente_id',
     ];
 
     protected $casts = [
         'montant' => 'decimal:2',
         'date_echeance' => 'date',
+        'date_limite' => 'date',
     ];
 
     /**
