@@ -16,10 +16,6 @@
             icon="fas fa-bell"
         />
 
-        @if(session('success'))
-            <x-alert type="success" title="Succès!" dismissible>{{ session('success') }}</x-alert>
-        @endif
-
         {{-- Summary counters --}}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <a href="{{ route('workflow.alerts.index', ['severity' => 'critical']) }}"

@@ -92,18 +92,6 @@
             </div>
         </x-filters-card>
 
-        @if(session('success'))
-            <x-alert type="success" title="Succès!" dismissible>
-                {{ session('success') }}
-            </x-alert>
-        @endif
-
-        @if(session('error'))
-            <x-alert type="error" title="Erreur!" dismissible>
-                {{ session('error') }}
-            </x-alert>
-        @endif
-
         <!-- Archives Table -->
         <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
             <div class="overflow-x-auto">

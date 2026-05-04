@@ -22,16 +22,6 @@
         </x-slot>
     </x-page-header>
 
-    {{-- Flash messages --}}
-    @if(session('success'))
-        <x-alert type="success" title="Succ&egrave;s !" dismissible class="mb-4">{{ session('success') }}</x-alert>
-    @endif
-    @if(session('info'))
-        <x-alert type="info" title="Information" dismissible class="mb-4">{{ session('info') }}</x-alert>
-    @endif
-    @if(session('error'))
-        <x-alert type="error" title="Erreur" dismissible class="mb-4">{{ session('error') }}</x-alert>
-    @endif
 
     {{-- Table with client-side search --}}
     <div

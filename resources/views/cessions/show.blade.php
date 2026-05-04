@@ -63,12 +63,6 @@
             </x-slot>
         </x-page-header>
 
-        @if (session('success'))
-            <x-alert type="success" title="Succès!" dismissible class="mb-4">
-                {{ session('success') }}
-            </x-alert>
-        @endif
-
         <!-- Info Details Card -->
         <div class="rounded-2xl border bg-white mb-6"
             style="border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04);">

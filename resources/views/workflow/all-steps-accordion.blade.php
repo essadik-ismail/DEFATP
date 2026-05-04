@@ -315,14 +315,29 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         @php $validateBlocked = true; $validateBlockedReason = 'La lettre adjudicataire signée doit être uploadée avant de valider.'; @endphp
                     @endif
                     @if(!$contractVente)
-                        <div class="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200 mb-4 text-sm">
-                            <i class="fas fa-exclamation-triangle text-amber-500 mt-0.5"></i>
-                            <span class="text-amber-800">Aucun contrat de vente. Cr?ez-en un pour continuer.</span>
-                        </div>
-                        <a href="{{ route('contract-ventes.create', $article) }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
-                            <i class="fas fa-plus"></i> Cr?er le contrat de vente
-                        </a>
+                        @if(!$articleValidated)
+                            {{-- Article not yet validated — block contract creation --}}
+                            <div class="flex items-start gap-3 p-4 bg-red-50 rounded-lg border border-red-200 mb-4 text-sm">
+                                <i class="fas fa-lock text-red-500 mt-0.5 flex-shrink-0"></i>
+                                <div>
+                                    <p class="font-semibold text-red-800 mb-1">Action non disponible</p>
+                                    <p class="text-red-700">L'article doit être <strong>validé à l'étape 1</strong> avant de pouvoir créer un contrat de vente.</p>
+                                </div>
+                            </div>
+                            <button type="button" disabled
+                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed opacity-60">
+                                <i class="fas fa-lock"></i> Créer le contrat de vente
+                            </button>
+                        @else
+                            <div class="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200 mb-4 text-sm">
+                                <i class="fas fa-exclamation-triangle text-amber-500 mt-0.5"></i>
+                                <span class="text-amber-800">Aucun contrat de vente. Créez-en un pour continuer.</span>
+                            </div>
+                            <a href="{{ route('contract-ventes.create', $article) }}"
+                               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+                                <i class="fas fa-plus"></i> Créer le contrat de vente
+                            </a>
+                        @endif
                     @else
                         <div class="info-tiles grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-4">
                             @foreach([
@@ -439,10 +454,10 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                 @elseif($state === WF::CAUTION_PAID)
                     @php
                         $cautionPayment   = $cautionCharge?->payments?->first();
-                        $cautionDateLimite = $cautionCharge?->date_limite;
+                        $cautionDateLimite = null;
                         $cautionPayDate   = $cautionPayment?->date_payment ? \Carbon\Carbon::parse($cautionPayment->date_payment) : null;
-                        $cautionDateDepassee = $cautionDateLimite && $cautionPayDate && $cautionPayDate->gt($cautionDateLimite);
-                        $cautionOverdue   = $cautionDateLimite && !$cautionPaid && now()->gt($cautionDateLimite);
+                        $cautionDateDepassee = false;
+                        $cautionOverdue   = false;
                     @endphp
 
                     @if(!$cautionPaid)
@@ -524,7 +539,6 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Charge</th>
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Montant</th>
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Échéance</th>
-                                        <th class="text-left py-2 pr-4 text-gray-600 font-medium">Date limite</th>
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Statut</th>
                                         <th class="text-left py-2 text-gray-600 font-medium">Actions</th>
                                     </tr>
@@ -539,15 +553,6 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                             <td class="py-2 pr-4 font-medium">{{ $cautionCharge->nom }}</td>
                                             <td class="py-2 pr-4">{{ number_format($cautionCharge->montant ?? 0, 2) }} MAD</td>
                                             <td class="py-2 pr-4">{{ $cautionCharge->date_echeance ? \Carbon\Carbon::parse($cautionCharge->date_echeance)->format('d/m/Y') : '—' }}</td>
-                                            <td class="py-2 pr-4">
-                                                @if($cautionDateLimite)
-                                                    <span class="{{ $cautionOverdue ? 'text-red-600 font-semibold' : 'text-gray-700' }}">
-                                                        {{ $cautionDateLimite->format('d/m/Y') }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-gray-400">—</span>
-                                                @endif
-                                            </td>
                                             <td class="py-2 pr-4">
                                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium">
                                                     <i class="fas fa-times-circle"></i> Impayée
@@ -565,10 +570,6 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                     <input type="text" name="payments[{{ $cautionCharge->id }}][reference]"
                                                            value="{{ $cautionPayment?->num_quittace ?? '' }}"
                                                            placeholder="N° quittance"
-                                                           class="block w-40 px-2 py-1 text-xs border border-gray-300 rounded">
-                                                    <input type="text" name="payments[{{ $cautionCharge->id }}][percepteur]"
-                                                           value="{{ $cautionPayment?->percepteur ?? '' }}"
-                                                           placeholder="Percepteur"
                                                            class="block w-40 px-2 py-1 text-xs border border-gray-300 rounded">
                                                     <div>
                                                         <input type="date" name="payments[{{ $cautionCharge->id }}][date_payment]"
@@ -633,8 +634,6 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                 @elseif($state === WF::TAXES_PAID)
                     @if(!$allTaxesPaid)
                         @php $validateBlocked = true; $validateBlockedReason = 'Toutes les taxes doivent être payées avant de valider.'; @endphp
-                    @elseif(!$permisExploiter)
-                        @php $validateBlocked = true; $validateBlockedReason = "Le permis d'exploiter doit être créé avant de valider."; @endphp
                     @endif
                     @if($taxeCharges->isEmpty())
                         <p class="text-sm text-gray-400 italic">Aucune taxe configur?e dans le contrat.</p>
@@ -710,9 +709,6 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                             <input type="text" name="payments[{{ $charge->id }}][reference]"
                                                                    placeholder="N° quittance *"
                                                                    class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded" required>
-                                                            <input type="text" name="payments[{{ $charge->id }}][percepteur]"
-                                                                   placeholder="Percepteur"
-                                                                   class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded">
                                                             <input type="date" name="payments[{{ $charge->id }}][date_payment]"
                                                                    class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded" required>
                                                             <div>

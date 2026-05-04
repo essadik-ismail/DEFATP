@@ -13,19 +13,6 @@
 @endsection
 
 @section('content')
-    {{-- Alert Messages --}}
-    @if(session('success'))
-        <x-alert type="success" title="Succès!" dismissible="true" autoHide="true">
-            {{ session('success') }}
-        </x-alert>
-    @endif
-
-    @if(session('error'))
-        <x-alert type="error" title="Erreur!" dismissible="true" autoHide="true">
-            {{ session('error') }}
-        </x-alert>
-    @endif
-
     {{-- Data Table --}}
     <x-card title="Gestion des Utilisateurs" subtitle="Gérez les comptes utilisateurs du système" collapsible="false">
         <x-data-table 

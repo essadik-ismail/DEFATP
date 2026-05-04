@@ -33,7 +33,7 @@
     $readChargeValue = function ($charge, string $field) use ($formatDateValue) {
         if (!$charge) return '';
         $value = is_array($charge) ? $charge[$field] ?? '' : data_get($charge, $field);
-        if (in_array($field, ['date_echeance', 'date_limite']) && !blank($value)) {
+        if ($field === 'date_echeance' && !blank($value)) {
             return $formatDateValue($value);
         }
         return $value;
@@ -68,7 +68,6 @@
             $storedTranches->map(fn($t) => [
                 'montant'      => $readChargeValue($t, 'montant'),
                 'date_echeance'=> $readChargeValue($t, 'date_echeance'),
-                'date_limite'  => $readChargeValue($t, 'date_limite'),
             ])->all(),
         ),
     );
@@ -81,14 +80,13 @@
         : (in_array($storedNombreTranche, $allowedTrancheCounts, true) ? $storedNombreTranche : 1);
 
     if ($trancheRows->isEmpty()) {
-        $trancheRows = collect(range(1, $nombreTranche))->map(fn() => ['montant'=>'','date_echeance'=>'','date_limite'=>'']);
+        $trancheRows = collect(range(1, $nombreTranche))->map(fn() => ['montant'=>'','date_echeance'=>'']);
     }
 
     $existingTranches = $trancheRows->values()->map(function ($t) use ($readChargeValue) {
         return [
             'montant'       => is_array($t) ? $t['montant'] ?? ''       : $readChargeValue($t, 'montant'),
             'date_echeance' => is_array($t) ? $t['date_echeance'] ?? ''  : $readChargeValue($t, 'date_echeance'),
-            'date_limite'   => is_array($t) ? $t['date_limite'] ?? ''    : $readChargeValue($t, 'date_limite'),
         ];
     })->all();
 
@@ -195,6 +193,18 @@
                     @enderror
                 </div>
 
+                <div class="form-group">
+                    <label for="percepteur" class="mb-2 block text-sm font-semibold text-gray-700">
+                        Percepteur
+                    </label>
+                    <input type="text" id="percepteur" name="percepteur"
+                        value="{{ old('percepteur', $contract->percepteur ?? '') }}"
+                        class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 {{ $isValidated ? 'bg-gray-100' : '' }}"
+                        placeholder="Nom du percepteur" {{ $isValidated ? 'readonly' : '' }}>
+                    @error('percepteur')
+                        <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
+                    @enderror
+                </div>
 
             </div>
         </x-form-section>
@@ -286,27 +296,11 @@
         ══════════════════════════════════════ --}}
         <x-form-section number="3" title="Taxes et charges" icon="fas fa-calculator" color="yellow">
 
-            {{-- Date limite de paiement globale --}}
-            <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end">
-                <div class="flex-1">
-                    <label for="date_limite_taxes" class="mb-2 block text-sm font-semibold text-gray-700">
-                        Date limite de paiement <span class="text-red-500">*</span>
-                    </label>
-                    <input type="date" id="date_limite_taxes" name="date_limite_taxes"
-                        value="{{ old('date_limite_taxes', $formatDateValue($contract?->date_limite_taxes)) }}"
-                        class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 {{ $isValidated ? 'bg-gray-100' : '' }}"
-                        required {{ $isValidated ? 'readonly' : '' }}>
-                    @error('date_limite_taxes')
-                        <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
             <div class="space-y-4">
 
                 {{-- Cautionnement définitif 10% --}}
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-gray-700">
                                 Cautionnement d&eacute;finitif (10%)
@@ -329,22 +323,12 @@
                                 <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-700">Date limite <span class="text-red-500">*</span></label>
-                            <input type="date" name="charges[0][date_limite]"
-                                value="{{ old('charges.0.date_limite', $readChargeValue($cautionCharge, 'date_limite')) }}"
-                                class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
-                                required {{ $isValidated ? 'readonly' : '' }}>
-                            @error('charges.0.date_limite')
-                                <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
-                            @enderror
-                        </div>
                     </div>
                 </div>
 
                 {{-- Taxe FNF 20% --}}
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-gray-700">Taxe FNF (20%)</label>
                             <div class="relative">
@@ -365,22 +349,12 @@
                                 <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-700">Date limite <span class="text-red-500">*</span></label>
-                            <input type="date" name="charges[1][date_limite]"
-                                value="{{ old('charges.1.date_limite', $readChargeValue($fnfCharge, 'date_limite')) }}"
-                                class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
-                                required {{ $isValidated ? 'readonly' : '' }}>
-                            @error('charges.1.date_limite')
-                                <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
-                            @enderror
-                        </div>
                     </div>
                 </div>
 
                 {{-- Frais d'adjudication 1.6% --}}
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-gray-700">Frais d&apos;adjudication (1.6%)</label>
                             <div class="relative">
@@ -401,22 +375,12 @@
                                 <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-700">Date limite <span class="text-red-500">*</span></label>
-                            <input type="date" name="charges[2][date_limite]"
-                                value="{{ old('charges.2.date_limite', $readChargeValue($fraisAdjCharge, 'date_limite')) }}"
-                                class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
-                                required {{ $isValidated ? 'readonly' : '' }}>
-                            @error('charges.2.date_limite')
-                                <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
-                            @enderror
-                        </div>
                     </div>
                 </div>
 
                 {{-- Taxe provinciale 10% --}}
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-gray-700">Taxe provinciale (10%)</label>
                             <div class="relative">
@@ -437,16 +401,6 @@
                                 <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-700">Date limite <span class="text-red-500">*</span></label>
-                            <input type="date" name="charges[3][date_limite]"
-                                value="{{ old('charges.3.date_limite', $readChargeValue($taxeProvCharge, 'date_limite')) }}"
-                                class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
-                                required {{ $isValidated ? 'readonly' : '' }}>
-                            @error('charges.3.date_limite')
-                                <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
-                            @enderror
-                        </div>
                     </div>
                 </div>
 
@@ -455,7 +409,7 @@
                     <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-600">
                         <i class="fas fa-link mr-1"></i> Charg&eacute; depuis l&apos;article
                     </p>
-                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-gray-700">Taxe r&eacute;fection des chemins forestiers</label>
                             <div class="relative">
@@ -476,16 +430,6 @@
                                 <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-700">Date limite <span class="text-red-500">*</span></label>
-                            <input type="date" name="charges[4][date_limite]"
-                                value="{{ old('charges.4.date_limite', $readChargeValue($taxeRefectionCharge, 'date_limite')) }}"
-                                class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
-                                required {{ $isValidated ? 'readonly' : '' }}>
-                            @error('charges.4.date_limite')
-                                <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
-                            @enderror
-                        </div>
                     </div>
                 </div>
 
@@ -494,7 +438,7 @@
                     <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-600">
                         <i class="fas fa-link mr-1"></i> Charg&eacute; depuis l&apos;article
                     </p>
-                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+                    <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-gray-700">Taxe service rendu ANEF</label>
                             <div class="relative">
@@ -511,16 +455,6 @@
                                 value="{{ old('charges.5.date_echeance', $readChargeValue($serviceANEFCharge, 'date_echeance') ?: $articleANEFEcheance) }}"
                                 class="form-input w-full rounded-xl border border-gray-300 bg-gray-100 px-4 py-3" readonly>
                             @error('charges.5.date_echeance')
-                                <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-700">Date limite <span class="text-red-500">*</span></label>
-                            <input type="date" name="charges[5][date_limite]"
-                                value="{{ old('charges.5.date_limite', $readChargeValue($serviceANEFCharge, 'date_limite')) }}"
-                                class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
-                                required {{ $isValidated ? 'readonly' : '' }}>
-                            @error('charges.5.date_limite')
                                 <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
@@ -560,7 +494,7 @@
         ══════════════════════════════════════ --}}
         <x-form-section number="4" title="Tranches de paiement" icon="fas fa-calendar-alt" color="purple">
 
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 mb-6">
+            <div class="mb-6">
                 <div class="form-group">
                     <label for="nombre_tranche" class="mb-2 block text-sm font-semibold text-gray-700">
                         Nombre de tranches <span class="text-red-500">*</span>
@@ -576,19 +510,6 @@
                         <input type="hidden" name="nombre_tranche" value="{{ $nombreTranche }}">
                     @endif
                     @error('nombre_tranche')
-                        <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="date_limite_tranche" class="mb-2 block text-sm font-semibold text-gray-700">
-                        Date limite des tranches <span class="text-red-500">*</span>
-                    </label>
-                    <input type="date" id="date_limite_tranche" name="date_limite_tranche"
-                        value="{{ old('date_limite_tranche', $formatDateValue($contract?->date_limite_tranche)) }}"
-                        class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 {{ $isValidated ? 'bg-gray-100' : '' }}"
-                        required {{ $isValidated ? 'readonly' : '' }}>
-                    @error('date_limite_tranche')
                         <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
                     @enderror
                 </div>
@@ -782,11 +703,11 @@ document.addEventListener('DOMContentLoaded', function () {
         dateExpiDisplay.value = d.toISOString().slice(0, 10);
     }
 
-    function buildTrancheRow(i, amount, dateEch, dateLim) {
+    function buildTrancheRow(i, amount, dateEch) {
         const ro = isValidated ? ' readonly' : '';
         const bg = isValidated ? ' bg-gray-100' : '';
         return `<div class="tranche-row rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-  <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+  <div class="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
     <div>
       <label class="mb-2 block text-sm font-semibold text-gray-700">Montant tranche ${i + 1} (DH)</label>
       <div class="relative">
@@ -800,11 +721,6 @@ document.addEventListener('DOMContentLoaded', function () {
       <input type="date" name="tranches[${i}][date_echeance]" value="${dateEch || ''}"
         class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none${bg}" required${ro}>
     </div>
-    <div>
-      <label class="mb-2 block text-sm font-semibold text-gray-700">Date limite <span class="text-red-500">*</span></label>
-      <input type="date" name="tranches[${i}][date_limite]" value="${dateLim || ''}"
-        class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none${bg}" required${ro}>
-    </div>
   </div>
 </div>`;
     }
@@ -813,7 +729,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!tranchesContainer) return [];
         return Array.from(tranchesContainer.querySelectorAll('.tranche-row')).map(row => ({
             date_echeance: (row.querySelector('input[name$="[date_echeance]"]') || {}).value || '',
-            date_limite:   (row.querySelector('input[name$="[date_limite]"]') || {}).value || '',
         }));
     }
 
@@ -826,7 +741,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let html  = '';
         for (let i = 0; i < n; i++) {
             const ex = cur[i] || existingTranches[i] || {};
-            html += buildTrancheRow(i, amt, ex.date_echeance || '', ex.date_limite || '');
+            html += buildTrancheRow(i, amt, ex.date_echeance || '');
         }
         tranchesContainer.innerHTML = html;
     }

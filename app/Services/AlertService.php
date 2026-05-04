@@ -414,31 +414,28 @@ class AlertService
      */
     private function checkTaxesOverdue(): void
     {
-        ContractVente::whereNotNull('date_limite_taxes')
-            ->where('date_limite_taxes', '<', now()->toDateString())
-            ->whereNull('deleted_at')
+        ContractVente::whereNull('deleted_at')
             ->each(function (ContractVente $contract) {
                 $taxes = $contract->payments()->where('type', 'taxe')->get();
 
                 if ($taxes->isEmpty()) {
-                    return; // No tax records defined for this contract
+                    return;
                 }
 
                 $anyPaid = $taxes->where('is_paye', true)->isNotEmpty();
                 $unpaid  = $taxes->where('is_paye', false);
 
-                // Per-tax retard alert
                 foreach ($unpaid as $taxe) {
-                    $deadline = $taxe->date_decheace
-                        ? Carbon::parse($taxe->date_decheace)
-                        : Carbon::parse($contract->date_limite_taxes);
+                    if (!$taxe->date_decheace) {
+                        continue;
+                    }
+                    $deadline = Carbon::parse($taxe->date_decheace);
 
                     if ($deadline->isPast()) {
                         $this->raiseRetardTaxe($contract, $deadline, (string) $taxe->nom);
                     }
                 }
 
-                // Résiliation: aucune taxe payée du tout
                 if (!$anyPaid) {
                     $this->raiseResiliationAucuneTaxe($contract);
                 }

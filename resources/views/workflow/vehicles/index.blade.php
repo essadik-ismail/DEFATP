@@ -19,13 +19,6 @@
             backText="Retour"
         />
 
-        @if(session('success'))
-            <x-alert type="success" title="Succès!" dismissible>{{ session('success') }}</x-alert>
-        @endif
-        @if(session('error'))
-            <x-alert type="error" title="Erreur!" dismissible>{{ session('error') }}</x-alert>
-        @endif
-
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
                 <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">

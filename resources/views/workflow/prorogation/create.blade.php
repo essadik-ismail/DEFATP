@@ -19,10 +19,6 @@
             backText="Retour"
         />
 
-        @if(session('error'))
-            <x-alert type="error" title="Erreur!" dismissible>{{ session('error') }}</x-alert>
-        @endif
-
         @if($errors->has('prorogation'))
             <x-alert type="error" title="Erreur!" dismissible>{{ $errors->first('prorogation') }}</x-alert>
         @endif

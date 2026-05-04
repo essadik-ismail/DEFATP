@@ -74,7 +74,7 @@ class UpdateArticleRequest extends FormRequest
             'products' => ['nullable', 'array'],
             'products.*.essence_id' => ['required_with:products', 'exists:essences,id'],
             'products.*.product_id' => ['required_with:products', 'exists:products,id'],
-            'products.*.quantity' => ['required_with:products', 'numeric', 'min:0'],
+            'products.*.quantity' => ['required_with:products', 'numeric', 'gt:0'],
             'is_on_depot' => ['nullable', 'boolean'],
         ];
     }
@@ -93,10 +93,12 @@ class UpdateArticleRequest extends FormRequest
             'limite_sud.required' => 'La limite Sud est requise.',
             'limite_est.required' => 'La limite Est est requise.',
             'limite_ouest.required' => 'La limite Ouest est requise.',
-            'coordonnee_x.required' => 'La coordonnée X est requise.',
             'coordonnee_x.numeric' => 'La coordonnée X doit être un nombre.',
-            'coordonnee_y.required' => 'La coordonnée Y est requise.',
             'coordonnee_y.numeric' => 'La coordonnée Y doit être un nombre.',
+            'products.*.quantity.gt' => 'La quantité doit être supérieure à zéro.',
+            'products.*.quantity.required_with' => 'La quantité est requise pour chaque produit.',
+            'products.*.essence_id.required_with' => 'L\'essence est requise pour chaque produit.',
+            'products.*.product_id.required_with' => 'Le produit est requis pour chaque ligne.',
         ];
     }
 }

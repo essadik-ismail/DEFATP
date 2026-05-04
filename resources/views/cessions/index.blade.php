@@ -21,9 +21,6 @@
         </x-slot>
     </x-page-header>
 
-    {{-- ─── Flash messages ──────────────────────────────────────────── --}}
-    <x-flash-messages />
-
     {{-- ─── Tabbed table card ───────────────────────────────────────── --}}
     <div
         class="rounded-2xl border bg-white overflow-hidden"

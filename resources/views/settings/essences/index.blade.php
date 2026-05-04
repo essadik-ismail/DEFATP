@@ -23,9 +23,6 @@
         </x-slot>
     </x-page-header>
 
-    {{-- ─── Flash messages ──────────────────────────────────────────── --}}
-    <x-flash-messages />
-
     {{-- ─── Import / Export ─────────────────────────────────────────── --}}
     <x-import-export
         export-route="settings.essences.export"

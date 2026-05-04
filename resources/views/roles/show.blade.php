@@ -35,8 +35,6 @@
         </x-slot>
     </x-page-header>
 
-    <x-flash-messages />
-
     <div style="display:grid; grid-template-columns:1fr 300px; gap:1rem; align-items:start;">
 
         {{-- ── Left: Permissions ───────────────────────────────────────────── --}}

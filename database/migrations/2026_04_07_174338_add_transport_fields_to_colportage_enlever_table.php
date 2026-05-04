@@ -12,7 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('colportage_enlever', function (Blueprint $table) {
-            //
+            if (!Schema::hasColumn('colportage_enlever', 'transport_nuit')) {
+                $table->boolean('transport_nuit')->default(false)->after('destination');
+            }
+            if (!Schema::hasColumn('colportage_enlever', 'distance_km')) {
+                $table->decimal('distance_km', 10, 2)->nullable()->after('transport_nuit');
+            }
         });
     }
 
@@ -22,7 +27,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('colportage_enlever', function (Blueprint $table) {
-            //
+            $table->dropColumn(['transport_nuit', 'distance_km']);
         });
     }
 };

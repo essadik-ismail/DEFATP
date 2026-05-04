@@ -9,13 +9,6 @@
 @endsection
 
 @section('content')
-    @if(session('success'))
-        <x-alert type="success" title="Succès !" dismissible class="mb-4">{{ session('success') }}</x-alert>
-    @endif
-    @if(session('error'))
-        <x-alert type="error" title="Erreur !" dismissible class="mb-4">{{ session('error') }}</x-alert>
-    @endif
-
     <div class="max-w-2xl mx-auto">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
             <div class="flex items-center gap-3 mb-6">

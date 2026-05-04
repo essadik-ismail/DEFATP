@@ -16,17 +16,6 @@
 
     <x-validation-errors />
 
-    @if(session('success'))
-        <x-alert type="success" title="Succès !" dismissible class="mb-4">
-            {{ session('success') }}
-        </x-alert>
-    @endif
-    @if(session('error'))
-        <x-alert type="error" title="Erreur !" dismissible class="mb-4">
-            {{ session('error') }}
-        </x-alert>
-    @endif
-
     <div class="grid gap-6 lg:grid-cols-3">
 
         {{-- ─── Sidebar ──────────────────────────────────────────────────── --}}

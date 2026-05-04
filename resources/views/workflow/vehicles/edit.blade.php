@@ -19,10 +19,6 @@
             backText="Retour"
         />
 
-        @if(session('error'))
-            <x-alert type="error" title="Erreur!" dismissible>{{ session('error') }}</x-alert>
-        @endif
-
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <form action="{{ route('vehicles.standalone.update', $vehicle) }}" method="POST" class="space-y-6">
                 @csrf

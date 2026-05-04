@@ -19,13 +19,6 @@
             backText="Retour"
         />
 
-        @if(session('success'))
-            <x-alert type="success" title="Succès!" dismissible>{{ session('success') }}</x-alert>
-        @endif
-        @if(session('error'))
-            <x-alert type="error" title="Erreur!" dismissible>{{ session('error') }}</x-alert>
-        @endif
-
         @php $isSubmitted = $recolement->status !== \App\Models\Recolement::STATUS_PENDING_PV && $recolement->exists; @endphp
 
         @if($isSubmitted)

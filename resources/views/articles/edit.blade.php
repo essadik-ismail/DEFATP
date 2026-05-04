@@ -22,8 +22,6 @@
             </x-slot>
         </x-page-header>
 
-        <x-flash-messages />
-
         @if ($errors->any())
             <x-alert type="error" title="Erreurs de validation" dismissible class="mb-4">
                 <ul class="list-disc list-inside space-y-0.5 mt-1">
@@ -96,19 +94,21 @@
 
                         <!-- Province -->
                         <div class="form-group">
-                            <label for="province_id" class="block text-sm font-semibold text-gray-700 mb-2">Province</label>
-                            @php $selectedProvinceId = old('province_id', $article->provinces->first()?->id); @endphp
-                            <select id="province_id" name="province_id"
+                            <label for="province_ids" class="block text-sm font-semibold text-gray-700 mb-2">Province</label>
+                            @php $selectedProvinceIds = old('province_ids', $article->provinces->pluck('id')->toArray()); @endphp
+                            <input type="text" placeholder="Rechercher..."
+                                class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg"
+                                onkeyup="filterSelectOptions(this, 'province_ids')">
+                            <select multiple id="province_ids" name="province_ids[]"
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                 onchange="updateCommunes()">
-                                <option value="">Sélectionner une province</option>
                                 @foreach ($provinces ?? [] as $province)
-                                    <option value="{{ $province->id }}" {{ $selectedProvinceId == $province->id ? 'selected' : '' }}>
+                                    <option value="{{ $province->id }}" {{ in_array($province->id, $selectedProvinceIds) ? 'selected' : '' }}>
                                         {{ $province->nom }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('province_id')
+                            @error('province_ids')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
                         </div>
@@ -335,7 +335,7 @@
                         <h4 class="text-base font-semibold text-gray-800 mb-4">Coordonnées du centre</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
-                                <label for="coordonnee_x" class="block text-sm font-semibold text-gray-700 mb-2">Coordonnée X <span class="text-red-500">*</span></label>
+                                <label for="coordonnee_x" class="block text-sm font-semibold text-gray-700 mb-2">Coordonnée X</label>
                                 <input type="number" id="coordonnee_x" name="coordonnee_x"
                                     value="{{ old('coordonnee_x', $article->coordonnee_x) }}" step="any"
                                     class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
@@ -345,7 +345,7 @@
                                 @enderror
                             </div>
                             <div class="form-group">
-                                <label for="coordonnee_y" class="block text-sm font-semibold text-gray-700 mb-2">Coordonnée Y <span class="text-red-500">*</span></label>
+                                <label for="coordonnee_y" class="block text-sm font-semibold text-gray-700 mb-2">Coordonnée Y</label>
                                 <input type="number" id="coordonnee_y" name="coordonnee_y"
                                     value="{{ old('coordonnee_y', $article->coordonnee_y) }}" step="any"
                                     class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
@@ -692,14 +692,16 @@
         }
 
         function updateCommunes() {
-            const provinceSelect = document.getElementById('province_id');
+            const provinceSelect = document.getElementById('province_ids');
             const communeSelect = document.getElementById('commune_ids');
-            const selectedProvinceId = provinceSelect ? String(provinceSelect.value) : '';
             if (!communeSelect) return;
+            const selectedProvinceIds = provinceSelect
+                ? Array.from(provinceSelect.selectedOptions).map(o => String(o.value)).filter(v => v)
+                : [];
             Array.from(communeSelect.options).forEach(option => {
-                if (!selectedProvinceId) { option.style.display = ''; return; }
+                if (!selectedProvinceIds.length) { option.style.display = ''; return; }
                 const provinceId = String(option.getAttribute('data-province-id') || '');
-                const matches = provinceId === selectedProvinceId;
+                const matches = selectedProvinceIds.includes(provinceId);
                 option.style.display = matches ? '' : 'none';
                 if (!matches && option.selected) option.selected = false;
             });
@@ -777,8 +779,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const provinceSelect = document.getElementById('province_id');
-            if (provinceSelect && provinceSelect.value) updateCommunes();
+            updateCommunes();
             updateDpanefs();
             updateZdtfsAndForets();
             updateDfps();

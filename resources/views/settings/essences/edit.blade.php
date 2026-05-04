@@ -29,9 +29,6 @@
         </x-slot>
     </x-page-header>
 
-    {{-- ─── Flash messages ──────────────────────────────────────────── --}}
-    <x-flash-messages />
-
     {{-- ─── Validation errors ──────────────────────────────────────── --}}
     @if($errors->any())
         <x-alert type="error" title="Erreurs de validation" dismissible class="mb-4">

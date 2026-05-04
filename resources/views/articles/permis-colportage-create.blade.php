@@ -44,18 +44,6 @@
             backText="Retour au detail"
         />
 
-        @if(session('success'))
-            <x-alert type="success" title="Succes!" dismissible>
-                {{ session('success') }}
-            </x-alert>
-        @endif
-
-        @if(session('error'))
-            <x-alert type="error" title="Erreur!" dismissible>
-                {{ session('error') }}
-            </x-alert>
-        @endif
-
         <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
             <div class="p-6">
                 <form action="{{ route('articles.store-permis-colportage', $article) }}" method="POST" enctype="multipart/form-data">

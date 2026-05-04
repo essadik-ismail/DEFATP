@@ -26,8 +26,6 @@
         backText="Retour au dossier"
     />
 
-    <x-flash-messages />
-
     <div class="max-w-3xl space-y-6">
 
         {{-- Status banner --}}
@@ -142,9 +140,6 @@
             <div class="rounded-2xl border bg-white p-6" style="border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                 <h3 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-gray-500">
                     <i class="fas fa-calculator text-yellow-600"></i> Taxes et charges
-                    @if($contractVente->date_limite_taxes)
-                        <span class="ml-auto text-xs font-normal text-gray-500">Date limite : {{ $contractVente->date_limite_taxes->format('d/m/Y') }}</span>
-                    @endif
                 </h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
@@ -152,8 +147,7 @@
                             <tr class="border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 <th class="pb-2 pr-4">Désignation</th>
                                 <th class="pb-2 pr-4">Montant (DH)</th>
-                                <th class="pb-2 pr-4">Date d'échéance</th>
-                                <th class="pb-2">Date limite</th>
+                                <th class="pb-2">Date d'échéance</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -161,8 +155,7 @@
                             <tr>
                                 <td class="py-2 pr-4 font-medium text-gray-800">{{ $charge->nom }}</td>
                                 <td class="py-2 pr-4 font-semibold text-emerald-700">{{ number_format($charge->montant ?? 0, 2, ',', ' ') }} DH</td>
-                                <td class="py-2 pr-4 text-gray-600">{{ $charge->date_echeance?->format('d/m/Y') ?? '—' }}</td>
-                                <td class="py-2 text-gray-600">{{ $charge->date_limite?->format('d/m/Y') ?? '—' }}</td>
+                                <td class="py-2 text-gray-600">{{ $charge->date_echeance?->format('d/m/Y') ?? '—' }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -176,9 +169,6 @@
             <div class="rounded-2xl border bg-white p-6" style="border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                 <h3 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-gray-500">
                     <i class="fas fa-calendar-alt text-purple-600"></i> Tranches de paiement
-                    @if($contractVente->date_limite_tranche)
-                        <span class="ml-auto text-xs font-normal text-gray-500">Date limite : {{ $contractVente->date_limite_tranche->format('d/m/Y') }}</span>
-                    @endif
                 </h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
@@ -186,8 +176,7 @@
                             <tr class="border-b border-gray-200 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 <th class="pb-2 pr-4">Tranche</th>
                                 <th class="pb-2 pr-4">Montant (DH)</th>
-                                <th class="pb-2 pr-4">Date d'échéance</th>
-                                <th class="pb-2">Date limite</th>
+                                <th class="pb-2">Date d'échéance</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -195,8 +184,7 @@
                             <tr>
                                 <td class="py-2 pr-4 font-medium text-gray-800">{{ $tranche->nom }}</td>
                                 <td class="py-2 pr-4 font-semibold text-emerald-700">{{ number_format($tranche->montant ?? 0, 2, ',', ' ') }} DH</td>
-                                <td class="py-2 pr-4 text-gray-600">{{ $tranche->date_echeance?->format('d/m/Y') ?? '—' }}</td>
-                                <td class="py-2 text-gray-600">{{ $tranche->date_limite?->format('d/m/Y') ?? '—' }}</td>
+                                <td class="py-2 text-gray-600">{{ $tranche->date_echeance?->format('d/m/Y') ?? '—' }}</td>
                             </tr>
                             @endforeach
                         </tbody>

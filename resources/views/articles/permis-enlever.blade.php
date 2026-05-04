@@ -21,19 +21,6 @@
             backText="Retour"
         />
 
-        <!-- Success/Error Messages -->
-        @if(session('success'))
-            <x-alert type="success" title="Succès!" dismissible>
-                {{ session('success') }}
-            </x-alert>
-        @endif
-
-        @if(session('error'))
-            <x-alert type="error" title="Erreur!" dismissible>
-                {{ session('error') }}
-            </x-alert>
-        @endif
-
         @php
             $showCreateOnly = request('action') === 'create';
             $selectedPaymentDate = old('date_paiement', request('date_paiement'));

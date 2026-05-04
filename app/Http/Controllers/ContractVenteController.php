@@ -24,6 +24,11 @@ class ContractVenteController extends Controller
     {
         $this->authorizeZdtf();
 
+        if (($article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE) === ArticleWorkflowService::DRAFT_ARTICLE) {
+            return redirect()->route('articles.show', $article)
+                ->with('error', 'L\'article doit être validé avant de créer un contrat de vente. Veuillez d\'abord valider l\'article à l\'étape 1.');
+        }
+
         $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale', 'numero', 'n_cin', 'adresse', 'categorie', 'activite', 'qualification_rc', 'date_obtention', 'duree_validite', 'etat_validite', 'situation_administrative')
             ->orderBy('nom_complet')
             ->get();
@@ -38,6 +43,11 @@ class ContractVenteController extends Controller
     public function store(Request $request, Article $article): RedirectResponse
     {
         $this->authorizeZdtf();
+
+        if (($article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE) === ArticleWorkflowService::DRAFT_ARTICLE) {
+            return redirect()->route('articles.show', $article)
+                ->with('error', 'L\'article doit être validé avant de créer un contrat de vente. Veuillez d\'abord valider l\'article à l\'étape 1.');
+        }
 
         $validated = $this->validateContractRequest($request);
 
@@ -56,7 +66,6 @@ class ContractVenteController extends Controller
                     'nom' => $chargeData['nom'],
                     'montant' => $chargeData['montant'],
                     'date_echeance' => $chargeData['date_echeance'],
-                    'date_limite' => $chargeData['date_limite'] ?? null,
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -73,7 +82,6 @@ class ContractVenteController extends Controller
                     'nom' => 'Tranche ' . ($index + 1),
                     'montant' => $montantParTranche,
                     'date_echeance' => $trancheData['date_echeance'],
-                    'date_limite' => $trancheData['date_limite'] ?? null,
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -86,10 +94,6 @@ class ContractVenteController extends Controller
 
             $workflow = app(ArticleWorkflowService::class);
             $currentState = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
-            if ($currentState === ArticleWorkflowService::DRAFT_ARTICLE) {
-                try { $workflow->transition($article, ArticleWorkflowService::ARTICLE_READY, Auth::id()); } catch (\RuntimeException) {}
-                $currentState = $article->fresh()->workflow_state;
-            }
             if ($currentState === ArticleWorkflowService::ARTICLE_READY) {
                 try { $workflow->transition($article, ArticleWorkflowService::CONTRACT_CREATED, Auth::id()); } catch (\RuntimeException) {}
             }
@@ -174,7 +178,6 @@ class ContractVenteController extends Controller
                     'nom' => $chargeData['nom'],
                     'montant' => $chargeData['montant'],
                     'date_echeance' => $chargeData['date_echeance'],
-                    'date_limite' => $chargeData['date_limite'] ?? null,
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -191,7 +194,6 @@ class ContractVenteController extends Controller
                     'nom' => 'Tranche ' . ($index + 1),
                     'montant' => $montantParTranche,
                     'date_echeance' => $trancheData['date_echeance'],
-                    'date_limite' => $trancheData['date_limite'] ?? null,
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -262,28 +264,20 @@ class ContractVenteController extends Controller
             'prix_vente'                 => 'required|numeric|min:0',
             'nombre_tranche'             => 'required|integer|in:1,2,4',
             'duree_decheache'            => 'required|integer|min:1',
-            'date_limite_tranche'        => 'required|date',
-            'date_limite_taxes'          => 'required|date',
             'bois_chauffage_volume_st'   => 'nullable|numeric|min:0',
             'percepteur'                 => 'nullable|string|max:255',
             'charges'                    => 'required|array',
             'charges.*.nom'              => 'required|string',
             'charges.*.montant'          => 'required|numeric|min:0',
             'charges.*.date_echeance'    => 'required|date',
-            'charges.*.date_limite'      => 'required|date',
             'tranches'                   => $tranchesRule,
             'tranches.*.montant'         => 'required|numeric|min:0',
             'tranches.*.date_echeance'   => 'required|date',
-            'tranches.*.date_limite'     => 'required|date',
         ], [
             'duree_decheache.required'         => 'La durée de contrat est obligatoire.',
             'duree_decheache.integer'          => 'La durée doit être un nombre entier de mois.',
-            'date_limite_tranche.required'     => 'La date limite des tranches est obligatoire.',
-            'date_limite_taxes.required'       => 'La date limite des taxes est obligatoire.',
             'charges.*.date_echeance.required' => 'La date d\'échéance de chaque taxe est obligatoire.',
-            'charges.*.date_limite.required'   => 'La date limite de chaque taxe est obligatoire.',
             'tranches.*.date_echeance.required'=> 'La date d\'échéance de chaque tranche est obligatoire.',
-            'tranches.*.date_limite.required'  => 'La date limite de chaque tranche est obligatoire.',
         ]);
     }
 
@@ -311,8 +305,6 @@ class ContractVenteController extends Controller
             'exploitant_id'         => $validated['exploitant_id'],
             'prix_vente'            => $validated['prix_vente'],
             'nombre_tranche'        => $validated['nombre_tranche'],
-            'date_limite_tranche'   => $validated['date_limite_tranche'],
-            'date_limite_taxes'     => $validated['date_limite_taxes'],
             'date_de_decheance'     => $cautionCharge['date_echeance'] ?? null,
             'duree_decheache'       => $validated['duree_decheache'],
             'date_expiration'       => $dateExpiration,

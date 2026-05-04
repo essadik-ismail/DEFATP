@@ -19,13 +19,6 @@
         backText="Retour"
     />
 
-    @if(session('success'))
-        <x-alert type="success" title="Succès!" dismissible>{{ session('success') }}</x-alert>
-    @endif
-    @if(session('error'))
-        <x-alert type="error" title="Erreur!" dismissible>{{ session('error') }}</x-alert>
-    @endif
-
     {{-- ── Status Overview ─────────────────────────────────────── --}}
     <div class="rounded-2xl border bg-white overflow-hidden mb-5" style="border-color: rgba(154,179,163,0.4); box-shadow: var(--shadow-card);">
 

@@ -28,8 +28,6 @@
         </x-slot>
     </x-page-header>
 
-    <x-flash-messages />
-
     {{-- ── KPI strip ──────────────────────────────────────────────────── --}}
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:0.875rem; margin-bottom:1.5rem;">
         @foreach([

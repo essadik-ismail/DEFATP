@@ -18,8 +18,6 @@
         backText="Retour"
     />
 
-    <x-flash-messages />
-
     <div class="max-w-6xl">
         @include('contract-ventes._form', [
             'formAction' => route('contract-ventes.store', $article),

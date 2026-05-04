@@ -17,15 +17,6 @@
         backText="Retour"
     />
 
-    <x-flash-messages />
-
-
-
-    <!-- Alert Messages -->
-        <x-flash-messages />
-
-    
-
     <!-- Edit Form -->
     <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <form action="{{ route('settings.forets.update', $foret) }}" method="POST" class="space-y-6" data-server-validation>

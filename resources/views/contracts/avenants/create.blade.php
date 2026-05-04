@@ -17,8 +17,6 @@
         backText="Retour"
     />
 
-    <x-flash-messages />
-
     @if ($errors->any())
     <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
         <div class="font-semibold mb-2">Erreurs de validation:</div>

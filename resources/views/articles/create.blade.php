@@ -22,8 +22,6 @@
             </x-slot>
         </x-page-header>
 
-        <x-flash-messages />
-
         @if ($errors->any())
             <x-alert type="error" title="Erreurs de validation" dismissible class="mb-4">
                 <ul class="list-disc list-inside space-y-0.5 mt-1">

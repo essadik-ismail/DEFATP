@@ -23,8 +23,6 @@
         </x-slot>
     </x-page-header>
 
-    <x-flash-messages />
-
     {{-- ── Filters ──────────────────────────────────────────────────────────── --}}
     <form method="GET" action="{{ route('roles.index') }}" id="filterForm"
           style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem;

@@ -461,60 +461,23 @@ class ArticleController extends Controller
 
             $article->update($request->validated());
 
-            // Sync relationships
-            if ($request->has('province_ids')) {
-                $article->provinces()->sync($request->province_ids);
-            }
+            // Sync many-to-many relationships (always sync so removals are persisted)
+            $article->provinces()->sync(array_filter((array) $request->input('province_ids', []), fn($v) => $v !== '' && $v !== null));
+            $article->communes()->sync(array_filter((array) $request->input('commune_ids', []), fn($v) => $v !== '' && $v !== null));
+            $article->forets()->sync(array_filter((array) $request->input('foret_ids', []), fn($v) => $v !== '' && $v !== null));
+            $article->parcelles()->sync(array_filter((array) $request->input('parcelle_ids', []), fn($v) => $v !== '' && $v !== null));
+            $article->natureDeCoupes()->sync(array_filter((array) $request->input('nature_de_coupe_ids', []), fn($v) => $v !== '' && $v !== null));
+            $article->modeExploitations()->sync(array_filter((array) $request->input('mode_exploitation_ids', []), fn($v) => $v !== '' && $v !== null));
+            $article->depots()->sync(array_filter((array) $request->input('depot_ids', []), fn($v) => $v !== '' && $v !== null));
 
-            if ($request->has('commune_ids')) {
-                $article->communes()->sync($request->commune_ids);
-            }
-
-            if ($request->has('foret_ids')) {
-                $article->forets()->sync($request->foret_ids);
-            }
-
-            if ($request->has('parcelle_ids')) {
-                $article->parcelles()->sync($request->parcelle_ids);
-            }
-
-            if ($request->has('nature_de_coupe_ids')) {
-                $article->natureDeCoupes()->sync($request->nature_de_coupe_ids);
-            }
-
-            if ($request->has('mode_exploitation_ids')) {
-                $article->modeExploitations()->sync($request->mode_exploitation_ids);
-            }
-
-            if ($request->has('depot_ids')) {
-                $article->depots()->sync($request->depot_ids);
-            } else {
-                // If checkbox is unchecked, detach all depots
-                $article->depots()->detach();
-            }
-
-            // Handle products
-            if ($request->has('products') && is_array($request->products)) {
-                // Detach all existing
-                $article->essences()->detach();
-
-                // Attach new ones
-                foreach ($request->products as $productData) {
-                    if (isset($productData['essence_id']) && isset($productData['product_id']) && isset($productData['quantity'])) {
-                        // Check if this combination already exists (safety check even after detach)
-                        $existingEntry = DB::table('article_essence')
-                            ->where('article_id', $article->id)
-                            ->where('essence_id', $productData['essence_id'])
-                            ->where('product_id', $productData['product_id'])
-                            ->first();
-                        
-                        if (!$existingEntry) {
-                            $article->essences()->attach($productData['essence_id'], [
-                                'product_id' => $productData['product_id'],
-                                'quantity' => $productData['quantity']
-                            ]);
-                        }
-                    }
+            // Always detach all essences then re-attach from submitted products
+            $article->essences()->detach();
+            foreach ((array) $request->input('products', []) as $productData) {
+                if (!empty($productData['essence_id']) && !empty($productData['product_id']) && isset($productData['quantity'])) {
+                    $article->essences()->attach($productData['essence_id'], [
+                        'product_id' => $productData['product_id'],
+                        'quantity'   => $productData['quantity'],
+                    ]);
                 }
             }
 
@@ -735,7 +698,7 @@ class ArticleController extends Controller
                     continue;
                 }
                 $chargePayment = $charge->payments->first();
-                if (!$chargePayment?->is_paye && $charge->date_limite && now()->gt($charge->date_limite)) {
+                if (!$chargePayment?->is_paye && $charge->date_echeance && now()->gt($charge->date_echeance)) {
                     $overdueNames[] = $charge->nom;
                 }
                 // Warn if payment date is after echeance
@@ -1323,17 +1286,7 @@ class ArticleController extends Controller
                 ->with('error', 'La caution, toutes les taxes et le service rendu par l\'ANEF doivent être payés avant de générer un permis d\'exploiter.');
         }
 
-        $percepteursFromTaxes = \App\Models\Payment::where('contract_vente_id', $contractVente->id)
-            ->whereNotNull('percepteur')
-            ->where('percepteur', '!=', '')
-            ->distinct()
-            ->pluck('percepteur')
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values();
-
-        $percepteurs = $percepteursFromTaxes->implode(', ');
+        $percepteurs = $contractVente->percepteur ?? '';
 
         // Pre-fill caution quittance number
         $cautionCharge = $contractVente->chargeApayer
@@ -1380,7 +1333,7 @@ class ArticleController extends Controller
         $validated = $request->validate([
             'num_assurance' => 'required|string|max:255',
             'num_quittance' => 'required|string|max:255',
-            'percepteur' => 'required|string|max:255',
+            'percepteur' => 'nullable|string|max:255',
             'date_expiration_assurance' => 'nullable|date',
             'article_ccs' => 'nullable|string|max:255',
             'dfp' => 'nullable|string|max:255',
@@ -1517,11 +1470,7 @@ class ArticleController extends Controller
             ? $taxCharges->every(fn ($charge) => (bool) $charge->payments->first()?->is_paye)
             : true;
 
-        $article = $contractVente->article;
-        $serviceRenduPaid = !$article->service_rendu_anef
-            || ($article->date_payement_service_anef !== null);
-
-        return $cautionPaid && $allTaxesPaid && $serviceRenduPaid;
+        return $cautionPaid && $allTaxesPaid;
     }
 
     /**

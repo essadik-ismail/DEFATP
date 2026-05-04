@@ -19,10 +19,6 @@
             backText="Retour"
         />
 
-        @if(session('success'))
-            <x-alert type="success" title="Succès!" dismissible>{{ session('success') }}</x-alert>
-        @endif
-
         @php
             $severityConfig = [
                 'critical' => ['bg' => 'bg-red-50', 'border' => 'border-red-300', 'badge' => 'bg-red-100 text-red-800', 'icon' => 'fas fa-exclamation-circle text-red-500', 'label' => 'Critique'],

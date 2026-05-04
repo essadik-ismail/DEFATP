@@ -28,17 +28,6 @@
         </x-slot>
     </x-page-header>
 
-    {{-- ─── Flash messages ──────────────────────────────────────────── --}}
-    @if(session('success'))
-        <x-alert type="success" title="Succès !" dismissible class="mb-4">{{ session('success') }}</x-alert>
-    @endif
-    @if(session('info'))
-        <x-alert type="info" title="Information" dismissible class="mb-4">{{ session('info') }}</x-alert>
-    @endif
-    @if(session('error'))
-        <x-alert type="error" title="Erreur" dismissible class="mb-4">{{ session('error') }}</x-alert>
-    @endif
-
     {{-- ─── Stats mini-cards ────────────────────────────────────────── --}}
     <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         @foreach([

@@ -23,16 +23,6 @@
         </x-slot>
     </x-page-header>
 
-    @if(session('success'))
-        <x-alert type="success" title="Succès !" dismissible class="mb-4">{{ session('success') }}</x-alert>
-    @endif
-    @if(session('info'))
-        <x-alert type="info" title="Information" dismissible class="mb-4">{{ session('info') }}</x-alert>
-    @endif
-    @if(session('error'))
-        <x-alert type="error" title="Erreur" dismissible class="mb-4">{{ session('error') }}</x-alert>
-    @endif
-
     <div
         x-data="{ search: '' }"
         class="rounded-2xl border bg-white overflow-hidden"

@@ -24,8 +24,6 @@
         backText="Retour"
     />
 
-    <x-flash-messages />
-
     <!-- Create Form -->
     <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
         <div class="flex items-center gap-4 mb-6">
