@@ -3,8 +3,8 @@
 @section('title', 'Modifier Coopérative - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('contracts.index') }}">Contrats</a></li>
-<li class="breadcrumb-item active">Modifier coopérative</li>
+<li class="bc-item"><a href="{{ route('contracts.index') }}">Contrats</a></li>
+<li class="bc-item active">Modifier coopérative</li>
 @endsection
 
 @section('content')

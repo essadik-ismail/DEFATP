@@ -9,75 +9,50 @@ use Illuminate\Support\Facades\DB;
 
 class ProvinceSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     * 
-     * This seeder creates Provinces from the "Province" field in the JSON file.
-     * Provinces are the parent entities (one Province has many Communes).
-     * Must run BEFORE CommuneSeeder.
-     */
     public function run(): void
     {
-        $jsonPath = base_path('database/data/situation_administrative.json');
-        
+        $jsonPath = base_path('database/data/decoupage_administratif.json');
+
         if (!File::exists($jsonPath)) {
             $this->command->error('JSON file not found at: ' . $jsonPath);
             return;
         }
 
         $this->command->info('Loading Province data from JSON file...');
-        
-        $jsonContent = File::get($jsonPath);
-        $data = json_decode($jsonContent, true);
+
+        $data = json_decode(File::get($jsonPath), true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->command->error('JSON decode error: ' . json_last_error_msg());
             return;
         }
 
-        if (empty($data) || !is_array($data)) {
-            $this->command->error('Invalid JSON structure. Expected array.');
-            return;
-        }
+        $rows = $data['province'] ?? [];
 
         $provinces = [];
 
-        // Extract unique "Province" values from JSON (these become Provinces in database)
-        foreach ($data as $row) {
-            if (isset($row['Province'])) {
-                $provinceName = trim($row['Province']);
-                
-                if (!empty($provinceName)) {
-                    // Use the name as key to ensure uniqueness
-                    if (!isset($provinces[$provinceName])) {
-                        $provinces[$provinceName] = [
-                            'nom' => $provinceName,
-                        ];
-                    }
-                }
+        foreach ($rows as $row) {
+            $name = trim($row['NOM_PROVINCE'] ?? '');
+            $code = trim($row['CODE_PROVINCE'] ?? '');
+
+            if (!empty($name) && !isset($provinces[$name])) {
+                $provinces[$name] = ['nom' => $name, 'code' => $code];
             }
         }
 
         $this->command->info('Found ' . count($provinces) . ' unique Provinces');
 
-        $createdCount = 0;
-        $updatedCount = 0;
+        $createdCount = $updatedCount = 0;
 
         DB::beginTransaction();
         try {
             foreach ($provinces as $provinceData) {
                 $province = Province::updateOrCreate(
                     ['nom' => $provinceData['nom']],
-                    [
-                        'nom' => $provinceData['nom'],
-                    ]
+                    ['nom' => $provinceData['nom']]
                 );
 
-                if ($province->wasRecentlyCreated) {
-                    $createdCount++;
-                } else {
-                    $updatedCount++;
-                }
+                $province->wasRecentlyCreated ? $createdCount++ : $updatedCount++;
             }
 
             DB::commit();
@@ -85,7 +60,6 @@ class ProvinceSeeder extends Seeder
         } catch (\Exception $e) {
             DB::rollBack();
             $this->command->error('Error seeding Provinces: ' . $e->getMessage());
-            $this->command->error('Stack trace: ' . $e->getTraceAsString());
             throw $e;
         }
     }

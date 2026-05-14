@@ -3,9 +3,9 @@
 @section('title', 'Modifier l\'Essence')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
-<li class="breadcrumb-item"><a href="{{ route('settings.essences.index') }}">Essences</a></li>
-<li class="breadcrumb-item active">Modifier</li>
+<li class="bc-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
+<li class="bc-item"><a href="{{ route('settings.essences.index') }}">Essences</a></li>
+<li class="bc-item active">Modifier</li>
 @endsection
 
 @section('content')

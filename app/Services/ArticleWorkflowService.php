@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Central workflow state machine for Article dossiers.
  *
- * Primary 12-step progression:
+ * Primary 11-step progression:
  *   DRAFT_ARTICLE          (article created, awaiting explicit validation)
  *     -> ARTICLE_READY     (article validated by user — unlocks next steps)
  *     -> CONTRACT_CREATED  (contrat de vente attached)
@@ -26,7 +26,6 @@ use Illuminate\Support\Facades\DB;
  *     -> PERMIT_ISSUED
  *     -> PV_INSTALLATION_DONE
  *     -> TRANCHES_IN_PROGRESS
- *     -> COLPORTAGE_ACTIVE
  *     -> RECOLEMENT_PENDING
  *     -> MAINLEVEE_DONE
  *     -> CLOSED
@@ -50,12 +49,34 @@ class ArticleWorkflowService
     const PV_INSTALLATION_DONE   = 'PV_INSTALLATION_DONE';
     const VEHICLES_DECLARED      = 'VEHICLES_DECLARED';
     const TRANCHES_IN_PROGRESS   = 'TRANCHES_IN_PROGRESS';
-    const COLPORTAGE_ACTIVE      = 'COLPORTAGE_ACTIVE';
+    const COLPORTAGE_ACTIVE      = 'COLPORTAGE_ACTIVE'; // legacy — mapped to TRANCHES_IN_PROGRESS
     const PROROGATION_PENDING    = 'PROROGATION_PENDING';
     const PROROGATION_APPROVED   = 'PROROGATION_APPROVED';
     const RECOLEMENT_PENDING     = 'RECOLEMENT_PENDING';
     const MAINLEVEE_DONE         = 'MAINLEVEE_DONE';
     const CLOSED                 = 'CLOSED';
+
+    // Numeric ordering for state comparison (side-states share rank with their parent)
+    const STATE_ORDER = [
+        self::DRAFT_ARTICLE          => 0,
+        self::ARTICLE_READY          => 1,
+        self::CONTRACT_CREATED       => 2,
+        self::LETTER_GENERATED       => 2,
+        self::LETTER_SIGNED_UPLOADED => 3,
+        self::CAUTION_PAID           => 4,
+        self::TAXES_PAID             => 5,
+        self::PERMIT_READY           => 6,
+        self::PERMIT_ISSUED          => 6,
+        self::PV_INSTALLATION_DONE   => 7,
+        self::VEHICLES_DECLARED      => 7,
+        self::TRANCHES_IN_PROGRESS   => 8,
+        self::PROROGATION_PENDING    => 8,
+        self::PROROGATION_APPROVED   => 8,
+        self::COLPORTAGE_ACTIVE      => 8,
+        self::RECOLEMENT_PENDING     => 9,
+        self::MAINLEVEE_DONE         => 10,
+        self::CLOSED                 => 11,
+    ];
 
     // Side-states not in the primary workflow; map each to its effective parent for display
     const SIDE_STATE_PARENTS = [
@@ -65,9 +86,10 @@ class ArticleWorkflowService
         self::LETTER_GENERATED       => self::CONTRACT_CREATED,
         self::PERMIT_READY           => self::TAXES_PAID,
         self::VEHICLES_DECLARED      => self::PV_INSTALLATION_DONE,
+        self::COLPORTAGE_ACTIVE      => self::TRANCHES_IN_PROGRESS,
     ];
 
-    // Human-readable labels for UI — exactly 12 primary workflow steps
+    // Human-readable labels for UI — exactly 11 primary workflow steps
     const LABELS = [
         self::DRAFT_ARTICLE          => 'Création de l\'article',
         self::CONTRACT_CREATED       => 'Contrat de vente',
@@ -77,7 +99,6 @@ class ArticleWorkflowService
         self::PERMIT_ISSUED          => 'Permis d\'exploiter',
         self::PV_INSTALLATION_DONE   => 'PV d\'installation',
         self::TRANCHES_IN_PROGRESS   => 'Paiement des tranches',
-        self::COLPORTAGE_ACTIVE      => 'Colportage',
         self::RECOLEMENT_PENDING     => 'Récolement',
         self::MAINLEVEE_DONE         => 'Mainlevée',
         self::CLOSED                 => 'Clôture',
@@ -93,13 +114,27 @@ class ArticleWorkflowService
         self::TAXES_PAID             => [self::PERMIT_ISSUED],
         self::PERMIT_ISSUED          => [self::PV_INSTALLATION_DONE],
         self::PV_INSTALLATION_DONE   => [self::TRANCHES_IN_PROGRESS],
-        self::TRANCHES_IN_PROGRESS   => [self::COLPORTAGE_ACTIVE, self::RECOLEMENT_PENDING],
-        self::COLPORTAGE_ACTIVE      => [self::RECOLEMENT_PENDING],
+        self::TRANCHES_IN_PROGRESS   => [self::RECOLEMENT_PENDING],
         self::PROROGATION_PENDING    => [self::PROROGATION_APPROVED, self::TRANCHES_IN_PROGRESS],
         self::PROROGATION_APPROVED   => [self::TRANCHES_IN_PROGRESS],
         self::RECOLEMENT_PENDING     => [self::MAINLEVEE_DONE],
         self::MAINLEVEE_DONE         => [self::CLOSED],
     ];
+
+    // -------------------------------------------------------------------------
+    // State comparison helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Return true if the article's current workflow state is at or past the given state.
+     * Used to enforce read-only locks on completed steps.
+     */
+    public function isAtOrPast(Article $article, string $state): bool
+    {
+        $current = self::STATE_ORDER[$article->workflow_state ?? self::DRAFT_ARTICLE] ?? 0;
+        $target  = self::STATE_ORDER[$state] ?? 0;
+        return $current >= $target;
+    }
 
     // -------------------------------------------------------------------------
     // Main transition method
@@ -323,39 +358,28 @@ class ArticleWorkflowService
         $steps = [];
         foreach ($allStates as $i => $state) {
             if ($articleValidated) {
-                // Step 0 (DRAFT_ARTICLE) is done; step 1 (CONTRACT_CREATED) is next
+                // Step 0 (DRAFT_ARTICLE) is done; step 1 (CONTRACT_CREATED) is always next/active
                 if ($i === 0) {
                     $status = 'done';
                     $blockedReason = null;
                 } elseif ($i === 1) {
-                    try {
-                        $this->guardPrerequisites($article, $state);
-                        $status = 'pending';
-                        $blockedReason = null;
-                    } catch (\RuntimeException $e) {
-                        $status = 'blocked';
-                        $blockedReason = $e->getMessage();
-                    }
+                    // CONTRACT_CREATED is always the actionable next step when article is validated
+                    $status = 'active';
+                    $blockedReason = null;
                 } else {
                     $status = 'blocked';
                     $blockedReason = 'Les étapes précédentes doivent être complétées d\'abord.';
                 }
             } elseif ($currentIndex === 0) {
+                // Article still in DRAFT — only step 0 is active, rest are blocked
                 if ($i === 0) {
                     $status = 'active';
                     $blockedReason = null;
-                } elseif ($i === 1) {
-                    try {
-                        $this->guardPrerequisites($article, $state);
-                        $status = 'pending';
-                        $blockedReason = null;
-                    } catch (\RuntimeException $e) {
-                        $status = 'blocked';
-                        $blockedReason = $e->getMessage();
-                    }
                 } else {
                     $status = 'blocked';
-                    $blockedReason = 'Les étapes précédentes doivent être complétées d\'abord.';
+                    $blockedReason = $i === 1
+                        ? 'L\'article doit être validé à l\'étape 1 avant de continuer.'
+                        : 'Les étapes précédentes doivent être complétées d\'abord.';
                 }
             } elseif ($currentIndex === $lastIndex) {
                 if ($i < $currentIndex) {
@@ -372,14 +396,9 @@ class ArticleWorkflowService
                 $status = 'done';
                 $blockedReason = null;
             } elseif ($i === $currentIndex + 1) {
-                try {
-                    $this->guardPrerequisites($article, $state);
-                    $status = 'active';
-                    $blockedReason = null;
-                } catch (\RuntimeException $e) {
-                    $status = 'blocked';
-                    $blockedReason = $e->getMessage();
-                }
+                // Next step is always actionable — guards run on actual transition server-side
+                $status = 'active';
+                $blockedReason = null;
             } else {
                 $status = 'blocked';
                 $blockedReason = 'Les étapes précédentes doivent être complétées d\'abord.';

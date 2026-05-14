@@ -18,12 +18,12 @@ class QueryOptimizer
     {
         return Cache::remember('dashboard_stats_optimized', 300, function () {
             // Use raw SQL for better performance
-            // Articles use SoftDeletes (deleted_at); invandu = sold when 0, unsold when 1
+            // Articles use SoftDeletes (deleted_at); invendu = sold when 0, unsold when 1
             $stats = DB::select("
-                SELECT 
+                SELECT
                     (SELECT COUNT(*) FROM articles WHERE deleted_at IS NULL) as total_articles,
-                    (SELECT COUNT(*) FROM articles WHERE deleted_at IS NULL AND invandu = 0) as sold_articles,
-                    (SELECT COUNT(*) FROM articles WHERE deleted_at IS NULL AND invandu = 1) as unsold_articles,
+                    (SELECT COUNT(*) FROM articles WHERE deleted_at IS NULL AND invendu = 0) as sold_articles,
+                    (SELECT COUNT(*) FROM articles WHERE deleted_at IS NULL AND invendu = 1) as unsold_articles,
                     (SELECT COUNT(*) FROM exploitants WHERE is_deleted = 0) as total_exploitants,
                     (SELECT COUNT(*) FROM users WHERE is_deleted = 0) as total_users
             ")[0];
@@ -51,7 +51,7 @@ class QueryOptimizer
         $cacheKey = 'articles_optimized_' . md5(serialize($filters)) . '_' . $perPage;
         
         return Cache::remember($cacheKey, 120, function () use ($filters, $perPage) {
-            $query = Article::select(['id', 'numero', 'lot', 'parcelle', 'superficie', 'invandu', 'created_at', 'updated_at'])
+            $query = Article::select(['id', 'numero', 'lot', 'parcelle', 'superficie', 'invendu', 'created_at', 'updated_at'])
                 ->with(['forets:id,foret', 'essences:id,essence', 'provinces:id,nom', 'communes:id,nom']);
 
             if (isset($filters['search']) && $filters['search']) {
@@ -201,8 +201,8 @@ class QueryOptimizer
             $stats = DB::select("
                 SELECT 
                     COUNT(*) as total_articles,
-                    SUM(CASE WHEN invandu = 0 THEN 1 ELSE 0 END) as sold_count,
-                    SUM(CASE WHEN invandu = 1 THEN 1 ELSE 0 END) as unsold_count
+                    SUM(CASE WHEN invendu = 0 THEN 1 ELSE 0 END) as sold_count,
+                    SUM(CASE WHEN invendu = 1 THEN 1 ELSE 0 END) as unsold_count
                 FROM articles 
                 WHERE YEAR(created_at) = ? AND deleted_at IS NULL
             ", [$year])[0];

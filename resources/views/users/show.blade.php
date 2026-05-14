@@ -3,8 +3,8 @@
 @section('title', 'Utilisateur — ' . $user->name)
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('users.index') }}">Utilisateurs</a></li>
-<li class="breadcrumb-item active">{{ $user->name }}</li>
+<li class="bc-item"><a href="{{ route('users.index') }}">Utilisateurs</a></li>
+<li class="bc-item active">{{ $user->name }}</li>
 @endsection
 
 @section('content')

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Commune;
 
 class User extends Authenticatable
 {
@@ -39,6 +40,7 @@ class User extends Authenticatable
         'zdtf_id',
         'dfp_id',
         'province_id',
+        'commune_id',
         'image',
         'email_verified_at',
         'password',
@@ -127,6 +129,14 @@ class User extends Authenticatable
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);
+    }
+
+    /**
+     * Get the Commune for the user.
+     */
+    public function commune(): BelongsTo
+    {
+        return $this->belongsTo(Commune::class);
     }
 
     /**

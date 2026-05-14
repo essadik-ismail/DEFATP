@@ -28,6 +28,11 @@ class DeleteAllArticles extends Command
      */
     public function handle()
     {
+        if (app()->isProduction()) {
+            $this->error('This command cannot run in production.');
+            return Command::FAILURE;
+        }
+
         $this->info('Starting deletion of all articles...');
 
         $articlesCount = Article::withTrashed()->count();

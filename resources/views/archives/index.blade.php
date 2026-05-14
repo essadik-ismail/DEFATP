@@ -3,7 +3,7 @@
 @section('title', 'Archives - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item active">Archives</li>
+<li class="bc-item active">Archives</li>
 @endsection
 
 @section('content')

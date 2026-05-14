@@ -3,8 +3,8 @@
 @section('title', 'Modifier l\'Utilisateur')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('users.index') }}">Utilisateurs</a></li>
-<li class="breadcrumb-item active">Modifier</li>
+<li class="bc-item"><a href="{{ route('users.index') }}">Utilisateurs</a></li>
+<li class="bc-item active">Modifier</li>
 @endsection
 
 @section('content')

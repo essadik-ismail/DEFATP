@@ -34,7 +34,7 @@ class ArticlesExport implements FromCollection, WithHeadings, WithMapping, Shoul
         }
 
         if (array_key_exists('invandu', $this->filters) && $this->filters['invandu'] !== null && $this->filters['invandu'] !== '') {
-            $query->where('invandu', (bool) $this->filters['invandu']);
+            $query->where('invendu', (bool) $this->filters['invandu']);
         }
 
         return $query->get();

@@ -228,20 +228,21 @@ class AuthController extends Controller
 
     public function showProfile(): View
     {
-        $user = Auth::user()->load(['dranef', 'dpanef', 'zdtf', 'dfp', 'province']);
+        $user = Auth::user()->load(['dranef', 'dpanef', 'zdtf', 'dfp', 'province', 'commune']);
 
-        $dranefs = \App\Models\Dranef::orderBy('dranef')->get();
-        $dpanefs = \App\Models\Dpanef::orderBy('dpanef')->get();
-        $zdtfs = \App\Models\Zdtf::orderBy('code')->get();
-        $dfps = \App\Models\Dfp::orderBy('code')->get();
-        $provinces = \App\Models\Province::orderBy('nom')->get();
+        $dranefs = \App\Models\Dranef::orderBy('dranef')->get(['id', 'code', 'dranef']);
+        $dpanefs = \App\Models\Dpanef::orderBy('dpanef')->get(['id', 'code', 'dpanef', 'dranef_id', 'dranef_code']);
+        $zdtfs = \App\Models\Zdtf::orderBy('code')->get(['id', 'code', 'zdtf', 'sdtf', 'dpanef_id', 'dpanef_code']);
+        $dfps = \App\Models\Dfp::with('dpanef:id,code')->orderBy('code')->get(['id', 'code', 'dfp', 'dpanef_code', 'zdtf_code']);
+        $provinces = \App\Models\Province::orderBy('nom')->get(['id', 'nom']);
+        $communes  = \App\Models\Commune::orderBy('nom')->get(['id', 'nom', 'province_id']);
 
         $activityJournals = \App\Models\ActivityJournal::where('user_id', $user->id)
             ->orderBy('Date', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('auth.profile', compact('user', 'activityJournals', 'dranefs', 'dpanefs', 'zdtfs', 'dfps', 'provinces'));
+        return view('auth.profile', compact('user', 'activityJournals', 'dranefs', 'dpanefs', 'zdtfs', 'dfps', 'provinces', 'communes'));
     }
 
     public function updateProfile(UpdateProfileRequest $request): RedirectResponse
@@ -334,17 +335,59 @@ class AuthController extends Controller
             'zdtf_id'     => ['nullable', 'exists:zdtfs,id'],
             'dfp_id'      => ['nullable', 'exists:dfps,id'],
             'province_id' => ['nullable', 'exists:provinces,id'],
+            'commune_id'  => ['nullable', 'exists:communes,id'],
+        ], [
+            'dranef_id.exists'   => 'La DRANEF sélectionnée est invalide.',
+            'dpanef_id.exists'   => 'La DPANEF sélectionnée est invalide.',
+            'zdtf_id.exists'     => 'La ZDTF sélectionnée est invalide.',
+            'dfp_id.exists'      => 'La DFP sélectionnée est invalide.',
+            'province_id.exists' => 'La Province sélectionnée est invalide.',
+            'commune_id.exists'  => 'La Commune sélectionnée est invalide.',
         ]);
 
-        $oldData = $user->only(['dranef_id', 'dpanef_id', 'zdtf_id', 'dfp_id', 'province_id']);
+        // Hierarchy validation: DPANEF must belong to selected DRANEF
+        if (!empty($validated['dpanef_id']) && !empty($validated['dranef_id'])) {
+            $dpanef = \App\Models\Dpanef::find($validated['dpanef_id']);
+            if ($dpanef && $dpanef->dranef_id != $validated['dranef_id']) {
+                return back()->withErrors(['dpanef_id' => 'La DPANEF sélectionnée n\'appartient pas à la DRANEF choisie.'])->withInput();
+            }
+        }
+
+        // ZDTF must belong to selected DPANEF
+        if (!empty($validated['zdtf_id']) && !empty($validated['dpanef_id'])) {
+            $zdtf = \App\Models\Zdtf::find($validated['zdtf_id']);
+            if ($zdtf && $zdtf->dpanef_id != $validated['dpanef_id']) {
+                return back()->withErrors(['zdtf_id' => 'La ZDTF sélectionnée n\'appartient pas à la DPANEF choisie.'])->withInput();
+            }
+        }
+
+        // DFP must belong to selected DPANEF (via code)
+        if (!empty($validated['dfp_id']) && !empty($validated['dpanef_id'])) {
+            $dfp = \App\Models\Dfp::find($validated['dfp_id']);
+            $dpanef = \App\Models\Dpanef::find($validated['dpanef_id']);
+            if ($dfp && $dpanef && $dfp->dpanef_code !== $dpanef->code) {
+                return back()->withErrors(['dfp_id' => 'La DFP sélectionnée n\'appartient pas à la DPANEF choisie.'])->withInput();
+            }
+        }
+
+        // Commune must belong to selected Province
+        if (!empty($validated['commune_id']) && !empty($validated['province_id'])) {
+            $commune = \App\Models\Commune::find($validated['commune_id']);
+            if ($commune && $commune->province_id != $validated['province_id']) {
+                return back()->withErrors(['commune_id' => 'La commune sélectionnée n\'appartient pas à la Province choisie.'])->withInput();
+            }
+        }
+
+        $oldData = $user->only(['dranef_id', 'dpanef_id', 'zdtf_id', 'dfp_id', 'province_id', 'commune_id']);
         $user->update([
             'dranef_id'   => $validated['dranef_id']   ?? null,
             'dpanef_id'   => $validated['dpanef_id']   ?? null,
             'zdtf_id'     => $validated['zdtf_id']     ?? null,
             'dfp_id'      => $validated['dfp_id']      ?? null,
             'province_id' => $validated['province_id'] ?? null,
+            'commune_id'  => $validated['commune_id']  ?? null,
         ]);
-        $changes = array_diff_assoc($user->fresh()->only(['dranef_id', 'dpanef_id', 'zdtf_id', 'dfp_id', 'province_id']), $oldData);
+        $changes = array_diff_assoc($user->fresh()->only(['dranef_id', 'dpanef_id', 'zdtf_id', 'dfp_id', 'province_id', 'commune_id']), $oldData);
         ActivityLogger::logUpdate(User::class, $user->id, "Affectation de {$user->name}", $changes, $request);
 
         return redirect()->route('auth.profile')->with('success', 'Affectation mise à jour avec succès.');

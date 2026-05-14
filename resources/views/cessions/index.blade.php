@@ -3,7 +3,7 @@
 @section('title', 'Gestion des Cessions')
 
 @section('breadcrumb')
-<li class="breadcrumb-item active">Cessions</li>
+<li class="bc-item active">Cessions</li>
 @endsection
 
 @section('content')

@@ -3,8 +3,8 @@
 @section('title', 'Demande de prorogation - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Article #{{ $article->numero ?? $article->id }}</a></li>
-<li class="breadcrumb-item active">Demande de prorogation</li>
+<li class="bc-item"><a href="{{ route('articles.show', $article) }}">Article #{{ $article->numero ?? $article->id }}</a></li>
+<li class="bc-item active">Demande de prorogation</li>
 @endsection
 
 @section('content')

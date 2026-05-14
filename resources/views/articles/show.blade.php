@@ -3,8 +3,8 @@
 @section('title', 'Détails de l\'Article - DEFATP')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
-    <li class="breadcrumb-item active">Dossier #{{ $article->numero ?? $article->id }}</li>
+    <li class="bc-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
+    <li class="bc-item active">Dossier #{{ $article->numero ?? $article->id }}</li>
 @endsection
 
 @section('content')
@@ -63,39 +63,10 @@
         'alerts' => $alerts,
     ])
 
-    {{-- ═══════════════════════════════════════════════════════════
-     DÉNOMBREMENT (accès rapide)
-════════════════════════════════════════════════════════════ --}}
-    @if($contractVente)
-    <div class="mt-4 bg-white rounded-xl shadow-sm border border-teal-200 p-5 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-teal-600">
-                <i class="fas fa-clipboard-list text-white text-sm"></i>
-            </div>
-            <div>
-                <p class="text-sm font-semibold text-gray-900">Dénombrement</p>
-                @php
-                    $denom = \App\Models\Denombrement::where('contract_vente_id', $contractVente->id)->first();
-                @endphp
-                @if($denom)
-                    <p class="text-xs text-teal-700">Enregistré le {{ $denom->date_denombrement?->format('d/m/Y') }} — {{ $denom->volume_denombre ? number_format($denom->volume_denombre, 3) . ' m³' : 'Volume non renseigné' }}</p>
-                @else
-                    <p class="text-xs text-gray-400">Aucun dénombrement saisi</p>
-                @endif
-            </div>
-        </div>
-        <a href="{{ route('articles.denombrement', $article) }}"
-           class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition-colors">
-            <i class="fas fa-{{ $denom ?? false ? 'edit' : 'plus' }}"></i>
-            {{ ($denom ?? false) ? 'Modifier' : 'Saisir' }}
-        </a>
-    </div>
-    @endif
-
     @push('scripts')
         <script>
             function printPermisEnlever(permisId) {
-                const url = '{{ route('articles.permis-enlever', $article) }}?print=' + permisId;
+                const url = '{{ route('articles.show', $article) }}' + '/permis-enlever/' + permisId + '/print';
                 const printWindow = window.open(url, '_blank');
                 if (printWindow) {
                     printWindow.onload = function() {

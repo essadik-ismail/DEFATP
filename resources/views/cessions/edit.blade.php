@@ -3,21 +3,17 @@
 @section('title', 'Modifier la Cession')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
-<li class="breadcrumb-item active">Modifier #{{ $cession->id }}</li>
+<li class="bc-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
+<li class="bc-item active">Modifier #{{ $cession->id }}</li>
 @endsection
 
 @section('content')
 @php
-    $selectedType  = old('type', $cession->type ?? 'adjudication');
-    $typeLabel     = $selectedType === 'appel_offre' ? "Appel d'offre" : 'Adjudication';
+    $typeLabel     = $cession->type === 'appel_offre' ? "Appel d'offre" : 'Adjudication';
     $subtitleParts = array_filter([$cession->dranef?->dranef, trim($typeLabel . ' ' . ($cession->annee_exercice ?? ''))]);
 @endphp
 
-<div
-    class="min-w-0 max-w-full overflow-x-hidden"
-    x-data='{ type: @js($selectedType) }'
->
+<div class="min-w-0 max-w-full overflow-x-hidden">
 
     {{-- ─── Page header ─────────────────────────────────────────────── --}}
     <x-page-header
@@ -81,57 +77,49 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Type de cession
                     </label>
-                    <div class="inline-flex rounded-xl border border-gray-200 bg-gray-100 p-1 text-sm gap-1 opacity-75 pointer-events-none">
-                        <span
-                            :class="type === 'adjudication'
-                                ? 'bg-white text-emerald-700 shadow-sm font-semibold'
-                                : 'text-gray-400'"
-                            class="rounded-lg px-4 py-1.5"
-                        >
-                            <i class="fas fa-gavel mr-1.5 text-xs"></i>Adjudication
-                        </span>
-                        <span
-                            :class="type === 'appel_offre'
-                                ? 'bg-white text-emerald-700 shadow-sm font-semibold'
-                                : 'text-gray-400'"
-                            class="rounded-lg px-4 py-1.5"
-                        >
-                            <i class="fas fa-file-signature mr-1.5 text-xs"></i>Appel d'offre
-                        </span>
+                    <div class="inline-flex rounded-xl border border-gray-200 bg-gray-100 p-1 text-sm pointer-events-none">
+                        @if($cession->type === 'adjudication')
+                            <span class="rounded-lg px-4 py-1.5 bg-white text-emerald-700 shadow-sm font-semibold">
+                                <i class="fas fa-gavel mr-1.5 text-xs"></i>Adjudication
+                            </span>
+                        @else
+                            <span class="rounded-lg px-4 py-1.5 bg-white text-emerald-700 shadow-sm font-semibold">
+                                <i class="fas fa-file-signature mr-1.5 text-xs"></i>Appel d'offre
+                            </span>
+                        @endif
                     </div>
                 </div>
 
                 {{-- Adjudication fields --}}
-                <div x-show="type === 'adjudication'" x-transition>
+                @if($cession->type === 'adjudication')
                     <x-form-input
                         name="date_adjudication"
                         type="date"
                         label="Date d'adjudication"
+                        required
                         :value="old('date_adjudication', optional($cession->date_adjudication)->format('Y-m-d'))"
-                        x-bind:required="type === 'adjudication'"
-                        x-bind:disabled="type !== 'adjudication'"
                     />
-                </div>
+                @endif
 
                 {{-- Appel d'offre fields --}}
-                <div x-show="type === 'appel_offre'" x-transition class="space-y-4">
-                    <x-form-input
-                        name="numero_ao"
-                        label="Numéro AO"
-                        placeholder="Ex : AO-2026-001"
-                        :value="old('numero_ao', $cession->numero_ao)"
-                        x-bind:required="type === 'appel_offre'"
-                        x-bind:disabled="type !== 'appel_offre'"
-                    />
-                    <x-form-input
-                        name="date_attribution"
-                        type="date"
-                        label="Date d'attribution"
-                        :value="old('date_attribution', optional($cession->date_attribution)->format('Y-m-d'))"
-                        x-bind:required="type === 'appel_offre'"
-                        x-bind:disabled="type !== 'appel_offre'"
-                    />
-                </div>
+                @if($cession->type === 'appel_offre')
+                    <div class="space-y-4">
+                        <x-form-input
+                            name="numero_ao"
+                            label="Numéro Appel d'offre"
+                            placeholder="Ex : AO-2026-001"
+                            required
+                            :value="old('numero_ao', $cession->numero_ao)"
+                        />
+                        <x-form-input
+                            name="date_attribution"
+                            type="date"
+                            label="Date d'attribution"
+                            required
+                            :value="old('date_attribution', optional($cession->date_attribution)->format('Y-m-d'))"
+                        />
+                    </div>
+                @endif
 
             </div>
 

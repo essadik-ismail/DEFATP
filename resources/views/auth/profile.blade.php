@@ -3,7 +3,7 @@
 @section('title', 'Mon Profil')
 
 @section('breadcrumb')
-<li class="breadcrumb-item active">Mon profil</li>
+<li class="bc-item active">Mon profil</li>
 @endsection
 
 @section('content')
@@ -84,7 +84,7 @@
             @endif
 
             {{-- Affectation summary --}}
-            @if($user->dranef || $user->dpanef || $user->zdtf || $user->dfp || $user->province)
+            @if($user->dranef || $user->dpanef || $user->zdtf || $user->dfp || $user->province || $user->commune)
             <div class="rounded-2xl border bg-white p-5"
                  style="border-color: var(--border); box-shadow: var(--sh-md);">
                 <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color: var(--text-muted)">
@@ -119,6 +119,12 @@
                     <div class="flex items-center justify-between">
                         <span class="text-xs" style="color: var(--text-muted)">Province</span>
                         <span class="text-xs font-medium" style="color: var(--text)">{{ $user->province->nom }}</span>
+                    </div>
+                    @endif
+                    @if($user->commune)
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs" style="color: var(--text-muted)">Commune</span>
+                        <span class="text-xs font-medium" style="color: var(--text)">{{ $user->commune->nom }}</span>
                     </div>
                     @endif
                 </div>
@@ -247,42 +253,106 @@
                     </div>
 
                     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <x-form-input name="dranef_id" type="select" label="DRANEF">
-                            <option value="">— Aucune —</option>
-                            @foreach($dranefs as $d)
-                                <option value="{{ $d->id }}" @selected(old('dranef_id', $user->dranef_id) == $d->id)>{{ $d->dranef }}</option>
-                            @endforeach
-                        </x-form-input>
 
-                        <x-form-input name="dpanef_id" type="select" label="DPANEF">
-                            <option value="">— Aucune —</option>
-                            @foreach($dpanefs as $d)
-                                <option value="{{ $d->id }}" @selected(old('dpanef_id', $user->dpanef_id) == $d->id)>{{ $d->dpanef ?? $d->code }}</option>
-                            @endforeach
-                        </x-form-input>
+                        {{-- DRANEF --}}
+                        <div>
+                            <label for="aff_dranef" class="form-label">DRANEF</label>
+                            <select id="aff_dranef" name="dranef_id" class="form-select">
+                                <option value="">— Aucune —</option>
+                                @foreach($dranefs as $d)
+                                    <option value="{{ $d->id }}"
+                                            data-code="{{ $d->code }}"
+                                            @selected(old('dranef_id', $user->dranef_id) == $d->id)>
+                                        {{ $d->dranef }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('dranef_id')<p class="form-error">{{ $message }}</p>@enderror
+                        </div>
 
-                        <x-form-input name="zdtf_id" type="select" label="ZDTF">
-                            <option value="">— Aucune —</option>
-                            @foreach($zdtfs as $z)
-                                <option value="{{ $z->id }}" @selected(old('zdtf_id', $user->zdtf_id) == $z->id)>{{ $z->code ?? $z->zdtf ?? $z->sdtf }}</option>
-                            @endforeach
-                        </x-form-input>
+                        {{-- DPANEF — filtered by DRANEF --}}
+                        <div>
+                            <label for="aff_dpanef" class="form-label">DPANEF</label>
+                            <select id="aff_dpanef" name="dpanef_id" class="form-select">
+                                <option value="">— Aucune —</option>
+                                @foreach($dpanefs as $d)
+                                    <option value="{{ $d->id }}"
+                                            data-dranef-id="{{ $d->dranef_id }}"
+                                            data-dranef-code="{{ $d->dranef_code }}"
+                                            data-code="{{ $d->code }}"
+                                            @selected(old('dpanef_id', $user->dpanef_id) == $d->id)>
+                                        {{ $d->dpanef ?? $d->code }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('dpanef_id')<p class="form-error">{{ $message }}</p>@enderror
+                        </div>
 
-                        <x-form-input name="dfp_id" type="select" label="DFP">
-                            <option value="">— Aucune —</option>
-                            @foreach($dfps as $d)
-                                <option value="{{ $d->id }}" @selected(old('dfp_id', $user->dfp_id) == $d->id)>{{ $d->code ?? $d->dfp }}</option>
-                            @endforeach
-                        </x-form-input>
+                        {{-- ZDTF — filtered by DPANEF --}}
+                        <div>
+                            <label for="aff_zdtf" class="form-label">ZDTF</label>
+                            <select id="aff_zdtf" name="zdtf_id" class="form-select">
+                                <option value="">— Aucune —</option>
+                                @foreach($zdtfs as $z)
+                                    <option value="{{ $z->id }}"
+                                            data-dpanef-id="{{ $z->dpanef_id }}"
+                                            data-dpanef-code="{{ $z->dpanef_code }}"
+                                            @selected(old('zdtf_id', $user->zdtf_id) == $z->id)>
+                                        {{ $z->code ?? $z->zdtf ?? $z->sdtf }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('zdtf_id')<p class="form-error">{{ $message }}</p>@enderror
+                        </div>
 
-                        <div class="md:col-span-2">
-                            <x-form-input name="province_id" type="select" label="Province">
+                        {{-- DFP — filtered by DPANEF --}}
+                        <div>
+                            <label for="aff_dfp" class="form-label">DFP</label>
+                            <select id="aff_dfp" name="dfp_id" class="form-select">
+                                <option value="">— Aucune —</option>
+                                @foreach($dfps as $d)
+                                    <option value="{{ $d->id }}"
+                                            data-dpanef-id="{{ $d->dpanef?->id }}"
+                                            data-dpanef-code="{{ $d->dpanef_code }}"
+                                            data-zdtf-code="{{ $d->zdtf_code }}"
+                                            @selected(old('dfp_id', $user->dfp_id) == $d->id)>
+                                        {{ $d->code ?? $d->dfp }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('dfp_id')<p class="form-error">{{ $message }}</p>@enderror
+                        </div>
+
+                        {{-- Province — independent --}}
+                        <div>
+                            <label for="aff_province" class="form-label">Province</label>
+                            <select id="aff_province" name="province_id" class="form-select">
                                 <option value="">— Aucune —</option>
                                 @foreach($provinces as $p)
-                                    <option value="{{ $p->id }}" @selected(old('province_id', $user->province_id) == $p->id)>{{ $p->nom }}</option>
+                                    <option value="{{ $p->id }}" @selected(old('province_id', $user->province_id) == $p->id)>
+                                        {{ $p->nom }}
+                                    </option>
                                 @endforeach
-                            </x-form-input>
+                            </select>
+                            @error('province_id')<p class="form-error">{{ $message }}</p>@enderror
                         </div>
+
+                        {{-- Commune — filtered by Province --}}
+                        <div>
+                            <label for="aff_commune" class="form-label">Commune</label>
+                            <select id="aff_commune" name="commune_id" class="form-select">
+                                <option value="">— Aucune —</option>
+                                @foreach($communes as $c)
+                                    <option value="{{ $c->id }}"
+                                            data-province-id="{{ $c->province_id }}"
+                                            @selected(old('commune_id', $user->commune_id) == $c->id)>
+                                        {{ $c->nom }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('commune_id')<p class="form-error">{{ $message }}</p>@enderror
+                        </div>
+
                     </div>
 
                     <div class="flex items-center justify-end gap-3 px-6 py-4"
@@ -397,6 +467,95 @@ function previewAvatar(input) {
     };
     reader.readAsDataURL(input.files[0]);
 }
+
+// ── Affectation cascading dropdowns ──────────────────────────────────────────
+(function () {
+    const selDranef  = document.getElementById('aff_dranef');
+    const selDpanef  = document.getElementById('aff_dpanef');
+    const selZdtf    = document.getElementById('aff_zdtf');
+    const selDfp     = document.getElementById('aff_dfp');
+    const selProvince = document.getElementById('aff_province');
+    const selCommune  = document.getElementById('aff_commune');
+
+    if (!selDranef) return;
+
+    // Cache all non-placeholder options on page load
+    const allDpanefOpts  = Array.from(selDpanef.querySelectorAll('option[value]:not([value=""])'));
+    const allZdtfOpts    = Array.from(selZdtf.querySelectorAll('option[value]:not([value=""])'));
+    const allDfpOpts     = Array.from(selDfp.querySelectorAll('option[value]:not([value=""])'));
+    const allCommuneOpts = Array.from(selCommune.querySelectorAll('option[value]:not([value=""])'));
+
+    function filterOptions(select, allOpts, matchFn) {
+        const currentVal = select.value;
+        // Remove all non-placeholder options then re-add matching ones
+        allOpts.forEach(opt => opt.remove());
+        const matching = allOpts.filter(matchFn);
+        matching.forEach(opt => select.appendChild(opt));
+        // Restore previous value if still available
+        if (matching.some(o => o.value === currentVal)) {
+            select.value = currentVal;
+        } else {
+            select.value = '';
+        }
+    }
+
+    function getSelectedDranefCode() {
+        const sel = selDranef.options[selDranef.selectedIndex];
+        return sel ? sel.dataset.code : null;
+    }
+
+    function getSelectedDpanefCode() {
+        const sel = selDpanef.options[selDpanef.selectedIndex];
+        return sel ? sel.dataset.code : null;
+    }
+
+    function applyDranefFilter() {
+        const dranefId   = selDranef.value;
+        const dranefCode = getSelectedDranefCode();
+
+        filterOptions(selDpanef, allDpanefOpts, function (opt) {
+            if (!dranefId) return true; // no filter when no DRANEF selected
+            return opt.dataset.dranefId === dranefId
+                || (dranefCode && opt.dataset.dranefCode === dranefCode);
+        });
+
+        // Changing DRANEF may change DPANEF selection → cascade further
+        applyDpanefFilter();
+    }
+
+    function applyDpanefFilter() {
+        const dpanefId   = selDpanef.value;
+        const dpanefCode = getSelectedDpanefCode();
+
+        filterOptions(selZdtf, allZdtfOpts, function (opt) {
+            if (!dpanefId) return true;
+            return opt.dataset.dpanefId === dpanefId
+                || (dpanefCode && opt.dataset.dpanefCode === dpanefCode);
+        });
+
+        filterOptions(selDfp, allDfpOpts, function (opt) {
+            if (!dpanefId) return true;
+            return opt.dataset.dpanefId === dpanefId
+                || (dpanefCode && opt.dataset.dpanefCode === dpanefCode);
+        });
+    }
+
+    function applyProvinceFilter() {
+        const provinceId = selProvince.value;
+        filterOptions(selCommune, allCommuneOpts, function (opt) {
+            if (!provinceId) return true;
+            return opt.dataset.provinceId === provinceId;
+        });
+    }
+
+    selDranef.addEventListener('change', applyDranefFilter);
+    selDpanef.addEventListener('change', applyDpanefFilter);
+    selProvince.addEventListener('change', applyProvinceFilter);
+
+    // Apply filters on page load to reflect saved values
+    applyDranefFilter();
+    applyProvinceFilter();
+})();
 </script>
 @endpush
 

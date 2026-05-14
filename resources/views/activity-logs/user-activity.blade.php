@@ -3,8 +3,8 @@
 @section('title', 'Activités de ' . $user->name)
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('activity-logs.index') }}">Journal d'activités</a></li>
-<li class="breadcrumb-item active">Activités utilisateur</li>
+<li class="bc-item"><a href="{{ route('activity-logs.index') }}">Journal d'activités</a></li>
+<li class="bc-item active">Activités utilisateur</li>
 @endsection
 
 @section('content')

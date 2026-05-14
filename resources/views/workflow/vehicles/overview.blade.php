@@ -3,7 +3,7 @@
 @section('title', 'Véhicules - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item active">Véhicules</li>
+<li class="bc-item active">Véhicules</li>
 @endsection
 
 @section('content')
@@ -53,8 +53,6 @@
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Marque</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Capacité</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Exploitant</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Chauffeur</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Déclaré par</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -67,8 +65,6 @@
                                 $vehicle->immatriculation,
                                 $vehicle->marque,
                                 $contract?->exploitant?->nom_complet,
-                                $vehicle->chauffeur_nom,
-                                $vehicle->chauffeur_cin,
                                 $vehicle->declaredBy?->name,
                             ])));
                         @endphp
@@ -93,15 +89,6 @@
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-700">
                                 {{ $contract?->exploitant?->nom_complet ?? '-' }}
-                            </td>
-                            <td class="px-4 py-3 text-sm text-gray-700">
-                                <div>{{ $vehicle->chauffeur_nom ?? '-' }}</div>
-                                @if($vehicle->chauffeur_cin)
-                                    <div class="text-xs text-gray-500">{{ $vehicle->chauffeur_cin }}</div>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 text-sm text-gray-600">
-                                {{ $vehicle->date_declaration?->format('d/m/Y') ?? '-' }}
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-700">
                                 {{ $vehicle->declaredBy?->name ?? '-' }}

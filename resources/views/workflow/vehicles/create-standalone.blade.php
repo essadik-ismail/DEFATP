@@ -3,8 +3,8 @@
 @section('title', 'Nouveau véhicule - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('vehicles.overview') }}">Véhicules</a></li>
-<li class="breadcrumb-item active">Nouveau véhicule</li>
+<li class="bc-item"><a href="{{ route('vehicles.overview') }}">Véhicules</a></li>
+<li class="bc-item active">Nouveau véhicule</li>
 @endsection
 
 @section('content')
@@ -68,28 +68,6 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="chauffeur_nom" class="block text-sm font-semibold text-gray-700 mb-2">Nom du chauffeur</label>
-                        <input type="text" name="chauffeur_nom" id="chauffeur_nom"
-                               value="{{ old('chauffeur_nom') }}"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                               maxlength="150">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="chauffeur_cin" class="block text-sm font-semibold text-gray-700 mb-2">CIN du chauffeur</label>
-                        <input type="text" name="chauffeur_cin" id="chauffeur_cin"
-                               value="{{ old('chauffeur_cin') }}"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                               maxlength="50">
-                    </div>
-
-                    <div class="form-group md:col-span-2">
-                        <label for="date_declaration" class="block text-sm font-semibold text-gray-700 mb-2">Date de déclaration</label>
-                        <input type="date" name="date_declaration" id="date_declaration"
-                               value="{{ old('date_declaration', now()->format('Y-m-d')) }}"
-                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                    </div>
                 </div>
 
                 <div class="flex justify-end gap-4 pt-2">

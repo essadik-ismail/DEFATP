@@ -3,9 +3,9 @@
 @section('title', 'Contrat de vente - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
-<li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Dossier #{{ $article->numero ?? $article->id }}</a></li>
-<li class="breadcrumb-item active">Contrat de vente</li>
+<li class="bc-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
+<li class="bc-item"><a href="{{ route('articles.show', $article) }}">Dossier #{{ $article->numero ?? $article->id }}</a></li>
+<li class="bc-item active">Contrat de vente</li>
 @endsection
 
 @section('content')
@@ -117,6 +117,20 @@
                     <p class="font-bold text-{{ $statutColor }}-700">{{ $statut }}</p>
                 </div>
 
+                @if($contractVente->date_limite_taxes)
+                <div class="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3">
+                    <p class="text-xs text-gray-500 mb-1">Date limite — Taxes</p>
+                    <p class="font-semibold text-yellow-800">{{ $contractVente->date_limite_taxes->format('d/m/Y') }}</p>
+                </div>
+                @endif
+
+                @if($contractVente->date_limite_tranche)
+                <div class="rounded-lg bg-purple-50 border border-purple-200 px-4 py-3">
+                    <p class="text-xs text-gray-500 mb-1">Date limite — Tranches</p>
+                    <p class="font-semibold text-purple-800">{{ $contractVente->date_limite_tranche->format('d/m/Y') }}</p>
+                </div>
+                @endif
+
             </div>
 
             <div class="mt-5 flex gap-3">
@@ -138,9 +152,16 @@
             {{-- Taxes et charges --}}
             @if($charges->isNotEmpty())
             <div class="rounded-2xl border bg-white p-6" style="border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                <h3 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-gray-500">
-                    <i class="fas fa-calculator text-yellow-600"></i> Taxes et charges
-                </h3>
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-gray-500">
+                        <i class="fas fa-calculator text-yellow-600"></i> Taxes et charges
+                    </h3>
+                    @if($contractVente->date_limite_taxes)
+                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
+                        <i class="fas fa-calendar-day"></i> Date limite : {{ $contractVente->date_limite_taxes->format('d/m/Y') }}
+                    </span>
+                    @endif
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
@@ -167,9 +188,16 @@
             {{-- Tranches --}}
             @if($tranches->isNotEmpty())
             <div class="rounded-2xl border bg-white p-6" style="border-color: rgba(154,179,163,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                <h3 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-gray-500">
-                    <i class="fas fa-calendar-alt text-purple-600"></i> Tranches de paiement
-                </h3>
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-gray-500">
+                        <i class="fas fa-calendar-alt text-purple-600"></i> Tranches de paiement
+                    </h3>
+                    @if($contractVente->date_limite_tranche)
+                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-800">
+                        <i class="fas fa-calendar-day"></i> Date limite : {{ $contractVente->date_limite_tranche->format('d/m/Y') }}
+                    </span>
+                    @endif
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>

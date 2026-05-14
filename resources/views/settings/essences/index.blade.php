@@ -3,8 +3,8 @@
 @section('title', 'Gestion des Essences')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
-<li class="breadcrumb-item active">Essences</li>
+<li class="bc-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
+<li class="bc-item active">Essences</li>
 @endsection
 
 @section('content')

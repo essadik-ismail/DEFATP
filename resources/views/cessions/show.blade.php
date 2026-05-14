@@ -3,8 +3,8 @@
 @section('title', 'Détail de la Cession')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
-    <li class="breadcrumb-item active">Cession #{{ $cession->id }}</li>
+    <li class="bc-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
+    <li class="bc-item active">Cession #{{ $cession->id }}</li>
 @endsection
 
 @section('content')
@@ -18,6 +18,14 @@
                 'text' => 'text-gray-500',
                 'ring' => 'ring-gray-200',
                 'dot' => 'bg-gray-400',
+            ],
+            'ouvert' => [
+                'label' => 'Ouverte',
+                'icon' => 'fa-folder-open',
+                'bg' => 'bg-blue-50',
+                'text' => 'text-blue-700',
+                'ring' => 'ring-blue-200',
+                'dot' => 'bg-blue-500',
             ],
             'en_cours' => [
                 'label' => 'En cours',
@@ -36,8 +44,11 @@
                 'dot' => 'bg-emerald-500',
             ],
         ];
-        $badge = $statusMap[$status] ?? $statusMap[''];
+        $badge = $statusMap[$status] ?? $statusMap['ouvert'];
         $articleCount = $cession->articles->count();
+        $allArticlesDone = $cession->articles->isNotEmpty() && $cession->articles->every(
+            fn($a) => in_array($a->workflow_state, [\App\Services\ArticleWorkflowService::MAINLEVEE_DONE, \App\Services\ArticleWorkflowService::CLOSED], true)
+        );
     @endphp
     <div class="min-w-0 max-w-full overflow-x-hidden">
         <!-- Header -->
@@ -49,16 +60,24 @@
                     Retour
                 </a>
                 @if (($cession->status ?? '') !== 'cloture')
-                    <form action="{{ route('cessions.cloture', $cession) }}" method="POST" class="inline"
-                        onsubmit="return confirm('Clôturer cette cession ?');">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors">
+                    @if($allArticlesDone)
+                        <form action="{{ route('cessions.cloture', $cession) }}" method="POST" class="inline"
+                            onsubmit="return confirm('Clôturer cette cession ?');">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit"
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors">
+                                <i class="fas fa-check-circle"></i>
+                                Clôturer la cession
+                            </button>
+                        </form>
+                    @else
+                        <button type="button" disabled title="Tous les articles doivent être au statut terminé avant de clôturer."
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-400 cursor-not-allowed">
                             <i class="fas fa-check-circle"></i>
                             Clôturer la cession
                         </button>
-                    </form>
+                    @endif
                 @endif
             </x-slot>
         </x-page-header>

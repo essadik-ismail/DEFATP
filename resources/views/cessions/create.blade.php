@@ -3,8 +3,8 @@
 @section('title', 'Nouvelle Cession')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
-<li class="breadcrumb-item active">Nouvelle cession</li>
+<li class="bc-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
+<li class="bc-item active">Nouvelle cession</li>
 @endsection
 
 @section('content')

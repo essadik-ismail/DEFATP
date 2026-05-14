@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,24 +12,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            RbacSeeder::class,   // must run first — other seeders may assign roles
+            RbacSeeder::class,
             UserSeeder::class,
             EssenceSeeder::class,
-            ForetSeeder::class,
             NatureDeCoupeSeeder::class,
             DranefSeeder::class,
             DpanefSeeder::class,
             ZdtfSeeder::class,
             DfpSeeder::class,
-            // SituationAdministrativeSeeder::class,
-            // ExploitantSeeder::class,
-            ProductSeeder::class,
-            // PrestationSeeder::class,
-            // VocationSeeder::class,
-            // CoperativeSeeder::class,
-            // Geographic seeders - must be in order: Province first, then Commune
+            ForetSeeder::class,
+            CantonSeeder::class,
+            ParcelleSeeder::class,
+            ProductSeeder::class,            
             ProvinceSeeder::class,
             CommuneSeeder::class,
+            ModeExploitationSeeder::class,
         ]);
     }
 

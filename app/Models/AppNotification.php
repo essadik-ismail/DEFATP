@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class AppNotification extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $table = 'notifications';
+
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'type',
@@ -32,12 +36,6 @@ class AppNotification extends Model
         'read_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-    ];
-
-    protected $dates = [
-        'read_at',
-        'created_at',
-        'updated_at',
     ];
 
     /**

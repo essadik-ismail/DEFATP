@@ -3,8 +3,8 @@
 @section('title', 'Rôle — ' . $role->name)
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('roles.index') }}">Rôles</a></li>
-<li class="breadcrumb-item active">{{ $role->name }}</li>
+<li class="bc-item"><a href="{{ route('roles.index') }}">Rôles</a></li>
+<li class="bc-item active">{{ $role->name }}</li>
 @endsection
 
 @section('content')

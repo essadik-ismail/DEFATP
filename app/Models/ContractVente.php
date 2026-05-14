@@ -38,6 +38,8 @@ class ContractVente extends Model
         'percepteur',
         'is_validated',
         'validated_at',
+        'date_limite_taxes',
+        'date_limite_tranche',
     ];
 
     protected $casts = [
@@ -53,6 +55,8 @@ class ContractVente extends Model
         'nombre_tranche'     => 'integer',
         'is_validated'       => 'boolean',
         'validated_at'       => 'datetime',
+        'date_limite_taxes'  => 'date',
+        'date_limite_tranche'=> 'date',
     ];
 
     /**

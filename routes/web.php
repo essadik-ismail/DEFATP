@@ -17,9 +17,11 @@ use App\Http\Controllers\CessionController;
 use App\Http\Controllers\CarnetController;
 use App\Models\Article;
 
-// Health Check Routes
-Route::get('/health', [HealthController::class, 'index'])->name('health');
-Route::get('/health/detailed', [HealthController::class, 'detailed'])->name('health.detailed');
+// Health Check Routes — auth required to prevent info disclosure
+Route::middleware('auth')->group(function () {
+    Route::get('/health', [HealthController::class, 'index'])->name('health');
+    Route::get('/health/detailed', [HealthController::class, 'detailed'])->name('health.detailed');
+});
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -28,9 +30,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/captcha/refresh', [AuthController::class, 'refreshCaptcha'])->name('captcha.refresh');
 });
 
-// Guest verification route (no authentication required)
-Route::get('/verify-exploitant/{exploitant}', [SettingsController::class, 'verifyExploitant'])->name('verify-exploitant');
-Route::get('/verify-exploitant/{exploitant}/image', [SettingsController::class, 'serveExploitantImagePublic'])->name('verify-exploitant.image');
+// Guest verification route (no authentication required) — rate-limited to prevent enumeration
+Route::get('/verify-exploitant/{exploitant}', [SettingsController::class, 'verifyExploitant'])->name('verify-exploitant')->middleware('throttle:20,1');
+Route::get('/verify-exploitant/{exploitant}/image', [SettingsController::class, 'serveExploitantImagePublic'])->name('verify-exploitant.image')->middleware('throttle:20,1');
 
 // Test routes removed for production security
 
@@ -120,6 +122,10 @@ Route::middleware('auth')->group(function () {
 
     // Téléchargement sécurisé des fichiers joints (quittances, justificatifs)
     Route::get('payments/{payment}/download', function (\App\Models\Payment $payment) {
+        // Ownership check: only users who can view the parent article may download
+        $article = optional($payment->contractVente)->article;
+        abort_unless($article && \Illuminate\Support\Facades\Auth::user()->can('view', $article), 403);
+
         $file = $payment->fichier_joint;
         abort_unless($file && \Illuminate\Support\Facades\Storage::disk('public')->exists($file), 404);
         return \Illuminate\Support\Facades\Storage::disk('public')->download($file);
@@ -139,10 +145,11 @@ Route::middleware('auth')->group(function () {
         Route::get('{article}/lettre-adjudicataire/download', [ArticleController::class, 'downloadLettreAdjudicataire'])->name('lettre-adjudicataire.download');
         Route::get('{article}/lettre-adjudicataire/download-pdf', [ArticleController::class, 'downloadLettreAdjudicatairePdf'])->name('lettre-adjudicataire.download-pdf');
         Route::get('{article}/lettre-adjudicataire/print', [ArticleController::class, 'printLettreAdjudicataire'])->name('lettre-adjudicataire.print');
-        Route::get('{article}/permis-enlever', [ArticleController::class, 'permisEnlever'])->name('permis-enlever');
+        Route::get('{article}/permis-enlever/create', [ArticleController::class, 'permisEnlever'])->name('permis-enlever.create');
         Route::post('{article}/permis-enlever', [ArticleController::class, 'storePermisEnlever'])->name('store-permis-enlever');
         Route::post('{article}/permis-enlever/{permiEnlever}/upload-signe', [ArticleController::class, 'uploadPermisEnleverSigne'])->name('permis-enlever.upload-signe');
         Route::get('{article}/permis-enlever/{permiEnlever}/print', [ArticleController::class, 'printPermisEnlever'])->name('print-permis-enlever');
+        Route::get('{article}/permis-enlever/{permiEnlever}', [ArticleController::class, 'showPermisEnlever'])->name('permis-enlever.show');
         Route::get('{article}/permis-exploiter', [ArticleController::class, 'permisExploiter'])->name('permis-exploiter');
         Route::post('{article}/permis-exploiter', [ArticleController::class, 'storePermisExploiter'])->name('store-permis-exploiter');
         Route::post('{article}/permis-exploiter/upload-signe', [ArticleController::class, 'uploadPermisExploiterSigne'])->name('permis-exploiter.upload-signe');
@@ -167,7 +174,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Contract Ventes Routes
-    Route::prefix('articles/{article}/contract-ventes')->name('contract-ventes.')->group(function () {
+    Route::prefix('articles/{article}/contract-ventes')->name('contract-ventes.')->middleware('can:articles.view')->group(function () {
         Route::get('/create', [App\Http\Controllers\ContractVenteController::class, 'create'])->name('create');
         Route::post('/', [App\Http\Controllers\ContractVenteController::class, 'store'])->name('store');
         Route::get('/{contractVente}', [App\Http\Controllers\ContractVenteController::class, 'show'])->name('show');
@@ -393,6 +400,17 @@ Route::middleware('auth')->group(function () {
         // View signed letter (streams file inline, no raw storage URL exposed)
         Route::get('/articles/{article}/view-signed-letter', [\App\Http\Controllers\WorkflowController::class, 'viewSignedLetter'])
             ->name('view-signed-letter');
+
+        // Manually validate the signed letter step
+        Route::post('/articles/{article}/validate-signed-letter', [\App\Http\Controllers\WorkflowController::class, 'validateSignedLetter'])
+            ->name('validate-signed-letter');
+
+        // Signed PV d'installation upload
+        Route::post('/articles/{article}/upload-signed-pv', [\App\Http\Controllers\WorkflowController::class, 'uploadSignedPv'])
+            ->name('upload-signed-pv');
+
+        Route::get('/articles/{article}/view-signed-pv', [\App\Http\Controllers\WorkflowController::class, 'viewSignedPv'])
+            ->name('view-signed-pv');
 
         // Prorogation
         Route::get('/articles/{article}/prorogation/create', [\App\Http\Controllers\WorkflowController::class, 'createProrogation'])

@@ -65,7 +65,7 @@ class ArticleController extends Controller
             ->orderBy('nom')
             ->get();
         $provinces = Province::select('id', 'nom')->orderBy('nom')->get();
-        $dranefs = Dranef::select('id', 'code', 'dranef')->orderBy('code')->get(); // Fixed: use 'dranef' not 'designation'
+        $dranefs = Dranef::select('id', 'code', 'dranef', 'Abréviation')->orderBy('code')->get();
         $dpanefs = Dpanef::select('id', 'code', 'dpanef', 'dranef_code') // Fixed: use 'dpanef' not 'designation'
             ->with('dranef:id,code,dranef')
             ->orderBy('code')
@@ -78,7 +78,6 @@ class ArticleController extends Controller
             ->with(['zdtf:id,code,zdtf', 'dpanef:id,code,dpanef'])
             ->orderBy('code')
             ->get();
-        $forets = Foret::select('id', 'foret')->orderBy('foret')->get();
         $cantons = Canton::select('id', 'canton', 'foret_id')
             ->with('foret:id,foret')
             ->orderBy('canton')
@@ -93,7 +92,7 @@ class ArticleController extends Controller
         $products = Product::select('id', 'name')->orderBy('name')->get();
         $depots = Depot::select('id', 'nom')->orderBy('nom')->get();
 
-        $currentUser = Auth::user()?->load(['dranef', 'dpanef', 'zdtf', 'dfp', 'province']);
+        $currentUser = Auth::user()?->load(['dranef', 'dpanef', 'zdtf', 'dfp', 'province', 'commune']);
 
         // Load forets with dpanef_id for dynamic filtering (Bug 7)
         $forets = Foret::select('id', 'foret', 'dpanef_id')->orderBy('foret')->get();
@@ -390,7 +389,7 @@ class ArticleController extends Controller
         $provinces = Province::select('id', 'nom')
             ->orderBy('nom')
             ->get();
-        $dranefs = Dranef::select('id', 'code', 'dranef')->orderBy('code')->get(); // Fixed: use 'dranef' not 'designation'
+        $dranefs = Dranef::select('id', 'code', 'dranef', 'Abréviation')->orderBy('code')->get();
         $dpanefs = Dpanef::select('id', 'code', 'dpanef', 'dranef_code') // Fixed: use 'dpanef' not 'designation'
             ->with('dranef:id,code,dranef')
             ->orderBy('code')
@@ -403,7 +402,7 @@ class ArticleController extends Controller
             ->with(['zdtf:id,code,zdtf', 'dpanef:id,code,dpanef'])
             ->orderBy('code')
             ->get();
-        $forets = Foret::select('id', 'foret')->orderBy('foret')->get();
+        $forets = Foret::select('id', 'foret', 'dpanef_id')->orderBy('foret')->get();
         $cantons = Canton::select('id', 'canton', 'foret_id')
             ->with('foret:id,foret')
             ->orderBy('canton')
@@ -418,6 +417,8 @@ class ArticleController extends Controller
         $products = Product::select('id', 'name')->orderBy('name')->get();
         $depots = Depot::select('id', 'nom')->orderBy('nom')->get();
         $exploitants = Exploitant::select('id', 'nom_complet', 'raison_sociale')->orderBy('nom_complet')->get();
+
+        $currentUser = Auth::user()?->load(['dranef', 'dpanef', 'zdtf', 'dfp', 'province', 'commune']);
 
         $article->load([
             'provinces',
@@ -447,7 +448,8 @@ class ArticleController extends Controller
             'essences',
             'products',
             'depots',
-            'exploitants'
+            'exploitants',
+            'currentUser'
         ));
     }
 
@@ -592,10 +594,23 @@ class ArticleController extends Controller
     public function updateChargePayments(Request $request, Article $article): RedirectResponse
     {
         $contractVente = $article->contractVentes->first();
-        
+
         if (!$contractVente) {
             return redirect()->back()
                 ->with('error', 'Aucun contrat de vente trouvé pour cet article.');
+        }
+
+        // Determine which step type this update targets and enforce lock
+        $wfService = app(\App\Services\ArticleWorkflowService::class);
+        $chargeName = strtolower($request->input('payments.' . array_key_first((array) $request->input('payments', [])) . '.charge_nom', ''));
+        $isCaution  = str_contains($chargeName, 'caution') || str_contains($chargeName, 'cautionnement');
+        $isTranche  = str_starts_with($chargeName, 'tranche');
+
+        if ($isCaution && $wfService->isAtOrPast($article, \App\Services\ArticleWorkflowService::CAUTION_PAID)) {
+            return back()->withErrors(['error' => 'La caution est verrouillée : cette étape a déjà été validée.']);
+        }
+        if (!$isCaution && !$isTranche && $wfService->isAtOrPast($article, \App\Services\ArticleWorkflowService::TAXES_PAID)) {
+            return back()->withErrors(['error' => 'Les taxes sont verrouillées : cette étape a déjà été validée.']);
         }
 
         $validated = $request->validate([
@@ -761,6 +776,11 @@ class ArticleController extends Controller
      */
     public function payTranches(Request $request, Article $article): RedirectResponse
     {
+        $wfService = app(\App\Services\ArticleWorkflowService::class);
+        if ($wfService->isAtOrPast($article, \App\Services\ArticleWorkflowService::RECOLEMENT_PENDING)) {
+            return back()->withErrors(['error' => 'Les tranches sont verrouillées : cette étape a déjà été validée.']);
+        }
+
         $validated = $request->validate([
             'selected_tranche' => 'required',
             'num_quittance' => 'required|string|max:255',
@@ -1122,17 +1142,92 @@ class ArticleController extends Controller
 
         // Count total paid tranches
         $totalPaidTranches = $paidTranches->count();
-        
+
         // Get total number of tranches from contract
         $nombreTranche = $contractVente->nombre_tranche ?? 1;
-        
+
         // Check if can create more permis
         $canCreateMore = $permisEnlevers->count() < $totalPaidTranches;
 
-        // Récupérer la quittance de la dernière tranche payée pour pré-remplir le permis d'enlever
-        $lastQuittance = $paidTranches->sortByDesc('date_paiement')->first()['payment']->num_quittace ?? '';
+        // Build available payments for the remaining (unpermitted) tranches
+        $availablePayments = $tranchesByDate->map(function ($tranches, $date) {
+            $firstTranche = $tranches->first();
+            $payment = $firstTranche['payment'];
+            return [
+                'date'           => $date,
+                'num_quittace'   => $payment->num_quittace ?? '',
+                'percepteur'     => $payment->percepteur ?? '',
+                'tranche_label'  => $tranches->pluck('tranche_number')->implode(', '),
+            ];
+        })->values();
 
-        return view('articles.permis-enlever', compact('article', 'tranchesByDate', 'products', 'permisEnlevers', 'totalPaidTranches', 'canCreateMore', 'nombreTranche', 'contractVente', 'lastQuittance'));
+        return view('articles.permis-enlever-create', compact('article', 'tranchesByDate', 'products', 'nombreTranche', 'contractVente', 'availablePayments'));
+    }
+
+    /**
+     * Show details page for a single Permis d'Enlever.
+     */
+    public function showPermisEnlever(Article $article, PermiEnlever $permiEnlever)
+    {
+        $permiEnlever->load(['contractVente.payments', 'essences', 'products', 'colportages']);
+
+        // Build authorized quantities table (essence+product rows)
+        $authorizedRows = collect(
+            DB::table('permisenlever_product')
+                ->where('permis_id', $permiEnlever->id)
+                ->select('id_essence', 'product_id', 'quantity')
+                ->get()
+        );
+
+        $essenceIds = $authorizedRows->pluck('id_essence')->filter()->unique()->values();
+        $productIds = $authorizedRows->pluck('product_id')->filter()->unique()->values();
+        $essencesById = $essenceIds->isEmpty() ? collect() : Essence::whereIn('id', $essenceIds)->get()->keyBy('id');
+        $productsById = $productIds->isEmpty() ? collect() : Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+        // Consumed quantities from colportage_enlever_product
+        $usedRows = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('colportage_enlever_product')) {
+            $usedRows = DB::table('colportage_enlever_product')
+                ->join('colportage_enlever', 'colportage_enlever.id', '=', 'colportage_enlever_product.colportage_enlever_id')
+                ->where('colportage_enlever.id_permis_enlever', $permiEnlever->id)
+                ->select(
+                    'colportage_enlever_product.id_essence',
+                    'colportage_enlever_product.product_id',
+                    DB::raw('SUM(colportage_enlever_product.quantity) as used_quantity')
+                )
+                ->groupBy('colportage_enlever_product.id_essence', 'colportage_enlever_product.product_id')
+                ->get()
+                ->keyBy(fn ($r) => $r->id_essence . '_' . $r->product_id);
+        }
+
+        $volumeRows = $authorizedRows->map(function ($row) use ($essencesById, $productsById, $usedRows) {
+            $key = $row->id_essence . '_' . $row->product_id;
+            $authorized = (float) $row->quantity;
+            $consumed = (float) ($usedRows->get($key)?->used_quantity ?? 0);
+            return [
+                'essence_name'  => $essencesById->get($row->id_essence)?->essence ?? '-',
+                'product_name'  => $productsById->get($row->product_id)?->name ?? '-',
+                'authorized'    => $authorized,
+                'consumed'      => $consumed,
+                'remaining'     => max(0, $authorized - $consumed),
+            ];
+        });
+
+        $allConsumed = $volumeRows->isNotEmpty() && $volumeRows->every(fn ($r) => $r['remaining'] <= 0);
+
+        // Load colportages with their detail rows
+        $colportages = $permiEnlever->colportages()->with(['carnet'])->orderBy('created_at', 'desc')->get();
+        $colportages = $this->attachColportageDetailRows($colportages);
+
+        // Determine read-only state (article workflow has moved past TRANCHES_IN_PROGRESS)
+        $workflowOrder = \App\Services\ArticleWorkflowService::STATE_ORDER;
+        $currentOrder = $workflowOrder[$article->workflow_state ?? 'DRAFT_ARTICLE'] ?? 0;
+        $tranchesOrder = $workflowOrder[\App\Services\ArticleWorkflowService::TRANCHES_IN_PROGRESS] ?? 0;
+        $isReadOnly = $currentOrder > $tranchesOrder;
+
+        return view('articles.permis-enlever-show', compact(
+            'article', 'permiEnlever', 'volumeRows', 'colportages', 'allConsumed', 'isReadOnly'
+        ));
     }
 
     /**
@@ -1160,7 +1255,6 @@ class ArticleController extends Controller
     public function storePermisEnlever(Request $request, Article $article)
     {
         $validated = $request->validate([
-            'num_quittance_enlever' => 'required|string|max:255',
             'date' => 'required|date',
             'percepteur_enlever' => 'required|string|max:255',
             'essences' => 'nullable|array',
@@ -1183,6 +1277,25 @@ class ArticleController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Aucune essence n\'est associée à cet article. Ajoutez des essences à l\'article avant de générer un permis d\'enlever.');
+        }
+
+        // Find the payment matching the selected date
+        $selectedDate = \Carbon\Carbon::parse($validated['date'])->format('Y-m-d');
+        $matchingPayment = null;
+        foreach ($contractVente->chargeApayer as $charge) {
+            if (!str_starts_with($charge->nom, 'Tranche')) continue;
+            $payment = $charge->payments->first();
+            if ($payment && $payment->is_paye && $payment->date_payment &&
+                \Carbon\Carbon::parse($payment->date_payment)->format('Y-m-d') === $selectedDate) {
+                $matchingPayment = $payment;
+                break;
+            }
+        }
+
+        if (!$matchingPayment) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Aucun paiement validé trouvé pour la date sélectionnée. Veuillez sélectionner une tranche payée.');
         }
 
         // Enforce max permis: one permis per paid tranche
@@ -1225,14 +1338,14 @@ class ArticleController extends Controller
 
             // Create PermiEnlever record (without Permis parent)
             $permiEnlever = PermiEnlever::create([
-                'permis_id' => null,
+                'permis_id'        => null,
                 'contract_vente_id' => $contractVente->id,
-                'num_quittance' => $validated['num_quittance_enlever'],
-                'date' => $validated['date'],
+                'num_quittance'    => $matchingPayment->num_quittace,
+                'date'             => $matchingPayment->date_payment->format('Y-m-d'),
                 'num_tranche_paye' => 1,
-                'date_paiement' => $validated['date'],
-                'percepteur' => $validated['percepteur_enlever'],
-                'volume' => $totalVolume,
+                'date_paiement'    => $matchingPayment->date_payment->format('Y-m-d'),
+                'percepteur'       => $validated['percepteur_enlever'],
+                'volume'           => $totalVolume,
             ]);
 
             // Insert calculated quantities into permisenlever_product
@@ -1369,13 +1482,6 @@ class ArticleController extends Controller
                 'clature' => $validated['clature'] ?? false,
             ]);
 
-            $workflow = app(ArticleWorkflowService::class);
-            $currentWorkflowState = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
-
-            if ($currentWorkflowState === ArticleWorkflowService::TAXES_PAID) {
-                try { $workflow->transition($article, ArticleWorkflowService::PERMIT_ISSUED, Auth::id()); } catch (\RuntimeException) {}
-            }
-
             // Update article current step if needed
             // $article->update(['current_step' => 'permis_exploiter']);
 
@@ -1442,7 +1548,7 @@ class ArticleController extends Controller
 
         ActivityLogger::log('update', 'Permis d\'enlever signé importé', \App\Models\PermiEnlever::class, $permiEnlever->id);
 
-        return redirect()->route('articles.permis-enlever', $article)
+        return redirect()->route('articles.permis-enlever.show', ['article' => $article, 'permiEnlever' => $permiEnlever])
             ->with('success', 'Permis d\'enlever signé importé avec succès.');
     }
 
@@ -1861,7 +1967,8 @@ class ArticleController extends Controller
 
             DB::commit();
 
-            return redirect()->route('articles.show', $article)
+            $permiEnleverId = $validated['id_permis_enlever'];
+            return redirect()->route('articles.permis-enlever.show', ['article' => $article, 'permiEnlever' => $permiEnleverId])
                 ->with('success', 'Permis de colportage généré avec succès.');
 
         } catch (\Exception $e) {
@@ -2022,7 +2129,6 @@ class ArticleController extends Controller
             'remarient' => 'nullable|string|max:255',
             'mise_en_defens' => 'nullable|string|max:255',
             'invitation_caporal' => 'nullable|string|max:255',
-            'fichier_pv_signe' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
         $contractVente = $article->contractVentes()->with('permisExploiter')->first();
@@ -2040,40 +2146,24 @@ class ArticleController extends Controller
         try {
             DB::beginTransaction();
 
-            // Handle signed PV file upload
-            $fileData = [];
-            if ($request->hasFile('fichier_pv_signe')) {
-                $fileData['fichier_pv_signe'] = $request->file('fichier_pv_signe')->store('pv-installations/signes', 'public');
-                $fileData['pv_signed_at'] = now();
-            }
-
             // Check if PV Installation already exists
             $pvInstallation = \App\Models\PvInstallation::where('contract_vente_id', $contractVente->id)->first();
-            unset($validated['fichier_pv_signe']);
 
             if ($pvInstallation) {
-                $pvInstallation->update(array_merge($validated, $fileData));
+                $pvInstallation->update($validated);
                 ActivityLogger::log('update', 'PV d\'Installation modifié', \App\Models\PvInstallation::class, $pvInstallation->id);
                 $message = 'PV d\'Installation modifié avec succès.';
             } else {
                 $validated['contract_vente_id'] = $contractVente->id;
-                $pvInstallation = \App\Models\PvInstallation::create(array_merge($validated, $fileData));
+                $pvInstallation = \App\Models\PvInstallation::create($validated);
                 ActivityLogger::log('create', 'PV d\'Installation créé', \App\Models\PvInstallation::class, $pvInstallation->id);
-                $message = 'PV d\'Installation créé avec succès.';
-            }
+                $message = 'PV d\'Installation créé avec succès. Vous pouvez maintenant importer le PV signé.';
 
-            // Auto-transition workflow to TRANCHES_IN_PROGRESS
-            $workflow = app(ArticleWorkflowService::class);
-            $currentState = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
-            if ($currentState === ArticleWorkflowService::PV_INSTALLATION_DONE) {
-                try {
-                    $workflow->transition($article, ArticleWorkflowService::TRANCHES_IN_PROGRESS, Auth::id());
-                } catch (\RuntimeException) {}
             }
 
             DB::commit();
 
-            return redirect()->route('articles.show', $article)
+            return redirect()->route('articles.pv-installation', $article)
                 ->with('success', $message);
 
         } catch (\Exception $e) {

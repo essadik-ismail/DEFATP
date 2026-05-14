@@ -3,12 +3,12 @@
 @section('title', 'Modifier Article #' . ($article->numero ?? $article->id) . ' - DEFATP')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
+    <li class="bc-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
     @if ($article->cession)
-        <li class="breadcrumb-item"><a href="{{ route('cessions.show', $article->cession) }}">Cession #{{ $article->cession->id }}</a></li>
+        <li class="bc-item"><a href="{{ route('cessions.show', $article->cession) }}">Cession #{{ $article->cession->id }}</a></li>
     @endif
-    <li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Article #{{ $article->numero ?? $article->id }}</a></li>
-    <li class="breadcrumb-item active">Modifier</li>
+    <li class="bc-item"><a href="{{ route('articles.show', $article) }}">Article #{{ $article->numero ?? $article->id }}</a></li>
+    <li class="bc-item active">Modifier</li>
 @endsection
 
 @section('content')
@@ -39,6 +39,53 @@
                 @csrf
                 @method('PUT')
 
+                @if (
+                    $currentUser &&
+                        ($currentUser->dranef_id ||
+                            $currentUser->dpanef_id ||
+                            $currentUser->zdtf_id ||
+                            $currentUser->dfp_id ||
+                            $currentUser->province_id))
+                    <div class="bg-emerald-50 rounded-lg p-4 border border-emerald-200 mb-6">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fas fa-user-tag text-emerald-600"></i>
+                            <span class="text-sm font-semibold text-emerald-800 uppercase tracking-wider">Votre affectation</span>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-sm">
+                            @if ($currentUser->dranef)
+                                <div>
+                                    <span class="text-gray-500 block">DRANEF</span>
+                                    <span class="font-medium text-gray-900">{{ $currentUser->dranef->dranef }} - {{ $currentUser->dranef->Abréviation }}</span>
+                                </div>
+                            @endif
+                            @if ($currentUser->dpanef)
+                                <div>
+                                    <span class="text-gray-500 block">DPANEF</span>
+                                    <span class="font-medium text-gray-900">{{ $currentUser->dpanef->dpanef }}</span>
+                                </div>
+                            @endif
+                            @if ($currentUser->zdtf)
+                                <div>
+                                    <span class="text-gray-500 block">ZDTF</span>
+                                    <span class="font-medium text-gray-900">{{ $currentUser->zdtf->zdtf }}</span>
+                                </div>
+                            @endif
+                            @if ($currentUser->dfp)
+                                <div>
+                                    <span class="text-gray-500 block">DFP</span>
+                                    <span class="font-medium text-gray-900">{{ $currentUser->dfp->dfp }}</span>
+                                </div>
+                            @endif
+                            @if ($currentUser->province)
+                                <div>
+                                    <span class="text-gray-500 block">Province</span>
+                                    <span class="font-medium text-gray-900">{{ $currentUser->province->nom }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 {{-- 1. Informations générales --}}
                 <x-form-section number="1" title="Informations générales" icon="fas fa-info-circle" color="green">
                     @php $cession = $article->cession; @endphp
@@ -67,23 +114,32 @@
                     @if ($cession)
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="form-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Num AO</label>
-                                <input type="text" readonly
-                                    class="form-input w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
-                                    value="{{ $cession->numAO ?? '-' }}">
-                            </div>
-                            <div class="form-group">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Date AO</label>
-                                <input type="text" readonly
-                                    class="form-input w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
-                                    value="{{ $cession->dateAO ? $cession->dateAO->format('d/m/Y') : '-' }}">
-                            </div>
-                            <div class="form-group">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Type de cession</label>
                                 <input type="text" readonly
                                     class="form-input w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                                     value="{{ $cession->mode_cession === 'appel_offre' ? "Appel d'offre" : 'Adjudication' }}">
                             </div>
+                            @if ($cession->mode_cession === 'adjudication')
+                                <div class="form-group">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Date d'adjudication</label>
+                                    <input type="text" readonly
+                                        class="form-input w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                        value="{{ $cession->DateAdj ? $cession->DateAdj->format('d/m/Y') : '-' }}">
+                                </div>
+                            @else
+                                <div class="form-group">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Numéro AO</label>
+                                    <input type="text" readonly
+                                        class="form-input w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                        value="{{ $cession->numAO ?? '-' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Date d'attribution (AO)</label>
+                                    <input type="text" readonly
+                                        class="form-input w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                                        value="{{ $cession->dateAO ? $cession->dateAO->format('d/m/Y') : '-' }}">
+                                </div>
+                            @endif
                         </div>
                     @endif
                 </x-form-section>
@@ -92,18 +148,39 @@
                 <x-form-section number="2" title="Localisation du lot" icon="fas fa-map-marker-alt" color="blue">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+                        @php
+                            $cessionDranefCode = $cession?->dranef?->code;
+                            $userDranefCode  = $currentUser?->dranef?->code;
+                            $userDpanefCode  = $currentUser?->dpanef?->code;
+                            $userZdtfCode    = $currentUser?->zdtf?->code;
+                            $userDfpCode     = $currentUser?->dfp?->code;
+                            $userProvinceId  = $currentUser?->province_id;
+                            $userCommuneId   = $currentUser?->commune_id;
+                            $effectiveDranefCode = $cessionDranefCode ?? $userDranefCode;
+                            $isAdmin      = $currentUser?->hasRole('admin');
+                            $lockDranef   = ($effectiveDranefCode) && !$isAdmin;
+                            $lockDpanef   = $userDpanefCode  && !$isAdmin;
+                            $lockZdtf     = $userZdtfCode    && !$isAdmin;
+                            $lockDfp      = $userDfpCode     && !$isAdmin;
+                            $lockProvince = $userProvinceId  && !$isAdmin;
+                            $lockCommune  = $userCommuneId   && !$isAdmin;
+                            $articleProvinceId = $article->provinces->first()?->id;
+                        @endphp
+
                         <!-- Province -->
                         <div class="form-group">
-                            <label for="province_ids" class="block text-sm font-semibold text-gray-700 mb-2">Province</label>
-                            @php $selectedProvinceIds = old('province_ids', $article->provinces->pluck('id')->toArray()); @endphp
-                            <input type="text" placeholder="Rechercher..."
-                                class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg"
-                                onkeyup="filterSelectOptions(this, 'province_ids')">
-                            <select multiple id="province_ids" name="province_ids[]"
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                onchange="updateCommunes()">
+                            <label for="province_id" class="block text-sm font-semibold text-gray-700 mb-2">Province</label>
+                            @if($lockProvince)
+                                <input type="hidden" name="province_ids[]" value="{{ old('province_ids.0', $userProvinceId) }}">
+                            @endif
+                            <select id="province_id" {{ $lockProvince ? 'name="_province_id_readonly" disabled' : 'name="province_ids[]"' }}
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $lockProvince ? 'bg-gray-100 cursor-not-allowed' : '' }}"
+                                onchange="{{ $lockProvince ? '' : 'updateCommunes()' }}">
+                                <option value="">Sélectionner une province</option>
                                 @foreach ($provinces ?? [] as $province)
-                                    <option value="{{ $province->id }}" {{ in_array($province->id, $selectedProvinceIds) ? 'selected' : '' }}>
+                                    @php $selectedProvince = old('province_ids.0', $lockProvince ? $userProvinceId : $articleProvinceId); @endphp
+                                    <option value="{{ $province->id }}"
+                                        {{ (string)$selectedProvince === (string)$province->id ? 'selected' : '' }}>
                                         {{ $province->nom }}
                                     </option>
                                 @endforeach
@@ -118,20 +195,27 @@
                             <label for="commune_ids" class="block text-sm font-semibold text-gray-700 mb-2">
                                 Communes <span class="text-red-500">*</span>
                             </label>
-                            @php $selectedCommunes = old('commune_ids', $article->communes->pluck('id')->toArray()); @endphp
+                            @php $selectedCommunes = collect(old('commune_ids', $lockCommune ? [$userCommuneId] : $article->communes->pluck('id')->toArray())); @endphp
+                            @if($lockCommune)
+                                <input type="hidden" name="commune_ids[]" value="{{ old('commune_ids.0', $userCommuneId) }}">
+                            @endif
+                            @if(!$lockCommune)
                             <input type="text" placeholder="Rechercher..."
                                 class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg"
                                 onkeyup="filterSelectOptions(this, 'commune_ids')">
+                            @endif
                             <select multiple
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                id="commune_ids" name="commune_ids[]">
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $lockCommune ? 'bg-gray-100 cursor-not-allowed' : '' }}"
+                                id="commune_ids" {{ $lockCommune ? 'name="_commune_ids_readonly" disabled' : 'name="commune_ids[]"' }}
+                                onchange="renderSelectTags('commune_ids','commune_tags');">
                                 @foreach ($communes ?? [] as $commune)
                                     <option value="{{ $commune->id }}" data-province-id="{{ $commune->province_id }}"
-                                        {{ in_array($commune->id, $selectedCommunes) ? 'selected' : '' }}>
+                                        {{ $selectedCommunes->contains((string) $commune->id) ? 'selected' : '' }}>
                                         {{ $commune->nom }}
                                     </option>
                                 @endforeach
                             </select>
+                            <div id="commune_tags" class="flex flex-wrap gap-1.5 mt-2"></div>
                             @error('commune_ids')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
@@ -139,14 +223,19 @@
 
                         <!-- DRANEF -->
                         <div class="form-group">
-                            <label for="dranef_code" class="block text-sm font-semibold text-gray-700 mb-2">DRANEF</label>
-                            <select id="dranef_code" name="dranef_code"
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                onchange="updateDpanefs()">
+                            <label for="dranef_code" class="block text-sm font-semibold text-gray-700 mb-2">
+                                DRANEF <span class="text-red-500">*</span>
+                            </label>
+                            @if($lockDranef)
+                                <input type="hidden" name="dranef_code" value="{{ old('dranef_code', $effectiveDranefCode) }}">
+                            @endif
+                            <select id="dranef_code" {{ $lockDranef ? 'name="_dranef_code_readonly" disabled' : 'name="dranef_code"' }}
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $lockDranef ? 'bg-gray-100 cursor-not-allowed' : '' }}"
+                                onchange="{{ $lockDranef ? '' : 'updateDpanefs()' }}">
                                 <option value="">Sélectionner un DRANEF</option>
                                 @foreach ($dranefs ?? [] as $dranef)
                                     <option value="{{ $dranef->code }}"
-                                        {{ old('dranef_code', $article->dranef_code) == $dranef->code ? 'selected' : '' }}>
+                                        {{ old('dranef_code', $lockDranef ? $effectiveDranefCode : $article->dranef_code) == $dranef->code ? 'selected' : '' }}>
                                         {{ $dranef->dranef }} - {{ $dranef->Abréviation }}
                                     </option>
                                 @endforeach
@@ -158,16 +247,21 @@
 
                         <!-- DPANEF -->
                         <div class="form-group">
-                            <label for="dpanef_code" class="block text-sm font-semibold text-gray-700 mb-2">DPANEF</label>
-                            <select id="dpanef_code" name="dpanef_code"
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                onchange="updateZdtfsAndForets()">
+                            <label for="dpanef_code" class="block text-sm font-semibold text-gray-700 mb-2">
+                                DPANEF <span class="text-red-500">*</span>
+                            </label>
+                            @if($lockDpanef)
+                                <input type="hidden" name="dpanef_code" value="{{ old('dpanef_code', $userDpanefCode) }}">
+                            @endif
+                            <select id="dpanef_code" {{ $lockDpanef ? 'name="_dpanef_code_readonly" disabled' : 'name="dpanef_code"' }}
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $lockDpanef ? 'bg-gray-100 cursor-not-allowed' : '' }}"
+                                onchange="{{ $lockDpanef ? '' : 'updateZdtfsAndForets()' }}">
                                 <option value="">Sélectionner un DPANEF</option>
                                 @foreach ($dpanefs ?? [] as $dpanef)
                                     <option value="{{ $dpanef->code }}"
                                         data-dranef-code="{{ $dpanef->dranef_code }}"
                                         data-dpanef-id="{{ $dpanef->id }}"
-                                        {{ old('dpanef_code', $article->dpanef_code) == $dpanef->code ? 'selected' : '' }}>
+                                        {{ old('dpanef_code', $lockDpanef ? $userDpanefCode : $article->dpanef_code) == $dpanef->code ? 'selected' : '' }}>
                                         {{ $dpanef->dpanef }}
                                     </option>
                                 @endforeach
@@ -179,14 +273,19 @@
 
                         <!-- ZDTF -->
                         <div class="form-group">
-                            <label for="zdtf_code" class="block text-sm font-semibold text-gray-700 mb-2">ZDTF</label>
-                            <select id="zdtf_code" name="zdtf_code"
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                onchange="updateDfps()">
+                            <label for="zdtf_code" class="block text-sm font-semibold text-gray-700 mb-2">
+                                ZDTF <span class="text-red-500">*</span>
+                            </label>
+                            @if($lockZdtf)
+                                <input type="hidden" name="zdtf_code" value="{{ old('zdtf_code', $userZdtfCode) }}">
+                            @endif
+                            <select id="zdtf_code" {{ $lockZdtf ? 'name="_zdtf_code_readonly" disabled' : 'name="zdtf_code"' }}
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $lockZdtf ? 'bg-gray-100 cursor-not-allowed' : '' }}"
+                                onchange="{{ $lockZdtf ? '' : 'updateDfps()' }}">
                                 <option value="">Sélectionner un ZDTF</option>
                                 @foreach ($zdtfs ?? [] as $zdtf)
                                     <option value="{{ $zdtf->code }}" data-dpanef-code="{{ $zdtf->dpanef_code }}"
-                                        {{ old('zdtf_code', $article->zdtf_code) == $zdtf->code ? 'selected' : '' }}>
+                                        {{ old('zdtf_code', $lockZdtf ? $userZdtfCode : $article->zdtf_code) == $zdtf->code ? 'selected' : '' }}>
                                         {{ $zdtf->zdtf }}
                                     </option>
                                 @endforeach
@@ -198,14 +297,19 @@
 
                         <!-- DFP -->
                         <div class="form-group">
-                            <label for="dfp_code" class="block text-sm font-semibold text-gray-700 mb-2">DFP</label>
-                            <select id="dfp_code" name="dfp_code"
-                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <label for="dfp_code" class="block text-sm font-semibold text-gray-700 mb-2">
+                                DFP <span class="text-red-500">*</span>
+                            </label>
+                            @if($lockDfp)
+                                <input type="hidden" name="dfp_code" value="{{ old('dfp_code', $userDfpCode) }}">
+                            @endif
+                            <select id="dfp_code" {{ $lockDfp ? 'name="_dfp_code_readonly" disabled' : 'name="dfp_code"' }}
+                                class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $lockDfp ? 'bg-gray-100 cursor-not-allowed' : '' }}">
                                 <option value="">Sélectionner un DFP</option>
                                 @foreach ($dfps ?? [] as $dfp)
                                     <option value="{{ $dfp->code }}" data-zdtf-code="{{ $dfp->zdtf_code }}"
                                         data-dpanef-code="{{ $dfp->dpanef_code }}"
-                                        {{ old('dfp_code', $article->dfp_code) == $dfp->code ? 'selected' : '' }}>
+                                        {{ old('dfp_code', $lockDfp ? $userDfpCode : $article->dfp_code) == $dfp->code ? 'selected' : '' }}>
                                         {{ $dfp->dfp }}
                                     </option>
                                 @endforeach
@@ -371,13 +475,14 @@
                             <select multiple
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                                 id="nature_de_coupe_ids" name="nature_de_coupe_ids[]"
-                                onchange="toggleDepotByNatureCoupe()">
+                                onchange="toggleDepotByNatureCoupe(); renderTags('nature_de_coupe_ids','nature_coupe_tags');">
                                 @foreach ($natureDeCoupes ?? [] as $ndc)
                                     <option value="{{ $ndc->id }}" {{ in_array($ndc->id, $selectedNatures) ? 'selected' : '' }}>
                                         {{ $ndc->nature_de_coupe }}
                                     </option>
                                 @endforeach
                             </select>
+                            <div id="nature_coupe_tags" class="flex flex-wrap gap-1.5 mt-2"></div>
                             @error('nature_de_coupe_ids')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
@@ -389,13 +494,15 @@
                                 onkeyup="filterSelectOptions(this, 'mode_exploitation_ids')">
                             <select multiple
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                                id="mode_exploitation_ids" name="mode_exploitation_ids[]">
+                                id="mode_exploitation_ids" name="mode_exploitation_ids[]"
+                                onchange="renderTags('mode_exploitation_ids','mode_exploitation_tags');">
                                 @foreach ($modeExploitations ?? [] as $me)
                                     <option value="{{ $me->id }}" {{ in_array($me->id, $selectedModes) ? 'selected' : '' }}>
                                         {{ $me->mode_exploiattion }}
                                     </option>
                                 @endforeach
                             </select>
+                            <div id="mode_exploitation_tags" class="flex flex-wrap gap-1.5 mt-2"></div>
                             @error('mode_exploitation_ids')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
@@ -692,16 +799,19 @@
         }
 
         function updateCommunes() {
-            const provinceSelect = document.getElementById('province_ids');
+            const provinceSelect = document.getElementById('province_id');
             const communeSelect = document.getElementById('commune_ids');
+            const selectedProvinceId = provinceSelect ? String(provinceSelect.value) : '';
+
             if (!communeSelect) return;
-            const selectedProvinceIds = provinceSelect
-                ? Array.from(provinceSelect.selectedOptions).map(o => String(o.value)).filter(v => v)
-                : [];
+
             Array.from(communeSelect.options).forEach(option => {
-                if (!selectedProvinceIds.length) { option.style.display = ''; return; }
+                if (!selectedProvinceId) {
+                    option.style.display = '';
+                    return;
+                }
                 const provinceId = String(option.getAttribute('data-province-id') || '');
-                const matches = selectedProvinceIds.includes(provinceId);
+                const matches = provinceId === selectedProvinceId;
                 option.style.display = matches ? '' : 'none';
                 if (!matches && option.selected) option.selected = false;
             });
@@ -768,22 +878,68 @@
             });
         }
 
+        function renderTags(selectId, containerId) {
+            const select = document.getElementById(selectId);
+            const container = document.getElementById(containerId);
+            if (!select || !container) return;
+            const selected = Array.from(select.selectedOptions).map(o => o.text.trim()).filter(Boolean);
+            if (!selected.length) { container.innerHTML = ''; return; }
+            container.innerHTML = selected.map(function(t) {
+                return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">' + t + '</span>';
+            }).join('');
+        }
+
+        // renderSelectTags is an alias used by commune_ids onchange
+        function renderSelectTags(selectId, containerId) { renderTags(selectId, containerId); }
+
         // Show dépôts only when "Bois empilé sur dépôt" nature de coupe is selected
         function toggleDepotByNatureCoupe() {
             const select = document.getElementById('nature_de_coupe_ids');
             const container = document.getElementById('depot-select-container');
             if (!select || !container) return;
             const selectedTexts = Array.from(select.selectedOptions).map(o => o.text.toLowerCase());
-            const hasBoisDepot = selectedTexts.some(t => t.includes('emp') && t.includes('dép'));
+            const hasBoisDepot = selectedTexts.some(t => t.includes('empil'));
             container.style.display = hasBoisDepot ? 'block' : 'none';
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // On init: only show/hide options based on parent selection, never deselect pre-filled values
+            function softFilter(selectEl, matchFn) {
+                if (!selectEl) return;
+                Array.from(selectEl.options).forEach(function(opt) {
+                    if (opt.value === '') { opt.style.display = ''; return; }
+                    opt.style.display = matchFn(opt) ? '' : 'none';
+                });
+            }
+            var dranefSel = document.getElementById('dranef_code');
+            var dpanefSel = document.getElementById('dpanef_code');
+            var zdtfSel   = document.getElementById('zdtf_code');
+            var dfpSel    = document.getElementById('dfp_code');
+
+            if (dranefSel && dpanefSel) {
+                var dranefCode = dranefSel.value;
+                softFilter(dpanefSel, function(o) { return !dranefCode || o.getAttribute('data-dranef-code') === dranefCode; });
+            }
+            if (dpanefSel && zdtfSel) {
+                var dpanefCode = dpanefSel.value;
+                softFilter(zdtfSel, function(o) { return !dpanefCode || o.getAttribute('data-dpanef-code') === dpanefCode; });
+            }
+            if (zdtfSel && dfpSel) {
+                var zdtfCode2 = zdtfSel.value;
+                var dpanefCode2 = dpanefSel ? dpanefSel.value : '';
+                softFilter(dfpSel, function(o) {
+                    var zc = o.getAttribute('data-zdtf-code');
+                    var dc = o.getAttribute('data-dpanef-code');
+                    if (zdtfCode2 && zc && zc !== zdtfCode2) return false;
+                    if (dpanefCode2 && dc && dc !== dpanefCode2) return false;
+                    return true;
+                });
+            }
             updateCommunes();
-            updateDpanefs();
-            updateZdtfsAndForets();
-            updateDfps();
             toggleDepotByNatureCoupe();
+            renderTags('commune_ids', 'commune_tags');
+            renderTags('nature_de_coupe_ids', 'nature_coupe_tags');
+            renderTags('mode_exploitation_ids', 'mode_exploitation_tags');
         });
     </script>
 @endpush

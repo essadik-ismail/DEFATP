@@ -3,9 +3,9 @@
 @section('title', 'Modifier la Nature de Coupe')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
-<li class="breadcrumb-item"><a href="{{ route('settings.nature-de-coupes.index') }}">Natures de coupe</a></li>
-<li class="breadcrumb-item active">Modifier</li>
+<li class="bc-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
+<li class="bc-item"><a href="{{ route('settings.nature-de-coupes.index') }}">Natures de coupe</a></li>
+<li class="bc-item active">Modifier</li>
 @endsection
 
 @section('content')

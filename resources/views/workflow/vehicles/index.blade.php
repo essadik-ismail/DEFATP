@@ -3,8 +3,8 @@
 @section('title', 'Véhicules déclarés - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Article #{{ $article->numero ?? $article->id }}</a></li>
-<li class="breadcrumb-item active">Véhicules</li>
+<li class="bc-item"><a href="{{ route('articles.show', $article) }}">Article #{{ $article->numero ?? $article->id }}</a></li>
+<li class="bc-item active">Véhicules</li>
 @endsection
 
 @section('content')
@@ -50,8 +50,6 @@
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-green-800 uppercase">Immatriculation</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-green-800 uppercase">Marque</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-green-800 uppercase">Capacité</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-green-800 uppercase">Chauffeur</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-green-800 uppercase">Date</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-green-800 uppercase">Déclaré par</th>
                                 @can('vehicle.declare')
                                 <th class="px-4 py-3 text-center text-xs font-semibold text-green-800 uppercase">Actions</th>
@@ -70,15 +68,6 @@
                                     @else
                                         —
                                     @endif
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-700">
-                                    {{ $vehicle->chauffeur_nom ?? '—' }}
-                                    @if($vehicle->chauffeur_cin)
-                                        <span class="text-xs text-gray-500">({{ $vehicle->chauffeur_cin }})</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-sm text-blue-700">
-                                    {{ $vehicle->date_declaration ? $vehicle->date_declaration->format('d/m/Y') : '—' }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-700">{{ $vehicle->declaredBy?->name ?? '—' }}</td>
                                 @can('vehicle.declare')

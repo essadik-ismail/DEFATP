@@ -50,12 +50,14 @@ class ArticlePolicy
      */
     public function delete(User $user, Article $article): bool
     {
-        if (!$user->can(Permission::ARTICLE_UPDATE)) {
+        if (!$user->can(Permission::ARTICLE_DELETE)) {
             return false;
         }
 
-        // Record-level: only the owning zdtf user can delete
-        return $user->zdtf_id !== null && $user->zdtf_id === $article->zdtf_id;
+        // Record-level: full org hierarchy must match, not just zdtf
+        return $user->zdtf_id !== null
+            && $user->zdtf_id === $article->zdtf_id
+            && $user->dranef_id === $article->dranef_id;
     }
 
     public function generateContract(User $user, Article $article): bool

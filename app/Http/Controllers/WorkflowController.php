@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Permission;
 use App\Models\Alert;
 use App\Models\Article;
 use App\Models\ContractVente;
@@ -31,12 +32,21 @@ class WorkflowController extends Controller
      */
     public function transition(Request $request, Article $article): RedirectResponse
     {
+        $this->authorize('view', $article);
         $request->validate(['state' => 'required|string']);
 
         try {
             $this->workflow->transition($article, $request->state, Auth::id());
         } catch (\RuntimeException $e) {
             return back()->withErrors(['workflow' => $e->getMessage()]);
+        }
+
+        // Lock the contract when step 2 is explicitly validated via the generic endpoint
+        if ($request->state === ArticleWorkflowService::CONTRACT_CREATED) {
+            $contract = $article->contractVentes()->latest()->first();
+            if ($contract && !$contract->is_validated) {
+                $contract->update(['is_validated' => true]);
+            }
         }
 
         return back()->with('success', 'État du dossier mis à jour.');
@@ -51,6 +61,7 @@ class WorkflowController extends Controller
      */
     public function validateArticle(Article $article): RedirectResponse
     {
+        $this->authorize('update', $article);
         try {
             $this->workflow->transition($article, ArticleWorkflowService::ARTICLE_READY, Auth::id());
         } catch (\RuntimeException $e) {
@@ -65,6 +76,12 @@ class WorkflowController extends Controller
      */
     public function uploadSignedLetter(Request $request, Article $article): RedirectResponse
     {
+        $this->authorize(Permission::ADJUDICATAIRE_LETTER_UPLOAD_SIGNED);
+
+        if ($this->workflow->isAtOrPast($article, ArticleWorkflowService::LETTER_SIGNED_UPLOADED)) {
+            return back()->withErrors(['workflow' => 'Cette étape est déjà validée. La modification du document n\'est plus autorisée.']);
+        }
+
         $request->validate([
             'signed_letter' => 'required|file|mimes:pdf|max:10240',
         ], [
@@ -84,19 +101,36 @@ class WorkflowController extends Controller
             'letter_signed_at'   => now(),
         ]);
 
-        $article->refresh();
-        $current = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Lettre signée importée avec succès. Validez manuellement pour passer à l\'étape suivante.');
+    }
 
-        if ($current === ArticleWorkflowService::CONTRACT_CREATED) {
-            try {
-                $this->workflow->transition($article, ArticleWorkflowService::LETTER_SIGNED_UPLOADED, Auth::id());
-            } catch (\RuntimeException $e) {
-                return back()->withErrors(['workflow' => $e->getMessage()]);
-            }
+    /**
+     * Manually validate the adjudication letter step (CONTRACT_CREATED → LETTER_SIGNED_UPLOADED).
+     */
+    public function validateSignedLetter(Article $article): RedirectResponse
+    {
+        $this->authorize(Permission::ADJUDICATAIRE_LETTER_UPLOAD_SIGNED);
+
+        $contract = $article->contractVentes()->latest()->firstOrFail();
+
+        if (!$contract->letter_signed_file) {
+            return back()->withErrors(['workflow' => 'La lettre adjudicataire signée doit être importée avant de valider.']);
+        }
+
+        $current = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
+        if ($current !== ArticleWorkflowService::CONTRACT_CREATED) {
+            return back()->with('info', 'Cette étape a déjà été validée.');
+        }
+
+        try {
+            $this->workflow->transition($article, ArticleWorkflowService::LETTER_SIGNED_UPLOADED, Auth::id());
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['workflow' => $e->getMessage()]);
         }
 
         return redirect()->route('articles.show', $article)
-            ->with('success', 'Lettre signée importée avec succès. Statut mis à jour : Lettre d\'adjudicataire validée.');
+            ->with('success', 'Lettre adjudicataire validée. Statut mis à jour.');
     }
 
     public function viewSignedLetter(Article $article): \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
@@ -111,6 +145,62 @@ class WorkflowController extends Controller
 
         return Storage::disk('public')->response(
             $contract->letter_signed_file,
+            null,
+            ['Content-Type' => $mimeType, 'Content-Disposition' => 'inline']
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // PV d'installation
+    // -------------------------------------------------------------------------
+
+    /**
+     * Upload the signed PV d'installation file.
+     */
+    public function uploadSignedPv(Request $request, Article $article): RedirectResponse
+    {
+        $this->authorize(Permission::INSTALLATION_REPORT_UPLOAD_SIGNED);
+
+        if ($this->workflow->isAtOrPast($article, ArticleWorkflowService::PV_INSTALLATION_DONE)) {
+            return back()->withErrors(['workflow' => 'Cette étape est déjà validée. La modification du document n\'est plus autorisée.']);
+        }
+
+        $request->validate([
+            'fichier_pv_signe' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ], [
+            'fichier_pv_signe.mimes' => 'Seuls les fichiers PDF, JPG et PNG sont acceptés.',
+        ]);
+
+        $contract = $article->contractVentes()->latest()->firstOrFail();
+        $pvInstallation = $contract->pvInstallations()->latest()->firstOrFail();
+
+        if ($pvInstallation->fichier_pv_signe && Storage::disk('public')->exists($pvInstallation->fichier_pv_signe)) {
+            Storage::disk('public')->delete($pvInstallation->fichier_pv_signe);
+        }
+
+        $path = $request->file('fichier_pv_signe')->store('pv-installations/signes', 'public');
+        $pvInstallation->update([
+            'fichier_pv_signe' => $path,
+            'pv_signed_at'     => now(),
+        ]);
+
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'PV signé importé avec succès. Validez manuellement pour passer à l\'étape suivante.');
+    }
+
+    public function viewSignedPv(Article $article): \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
+    {
+        $contract = $article->contractVentes()->latest()->firstOrFail();
+        $pvInstallation = $contract->pvInstallations()->latest()->firstOrFail();
+
+        if (!$pvInstallation->fichier_pv_signe || !Storage::disk('public')->exists($pvInstallation->fichier_pv_signe)) {
+            return back()->withErrors(['pv' => 'Fichier introuvable.']);
+        }
+
+        $mimeType = Storage::disk('public')->mimeType($pvInstallation->fichier_pv_signe) ?: 'application/pdf';
+
+        return Storage::disk('public')->response(
+            $pvInstallation->fichier_pv_signe,
             null,
             ['Content-Type' => $mimeType, 'Content-Disposition' => 'inline']
         );
@@ -313,9 +403,22 @@ class WorkflowController extends Controller
     {
         $this->authorize('forfeiture.create');
 
-        $contract = $article->contractVentes()->latest()->first();
+        $contract = $article->contractVentes()->with('chargeApayer.payments')->latest()->first();
         if (!$contract) {
             return back()->withErrors(['workflow' => 'Aucun contrat trouvé.']);
+        }
+
+        // Check caution is NOT already paid
+        $cautionCharge = $contract->chargeApayer
+            ->first(fn($c) => str_contains(strtolower($c->nom), 'caution'));
+        $cautionPaid = (bool) $cautionCharge?->payments?->first()?->is_paye;
+        if ($cautionPaid) {
+            return back()->withErrors(['workflow' => 'La caution a déjà été payée. La mise en déchéance n\'est pas applicable.']);
+        }
+
+        // Check that the caution deadline has actually passed
+        if ($contract->date_de_decheance && \Carbon\Carbon::parse($contract->date_de_decheance)->isFuture()) {
+            return back()->withErrors(['workflow' => 'La date limite de paiement de la caution (' . \Carbon\Carbon::parse($contract->date_de_decheance)->format('d/m/Y') . ') n\'est pas encore dépassée.']);
         }
 
         $contract->update(['Current_state' => 'Déchu']);

@@ -3,7 +3,7 @@
 @section('title', 'Alertes — DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item active">Alertes</li>
+<li class="bc-item active">Alertes</li>
 @endsection
 
 @section('content')

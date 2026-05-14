@@ -61,11 +61,14 @@ class ContractVenteController extends Controller
 
             $contractVente->chargeApayer()->delete();
 
-            $charges = collect($validated['charges'])->map(function ($chargeData) use ($contractVente) {
+            $dateLimiteTaxes   = $validated['date_limite_taxes'] ?? null;
+            $dateLimiteTranche = $validated['date_limite_tranche'] ?? null;
+
+            $charges = collect($validated['charges'])->map(function ($chargeData) use ($contractVente, $dateLimiteTaxes) {
                 return [
                     'nom' => $chargeData['nom'],
                     'montant' => $chargeData['montant'],
-                    'date_echeance' => $chargeData['date_echeance'],
+                    'date_echeance' => $chargeData['date_echeance'] ?: null,
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -81,7 +84,7 @@ class ContractVenteController extends Controller
                 return [
                     'nom' => 'Tranche ' . ($index + 1),
                     'montant' => $montantParTranche,
-                    'date_echeance' => $trancheData['date_echeance'],
+                    'date_echeance' => $trancheData['date_echeance'] ?: null,
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -95,7 +98,10 @@ class ContractVenteController extends Controller
             $workflow = app(ArticleWorkflowService::class);
             $currentState = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
             if ($currentState === ArticleWorkflowService::ARTICLE_READY) {
-                try { $workflow->transition($article, ArticleWorkflowService::CONTRACT_CREATED, Auth::id()); } catch (\RuntimeException) {}
+                try {
+                    $workflow->transition($article, ArticleWorkflowService::CONTRACT_CREATED, Auth::id());
+                    $contractVente->update(['is_validated' => true]);
+                } catch (\RuntimeException) {}
             }
 
             DB::commit();
@@ -173,11 +179,14 @@ class ContractVenteController extends Controller
 
             $contractVente->chargeApayer()->delete();
 
-            $charges = collect($validated['charges'])->map(function ($chargeData) use ($contractVente) {
+            $dateLimiteTaxes   = $validated['date_limite_taxes'] ?? null;
+            $dateLimiteTranche = $validated['date_limite_tranche'] ?? null;
+
+            $charges = collect($validated['charges'])->map(function ($chargeData) use ($contractVente, $dateLimiteTaxes) {
                 return [
                     'nom' => $chargeData['nom'],
                     'montant' => $chargeData['montant'],
-                    'date_echeance' => $chargeData['date_echeance'],
+                    'date_echeance' => $chargeData['date_echeance'] ?: null,
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -193,7 +202,7 @@ class ContractVenteController extends Controller
                 return [
                     'nom' => 'Tranche ' . ($index + 1),
                     'montant' => $montantParTranche,
-                    'date_echeance' => $trancheData['date_echeance'],
+                    'date_echeance' => $trancheData['date_echeance'] ?: null,
                     'contrat_vente_id' => $contractVente->id,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -214,7 +223,7 @@ class ContractVenteController extends Controller
 
             ActivityLogger::log('update', 'Contrat de vente mis à jour', ContractVente::class, $contractVente->id);
 
-            return redirect()->route('articles.show', $article)
+            return redirect()->route('contract-ventes.show', [$article, $contractVente])
                 ->with('success', 'Contrat de vente mis à jour avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -266,18 +275,18 @@ class ContractVenteController extends Controller
             'duree_decheache'            => 'required|integer|min:1',
             'bois_chauffage_volume_st'   => 'nullable|numeric|min:0',
             'percepteur'                 => 'nullable|string|max:255',
+            'date_limite_taxes'          => 'nullable|date',
+            'date_limite_tranche'        => 'nullable|date',
             'charges'                    => 'required|array',
             'charges.*.nom'              => 'required|string',
             'charges.*.montant'          => 'required|numeric|min:0',
-            'charges.*.date_echeance'    => 'required|date',
+            'charges.*.date_echeance'    => 'nullable|date',
             'tranches'                   => $tranchesRule,
             'tranches.*.montant'         => 'required|numeric|min:0',
-            'tranches.*.date_echeance'   => 'required|date',
+            'tranches.*.date_echeance'   => 'nullable|date',
         ], [
-            'duree_decheache.required'         => 'La durée de contrat est obligatoire.',
-            'duree_decheache.integer'          => 'La durée doit être un nombre entier de mois.',
-            'charges.*.date_echeance.required' => 'La date d\'échéance de chaque taxe est obligatoire.',
-            'tranches.*.date_echeance.required'=> 'La date d\'échéance de chaque tranche est obligatoire.',
+            'duree_decheache.required' => 'La durée de contrat est obligatoire.',
+            'duree_decheache.integer'  => 'La durée doit être un nombre entier de mois.',
         ]);
     }
 
@@ -310,6 +319,8 @@ class ContractVenteController extends Controller
             'date_expiration'       => $dateExpiration,
             'bois_chauffage_volume_st' => $validated['bois_chauffage_volume_st'] ?? null,
             'percepteur'              => $validated['percepteur'] ?? null,
+            'date_limite_taxes'       => $validated['date_limite_taxes'] ?? null,
+            'date_limite_tranche'     => $validated['date_limite_tranche'] ?? null,
         ];
     }
 

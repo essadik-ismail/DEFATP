@@ -3,9 +3,9 @@
 @section('title', 'Dénombrement — ' . ($article->numero ?? $article->id))
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">Dossier #{{ $article->numero ?? $article->id }}</a></li>
-    <li class="breadcrumb-item active">Dénombrement</li>
+    <li class="bc-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
+    <li class="bc-item"><a href="{{ route('articles.show', $article) }}">Dossier #{{ $article->numero ?? $article->id }}</a></li>
+    <li class="bc-item active">Dénombrement</li>
 @endsection
 
 @section('content')

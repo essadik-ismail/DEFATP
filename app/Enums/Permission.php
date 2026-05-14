@@ -25,6 +25,7 @@ final class Permission
     // ── Articles ──────────────────────────────────────────────────────────
     const ARTICLE_CREATE   = 'article.create';
     const ARTICLE_UPDATE   = 'article.update';
+    const ARTICLE_DELETE   = 'article.delete';
     const ARTICLE_VIEW     = 'article.view';
 
     // ── Contrats de vente ─────────────────────────────────────────────────

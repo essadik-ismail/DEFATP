@@ -3,7 +3,7 @@
 @section('title', 'Gestion des Rôles')
 
 @section('breadcrumb')
-<li class="breadcrumb-item active">Rôles</li>
+<li class="bc-item active">Rôles</li>
 @endsection
 
 @section('content')

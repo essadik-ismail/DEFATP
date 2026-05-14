@@ -3,7 +3,7 @@
 @section('title', 'Données des Entités - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item active">Données des entités</li>
+<li class="bc-item active">Données des entités</li>
 @endsection
 
 @section('content')

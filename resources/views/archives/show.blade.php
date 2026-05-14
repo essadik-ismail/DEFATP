@@ -3,8 +3,8 @@
 @section('title', 'Archive - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('archives.index') }}">Archives</a></li>
-<li class="breadcrumb-item active">Détail</li>
+<li class="bc-item"><a href="{{ route('archives.index') }}">Archives</a></li>
+<li class="bc-item active">Détail</li>
 @endsection
 
 @section('content')

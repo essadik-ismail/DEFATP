@@ -216,7 +216,8 @@ class DatabaseMonitor
         $results = [];
         foreach ($tables as $table) {
             try {
-                DB::statement("OPTIMIZE TABLE {$table}");
+                $safe = self::assertSafeTableName($table);
+                DB::statement("OPTIMIZE TABLE `{$safe}`");
                 $results[$table] = 'Optimized successfully';
             } catch (\Exception $e) {
                 $results[$table] = 'Error: ' . $e->getMessage();
@@ -238,7 +239,8 @@ class DatabaseMonitor
         $results = [];
         foreach ($tables as $table) {
             try {
-                DB::statement("ANALYZE TABLE {$table}");
+                $safe = self::assertSafeTableName($table);
+                DB::statement("ANALYZE TABLE `{$safe}`");
                 $results[$table] = 'Analyzed successfully';
             } catch (\Exception $e) {
                 $results[$table] = 'Error: ' . $e->getMessage();
@@ -251,5 +253,14 @@ class DatabaseMonitor
     private static function defaultTables(): array
     {
         return array_values(array_filter(self::DEFAULT_TABLES, fn (string $table) => Schema::hasTable($table)));
+    }
+
+    /** Reject table names that contain anything other than word chars and dots. */
+    private static function assertSafeTableName(string $table): string
+    {
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_.]*$/', $table)) {
+            throw new \InvalidArgumentException("Invalid table name: {$table}");
+        }
+        return $table;
     }
 }

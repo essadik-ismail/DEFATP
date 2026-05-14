@@ -3,7 +3,7 @@
 @section('title', 'Notifications')
 
 @section('breadcrumb')
-<li class="breadcrumb-item active">Notifications</li>
+<li class="bc-item active">Notifications</li>
 @endsection
 
 @section('content')

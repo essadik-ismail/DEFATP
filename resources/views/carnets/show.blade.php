@@ -3,8 +3,8 @@
 @section('title', 'Série de carnets')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('carnets.index') }}">Carnets</a></li>
-<li class="breadcrumb-item active">
+<li class="bc-item"><a href="{{ route('carnets.index') }}">Carnets</a></li>
+<li class="bc-item active">
     Série {{ $seriesSummary->serie }} – {{ \Illuminate\Support\Carbon::parse($seriesSummary->created_date)->format('d/m/Y') }}
 </li>
 @endsection

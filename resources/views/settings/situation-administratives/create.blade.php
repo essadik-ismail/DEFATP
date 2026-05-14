@@ -3,9 +3,9 @@
 @section('title', 'Nouvelle Situation Administrative')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
-<li class="breadcrumb-item"><a href="{{ route('settings.situation-administratives.index') }}">Situations administratives</a></li>
-<li class="breadcrumb-item active">Nouvelle</li>
+<li class="bc-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
+<li class="bc-item"><a href="{{ route('settings.situation-administratives.index') }}">Situations administratives</a></li>
+<li class="bc-item active">Nouvelle</li>
 @endsection
 
 @section('content')

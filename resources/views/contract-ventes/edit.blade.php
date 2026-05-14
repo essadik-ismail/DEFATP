@@ -3,9 +3,9 @@
 @section('title', 'Modifier Contrat de Vente - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
-<li class="breadcrumb-item"><a href="{{ route('articles.show', $article) }}">D&eacute;tail #{{ $article->numero ?? $article->id }}</a></li>
-<li class="breadcrumb-item active">Modifier contrat de vente</li>
+<li class="bc-item"><a href="{{ route('cessions.index') }}">Cessions</a></li>
+<li class="bc-item"><a href="{{ route('articles.show', $article) }}">D&eacute;tail #{{ $article->numero ?? $article->id }}</a></li>
+<li class="bc-item active">Modifier contrat de vente</li>
 @endsection
 
 @section('content')

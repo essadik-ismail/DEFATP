@@ -3,7 +3,7 @@
 @section('title', "Journal d'Activités")
 
 @section('breadcrumb')
-<li class="breadcrumb-item active">Journal d'activités</li>
+<li class="bc-item active">Journal d'activités</li>
 @endsection
 
 @section('content')

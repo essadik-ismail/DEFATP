@@ -3,8 +3,8 @@
 @section('title', 'Nouvel Avenant - DEFATP')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('contracts.index') }}">Contrats</a></li>
-<li class="breadcrumb-item active">Nouvel avenant</li>
+<li class="bc-item"><a href="{{ route('contracts.index') }}">Contrats</a></li>
+<li class="bc-item active">Nouvel avenant</li>
 @endsection
 
 @section('content')

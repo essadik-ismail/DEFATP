@@ -3,8 +3,8 @@
 @section('title', 'Gestion des Natures de Coupe')
 
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
-<li class="breadcrumb-item active">Natures de coupe</li>
+<li class="bc-item"><a href="{{ route('settings.index') }}">Paramètres</a></li>
+<li class="bc-item active">Natures de coupe</li>
 @endsection
 
 @section('content')
