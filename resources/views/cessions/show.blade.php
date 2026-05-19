@@ -269,6 +269,12 @@
                                             Éditer
                                         </a>
                                         @endif
+                                        <a href="{{ route('workflow.prorogation.create', $article) }}"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-xs font-medium transition-colors duration-200"
+                                            title="Prorogation">
+                                            <i class="fas fa-calendar-plus text-xs"></i>
+                                            Prorogation
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

@@ -22,6 +22,7 @@ class Prorogation extends Model
         'requested_by',
         'decided_by',
         'decided_at',
+        'document',
     ];
 
     protected $casts = [

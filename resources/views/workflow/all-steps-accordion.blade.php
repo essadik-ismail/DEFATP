@@ -1172,17 +1172,35 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                             ? \Carbon\Carbon::parse($tp->date_payment)->format('Y-m-d')
                                                             : null;
                                                         $hasDenombrementForDate = $paymentDate && in_array($paymentDate, $denombrementDates, true);
+                                                        $denomUploadId = 'denum_' . $tranche->id;
                                                     @endphp
-                                                    @if(!$tp?->is_paye)
-                                                        <span class="text-xs text-gray-400">—</span>
-                                                    @elseif($hasDenombrementForDate)
+                                                    @if($hasDenombrementForDate)
                                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
                                                             <i class="fas fa-check-circle"></i> Oui
                                                         </span>
                                                     @else
-                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium">
-                                                            <i class="fas fa-times-circle"></i> Non
-                                                        </span>
+                                                        {{-- No dénombrement: checkbox + upload (form outside table via HTML5 form= attribute) --}}
+                                                        <div x-data="{ checked: false }">
+                                                            <label class="inline-flex items-center gap-2 cursor-pointer">
+                                                                <input type="checkbox" x-model="checked"
+                                                                       class="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                                                                <span class="text-xs font-medium" :class="checked ? 'text-teal-700' : 'text-gray-500'"
+                                                                      x-text="checked ? 'Oui' : 'Non'"></span>
+                                                            </label>
+                                                            <div x-show="checked" x-cloak class="mt-2 space-y-1">
+                                                                <label class="block text-xs text-gray-600">PV de dénombrement <span class="text-red-500">*</span></label>
+                                                                <input type="file" name="fichier_pv"
+                                                                       form="{{ $denomUploadId }}"
+                                                                       accept=".pdf,.jpg,.jpeg,.png"
+                                                                       required
+                                                                       class="block w-36 text-xs text-gray-600 file:mr-1 file:rounded file:border-0 file:bg-teal-50 file:px-2 file:py-1 file:font-medium file:text-teal-700 hover:file:bg-teal-100">
+                                                                <button type="submit"
+                                                                        form="{{ $denomUploadId }}"
+                                                                        class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-teal-600 text-white rounded hover:bg-teal-700">
+                                                                    <i class="fas fa-upload"></i> Uploader
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     @endif
                                                 </td>
                                                 <td class="py-2">
@@ -1247,6 +1265,22 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 </tbody>
                             </table>
                         </div>
+                        {{-- Dénombrement upload forms (outside table to avoid nested <form>) --}}
+                        @foreach($tranches as $tranche)
+                            @php
+                                $tp2 = $tranche->payments->first();
+                                $pd2 = $tp2?->date_payment ? \Carbon\Carbon::parse($tp2->date_payment)->format('Y-m-d') : null;
+                                $hasDenom2 = $pd2 && in_array($pd2, $denombrementDates, true);
+                            @endphp
+                            @if(!$hasDenom2)
+                                <form id="denum_{{ $tranche->id }}"
+                                      action="{{ route('articles.store-denombrement', $article) }}"
+                                      method="POST" enctype="multipart/form-data" style="display:none">
+                                    @csrf
+                                    <input type="hidden" name="date_denombrement" value="{{ $pd2 }}">
+                                </form>
+                            @endif
+                        @endforeach
                     @endif
 
 
@@ -1282,32 +1316,6 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                     @endif
                     @endcan
 
-                    {{-- Prorogations sub-section --}}
-                    @if($contractVente)
-                        <div class="mt-5 pt-4 border-t border-gray-100">
-                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Prorogations</p>
-                            @if($prorogations->isNotEmpty())
-                                <div class="space-y-2 mb-3">
-                                    @foreach($prorogations as $pror)
-                                        <div class="flex items-center gap-3 text-xs p-2 bg-gray-50 rounded border border-gray-100">
-                                            <span class="font-medium">+{{ $pror->duration_months }} mois</span>
-                                            <span class="text-gray-500">{{ $pror->motif }}</span>
-                                            <span class="ml-auto px-1.5 py-0.5 rounded-full font-medium
-                                                @if($pror->status === 'approved') bg-emerald-100 text-emerald-700
-                                                @elseif($pror->status === 'rejected') bg-red-100 text-red-600
-                                                @else bg-amber-100 text-amber-700 @endif">
-                                                {{ ['pending' => 'En attente', 'approved' => 'Approuvée', 'rejected' => 'Refusée'][$pror->status] ?? $pror->status }}
-                                            </span>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-                            <a href="{{ route('workflow.prorogation.create', $article) }}"
-                               class="inline-flex items-center gap-1 text-xs text-emerald-700 hover:underline">
-                                <i class="fas fa-calendar-plus"></i> Nouvelle demande de prorogation
-                            </a>
-                        </div>
-                    @endif
 
                 {{-- ============================================================
                      Step 9 — RECOLEMENT_PENDING

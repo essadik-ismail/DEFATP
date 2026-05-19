@@ -228,6 +228,7 @@ class WorkflowController extends Controller
         $request->validate([
             'duration_months' => 'required|integer|min:1|max:60',
             'motif'           => 'required|string|max:1000',
+            'document'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
         $contract = $article->contractVentes()->latest()->firstOrFail();
@@ -237,15 +238,21 @@ class WorkflowController extends Controller
             return back()->withErrors(['prorogation' => 'Une prorogation est déjà en attente d\'approbation.']);
         }
 
+        $documentPath = null;
+        if ($request->hasFile('document')) {
+            $documentPath = $request->file('document')->store('prorogations', 'public');
+        }
+
         $contract->prorogations()->create([
             'duration_months'     => $request->duration_months,
             'motif'               => $request->motif,
             'status'              => Prorogation::STATUS_PENDING,
             'original_expiry_date'=> $contract->date_expiration,
             'requested_by'        => Auth::id(),
+            'document'            => $documentPath,
         ]);
 
-        return redirect()->route('articles.show', $article)
+        return redirect()->route('cessions.show', $article->groupe_cession_id)
             ->with('success', 'Demande de prorogation soumise.');
     }
 

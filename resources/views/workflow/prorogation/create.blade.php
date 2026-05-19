@@ -3,6 +3,7 @@
 @section('title', 'Demande de prorogation - DEFATP')
 
 @section('breadcrumb')
+<li class="bc-item"><a href="{{ route('cessions.show', $article->groupe_cession_id) }}">Cession</a></li>
 <li class="bc-item"><a href="{{ route('articles.show', $article) }}">Article #{{ $article->numero ?? $article->id }}</a></li>
 <li class="bc-item active">Demande de prorogation</li>
 @endsection
@@ -15,7 +16,7 @@
             title="Demande de prorogation"
             :subtitle="'Article #' . ($article->numero ?? $article->id)"
             icon="fas fa-calendar-plus"
-            :backRoute="route('articles.show', $article)"
+            :backRoute="route('cessions.show', $article->groupe_cession_id)"
             backText="Retour"
         />
 
@@ -37,7 +38,8 @@
         </div>
 
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <form action="{{ route('workflow.prorogation.store', $article) }}" method="POST" class="space-y-6">
+            <form action="{{ route('workflow.prorogation.store', $article) }}" method="POST"
+                  enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
                 <x-validation-errors />
@@ -66,8 +68,22 @@
                     <p class="text-xs text-gray-500 mt-1">Maximum 1000 caractères.</p>
                 </div>
 
+                <!-- Document -->
+                <div class="form-group">
+                    <label for="document" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Document justificatif
+                    </label>
+                    <input type="file" name="document" id="document"
+                           accept=".pdf,.jpg,.jpeg,.png"
+                           class="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-green-50 file:px-4 file:py-2 file:font-medium file:text-green-700 hover:file:bg-green-100">
+                    <p class="text-xs text-gray-500 mt-1">PDF / JPG / PNG, max 10 Mo — optionnel.</p>
+                    @error('document')
+                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <div class="flex justify-end gap-4 pt-2">
-                    <a href="{{ route('articles.show', $article) }}"
+                    <a href="{{ route('cessions.show', $article->groupe_cession_id) }}"
                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors">
                         <i class="fas fa-times"></i> Annuler
                     </a>

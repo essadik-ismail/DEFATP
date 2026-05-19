@@ -650,11 +650,12 @@ class ArticleController extends Controller
         $chargeName = strtolower($request->input('payments.' . array_key_first((array) $request->input('payments', [])) . '.charge_nom', ''));
         $isCaution  = str_contains($chargeName, 'caution') || str_contains($chargeName, 'cautionnement');
         $isTranche  = str_starts_with($chargeName, 'tranche');
+        $isAnef     = str_contains($chargeName, 'anef');
 
         if ($isCaution && $wfService->isAtOrPast($article, \App\Services\ArticleWorkflowService::CAUTION_PAID)) {
             return back()->withErrors(['error' => 'La caution est verrouillée : cette étape a déjà été validée.']);
         }
-        if (!$isCaution && !$isTranche && $wfService->isAtOrPast($article, \App\Services\ArticleWorkflowService::TAXES_PAID)) {
+        if (!$isCaution && !$isTranche && !$isAnef && $wfService->isAtOrPast($article, \App\Services\ArticleWorkflowService::TAXES_PAID)) {
             return back()->withErrors(['error' => 'Les taxes sont verrouillées : cette étape a déjà été validée.']);
         }
 
