@@ -119,7 +119,11 @@ class WorkflowController extends Controller
         }
 
         $current = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
-        if ($current !== ArticleWorkflowService::CONTRACT_CREATED) {
+        $order = ArticleWorkflowService::STATE_ORDER;
+        if (($order[$current] ?? 0) < ($order[ArticleWorkflowService::CONTRACT_CREATED] ?? 0)) {
+            return back()->withErrors(['workflow' => 'Le contrat de vente doit être validé avant cette étape.']);
+        }
+        if (($order[$current] ?? 0) > ($order[ArticleWorkflowService::CONTRACT_CREATED] ?? 0)) {
             return back()->with('info', 'Cette étape a déjà été validée.');
         }
 
@@ -422,15 +426,8 @@ class WorkflowController extends Controller
             'status'       => Recolement::STATUS_PV_SUBMITTED,
         ])->save();
 
-        try {
-            $this->workflow->transition($article, ArticleWorkflowService::RECOLEMENT_PENDING, Auth::id());
-        } catch (\RuntimeException $e) {
-            return redirect()->route('articles.show', $article)
-                ->with('warning', 'PV soumis, mais la transition de statut a échoué : ' . $e->getMessage());
-        }
-
         return redirect()->route('articles.show', $article)
-            ->with('success', 'PV de récolement soumis.');
+            ->with('success', 'PV de récolement soumis. Validez manuellement pour passer à l\'étape suivante.');
     }
 
     public function issueMainlevee(Request $request, Article $article): RedirectResponse

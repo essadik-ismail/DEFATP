@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\VehicleDeclaration;
-use App\Services\ArticleWorkflowService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +11,6 @@ use Illuminate\View\View;
 
 class VehicleDeclarationController extends Controller
 {
-    public function __construct(private readonly ArticleWorkflowService $workflow) {}
 
     public function overview(): View
     {
@@ -66,14 +64,6 @@ class VehicleDeclarationController extends Controller
             $request->only(['immatriculation', 'marque', 'capacite', 'capacite_unite', 'chauffeur_nom', 'chauffeur_cin', 'date_declaration']),
             ['declared_by' => Auth::id()]
         ));
-
-        // Advance workflow to TRANCHES_IN_PROGRESS once first vehicle is declared
-        $current = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
-        if ($current === ArticleWorkflowService::PV_INSTALLATION_DONE) {
-            try {
-                $this->workflow->transition($article, ArticleWorkflowService::TRANCHES_IN_PROGRESS, Auth::id());
-            } catch (\RuntimeException) {}
-        }
 
         return redirect()->route('vehicles.index', $article)
             ->with('success', 'Véhicule déclaré avec succès.');

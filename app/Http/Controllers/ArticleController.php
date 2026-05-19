@@ -448,14 +448,34 @@ class ArticleController extends Controller
         $article->load([
             'provinces',
             'communes',
-            'forets',
+            'forets.dpanef.dranef',
             'parcelles',
             'natureDeCoupes',
             'modeExploitations',
             'essences',
             'products',
-            'depots'
+            'depots',
+            'cession.dranef',
         ]);
+
+        // Fallback: fill missing code fields for articles created before these columns existed.
+        // These are display-only defaults — nothing is persisted until the user saves the form.
+        $user = $currentUser;
+        if (!$article->dranef_code) {
+            $article->dranef_code = $article->cession?->dranef?->code
+                ?? $article->forets->first()?->dpanef?->dranef?->code
+                ?? $user?->dranef?->code;
+        }
+        if (!$article->dpanef_code) {
+            $article->dpanef_code = $article->forets->first()?->dpanef?->code
+                ?? $user?->dpanef?->code;
+        }
+        if (!$article->zdtf_code) {
+            $article->zdtf_code = $user?->zdtf?->code;
+        }
+        if (!$article->dfp_code) {
+            $article->dfp_code = $user?->dfp?->code;
+        }
 
         return view('articles.edit', compact(
             'article',
@@ -1433,7 +1453,7 @@ class ArticleController extends Controller
 
         // Pre-fill tax quittance numbers (concatenated)
         $taxQuittances = $contractVente->chargeApayer
-            ->filter(fn($c) => !str_starts_with(strtolower($c->nom), 'tranche') && !str_contains(strtolower($c->nom), 'caution'))
+            ->filter(fn($c) => !str_starts_with(strtolower($c->nom), 'tranche') && !str_contains(strtolower($c->nom), 'caution') && !str_contains(strtolower($c->nom), 'anef'))
             ->map(fn($c) => $c->payments->first()?->num_quittace)
             ->filter()
             ->unique()
@@ -1476,6 +1496,7 @@ class ArticleController extends Controller
             'article_ccs' => 'nullable|string|max:255',
             'dfp' => 'nullable|string|max:255',
             'clature' => 'nullable|boolean',
+            'fichier_permis_signe' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
         try {
@@ -1495,6 +1516,10 @@ class ArticleController extends Controller
                     ->with('error', 'La caution, toutes les taxes et le service rendu par l\'ANEF doivent être payés avant de générer un permis d\'exploiter.');
             }
 
+            $signedPath = $request->hasFile('fichier_permis_signe')
+                ? $request->file('fichier_permis_signe')->store('permis-exploiter/signes', 'public')
+                : null;
+
             // Create permis exploiter record
             $permisExploiter = PermisExploiter::create([
                 'contrat_vente_id' => $contractVente->id,
@@ -1505,6 +1530,8 @@ class ArticleController extends Controller
                 'article_ccs' => $validated['article_ccs'] ?? null,
                 'dfp' => $validated['dfp'] ?? null,
                 'clature' => $validated['clature'] ?? false,
+                'fichier_permis_signe' => $signedPath,
+                'signed_at' => $signedPath ? now() : null,
             ]);
 
             // Update article current step if needed
@@ -1593,7 +1620,8 @@ class ArticleController extends Controller
             $name = strtolower((string) ($charge->nom ?? ''));
 
             return !str_starts_with($name, 'tranche')
-                && !str_contains($name, 'caution');
+                && !str_contains($name, 'caution')
+                && !str_contains($name, 'anef');
         });
 
         $cautionPaid = (bool) $cautionCharge?->payments?->first()?->is_paye;

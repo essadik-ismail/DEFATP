@@ -472,7 +472,7 @@
                             <label class="mb-2 block text-sm font-semibold text-gray-700">Date
                                 d&apos;&eacute;ch&eacute;ance <span class="text-red-500">*</span></label>
                             <input type="date" name="charges[4][date_echeance]"
-                                value="{{ old('charges.4.date_echeance', $readChargeValue($taxeRefectionCharge, 'date_echeance')) }}"
+                                value="{{ old('charges.4.date_echeance', $readChargeValue($taxeRefectionCharge, 'date_echeance') ?: $articleRefectionEcheance) }}"
                                 class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
                                 {{ $isValidated ? 'readonly' : '' }}>
                             @error('charges.4.date_echeance')
@@ -501,7 +501,7 @@
                             <label class="mb-2 block text-sm font-semibold text-gray-700">Date
                                 d&apos;&eacute;ch&eacute;ance <span class="text-red-500">*</span></label>
                             <input type="date" name="charges[5][date_echeance]"
-                                value="{{ old('charges.5.date_echeance', $readChargeValue($serviceANEFCharge, 'date_echeance')) }}"
+                                value="{{ old('charges.5.date_echeance', $readChargeValue($serviceANEFCharge, 'date_echeance') ?: $articleANEFEcheance) }}"
                                 class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
                                 {{ $isValidated ? 'readonly' : '' }}>
                             @error('charges.5.date_echeance')
@@ -588,7 +588,7 @@
 
         {{-- Action buttons --}}
         <div class="flex flex-wrap items-center justify-end gap-3 border-t border-gray-200 pt-6">
-            <a href="{{ route('articles.show', $article) }}"
+            <a href="{{ $isEditing && $contract ? route('contract-ventes.show', [$article, $contract]) : route('articles.show', $article) }}"
                 class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition-all hover:border-emerald-300 hover:text-emerald-700">
                 <i class="fas fa-arrow-left text-xs"></i>
                 <span>Retour</span>
@@ -621,7 +621,7 @@
 
 {{-- Confirmation popup for validation --}}
 @if (!$isValidated && $isEditing && $contract)
-    <div id="modal_valider" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+    <div id="modal_valider" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/60 backdrop-blur-sm">
         <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
             <div class="mb-4 flex items-center gap-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">

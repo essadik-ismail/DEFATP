@@ -14,7 +14,7 @@
         title="Modifier le contrat de vente"
         :subtitle="'Article #' . ($article->numero ?? $article->id)"
         icon="fas fa-file-signature"
-        :backRoute="route('articles.show', $article)"
+        :backRoute="route('contract-ventes.show', [$article, $contractVente])"
         backText="Retour"
     />
 

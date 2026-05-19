@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 
 class ContractVenteController extends Controller
 {
+    public function __construct(private readonly ArticleWorkflowService $workflow) {}
+
     /**
      * Show the form for creating a new contract vente.
      */
@@ -94,15 +96,6 @@ class ContractVenteController extends Controller
             ChargeApayer::insert($charges->merge($tranches)->toArray());
 
             $article->update(['current_step' => 'contrat_vente']);
-
-            $workflow = app(ArticleWorkflowService::class);
-            $currentState = $article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE;
-            if ($currentState === ArticleWorkflowService::ARTICLE_READY) {
-                try {
-                    $workflow->transition($article, ArticleWorkflowService::CONTRACT_CREATED, Auth::id());
-                    $contractVente->update(['is_validated' => true]);
-                } catch (\RuntimeException) {}
-            }
 
             DB::commit();
 
@@ -252,6 +245,16 @@ class ContractVenteController extends Controller
             'validated_at' => now(),
             'Current_state' => 'contrat_validé',
         ]);
+
+        // Advance workflow to CONTRACT_CREATED so the next step (lettre adjudicataire) is reachable
+        if (($article->workflow_state ?? ArticleWorkflowService::DRAFT_ARTICLE) === ArticleWorkflowService::ARTICLE_READY) {
+            try {
+                $this->workflow->transition($article, ArticleWorkflowService::CONTRACT_CREATED, Auth::id());
+            } catch (\RuntimeException $e) {
+                return redirect()->route('articles.show', $article)
+                    ->withErrors(['workflow' => $e->getMessage()]);
+            }
+        }
 
         ActivityLogger::log('validate', 'Contrat de vente validé (verrouillé)', ContractVente::class, $contractVente->id);
 

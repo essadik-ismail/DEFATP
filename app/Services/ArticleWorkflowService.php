@@ -195,7 +195,7 @@ class ArticleWorkflowService
             self::CAUTION_PAID           => $this->requireCautionPaid($article),
             self::TAXES_PAID             => $this->requireTaxesPaid($article),
             self::PERMIT_ISSUED          => $this->requirePermitExists($article),
-            self::PV_INSTALLATION_DONE   => $this->requirePermitExists($article),
+            self::PV_INSTALLATION_DONE   => $this->requirePvInstallationPrereqs($article),
             self::RECOLEMENT_PENDING     => $this->requireContractExpired($article),
             self::MAINLEVEE_DONE         => $this->requireRecolementSubmitted($article),
             self::CLOSED                 => $this->requireMainlevee($article),
@@ -265,7 +265,8 @@ class ArticleWorkflowService
             $normalizedName = strtolower($charge->nom);
 
             return !str_starts_with($normalizedName, 'tranche')
-                && !str_contains($normalizedName, 'caution');
+                && !str_contains($normalizedName, 'caution')
+                && !str_contains($normalizedName, 'anef');
         });
 
         $allTaxesPaid = $taxCharges->isNotEmpty()
@@ -285,6 +286,20 @@ class ArticleWorkflowService
         $contract = $article->contractVentes()->latest()->first();
         if (!$contract || !$contract->permisExploiter()->exists()) {
             throw new \RuntimeException('Le permis d\'exploiter doit être créé avant cette étape.');
+        }
+    }
+
+    private function requirePvInstallationPrereqs(Article $article): void
+    {
+        $this->requirePermitExists($article);
+
+        $contract = $article->contractVentes()->with('chargeApayer.payments')->latest()->first();
+        $anefCharge = $contract?->chargeApayer->first(
+            fn($c) => str_contains(strtolower($c->nom), 'anef')
+        );
+
+        if ($anefCharge && !(bool) $anefCharge->payments->first()?->is_paye) {
+            throw new \RuntimeException('La taxe service rendu ANEF doit être payée avant le PV d\'installation.');
         }
     }
 

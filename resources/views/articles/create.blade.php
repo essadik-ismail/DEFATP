@@ -333,12 +333,12 @@
                         {{-- Bug 7: Forêts filtered by DPANEF --}}
                         <div class="form-group">
                             <label for="foret_ids" class="block text-sm font-semibold text-gray-700 mb-2">Forêt</label>
-                            <input type="text" placeholder="Rechercher..."
+                            <input type="text" id="foret_search" placeholder="Rechercher..."
                                 class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg"
                                 onkeyup="filterSelectOptions(this, 'foret_ids')">
                             <select multiple
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                                id="foret_ids" name="foret_ids[]" onchange="updateCantons()">
+                                id="foret_ids" name="foret_ids[]" onchange="updateCantons(); renderTags('foret_ids','foret_tags');">
                                 @foreach ($forets ?? [] as $foret)
                                     <option value="{{ $foret->id }}"
                                         data-dpanef-id="{{ $foret->dpanef_id }}"
@@ -350,6 +350,7 @@
                             @error('foret_ids')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
+                            <div id="foret_tags" class="flex flex-wrap gap-1.5 mt-2"></div>
                         </div>
 
                         {{-- Bug 8: Canton → dropdown --}}
@@ -702,6 +703,7 @@
         let productRowCount = 0;
         const essences = @json($essences ?? []);
         const products = @json($products ?? []);
+        window._allForets = @json(($forets ?? collect())->map(fn($f) => ['id' => $f->id, 'foret' => $f->foret, 'dpanef_id' => $f->dpanef_id]));
 
         function addProductRow() {
             productRowCount++;
@@ -802,33 +804,36 @@
                 if (!matches && option.selected) option.selected = false;
             });
 
-            // Filter forêts by selected DPANEF's id, fall back to all if none match
+            // Filter forêts by selected DPANEF — repopulate select to ensure cross-browser reliability
             const foretSelect = document.getElementById('foret_ids');
             if (foretSelect && dpanefSelect) {
                 const selectedOption = dpanefSelect.options[dpanefSelect.selectedIndex];
                 const dpanefId = selectedOption ? selectedOption.getAttribute('data-dpanef-id') : null;
 
-                if (!dpanefId || !selectedDpanefCode) {
-                    // No DPANEF selected — show all forets
-                    Array.from(foretSelect.options).forEach(o => { o.style.display = ''; });
-                } else {
-                    // Check if any forets match this DPANEF
-                    const hasMatch = Array.from(foretSelect.options).some(o => {
-                        const fid = o.getAttribute('data-dpanef-id');
-                        return fid && fid === dpanefId;
-                    });
-                    Array.from(foretSelect.options).forEach(option => {
-                        if (!hasMatch) {
-                            // No forets for this DPANEF — show all
-                            option.style.display = '';
-                            return;
-                        }
-                        const foretDpanefId = option.getAttribute('data-dpanef-id');
-                        const matches = foretDpanefId && foretDpanefId === dpanefId;
-                        option.style.display = matches ? '' : 'none';
-                        if (!matches && option.selected) option.selected = false;
-                    });
-                }
+                const previouslySelected = Array.from(foretSelect.selectedOptions).map(o => o.value);
+
+                // Determine which forets to show
+                const allForets = window._allForets || [];
+                const filtered = (dpanefId && selectedDpanefCode)
+                    ? allForets.filter(f => String(f.dpanef_id) === String(dpanefId))
+                    : allForets;
+
+                // Repopulate the select
+                foretSelect.innerHTML = '';
+                filtered.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.id;
+                    opt.textContent = f.foret;
+                    opt.setAttribute('data-dpanef-id', f.dpanef_id ?? '');
+                    if (previouslySelected.includes(String(f.id))) opt.selected = true;
+                    foretSelect.appendChild(opt);
+                });
+
+                // Clear search input when DPANEF changes
+                const foretSearch = document.getElementById('foret_search');
+                if (foretSearch) foretSearch.value = '';
+
+                renderTags('foret_ids', 'foret_tags');
             }
 
             updateDfps();
@@ -935,6 +940,7 @@
             renderTags('commune_ids', 'commune_tags');
             renderTags('nature_de_coupe_ids', 'nature_coupe_tags');
             renderTags('mode_exploitation_ids', 'mode_exploitation_tags');
+            renderTags('foret_ids', 'foret_tags');
 
             // Live tag updates
             var communeSel = document.getElementById('commune_ids');

@@ -17,7 +17,7 @@ $cautionCharge = $charges->first(fn($c) => str_contains(strtolower($c->nom), 'ca
 $taxeCharges   = $charges->filter(fn($c) => !str_contains(strtolower($c->nom), 'caution') && !str_contains(strtolower($c->nom), 'cautionnement'));
 
 $cautionPaid   = $cautionCharge?->payments?->first()?->is_paye ?? false;
-$allTaxesPaid  = $taxeCharges->every(fn($c) => $c->payments->first()?->is_paye);
+$allTaxesPaid  = $taxeCharges->filter(fn($c) => !str_contains(strtolower($c->nom), 'anef'))->every(fn($c) => $c->payments->first()?->is_paye);
 
 $stateOrder     = WF::STATE_ORDER;
 $taxesValidated = ($stateOrder[$wfState] ?? 0) >= ($stateOrder[WF::TAXES_PAID] ?? 5);
@@ -235,6 +235,13 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
             <div class="p-4 sm:p-5">
                 @php $validateBlocked = false; $validateBlockedReason = null; @endphp
 
+                @if($isBlocked)
+                    <div class="flex items-center gap-3 py-4 px-3 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-500">
+                        <i class="fas fa-lock text-gray-300 text-lg"></i>
+                        <span>Cette étape sera accessible une fois les étapes précédentes complétées.</span>
+                    </div>
+                @else
+
                 {{-- ============================================================
                      Étape 1 — DRAFT_ARTICLE / ARTICLE_READY
                 ============================================================ --}}
@@ -295,12 +302,17 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             </div>
 
                             {{-- Confirmation modal --}}
+                            <template x-teleport="body">
                             <div x-show="showConfirmArticle"
                                  x-cloak
-                                 x-transition:enter="transition ease-out duration-150"
+                                 x-effect="document.body.style.overflow = showConfirmArticle ? 'hidden' : ''"
+                                 x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0"
                                  x-transition:enter-end="opacity-100"
-                                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
                                  @click.self="showConfirmArticle = false">
                                 <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
                                     <div class="mb-4 flex items-center gap-3">
@@ -327,6 +339,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                     </div>
                                 </div>
                             </div>
+                            </template>
                         </div>
                     @endif
 
@@ -483,45 +496,50 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 </button>
                             </div>
                             {{-- Validation popup --}}
-                            <div id="modal_valider_lettre" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
-                                <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-                                    <div class="mb-4 flex items-center gap-3">
-                                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
-                                            <i class="fas fa-exclamation-triangle text-amber-600"></i>
-                                        </div>
-                                        <h3 class="text-base font-bold text-gray-900">Attention : action irréversible</h3>
-                                    </div>
-                                    <p class="mb-6 text-sm text-gray-700">Une fois validée, cette lettre d'adjudicataire ne pourra plus être modifiée. Confirmez-vous la validation ?</p>
-                                    <div class="flex gap-3 justify-end">
-                                        <button type="button" id="btn_annuler_lettre"
-                                            class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                            Annuler
-                                        </button>
-                                        <form method="POST" action="{{ route('workflow.validate-signed-letter', $article) }}">
-                                            @csrf
-                                            <button type="submit"
-                                                class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
-                                                <i class="fas fa-check"></i> Confirmer la validation
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                             <script>
                                 document.addEventListener('DOMContentLoaded', function() {
+                                    var modal = document.createElement('div');
+                                    modal.id = 'modal_valider_lettre';
+                                    modal.style.display = 'none';
+                                    modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm';
+                                    modal.innerHTML = `<div class="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                                        <div class="mb-4 flex items-center gap-3">
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 flex-shrink-0">
+                                                <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                                            </div>
+                                            <h3 class="text-base font-bold text-gray-900">Attention : action irréversible</h3>
+                                        </div>
+                                        <p class="mb-6 text-sm text-gray-700">Une fois validée, cette lettre d'adjudicataire ne pourra plus être modifiée. Confirmez-vous la validation ?</p>
+                                        <div class="flex gap-3 justify-end">
+                                            <button type="button" id="btn_annuler_lettre"
+                                                class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                                Annuler
+                                            </button>
+                                            <form method="POST" action="{{ route('workflow.validate-signed-letter', $article) }}">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+                                                    <i class="fas fa-check"></i> Confirmer la validation
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>`;
+                                    document.body.appendChild(modal);
+
                                     var btnVal = document.getElementById('btn_valider_lettre');
-                                    var modal = document.getElementById('modal_valider_lettre');
-                                    var btnAnn = document.getElementById('btn_annuler_lettre');
                                     if (btnVal) btnVal.addEventListener('click', function() {
-                                        modal.classList.remove('hidden');
                                         modal.style.display = 'flex';
+                                        document.body.style.overflow = 'hidden';
                                     });
-                                    if (btnAnn) btnAnn.addEventListener('click', function() {
-                                        modal.classList.add('hidden');
-                                        modal.style.display = '';
+                                    function closeModal() {
+                                        modal.style.display = 'none';
+                                        document.body.style.overflow = '';
+                                    }
+                                    modal.addEventListener('click', function(e) {
+                                        if (e.target === modal) closeModal();
                                     });
-                                    if (modal) modal.addEventListener('click', function(e) {
-                                        if (e.target === modal) { modal.classList.add('hidden'); modal.style.display = ''; }
+                                    modal.addEventListener('click', function(e) {
+                                        if (e.target && e.target.id === 'btn_annuler_lettre') closeModal();
                                     });
                                 });
                             </script>
@@ -792,7 +810,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                                    value="{{ $payment?->date_payment ? \Carbon\Carbon::parse($payment->date_payment)->format('Y-m-d') : '' }}"
                                                                    class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded" required>
                                                             <div>
-                                                                <label class="block text-xs text-gray-600 mb-0.5">Quittance{{ $payment?->fichier_joint ? '' : ' <span class="text-red-500">*</span>' }}</label>
+                                                                <label class="block text-xs text-gray-600 mb-0.5">Quittance{!! $payment?->fichier_joint ? '' : ' <span class="text-red-500">*</span>' !!}</label>
                                                                 @if($payment?->fichier_joint)
                                                                     <a href="{{ asset('storage/' . $payment->fichier_joint) }}" target="_blank"
                                                                        class="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mb-0.5">
@@ -851,6 +869,38 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 <span>Permis validé — verrouillé en consultation uniquement.</span>
                             </div>
                         @endif
+
+                        {{-- Signed file upload --}}
+                        <div class="mt-3 mb-3">
+                            @if($permisExploiter->fichier_permis_signe)
+                                <div class="flex items-center gap-3 p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 mb-2">
+                                    <i class="fas fa-check-circle text-emerald-600"></i>
+                                    <span class="flex-1">Permis signé importé@if($permisExploiter->signed_at) le {{ $permisExploiter->signed_at->format('d/m/Y') }}@endif</span>
+                                    <a href="{{ asset('storage/' . $permisExploiter->fichier_permis_signe) }}" target="_blank"
+                                       class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-emerald-300 text-emerald-700 rounded hover:bg-emerald-50">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </a>
+                                </div>
+                            @endif
+                            <form action="{{ route('articles.permis-exploiter.upload-signe', $article) }}" method="POST"
+                                  enctype="multipart/form-data" class="flex items-end gap-2 flex-wrap">
+                                @csrf
+                                <div class="flex-1 min-w-48">
+                                    <label class="block text-xs text-gray-600 mb-1">
+                                        {{ $permisExploiter->fichier_permis_signe ? 'Remplacer le permis signé' : 'Importer le permis signé' }}
+                                    </label>
+                                    <input type="file" name="fichier_permis_signe" accept=".pdf,.jpg,.jpeg,.png"
+                                           class="block w-full text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-emerald-50 file:px-2 file:py-1 file:font-medium file:text-emerald-700 hover:file:bg-emerald-100"
+                                           required>
+                                    <p class="text-xs text-gray-400 mt-0.5">PDF / JPG / PNG, max 10 Mo</p>
+                                </div>
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+                                    <i class="fas fa-upload"></i> Importer
+                                </button>
+                            </form>
+                        </div>
+
                         <div class="flex items-center gap-2 flex-wrap">
                             <a href="{{ route('articles.permis-exploiter', $article) }}"
                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -874,10 +924,16 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                      Step 10 ? PV_INSTALLATION_DONE
                 ============================================================ --}}
                 @elseif($state === WF::PV_INSTALLATION_DONE)
+                    @php
+                        $anefCharge = $contractVente?->chargeApayer->first(fn($c) => str_contains(strtolower($c->nom), 'anef'));
+                        $anefPaid   = $anefCharge ? (bool) $anefCharge->payments->first()?->is_paye : true;
+                    @endphp
                     @if(!$pvInstallation)
                         @php $validateBlocked = true; $validateBlockedReason = 'Le PV d\'installation doit être rempli avant de valider.'; @endphp
                     @elseif(!$pvInstallation->fichier_pv_signe)
                         @php $validateBlocked = true; $validateBlockedReason = 'Le PV signé doit être importé avant de valider.'; @endphp
+                    @elseif(!$anefPaid)
+                        @php $validateBlocked = true; $validateBlockedReason = 'La taxe service rendu ANEF doit être payée avant de valider cette étape.'; @endphp
                     @endif
                     @if($pvInstallation)
                         <div class="info-tiles grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-4">
@@ -937,17 +993,93 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                     @else
                         <p class="text-sm text-gray-600 mb-4">PV d'installation non encore rempli.</p>
                     @endif
-                    <div class="flex items-center gap-2 flex-wrap">
+                    {{-- ANEF taxe payment section --}}
+                    @if(!$anefPaid && $anefCharge)
+                        @php
+                            $anefPayment = $anefCharge->payments->first();
+                        @endphp
+                        <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                            <div class="flex items-center gap-2 mb-3">
+                                <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                                <h4 class="text-sm font-semibold text-amber-800">Taxe service rendu ANEF — Paiement requis</h4>
+                            </div>
+                            <div class="flex items-center gap-4 text-sm mb-3">
+                                <span class="text-gray-700 font-medium">{{ $anefCharge->nom }}</span>
+                                <span class="text-gray-600">{{ number_format($anefCharge->montant ?? 0, 2) }} MAD</span>
+                                @if($anefCharge->date_echeance)
+                                    <span class="text-gray-500">Échéance : {{ \Carbon\Carbon::parse($anefCharge->date_echeance)->format('d/m/Y') }}</span>
+                                @endif
+                            </div>
+                            @if(!$isDone)
+                            <form action="{{ route('articles.update-charge-payments', $article) }}" method="POST"
+                                  enctype="multipart/form-data" class="space-y-2">
+                                @csrf @method('PUT')
+                                <input type="hidden" name="payments[{{ $anefCharge->id }}][charge_id]" value="{{ $anefCharge->id }}">
+                                <input type="hidden" name="payments[{{ $anefCharge->id }}][charge_nom]" value="{{ $anefCharge->nom }}">
+                                <input type="hidden" name="payments[{{ $anefCharge->id }}][statut]" value="0">
+                                <div class="flex flex-wrap items-end gap-2">
+                                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-medium">
+                                        <input type="checkbox" name="payments[{{ $anefCharge->id }}][statut]" value="1"
+                                               {{ $anefPayment?->is_paye ? 'checked' : '' }}
+                                               class="w-4 h-4 rounded text-emerald-600">
+                                        Marquer payée
+                                    </label>
+                                    <input type="text" name="payments[{{ $anefCharge->id }}][reference]"
+                                           placeholder="N° quittance *"
+                                           value="{{ $anefPayment?->num_quittace ?? '' }}"
+                                           class="block w-36 px-2 py-1 text-xs border border-gray-300 rounded" required>
+                                    <input type="date" name="payments[{{ $anefCharge->id }}][date_payment]"
+                                           value="{{ $anefPayment?->date_payment ? \Carbon\Carbon::parse($anefPayment->date_payment)->format('Y-m-d') : '' }}"
+                                           class="block w-36 px-2 py-1 text-xs border border-gray-300 rounded" required>
+                                    <div>
+                                        <label class="block text-xs text-gray-600 mb-0.5">Quittance{!! $anefPayment?->fichier_joint ? '' : ' <span class="text-red-500">*</span>' !!}</label>
+                                        @if($anefPayment?->fichier_joint)
+                                            <a href="{{ asset('storage/' . $anefPayment->fichier_joint) }}" target="_blank"
+                                               class="text-xs text-blue-600 hover:underline block mb-0.5">
+                                                <i class="fas fa-file-pdf text-red-500"></i> Voir fichier actuel
+                                            </a>
+                                            <p class="text-xs text-gray-400">Nouveau fichier (optionnel) :</p>
+                                        @endif
+                                        <input type="file" name="payments[{{ $anefCharge->id }}][fichier_joint]"
+                                               accept=".pdf,.jpg,.jpeg,.png"
+                                               {{ $anefPayment?->fichier_joint ? '' : 'required' }}
+                                               class="block w-36 text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-emerald-50 file:px-2 file:py-1 file:font-medium file:text-emerald-700 hover:file:bg-emerald-100">
+                                    </div>
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+                                        <i class="fas fa-check"></i> Enregistrer
+                                    </button>
+                                </div>
+                            </form>
+                            @endif
+                        </div>
+                    @endif
+
+                    <div class="flex items-center gap-2 flex-wrap mt-4">
+                        @if(!$isDone && !$anefPaid)
+                            <span title="La taxe service rendu ANEF doit être payée avant de remplir le PV."
+                                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 rounded-lg cursor-not-allowed opacity-60">
+                                <i class="fas fa-clipboard-check"></i> {{ $pvInstallation ? 'Voir / modifier' : 'Remplir le PV' }}
+                            </span>
+                        @else
                         <a href="{{ route('articles.pv-installation', $article) }}"
                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium {{ $isDone ? 'bg-white border border-gray-300 text-gray-700' : 'bg-emerald-600 text-white' }} rounded-lg hover:opacity-90 transition-colors">
                             <i class="fas {{ $isDone ? 'fa-eye' : 'fa-clipboard-check' }}"></i> {{ $isDone ? 'Consulter le PV' : ($pvInstallation ? 'Voir / modifier' : 'Remplir le PV') }}
                         </a>
+                        @endif
                         @if(!$isDone)
                         @can('vehicle.declare')
+                        @if(!$anefPaid)
+                            <span title="La taxe service rendu ANEF doit être payée avant de gérer les véhicules."
+                                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 rounded-lg cursor-not-allowed opacity-60">
+                                <i class="fas fa-truck"></i> Gérer les véhicules
+                            </span>
+                        @else
                         <a href="{{ route('vehicles.index', $article) }}"
                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">
                             <i class="fas fa-truck"></i> Gérer les véhicules
                         </a>
+                        @endif
                         @endcan
                         @endif
                         @if($pvInstallation)
@@ -1300,6 +1432,12 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                     $transitionStateKeys = array_keys($allStepDefs);
                     $transitionIndex = array_search($state, $transitionStateKeys, true);
                     $workflowStateIndex = array_search($wfState, $transitionStateKeys, true);
+                    // ARTICLE_READY sits between DRAFT_ARTICLE (0) and CONTRACT_CREATED (1).
+                    // It is not in $allStepDefs, so array_search returns false, breaking the
+                    // "is the step ahead of the current state?" guard below. Treat it as index 0.
+                    if ($workflowStateIndex === false && $wfState === WF::ARTICLE_READY) {
+                        $workflowStateIndex = 0;
+                    }
                     $nextTransitionState = $transitionIndex !== false && $transitionIndex < count($transitionStateKeys) - 1
                         ? $transitionStateKeys[$transitionIndex + 1]
                         : null;
@@ -1364,12 +1502,17 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             </div>
 
                             {{-- Confirmation modal --}}
+                            <template x-teleport="body">
                             <div x-show="showConfirm_{{ strtolower($state) }}"
                                  x-cloak
-                                 x-transition:enter="transition ease-out duration-150"
+                                 x-effect="document.body.style.overflow = showConfirm_{{ strtolower($state) }} ? 'hidden' : ''"
+                                 x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0"
                                  x-transition:enter-end="opacity-100"
-                                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
                                  @click.self="showConfirm_{{ strtolower($state) }} = false">
                                 <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
                                     <div class="mb-4 flex items-center gap-3">
@@ -1401,6 +1544,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                     </div>
                                 </div>
                             </div>
+                            </template>
                         @endif
                     </div>
                 @endif
@@ -1415,6 +1559,8 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         </ul>
                     </div>
                 @endif
+
+                @endif {{-- end blocked check --}}
 
             </div>{{-- end panel body --}}
 
