@@ -272,6 +272,12 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             <i class="fas fa-check-circle"></i>
                             <span>Article validé. Passez à l'étape suivante : <strong>Contrat de vente</strong>.</span>
                         </div>
+                        <div class="mt-2">
+                            <a href="{{ route('articles.consult', $article) }}"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-emerald-300 text-emerald-700 rounded-lg hover:bg-emerald-50 transition-colors">
+                                <i class="fas fa-eye text-emerald-500"></i> Consulter l'article
+                            </a>
+                        </div>
                     @else
                         {{-- Explicit validation button for step 1 --}}
                         <div class="mt-2 pt-4 border-t border-gray-100" x-data="{ showConfirmArticle: false }">
@@ -406,10 +412,10 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                     {{-- Download generated letter --}}
                     @if($contractVente)
                         <div class="flex flex-wrap gap-3 mb-4">
-                            <a href="{{ route('articles.lettre-adjudicataire.download-pdf', $article) }}"
+                            <a href="{{ route('articles.lettre-adjudicataire.print', $article) }}"
                                target="_blank"
-                               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-file-pdf text-red-500"></i> Télécharger la lettre adjudicataire (.pdf)
+                               class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                                <i class="fas fa-print"></i> Imprimer la lettre adjudicataire
                             </a>
                         </div>
                         @if($contractVente->letter_generated_at)

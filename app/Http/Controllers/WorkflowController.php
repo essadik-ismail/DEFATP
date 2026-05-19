@@ -326,6 +326,41 @@ class WorkflowController extends Controller
     {
         $this->authorize('recolement.submit');
         $request->validate([
+            'date_recolement'          => 'nullable|date',
+            'adjudication'             => 'nullable|string|max:120',
+            'num_marche'               => 'nullable|string|max:80',
+            'commission'               => 'nullable|array',
+            'commission.*.nom_prenom'  => 'nullable|string|max:120',
+            'commission.*.fonction'    => 'nullable|string|max:120',
+            'commission.*.entite'      => 'nullable|string|max:120',
+            'marteau'                  => 'nullable|string|max:80',
+            'marque'                   => 'nullable|string|max:80',
+            'souches_reserves'                      => 'nullable|array',
+            'souches_reserves.*.essence'            => 'nullable|string|max:120',
+            'souches_reserves.*.avec_empreinte'     => 'nullable|numeric|min:0',
+            'souches_reserves.*.sans_empreinte'     => 'nullable|numeric|min:0',
+            'souches_reserves.*.total'              => 'nullable|numeric|min:0',
+            'souches_reserves.*.nombre_pv'          => 'nullable|numeric|min:0',
+            'la_coupe'                 => 'nullable|string|max:120',
+            'les_limites'              => 'nullable|string|max:120',
+            'le_vidange'               => 'nullable|string|max:120',
+            'nettoyage_coupe'          => 'nullable|string|max:120',
+            'le_recru'                 => 'nullable|string|max:120',
+            'travaux_imposes'          => 'nullable|string|max:120',
+            'fourniture_mise_en_charge'=> 'nullable|string|max:120',
+            'delits_constates'         => 'nullable|string|max:120',
+            'bois_oeuvre'              => 'nullable|numeric|min:0',
+            'bois_industrie'           => 'nullable|numeric|min:0',
+            'bois_service'             => 'nullable|numeric|min:0',
+            'bois_chauffage'           => 'nullable|numeric|min:0',
+            'brins_cedre'              => 'nullable|integer|min:0',
+            'liege_male'               => 'nullable|numeric|min:0',
+            'liege_reproduction'       => 'nullable|numeric|min:0',
+            'ecorce_tanin'             => 'nullable|numeric|min:0',
+            'bois_carboniser'          => 'nullable|numeric|min:0',
+            'produits_abandonnes'             => 'nullable|array',
+            'produits_abandonnes.*.nature'    => 'nullable|string|max:120',
+            'produits_abandonnes.*.quantite'  => 'nullable|string|max:80',
             'date_pv'      => 'required|date',
             'num_pv'       => 'required|string|max:80',
             'observations' => 'nullable|string',
@@ -341,7 +376,44 @@ class WorkflowController extends Controller
             $filePath = $request->file('fichier_pv')->store('recolements', 'public');
         }
 
+        $commission = collect($request->input('commission', []))
+            ->filter(fn($r) => !empty($r['nom_prenom']) || !empty($r['fonction']) || !empty($r['entite']))
+            ->values()->all();
+
+        $souchesReserves = collect($request->input('souches_reserves', []))
+            ->filter(fn($r) => !empty($r['essence']))
+            ->values()->all();
+
+        $produitsAbandonnes = collect($request->input('produits_abandonnes', []))
+            ->filter(fn($r) => !empty($r['nature']))
+            ->values()->all();
+
         $recolement->fill([
+            'date_recolement'           => $request->date_recolement ?: null,
+            'adjudication'              => $request->adjudication,
+            'num_marche'                => $request->num_marche,
+            'commission'                => $commission ?: null,
+            'marteau'                   => $request->marteau,
+            'marque'                    => $request->marque,
+            'souches_reserves'          => $souchesReserves ?: null,
+            'la_coupe'                  => $request->la_coupe,
+            'les_limites'               => $request->les_limites,
+            'le_vidange'                => $request->le_vidange,
+            'nettoyage_coupe'           => $request->nettoyage_coupe,
+            'le_recru'                  => $request->le_recru,
+            'travaux_imposes'           => $request->travaux_imposes,
+            'fourniture_mise_en_charge' => $request->fourniture_mise_en_charge,
+            'delits_constates'          => $request->delits_constates,
+            'bois_oeuvre'               => $request->bois_oeuvre,
+            'bois_industrie'            => $request->bois_industrie,
+            'bois_service'              => $request->bois_service,
+            'bois_chauffage'            => $request->bois_chauffage,
+            'brins_cedre'               => $request->brins_cedre,
+            'liege_male'                => $request->liege_male,
+            'liege_reproduction'        => $request->liege_reproduction,
+            'ecorce_tanin'              => $request->ecorce_tanin,
+            'bois_carboniser'           => $request->bois_carboniser,
+            'produits_abandonnes'       => $produitsAbandonnes ?: null,
             'date_pv'      => $request->date_pv,
             'num_pv'       => $request->num_pv,
             'observations' => $request->observations,

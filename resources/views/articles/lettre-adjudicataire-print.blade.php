@@ -32,7 +32,7 @@
 
       .page-header {
         width: 100%;
-        margin-bottom: 4mm;
+        margin-bottom: 3mm;
       }
 
       .header-logo {
@@ -48,7 +48,7 @@
         object-fit: contain;
       }
 
-      /* ── Top meta line ── */
+      /* ── Meta line ── */
       .letter-meta {
         display: flex;
         justify-content: space-between;
@@ -57,23 +57,17 @@
         margin-bottom: 5mm;
       }
 
-      .letter-meta .ref {
-        line-height: 1.7;
-      }
+      .letter-meta .ref { line-height: 1.7; }
+      .letter-meta .place-date { text-align: right; line-height: 1.7; }
 
-      .letter-meta .place-date {
-        text-align: right;
-        line-height: 1.7;
-      }
-
-      /* ── Recipient block ── */
+      /* ── Recipient ── */
       .letter-recipient {
         margin-bottom: 4mm;
         font-size: 9.5pt;
         line-height: 1.8;
       }
 
-      /* ── Subject line ── */
+      /* ── Subject ── */
       .letter-subject {
         font-size: 9.5pt;
         font-weight: 700;
@@ -81,7 +75,7 @@
         line-height: 1.6;
       }
 
-      /* ── Body text ── */
+      /* ── Body ── */
       .letter-body {
         font-size: 9.5pt;
         line-height: 1.75;
@@ -90,9 +84,7 @@
         gap: 3mm;
       }
 
-      .letter-body p {
-        text-align: justify;
-      }
+      .letter-body p { text-align: justify; }
 
       /* ── Financial table ── */
       .charges-table {
@@ -120,7 +112,7 @@
         font-weight: 700;
       }
 
-      /* ── Bullet list ── */
+      /* ── Conditions list ── */
       .conditions-list {
         list-style: none;
         padding-left: 5mm;
@@ -133,9 +125,7 @@
         margin-bottom: 1mm;
       }
 
-      .conditions-list li::before {
-        content: "- ";
-      }
+      .conditions-list li::before { content: "- "; }
 
       /* ── Signature ── */
       .letter-signature {
@@ -167,9 +157,7 @@
         cursor: pointer;
       }
 
-      .print-btn:hover {
-        background: #2d5a2d;
-      }
+      .print-btn:hover { background: #2d5a2d; }
 
       @media print {
         body {
@@ -179,9 +167,7 @@
           overflow: hidden;
         }
 
-        .no-print {
-          display: none !important;
-        }
+        .no-print { display: none !important; }
       }
     </style>
   </head>
@@ -195,11 +181,11 @@
     </header>
 
     @php
-      $d = $resolvedPlaceholders;
+      $d   = $resolvedPlaceholders;
       $get = fn(string $key, string $fallback = '………………………………') => (($d[$key] ?? '') !== '') ? $d[$key] : $fallback;
     @endphp
 
-    <!-- Meta : référence + lieu/date -->
+    <!-- Référence + Lieu/Date -->
     <div class="letter-meta">
       <div class="ref">
         N° ………… / DRANEF-… / SGF

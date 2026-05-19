@@ -375,6 +375,31 @@ class ArticleController extends Controller
     }
 
     /**
+     * Display a read-only consultation page for a validated article.
+     */
+    public function consult(Article $article): View
+    {
+        $article->load([
+            'cession:id,mode_cession,numAO,DateAdj,dateAO,Exercice',
+            'forets:id,foret',
+            'provinces:id,nom',
+            'communes:id,nom',
+            'natureDeCoupes:id,nature_de_coupe',
+            'modeExploitations:id,mode_exploiattion',
+            'essences' => fn($q) => $q->withPivot('product_id', 'quantity'),
+            'products:id,name',
+            'depots:id,nom',
+        ]);
+
+        $dranef = $article->dranef_code ? Dranef::select('id', 'code', 'dranef', 'Abréviation')->where('code', $article->dranef_code)->first() : null;
+        $dpanef = $article->dpanef_code ? Dpanef::select('id', 'code', 'dpanef')->where('code', $article->dpanef_code)->first() : null;
+        $zdtf   = $article->zdtf_code   ? Zdtf::select('id', 'code', 'zdtf')->where('code', $article->zdtf_code)->first()     : null;
+        $dfp    = $article->dfp_code    ? Dfp::select('id', 'code', 'dfp')->where('code', $article->dfp_code)->first()         : null;
+
+        return view('articles.consult', compact('article', 'dranef', 'dpanef', 'zdtf', 'dfp'));
+    }
+
+    /**
      * Show the form for editing the specified article.
      */
     public function edit(Article $article): View

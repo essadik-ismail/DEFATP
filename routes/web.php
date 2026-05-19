@@ -167,6 +167,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/create', [ArticleController::class, 'create'])->name('create');
         Route::post('/', [ArticleController::class, 'store'])->name('store');
         Route::get('/{article}', [ArticleController::class, 'show'])->name('show');
+        Route::get('/{article}/consult', [ArticleController::class, 'consult'])->name('consult');
         Route::get('/{article}/edit', [ArticleController::class, 'edit'])->name('edit');
         Route::put('/{article}', [ArticleController::class, 'update'])->name('update');
         Route::post('{article}/locations/import', [ArticleController::class, 'importLocations'])->name('locations.import');

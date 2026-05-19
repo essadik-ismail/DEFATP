@@ -261,12 +261,14 @@
                                             <i class="fas fa-eye text-xs"></i>
                                             Voir
                                         </a>
+                                        @if(($article->workflow_state ?? 'DRAFT_ARTICLE') === 'DRAFT_ARTICLE')
                                         <a href="{{ route('articles.edit', $article) }}"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg text-xs font-medium transition-colors duration-200"
                                             title="Modifier l'article">
                                             <i class="fas fa-edit text-xs"></i>
                                             Éditer
                                         </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
