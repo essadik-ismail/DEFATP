@@ -928,6 +928,8 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         @php $validateBlocked = true; $validateBlockedReason = 'Le PV d\'installation doit être rempli avant de valider.'; @endphp
                     @elseif(!$pvInstallation->fichier_pv_signe)
                         @php $validateBlocked = true; $validateBlockedReason = 'Le PV signé doit être importé avant de valider.'; @endphp
+                    @elseif(!empty($tranchesBlockedReason))
+                        @php $validateBlocked = true; $validateBlockedReason = $tranchesBlockedReason; @endphp
                     @endif
                     @if($pvInstallation)
                         <div class="info-tiles grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-4">
@@ -1019,6 +1021,9 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                      Étape 8 — TRANCHES_IN_PROGRESS
                 ============================================================ --}}
                 @elseif($state === WF::TRANCHES_IN_PROGRESS)
+                    @if(!empty($tranchesBlockedReason))
+                        @php $validateBlocked = true; $validateBlockedReason = $tranchesBlockedReason; @endphp
+                    @endif
                     @php
                         $permisEnleverList = collect($permisEnlevers ?? []);
                         $permisDates = $permisEnleverList

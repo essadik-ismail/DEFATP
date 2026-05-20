@@ -84,6 +84,18 @@ class VehicleDeclarationController extends Controller
             'date_declaration'=> 'nullable|date',
         ]);
 
+        $existing = VehicleDeclaration::where('immatriculation', $request->immatriculation)->first();
+
+        if ($existing) {
+            $alreadyLinked = $article->vehicles()->where('vehicle_declaration_id', $existing->id)->exists();
+            if ($alreadyLinked) {
+                return back()->withErrors(['immatriculation' => 'Ce véhicule est déjà lié à cet article.'])->withInput();
+            }
+            $article->vehicles()->syncWithoutDetaching([$existing->id]);
+            return redirect()->route('vehicles.index', $article)
+                ->with('success', 'Véhicule existant lié à l\'article avec succès.');
+        }
+
         $vehicle = VehicleDeclaration::create(array_merge(
             $request->only(['immatriculation', 'marque', 'capacite', 'capacite_unite', 'chauffeur_nom', 'chauffeur_cin', 'date_declaration']),
             ['declared_by' => Auth::id()]
@@ -128,7 +140,7 @@ class VehicleDeclarationController extends Controller
     {
         $this->authorize('vehicle.declare');
         $request->validate([
-            'immatriculation'   => 'required|string|max:80',
+            'immatriculation'   => 'required|string|max:80|unique:vehicle_declarations,immatriculation',
             'marque'            => 'nullable|string|max:100',
             'capacite'          => 'nullable|numeric|min:0',
             'capacite_unite'    => 'required|in:m3,stere,sacs,tonnes,autre',
@@ -157,7 +169,7 @@ class VehicleDeclarationController extends Controller
     {
         $this->authorize('vehicle.declare');
         $request->validate([
-            'immatriculation'   => 'required|string|max:80',
+            'immatriculation'   => 'required|string|max:80|unique:vehicle_declarations,immatriculation,' . $vehicle->id,
             'marque'            => 'nullable|string|max:100',
             'capacite'          => 'nullable|numeric|min:0',
             'capacite_unite'    => 'required|in:m3,stere,sacs,tonnes,autre',

@@ -13,7 +13,7 @@
     <div class="container mx-auto px-4 max-w-7xl">
 
         <x-page-header
-            title="Permis d'Enlever"
+            :title="'Permis d\'Enlever' . ($permiEnlever->num_tranche_paye ? ' — Tranche ' . $permiEnlever->num_tranche_paye : '')"
             :subtitle="($permiEnlever->num_quittance ? 'Quittance n° ' . $permiEnlever->num_quittance . ' — ' : '') . 'Article #' . ($article->numero ?? $article->id)"
             icon="fas fa-file-contract"
             :backRoute="route('articles.show', $article)"
@@ -144,6 +144,12 @@
                 @if($allConsumed)
                     <span class="inline-flex cursor-not-allowed items-center gap-2 rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-gray-500"
                           title="Tout le volume est consommé">
+                        <i class="fas fa-plus"></i>
+                        Créer permis de colportage
+                    </span>
+                @elseif(!$permiEnlever->fichier_permis_signe)
+                    <span class="inline-flex cursor-not-allowed items-center gap-2 rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-gray-500"
+                          title="Veuillez d'abord uploader la version signée">
                         <i class="fas fa-plus"></i>
                         Créer permis de colportage
                     </span>

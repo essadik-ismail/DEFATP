@@ -61,6 +61,7 @@
         'exploitants' => $exploitants,
         'steps' => $steps,
         'alerts' => $alerts,
+        'tranchesBlockedReason' => $tranchesBlockedReason ?? null,
     ])
 
     @push('scripts')

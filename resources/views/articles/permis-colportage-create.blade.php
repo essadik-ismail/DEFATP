@@ -56,8 +56,8 @@
                                             Selectionner un Permis d'Enlever <span class="text-red-500">*</span>
                                         </label>
                                         <select name="id_permis_enlever" id="id_permis_enlever"
-                                            class="form-input w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-500 focus:ring-2 focus:ring-green-500"
-                                            required>
+                                            class="form-input w-full rounded-lg border border-gray-300 px-4 py-3 bg-gray-50 cursor-not-allowed focus:border-green-500 focus:ring-2 focus:ring-green-500"
+                                            disabled required>
                                             <option value="">Choisir...</option>
                                             @foreach ($permisEnlevers as $permis)
                                                 <option value="{{ $permis->id }}"
@@ -69,6 +69,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
+                                        <input type="hidden" name="id_permis_enlever" value="{{ $currentPermisEnleverId }}">
                                     </div>
                                 @else
                                     <x-alert type="warning" title="Aucun Permis d'Enlever">
@@ -220,15 +221,14 @@
 
                             <div class="mt-4">
                                 <label for="fichier_joint" class="mb-2 block text-sm font-semibold text-gray-700">
-                                    Fichier joint (PDF ou image)
+                                    Fichier joint (PDF ou image) <span class="text-red-500">*</span>
                                 </label>
                                 <input type="file" name="fichier_joint" id="fichier_joint"
                                     class="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-green-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-green-700 hover:file:bg-green-100"
-                                    accept="application/pdf,image/*">
-                                <p class="mt-1 text-xs text-gray-500">
-                                    Optionnel. Vous pouvez joindre une copie scannee du permis ou tout document
-                                    justificatif.
-                                </p>
+                                    accept="application/pdf,image/*" required>
+                                @error('fichier_joint')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="rounded-lg border border-gray-200 bg-gray-50 p-6">
@@ -326,7 +326,7 @@
                                                         <input type="number"
                                                             name="essences[{{ $index }}][quantity]" step="0.01"
                                                             min="0" max="{{ $remaining }}"
-                                                            value="{{ $oldColportageQuantities[$rowKey] ?? ($parent > 0 ? number_format($parent, 2, '.', '') : '0') }}"
+                                                            value="{{ $oldColportageQuantities[$rowKey] ?? ($remaining > 0 ? number_format($remaining, 2, '.', '') : '0') }}"
                                                             class="form-input w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:ring-2 focus:ring-green-500"
                                                             placeholder="0.00">
                                                     </td>
@@ -496,7 +496,7 @@
                             .quantity) || 0;
                         var initialQuantity = useOldValues && oldColportageQuantities[rowKey] !== undefined ?
                             String(oldColportageQuantities[rowKey]) :
-                            (parentQty > 0 ? parentQty.toFixed(2) : '0');
+                            (remaining > 0 ? remaining.toFixed(2) : '0');
 
                         return buildRow(item, index, initialQuantity);
                     }).join('');

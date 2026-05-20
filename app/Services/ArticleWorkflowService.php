@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Alert;
 use App\Models\Article;
+use App\Models\ColportageEnlever;
 use App\Models\ContractVente;
 use App\Models\Payment;
 use App\Models\PermisExploiter;
@@ -196,6 +197,7 @@ class ArticleWorkflowService
             self::TAXES_PAID             => $this->requireTaxesPaid($article),
             self::PERMIT_ISSUED          => $this->requirePermitExists($article),
             self::PV_INSTALLATION_DONE   => $this->requirePvInstallationPrereqs($article),
+            self::TRANCHES_IN_PROGRESS   => $this->requireAllColportagesAndConsumption($article),
             self::RECOLEMENT_PENDING     => $this->requireContractExpired($article),
             self::MAINLEVEE_DONE         => $this->requireRecolementSubmitted($article),
             self::CLOSED                 => $this->requireMainlevee($article),
@@ -292,6 +294,78 @@ class ArticleWorkflowService
     private function requirePvInstallationPrereqs(Article $article): void
     {
         $this->requirePermitExists($article);
+    }
+
+    private function requireAllColportagesAndConsumption(Article $article): void
+    {
+        $reason = $this->tranchesBlockedReason($article);
+        if ($reason !== null) {
+            throw new \RuntimeException($reason);
+        }
+    }
+
+    /**
+     * Returns a human-readable reason why TRANCHES_IN_PROGRESS is blocked,
+     * or null if all conditions are met. Used both as a guard and for UI display.
+     */
+    public function tranchesBlockedReason(Article $article): ?string
+    {
+        $contract = $article->contractVentes()->latest()->first();
+        if (!$contract) {
+            return 'Aucun contrat de vente trouvé.';
+        }
+
+        $permisEnlevers = \App\Models\PermiEnlever::where(function ($q) use ($contract) {
+                $q->where('contract_vente_id', $contract->id)
+                  ->orWhereHas('permis', fn($q2) => $q2->where('contract_vente_id', $contract->id));
+            })
+            ->with('colportages')
+            ->get();
+
+        if ($permisEnlevers->isEmpty()) {
+            return 'Aucun permis d\'enlever trouvé. Tous les permis d\'enlever doivent avoir au moins un permis de colportage.';
+        }
+
+        foreach ($permisEnlevers as $pe) {
+            if ($pe->colportages->isEmpty()) {
+                return "Le permis d'enlever n°{$pe->num_quittance} n'a aucun permis de colportage.";
+            }
+        }
+
+        // Check that all volumes are fully consumed for each permis d'enlever
+        $authorizedRows = DB::table('permisenlever_product')
+            ->whereIn('permis_id', $permisEnlevers->pluck('id'))
+            ->select('permis_id', 'id_essence', 'product_id', 'quantity')
+            ->get();
+
+        if ($authorizedRows->isEmpty()) {
+            return 'Aucune essence enregistrée dans les permis d\'enlever.';
+        }
+
+        $usedRows = DB::table('colportage_enlever_product')
+            ->join('colportage_enlever', 'colportage_enlever.id', '=', 'colportage_enlever_product.colportage_enlever_id')
+            ->whereIn('colportage_enlever.id_permis_enlever', $permisEnlevers->pluck('id'))
+            ->select(
+                'colportage_enlever.id_permis_enlever',
+                'colportage_enlever_product.id_essence',
+                'colportage_enlever_product.product_id',
+                DB::raw('SUM(colportage_enlever_product.quantity) as used_quantity')
+            )
+            ->groupBy('colportage_enlever.id_permis_enlever', 'colportage_enlever_product.id_essence', 'colportage_enlever_product.product_id')
+            ->get()
+            ->keyBy(fn($r) => $r->id_permis_enlever . '_' . $r->id_essence . '_' . $r->product_id);
+
+        foreach ($authorizedRows as $row) {
+            $key = $row->permis_id . '_' . $row->id_essence . '_' . $row->product_id;
+            $used = (float) ($usedRows->get($key)?->used_quantity ?? 0);
+            $remaining = max(0, (float) $row->quantity - $used);
+            if ($remaining > 0) {
+                $pe = $permisEnlevers->firstWhere('id', $row->permis_id);
+                return "Le volume du permis d'enlever n°{$pe->num_quittance} n'est pas entièrement consommé.";
+            }
+        }
+
+        return null;
     }
 
     private function requireContractExpired(Article $article): void

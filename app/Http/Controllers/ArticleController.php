@@ -388,8 +388,9 @@ class ArticleController extends Controller
         $workflowService = app(ArticleWorkflowService::class);
         $steps   = $workflowService->getStepStatuses($article);
         $alerts  = app(AlertService::class)->getActiveAlertsForArticle($article);
+        $tranchesBlockedReason = $workflowService->tranchesBlockedReason($article);
 
-        return view('articles.show', compact('article', 'exploitants', 'contractVente', 'permisEnlevers', 'steps', 'alerts'));
+        return view('articles.show', compact('article', 'exploitants', 'contractVente', 'permisEnlevers', 'steps', 'alerts', 'tranchesBlockedReason'));
     }
 
     /**
@@ -1868,7 +1869,7 @@ class ArticleController extends Controller
 
         $selectedPermisEnleverId = request('permis_enlever_id');
         $carnetsDisponibles = Carnet::disponible()->listable()->get();
-        $vehicles = \App\Models\VehicleDeclaration::orderBy('immatriculation')->get();
+        $vehicles = $article->vehicles()->orderBy('immatriculation')->get();
 
         return view('articles.permis-colportage-create', compact(
             'article', 'contractVente', 'permisEnlevers', 'permisEnleversWithQuantities',

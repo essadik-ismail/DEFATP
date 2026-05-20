@@ -101,7 +101,10 @@
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-600">
                             <i class="fas fa-tree text-white text-sm"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900">2. Essences de l'Article</h3>
+                        <h3 class="text-lg font-semibold text-gray-900" id="essences-section-title">
+                            2. Produit présumé disponible
+                            <span id="essences-tranche-label" class="text-green-700"></span>
+                        </h3>
                     </div>
                     @if($article->essences->isEmpty())
                         <div class="text-center py-8">
@@ -183,6 +186,10 @@
                 var payment = availablePayments[date];
                 document.getElementById('date').value = date || '';
                 document.getElementById('num_quittance_display').value = payment ? (payment.num_quittace || '') : '';
+                var label = document.getElementById('essences-tranche-label');
+                if (label) {
+                    label.textContent = payment ? ' pour tranche N°' + payment.tranche_label : '';
+                }
             }
 
             document.addEventListener('DOMContentLoaded', function () {
