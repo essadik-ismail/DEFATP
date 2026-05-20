@@ -270,7 +270,7 @@
                                                     Restant</th>
                                                 <th
                                                     class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-700">
-                                                    Volume colportage</th>
+                                                    Volume / Quantité</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-200 bg-white" id="essences-table-body">

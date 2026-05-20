@@ -292,15 +292,6 @@ class ArticleWorkflowService
     private function requirePvInstallationPrereqs(Article $article): void
     {
         $this->requirePermitExists($article);
-
-        $contract = $article->contractVentes()->with('chargeApayer.payments')->latest()->first();
-        $anefCharge = $contract?->chargeApayer->first(
-            fn($c) => str_contains(strtolower($c->nom), 'anef')
-        );
-
-        if ($anefCharge && !(bool) $anefCharge->payments->first()?->is_paye) {
-            throw new \RuntimeException('La taxe service rendu ANEF doit être payée avant le PV d\'installation.');
-        }
     }
 
     private function requireContractExpired(Article $article): void
@@ -417,6 +408,12 @@ class ArticleWorkflowService
             } else {
                 $status = 'blocked';
                 $blockedReason = 'Les étapes précédentes doivent être complétées d\'abord.';
+            }
+
+            // PV d'installation is always accessible (never fully locked)
+            if ($state === self::PV_INSTALLATION_DONE && $status === 'blocked') {
+                $status = 'pending';
+                $blockedReason = null;
             }
 
             $steps[$state] = [

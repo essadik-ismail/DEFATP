@@ -184,5 +184,11 @@ class Article extends Model
             ->withTimestamps();
     }
 
+    public function vehicles(): BelongsToMany
+    {
+        return $this->belongsToMany(VehicleDeclaration::class, 'article_vehicle_declaration')
+            ->withTimestamps();
+    }
+
 }
 

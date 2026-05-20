@@ -473,8 +473,8 @@
                                 d&apos;&eacute;ch&eacute;ance <span class="text-red-500">*</span></label>
                             <input type="date" name="charges[4][date_echeance]"
                                 value="{{ old('charges.4.date_echeance', $readChargeValue($taxeRefectionCharge, 'date_echeance') ?: $articleRefectionEcheance) }}"
-                                class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-green-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
-                                {{ $isValidated ? 'readonly' : '' }}>
+                                class="form-input w-full rounded-xl border border-gray-300 bg-gray-100 px-4 py-3 focus:outline-none"
+                                readonly>
                             @error('charges.4.date_echeance')
                                 <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
                             @enderror
@@ -502,8 +502,8 @@
                                 d&apos;&eacute;ch&eacute;ance <span class="text-red-500">*</span></label>
                             <input type="date" name="charges[5][date_echeance]"
                                 value="{{ old('charges.5.date_echeance', $readChargeValue($serviceANEFCharge, 'date_echeance') ?: $articleANEFEcheance) }}"
-                                class="form-input w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none {{ $isValidated ? 'bg-gray-100' : '' }}"
-                                {{ $isValidated ? 'readonly' : '' }}>
+                                class="form-input w-full rounded-xl border border-gray-300 bg-gray-100 px-4 py-3 focus:outline-none"
+                                readonly>
                             @error('charges.5.date_echeance')
                                 <div class="mt-1 text-sm text-red-500">{{ $message }}</div>
                             @enderror

@@ -924,16 +924,10 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                      Step 10 ? PV_INSTALLATION_DONE
                 ============================================================ --}}
                 @elseif($state === WF::PV_INSTALLATION_DONE)
-                    @php
-                        $anefCharge = $contractVente?->chargeApayer->first(fn($c) => str_contains(strtolower($c->nom), 'anef'));
-                        $anefPaid   = $anefCharge ? (bool) $anefCharge->payments->first()?->is_paye : true;
-                    @endphp
                     @if(!$pvInstallation)
                         @php $validateBlocked = true; $validateBlockedReason = 'Le PV d\'installation doit être rempli avant de valider.'; @endphp
                     @elseif(!$pvInstallation->fichier_pv_signe)
                         @php $validateBlocked = true; $validateBlockedReason = 'Le PV signé doit être importé avant de valider.'; @endphp
-                    @elseif(!$anefPaid)
-                        @php $validateBlocked = true; $validateBlockedReason = 'La taxe service rendu ANEF doit être payée avant de valider cette étape.'; @endphp
                     @endif
                     @if($pvInstallation)
                         <div class="info-tiles grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-4">
@@ -993,12 +987,70 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                     @else
                         <p class="text-sm text-gray-600 mb-4">PV d'installation non encore rempli.</p>
                     @endif
+                    <div class="flex items-center gap-2 flex-wrap mt-4">
+                        <a href="{{ route('articles.pv-installation', $article) }}"
+                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium {{ $isDone ? 'bg-white border border-gray-300 text-gray-700' : 'bg-emerald-600 text-white' }} rounded-lg hover:opacity-90 transition-colors">
+                            <i class="fas {{ $isDone ? 'fa-eye' : 'fa-clipboard-check' }}"></i> {{ $isDone ? 'Consulter le PV' : ($pvInstallation ? 'Voir le PV' : 'Remplir le PV') }}
+                        </a>
+                        @if($pvInstallation && !$isDone)
+                        <a href="{{ route('articles.pv-installation', $article) }}?edit=1"
+                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-edit text-gray-500"></i> Modifier
+                        </a>
+                        @endif
+                        @if(!$isDone)
+                        @can('vehicle.declare')
+                        <a href="{{ route('vehicles.index', $article) }}"
+                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">
+                            <i class="fas fa-truck"></i> Gérer les véhicules
+                        </a>
+                        @endcan
+                        @endif
+                        @if($pvInstallation)
+                        <a href="{{ route('articles.pv-installation.print', $article) }}"
+                           target="_blank"
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-print text-gray-500"></i> Imprimer
+                        </a>
+                        @endif
+                    </div>
+
+                {{-- ============================================================
+                     Étape 8 — TRANCHES_IN_PROGRESS
+                ============================================================ --}}
+                @elseif($state === WF::TRANCHES_IN_PROGRESS)
+                    @php
+                        $permisEnleverList = collect($permisEnlevers ?? []);
+                        $permisDates = $permisEnleverList
+                            ->pluck('date_paiement')
+                            ->filter()
+                            ->map(fn($date) => \Carbon\Carbon::parse($date)->format('Y-m-d'))
+                            ->unique()
+                            ->values()
+                            ->all();
+                        $permisIdByDate = $permisEnleverList
+                            ->filter(fn($p) => $p->date_paiement)
+                            ->mapWithKeys(fn($p) => [\Carbon\Carbon::parse($p->date_paiement)->format('Y-m-d') => $p->id])
+                            ->all();
+
+                        $denombrementDates = $denombrements
+                            ->pluck('date_denombrement')
+                            ->filter()
+                            ->map(fn($date) => \Carbon\Carbon::parse($date)->format('Y-m-d'))
+                            ->unique()
+                            ->values()
+                            ->all();
+                    @endphp
+                    @php
+                        $anefCharge = $contractVente?->chargeApayer->first(fn($c) => str_contains(strtolower($c->nom), 'anef'));
+                        $anefPaid   = $anefCharge ? (bool) $anefCharge->payments->first()?->is_paye : true;
+                    @endphp
                     {{-- ANEF taxe payment section --}}
                     @if(!$anefPaid && $anefCharge)
                         @php
                             $anefPayment = $anefCharge->payments->first();
                         @endphp
-                        <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                        <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
                             <div class="flex items-center gap-2 mb-3">
                                 <i class="fas fa-exclamation-triangle text-amber-600"></i>
                                 <h4 class="text-sm font-semibold text-amber-800">Taxe service rendu ANEF — Paiement requis</h4>
@@ -1054,69 +1106,6 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             @endif
                         </div>
                     @endif
-
-                    <div class="flex items-center gap-2 flex-wrap mt-4">
-                        @if(!$isDone && !$anefPaid)
-                            <span title="La taxe service rendu ANEF doit être payée avant de remplir le PV."
-                                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 rounded-lg cursor-not-allowed opacity-60">
-                                <i class="fas fa-clipboard-check"></i> {{ $pvInstallation ? 'Voir / modifier' : 'Remplir le PV' }}
-                            </span>
-                        @else
-                        <a href="{{ route('articles.pv-installation', $article) }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium {{ $isDone ? 'bg-white border border-gray-300 text-gray-700' : 'bg-emerald-600 text-white' }} rounded-lg hover:opacity-90 transition-colors">
-                            <i class="fas {{ $isDone ? 'fa-eye' : 'fa-clipboard-check' }}"></i> {{ $isDone ? 'Consulter le PV' : ($pvInstallation ? 'Voir / modifier' : 'Remplir le PV') }}
-                        </a>
-                        @endif
-                        @if(!$isDone)
-                        @can('vehicle.declare')
-                        @if(!$anefPaid)
-                            <span title="La taxe service rendu ANEF doit être payée avant de gérer les véhicules."
-                                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 rounded-lg cursor-not-allowed opacity-60">
-                                <i class="fas fa-truck"></i> Gérer les véhicules
-                            </span>
-                        @else
-                        <a href="{{ route('vehicles.index', $article) }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">
-                            <i class="fas fa-truck"></i> Gérer les véhicules
-                        </a>
-                        @endif
-                        @endcan
-                        @endif
-                        @if($pvInstallation)
-                        <a href="{{ route('articles.pv-installation.print', $article) }}"
-                           target="_blank"
-                           class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-print text-gray-500"></i> Imprimer
-                        </a>
-                        @endif
-                    </div>
-
-                {{-- ============================================================
-                     Étape 8 — TRANCHES_IN_PROGRESS
-                ============================================================ --}}
-                @elseif($state === WF::TRANCHES_IN_PROGRESS)
-                    @php
-                        $permisEnleverList = collect($permisEnlevers ?? []);
-                        $permisDates = $permisEnleverList
-                            ->pluck('date_paiement')
-                            ->filter()
-                            ->map(fn($date) => \Carbon\Carbon::parse($date)->format('Y-m-d'))
-                            ->unique()
-                            ->values()
-                            ->all();
-                        $permisIdByDate = $permisEnleverList
-                            ->filter(fn($p) => $p->date_paiement)
-                            ->mapWithKeys(fn($p) => [\Carbon\Carbon::parse($p->date_paiement)->format('Y-m-d') => $p->id])
-                            ->all();
-
-                        $denombrementDates = $denombrements
-                            ->pluck('date_denombrement')
-                            ->filter()
-                            ->map(fn($date) => \Carbon\Carbon::parse($date)->format('Y-m-d'))
-                            ->unique()
-                            ->values()
-                            ->all();
-                    @endphp
                     @if($isDone)
                         <div class="flex items-center gap-2 p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 mb-3">
                             <i class="fas fa-lock"></i>
@@ -1251,10 +1240,17 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                                 </a>
                                                                 @endif
                                                             @else
+                                                                @if($anefPaid)
                                                                 <a href="{{ route('articles.permis-enlever.create', ['article' => $article, 'date_paiement' => $paymentDate]) }}"
                                                                    class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700">
                                                                     <i class="fas fa-plus"></i> Créer permis d'enlever
                                                                 </a>
+                                                                @else
+                                                                <span title="La taxe service rendu ANEF doit être payée avant de créer un permis d'enlever."
+                                                                      class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-gray-100 text-gray-400 rounded cursor-not-allowed opacity-60">
+                                                                    <i class="fas fa-lock"></i> Créer permis d'enlever
+                                                                </span>
+                                                                @endif
                                                             @endif
                                                         </div>
                                                     @endif

@@ -73,8 +73,9 @@ class UpdateArticleRequest extends FormRequest
             'depot_ids.*' => ['exists:depot,id'],
             'products' => ['nullable', 'array'],
             'products.*.essence_id' => ['required_with:products', 'exists:essences,id'],
-            'products.*.product_id' => ['required_with:products', 'exists:products,id'],
-            'products.*.quantity' => ['required_with:products', 'numeric', 'gt:0'],
+            'products.*.items' => ['nullable', 'array'],
+            'products.*.items.*.product_id' => ['required_with:products.*.items', 'exists:products,id'],
+            'products.*.items.*.quantity' => ['required_with:products.*.items', 'numeric', 'gt:0'],
             'is_on_depot' => ['nullable', 'boolean'],
         ];
     }
@@ -95,10 +96,10 @@ class UpdateArticleRequest extends FormRequest
             'limite_ouest.required' => 'La limite Ouest est requise.',
             'coordonnee_x.numeric' => 'La coordonnée X doit être un nombre.',
             'coordonnee_y.numeric' => 'La coordonnée Y doit être un nombre.',
-            'products.*.quantity.gt' => 'La quantité doit être supérieure à zéro.',
-            'products.*.quantity.required_with' => 'La quantité est requise pour chaque produit.',
-            'products.*.essence_id.required_with' => 'L\'essence est requise pour chaque produit.',
-            'products.*.product_id.required_with' => 'Le produit est requis pour chaque ligne.',
+            'products.*.essence_id.required_with' => 'L\'essence est requise pour chaque groupe.',
+            'products.*.items.*.product_id.required_with' => 'Le produit est requis pour chaque ligne.',
+            'products.*.items.*.quantity.required_with' => 'La quantité est requise pour chaque produit.',
+            'products.*.items.*.quantity.gt' => 'La quantité doit être supérieure à zéro.',
         ];
     }
 }

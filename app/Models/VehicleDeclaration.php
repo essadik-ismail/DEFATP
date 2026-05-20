@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VehicleDeclaration extends Model
@@ -35,5 +36,11 @@ class VehicleDeclaration extends Model
     public function declaredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'declared_by');
+    }
+
+    public function articles(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'article_vehicle_declaration')
+            ->withTimestamps();
     }
 }

@@ -220,18 +220,36 @@ class ArticleController extends Controller
                 $rows = [];
                 $now  = now();
                 foreach ($request->products as $productData) {
-                    if (
-                        isset($productData['essence_id'], $productData['product_id'], $productData['quantity'])
-                        && is_numeric($productData['essence_id'])
-                        && is_numeric($productData['product_id'])
-                    ) {
+                    if (empty($productData['essence_id']) || !is_numeric($productData['essence_id'])) {
+                        continue;
+                    }
+                    $essenceId = (int) $productData['essence_id'];
+                    // New nested structure: products[n][items][m][product_id/quantity]
+                    if (isset($productData['items']) && is_array($productData['items'])) {
+                        foreach ($productData['items'] as $item) {
+                            if (
+                                isset($item['product_id'], $item['quantity'])
+                                && is_numeric($item['product_id'])
+                            ) {
+                                $rows[] = [
+                                    'article_id' => $article->id,
+                                    'essence_id' => $essenceId,
+                                    'product_id' => (int) $item['product_id'],
+                                    'quantity'   => $item['quantity'],
+                                    'created_at' => $now,
+                                    'updated_at' => $now,
+                                ];
+                            }
+                        }
+                    // Legacy flat structure fallback
+                    } elseif (isset($productData['product_id'], $productData['quantity']) && is_numeric($productData['product_id'])) {
                         $rows[] = [
-                            'article_id'  => $article->id,
-                            'essence_id'  => (int) $productData['essence_id'],
-                            'product_id'  => (int) $productData['product_id'],
-                            'quantity'    => $productData['quantity'],
-                            'created_at'  => $now,
-                            'updated_at'  => $now,
+                            'article_id' => $article->id,
+                            'essence_id' => $essenceId,
+                            'product_id' => (int) $productData['product_id'],
+                            'quantity'   => $productData['quantity'],
+                            'created_at' => $now,
+                            'updated_at' => $now,
                         ];
                     }
                 }
@@ -520,8 +538,21 @@ class ArticleController extends Controller
             // Always detach all essences then re-attach from submitted products
             $article->essences()->detach();
             foreach ((array) $request->input('products', []) as $productData) {
-                if (!empty($productData['essence_id']) && !empty($productData['product_id']) && isset($productData['quantity'])) {
-                    $article->essences()->attach($productData['essence_id'], [
+                if (empty($productData['essence_id']) || !is_numeric($productData['essence_id'])) {
+                    continue;
+                }
+                $essenceId = (int) $productData['essence_id'];
+                if (isset($productData['items']) && is_array($productData['items'])) {
+                    foreach ($productData['items'] as $item) {
+                        if (!empty($item['product_id']) && isset($item['quantity'])) {
+                            $article->essences()->attach($essenceId, [
+                                'product_id' => $item['product_id'],
+                                'quantity'   => $item['quantity'],
+                            ]);
+                        }
+                    }
+                } elseif (!empty($productData['product_id']) && isset($productData['quantity'])) {
+                    $article->essences()->attach($essenceId, [
                         'product_id' => $productData['product_id'],
                         'quantity'   => $productData['quantity'],
                     ]);
@@ -2142,7 +2173,9 @@ class ArticleController extends Controller
         // Get existing PV Installation if exists
         $pvInstallation = \App\Models\PvInstallation::where('contract_vente_id', $contractVente->id)->first();
 
-        return view('articles.pv-installation', compact('article', 'contractVente', 'pvInstallation'));
+        $editMode = request()->boolean('edit');
+
+        return view('articles.pv-installation', compact('article', 'contractVente', 'pvInstallation', 'editMode'));
     }
 
     /**

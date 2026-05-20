@@ -455,9 +455,10 @@ Route::middleware('auth')->group(function () {
     // Vehicle declarations
     Route::prefix('articles/{article}/vehicles')->name('vehicles.')->group(function () {
         Route::get('/', [\App\Http\Controllers\VehicleDeclarationController::class, 'index'])->name('index');
-        Route::get('/create', [\App\Http\Controllers\VehicleDeclarationController::class, 'create'])->name('create');
+        Route::get('/search', [\App\Http\Controllers\VehicleDeclarationController::class, 'search'])->name('search');
         Route::post('/', [\App\Http\Controllers\VehicleDeclarationController::class, 'store'])->name('store');
-        Route::delete('/{vehicle}', [\App\Http\Controllers\VehicleDeclarationController::class, 'destroy'])->name('destroy');
+        Route::post('/attach', [\App\Http\Controllers\VehicleDeclarationController::class, 'attach'])->name('attach');
+        Route::delete('/{vehicle}', [\App\Http\Controllers\VehicleDeclarationController::class, 'detach'])->name('destroy');
     });
 
 });

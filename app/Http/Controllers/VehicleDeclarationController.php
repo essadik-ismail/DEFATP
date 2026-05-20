@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\VehicleDeclaration;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,18 +32,43 @@ class VehicleDeclarationController extends Controller
     public function index(Article $article): View
     {
         $this->authorize('vehicle.declare');
-        $contract = $article->contractVentes()->latest()->firstOrFail();
-        $vehicles = $contract->vehicleDeclarations()->with('declaredBy')->latest()->get();
 
-        return view('workflow.vehicles.index', compact('article', 'contract', 'vehicles'));
+        $vehicles = $article->vehicles()->with('declaredBy')->latest()->get();
+
+        return view('workflow.vehicles.index', compact('article', 'vehicles'));
     }
 
-    public function create(Article $article): View
+    public function search(Request $request, Article $article): JsonResponse
     {
         $this->authorize('vehicle.declare');
-        $contract = $article->contractVentes()->latest()->firstOrFail();
 
-        return view('workflow.vehicles.create', compact('article', 'contract'));
+        $immat = trim($request->query('immatriculation', ''));
+
+        if (!$immat) {
+            return response()->json(['found' => false]);
+        }
+
+        $vehicle = VehicleDeclaration::where('immatriculation', $immat)->first();
+
+        if (!$vehicle) {
+            return response()->json(['found' => false]);
+        }
+
+        $alreadyLinked = $article->vehicles()->where('vehicle_declaration_id', $vehicle->id)->exists();
+
+        return response()->json([
+            'found'          => true,
+            'already_linked' => $alreadyLinked,
+            'vehicle'        => [
+                'id'             => $vehicle->id,
+                'immatriculation'=> $vehicle->immatriculation,
+                'marque'         => $vehicle->marque,
+                'capacite'       => $vehicle->capacite,
+                'capacite_unite' => $vehicle->capacite_unite,
+                'chauffeur_nom'  => $vehicle->chauffeur_nom,
+                'chauffeur_cin'  => $vehicle->chauffeur_cin,
+            ],
+        ]);
     }
 
     public function store(Request $request, Article $article): RedirectResponse
@@ -58,23 +84,35 @@ class VehicleDeclarationController extends Controller
             'date_declaration'=> 'nullable|date',
         ]);
 
-        $contract = $article->contractVentes()->latest()->firstOrFail();
-
-        $contract->vehicleDeclarations()->create(array_merge(
+        $vehicle = VehicleDeclaration::create(array_merge(
             $request->only(['immatriculation', 'marque', 'capacite', 'capacite_unite', 'chauffeur_nom', 'chauffeur_cin', 'date_declaration']),
             ['declared_by' => Auth::id()]
         ));
 
+        $article->vehicles()->syncWithoutDetaching([$vehicle->id]);
+
         return redirect()->route('vehicles.index', $article)
-            ->with('success', 'Véhicule déclaré avec succès.');
+            ->with('success', 'Véhicule créé et lié à l\'article avec succès.');
     }
 
-    public function destroy(Article $article, VehicleDeclaration $vehicle): RedirectResponse
+    public function attach(Request $request, Article $article): RedirectResponse
     {
         $this->authorize('vehicle.declare');
-        $vehicle->delete();
+        $request->validate(['vehicle_id' => 'required|exists:vehicle_declarations,id']);
 
-        return back()->with('success', 'Véhicule supprimé.');
+        $article->vehicles()->syncWithoutDetaching([$request->vehicle_id]);
+
+        return redirect()->route('vehicles.index', $article)
+            ->with('success', 'Véhicule lié à l\'article avec succès.');
+    }
+
+    public function detach(Article $article, VehicleDeclaration $vehicle): RedirectResponse
+    {
+        $this->authorize('vehicle.declare');
+
+        $article->vehicles()->detach($vehicle->id);
+
+        return back()->with('success', 'Véhicule retiré de l\'article.');
     }
 
     // --- Standalone CRUD at /vehicles ---

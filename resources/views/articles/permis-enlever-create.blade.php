@@ -115,8 +115,8 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Essence</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Produit</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Quantité dans l'Article</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Quantité</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Volume / Quantité dans l'Article</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Volume / Quantité</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">

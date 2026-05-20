@@ -20,7 +20,7 @@
             backText="Retour"
         />
 
-        @if(isset($pvInstallation) && $pvInstallation)
+        @if(isset($pvInstallation) && $pvInstallation && !($editMode ?? false))
             <!-- Display PV d'Installation Information -->
             <div style="background:#fff; border:1px solid #DDE5E1; border-radius:0.75rem; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
                 <div class="px-6 py-4" style="background: linear-gradient(135deg, #059669, #047857);">
@@ -200,7 +200,7 @@
                                     type="text"
                                     name="pvn"
                                     label="PVN"
-                                    :value="old('pvn')"
+                                    :value="old('pvn', $pvInstallation->pvn ?? '')"
                                     placeholder="Numéro PVN"
                                     focusColor="green"
                                 />
@@ -210,7 +210,7 @@
                                     name="date"
                                     label="Date"
                                     :required="true"
-                                    :value="old('date', date('Y-m-d'))"
+                                    :value="old('date', $pvInstallation?->date?->format('Y-m-d') ?? date('Y-m-d'))"
                                     focusColor="green"
                                 />
 
@@ -218,7 +218,7 @@
                                     type="text"
                                     name="exploitant"
                                     label="Exploitant"
-                                    :value="old('exploitant', $contractVente->exploitant->nom_complet ?? '')"
+                                    :value="old('exploitant', $pvInstallation->exploitant ?? $contractVente->exploitant->nom_complet ?? '')"
                                     placeholder="Nom de l'exploitant"
                                     focusColor="green"
                                 />
@@ -227,7 +227,7 @@
                                     type="text"
                                     name="emo"
                                     label="MO"
-                                    :value="old('emo')"
+                                    :value="old('emo', $pvInstallation->emo ?? '')"
                                     placeholder="MO"
                                     focusColor="green"
                                 />
@@ -239,7 +239,7 @@
                                     type="textarea"
                                     name="participants"
                                     label="Participants"
-                                    :value="old('participants')"
+                                    :value="old('participants', $pvInstallation->participants ?? '')"
                                     placeholder="Liste des participants..."
                                     rows="4"
                                     focusColor="blue"
@@ -252,7 +252,7 @@
                                     type="text"
                                     name="charbonniére"
                                     label="Charbonnière"
-                                    :value="old('charbonniére')"
+                                    :value="old('charbonniére', $pvInstallation->charbonniére ?? '')"
                                     placeholder="Charbonnière"
                                     focusColor="purple"
                                 />
@@ -261,7 +261,7 @@
                                     type="text"
                                     name="mise_en_charge"
                                     label="Mise en charge"
-                                    :value="old('mise_en_charge')"
+                                    :value="old('mise_en_charge', $pvInstallation->mise_en_charge ?? '')"
                                     placeholder="Mise en charge"
                                     focusColor="purple"
                                 />
@@ -270,7 +270,7 @@
                                     type="text"
                                     name="ravalement_souches"
                                     label="Ravalement souches"
-                                    :value="old('ravalement_souches')"
+                                    :value="old('ravalement_souches', $pvInstallation->ravalement_souches ?? '')"
                                     placeholder="Ravalement souches"
                                     focusColor="purple"
                                 />
@@ -279,7 +279,7 @@
                                     type="text"
                                     name="remarient"
                                     label="Remarient"
-                                    :value="old('remarient')"
+                                    :value="old('remarient', $pvInstallation->remarient ?? '')"
                                     placeholder="Remarient"
                                     focusColor="purple"
                                 />
@@ -288,7 +288,7 @@
                                     type="text"
                                     name="mise_en_defens"
                                     label="Mise en défens"
-                                    :value="old('mise_en_defens')"
+                                    :value="old('mise_en_defens', $pvInstallation->mise_en_defens ?? '')"
                                     placeholder="Mise en défens"
                                     focusColor="purple"
                                 />
@@ -297,7 +297,7 @@
                                     type="text"
                                     name="invitation_caporal"
                                     label="Invitation caporal"
-                                    :value="old('invitation_caporal')"
+                                    :value="old('invitation_caporal', $pvInstallation->invitation_caporal ?? '')"
                                     placeholder="Invitation caporal"
                                     focusColor="purple"
                                 />
@@ -309,7 +309,7 @@
                                     type="textarea"
                                     name="reserve"
                                     label="Réserve (optionnel)"
-                                    :value="old('reserve')"
+                                    :value="old('reserve', $pvInstallation->reserve ?? '')"
                                     placeholder="Observations ou réserves..."
                                     rows="3"
                                     focusColor="yellow"

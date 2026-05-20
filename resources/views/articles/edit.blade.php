@@ -564,47 +564,87 @@
                                         </tr>
                                     </thead>
                                     <tbody id="products-table-body">
-                                        @foreach ($article->essences as $idx => $essence)
-                                            <tr class="product-row border-b">
-                                                <td class="px-4 py-3 border">
-                                                    <select name="products[{{ $idx }}][essence_id]"
-                                                        class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                                        required>
-                                                        <option value="">Sélectionner une essence</option>
-                                                        @foreach ($essences as $ess)
-                                                            <option value="{{ $ess->id }}"
-                                                                {{ old("products.{$idx}.essence_id", $essence->id) == $ess->id ? 'selected' : '' }}>
-                                                                {{ $ess->essence }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </td>
-                                                <td class="px-4 py-3 border">
-                                                    <select name="products[{{ $idx }}][product_id]"
-                                                        class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                                        required>
-                                                        <option value="">Sélectionner un produit</option>
-                                                        @foreach ($products as $prod)
-                                                            <option value="{{ $prod->id }}"
-                                                                {{ old("products.{$idx}.product_id", $essence->pivot->product_id ?? '') == $prod->id ? 'selected' : '' }}>
-                                                                {{ $prod->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </td>
-                                                <td class="px-4 py-3 border">
-                                                    <input type="number"
-                                                        name="products[{{ $idx }}][quantity]"
-                                                        class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                                        min="0" step="0.01" placeholder="Volume / Quantité"
-                                                        value="{{ old("products.{$idx}.quantity", $essence->pivot->quantity ?? '') }}"
-                                                        required>
-                                                </td>
-                                                <td class="px-4 py-3 border text-center">
-                                                    <button type="button" onclick="removeProductRow(this)"
-                                                        class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
+                                        @php
+                                            $essenceGroups = $article->essences->groupBy('id');
+                                            $essenceGroupIdx = 0;
+                                        @endphp
+                                        @foreach ($essenceGroups as $essenceId => $essenceRows)
+                                            @php $essenceGroupIdx++; @endphp
+                                            <tr class="essence-group-row" data-essence-idx="{{ $essenceGroupIdx }}">
+                                                <td colspan="4" class="px-3 py-3 border-b">
+                                                    <div class="border border-indigo-200 rounded-xl bg-indigo-50 p-4">
+                                                        <div class="flex items-center gap-3 mb-3">
+                                                            <div class="flex-1">
+                                                                <label class="block text-xs font-semibold text-gray-600 mb-1">Essence</label>
+                                                                <select name="products[{{ $essenceGroupIdx }}][essence_id]"
+                                                                    class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                                                                    required>
+                                                                    <option value="">Sélectionner une essence</option>
+                                                                    @foreach ($essences as $ess)
+                                                                        <option value="{{ $ess->id }}"
+                                                                            {{ $essenceId == $ess->id ? 'selected' : '' }}>
+                                                                            {{ $ess->essence }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="pt-5">
+                                                                <button type="button" onclick="removeEssenceRow(this)"
+                                                                    class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="ml-2">
+                                                            <label class="block text-xs font-semibold text-gray-600 mb-1">Produits &amp; Volumes</label>
+                                                            <table class="w-full text-sm">
+                                                                <thead>
+                                                                    <tr class="bg-white">
+                                                                        <th class="px-3 py-2 text-left font-medium text-gray-600 border-b">Produit</th>
+                                                                        <th class="px-3 py-2 text-left font-medium text-gray-600 border-b">Volume / Quantité</th>
+                                                                        <th class="w-10 border-b"></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody class="essence-items-body" data-essence-idx="{{ $essenceGroupIdx }}">
+                                                                    @foreach ($essenceRows as $itemIdx => $essRow)
+                                                                        <tr class="product-item-row">
+                                                                            <td class="px-3 py-2 border-b border-gray-100">
+                                                                                <select name="products[{{ $essenceGroupIdx }}][items][{{ $itemIdx + 1 }}][product_id]"
+                                                                                    class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                                                                    required>
+                                                                                    <option value="">Sélectionner un produit</option>
+                                                                                    @foreach ($products as $prod)
+                                                                                        <option value="{{ $prod->id }}"
+                                                                                            {{ ($essRow->pivot->product_id ?? '') == $prod->id ? 'selected' : '' }}>
+                                                                                            {{ $prod->name }}
+                                                                                        </option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </td>
+                                                                            <td class="px-3 py-2 border-b border-gray-100">
+                                                                                <input type="number"
+                                                                                    name="products[{{ $essenceGroupIdx }}][items][{{ $itemIdx + 1 }}][quantity]"
+                                                                                    class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                                                                    min="0" step="0.01" placeholder="Volume / Quantité"
+                                                                                    value="{{ $essRow->pivot->quantity ?? '' }}"
+                                                                                    required>
+                                                                            </td>
+                                                                            <td class="px-3 py-2 border-b border-gray-100 text-center w-10">
+                                                                                <button type="button" onclick="removeProductItemRow(this)"
+                                                                                    class="px-2 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors text-xs">
+                                                                                    <i class="fas fa-times"></i>
+                                                                                </button>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                            <button type="button" onclick="addProductItemRow(this, {{ $essenceGroupIdx }})"
+                                                                class="mt-2 px-3 py-1 bg-white border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-100 text-xs transition-colors">
+                                                                <i class="fas fa-plus mr-1"></i>Ajouter un produit
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -743,50 +783,104 @@
 
 @push('scripts')
     <script>
-        let productRowCount = {{ $article->essences->count() }};
+        let essenceRowCount = {{ $article->essences->groupBy('id')->count() }};
         const essences = @json($essences ?? []);
         const products = @json($products ?? []);
 
+        function buildProductItemHtml(essenceIdx, itemIdx) {
+            return `
+                <tr class="product-item-row">
+                    <td class="px-3 py-2 border-b border-gray-100">
+                        <select name="products[${essenceIdx}][items][${itemIdx}][product_id]"
+                                class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                required>
+                            <option value="">Sélectionner un produit</option>
+                            ${products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="px-3 py-2 border-b border-gray-100">
+                        <input type="number"
+                               name="products[${essenceIdx}][items][${itemIdx}][quantity]"
+                               class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               min="0" step="0.01" placeholder="Volume / Quantité" required>
+                    </td>
+                    <td class="px-3 py-2 border-b border-gray-100 text-center w-10">
+                        <button type="button" onclick="removeProductItemRow(this)"
+                                class="px-2 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors text-xs">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                </tr>`;
+        }
+
         function addProductRow() {
-            productRowCount++;
+            essenceRowCount++;
+            const idx = essenceRowCount;
             const tbody = document.getElementById('products-table-body');
             const row = document.createElement('tr');
-            row.className = 'product-row border-b';
+            row.className = 'essence-group-row';
+            row.dataset.essenceIdx = idx;
             row.innerHTML = `
-        <td class="px-4 py-3 border">
-            <select name="products[${productRowCount}][essence_id]"
-                    class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required>
-                <option value="">Sélectionner une essence</option>
-                ${essences.map(e => `<option value="${e.id}">${e.essence}</option>`).join('')}
-            </select>
-        </td>
-        <td class="px-4 py-3 border">
-            <select name="products[${productRowCount}][product_id]"
-                    class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required>
-                <option value="">Sélectionner un produit</option>
-                ${products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
-            </select>
-        </td>
-        <td class="px-4 py-3 border">
-            <input type="number"
-                   name="products[${productRowCount}][quantity]"
-                   class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                   min="0" step="0.01" placeholder="Volume / Quantité" required>
-        </td>
-        <td class="px-4 py-3 border text-center">
-            <button type="button" onclick="removeProductRow(this)"
-                    class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                <i class="fas fa-trash"></i>
-            </button>
-        </td>
-    `;
+                <td colspan="4" class="px-3 py-3 border-b">
+                    <div class="border border-indigo-200 rounded-xl bg-indigo-50 p-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Essence</label>
+                                <select name="products[${idx}][essence_id]"
+                                        class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                                        required>
+                                    <option value="">Sélectionner une essence</option>
+                                    ${essences.map(e => `<option value="${e.id}">${e.essence}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="pt-5">
+                                <button type="button" onclick="removeEssenceRow(this)"
+                                        class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="ml-2">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Produits &amp; Volumes</label>
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="bg-white">
+                                        <th class="px-3 py-2 text-left font-medium text-gray-600 border-b">Produit</th>
+                                        <th class="px-3 py-2 text-left font-medium text-gray-600 border-b">Volume / Quantité</th>
+                                        <th class="w-10 border-b"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="essence-items-body" data-essence-idx="${idx}">
+                                    ${buildProductItemHtml(idx, 1)}
+                                </tbody>
+                            </table>
+                            <button type="button" onclick="addProductItemRow(this, ${idx})"
+                                    class="mt-2 px-3 py-1 bg-white border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-100 text-xs transition-colors">
+                                <i class="fas fa-plus mr-1"></i>Ajouter un produit
+                            </button>
+                        </div>
+                    </div>
+                </td>`;
             tbody.appendChild(row);
         }
 
-        function removeProductRow(button) {
-            button.closest('tr').remove();
+        function removeEssenceRow(button) {
+            button.closest('tr.essence-group-row').remove();
+        }
+
+        function addProductItemRow(button, essenceIdx) {
+            const tbody = button.closest('div').querySelector('tbody.essence-items-body');
+            const existingCount = tbody.querySelectorAll('tr.product-item-row').length;
+            const itemIdx = existingCount + 1;
+            tbody.insertAdjacentHTML('beforeend', buildProductItemHtml(essenceIdx, itemIdx));
+        }
+
+        function removeProductItemRow(button) {
+            const row = button.closest('tr.product-item-row');
+            const tbody = row.closest('tbody.essence-items-body');
+            if (tbody.querySelectorAll('tr.product-item-row').length > 1) {
+                row.remove();
+            }
         }
 
         function filterSelectOptions(inputEl, selectId) {
