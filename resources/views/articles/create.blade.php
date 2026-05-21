@@ -162,11 +162,11 @@
                             $userCommuneId   = $currentUser?->commune_id;
                             $effectiveDranefCode = $cessionDranefCode ?? $userDranefCode;
                             $isAdmin      = $currentUser?->hasRole('admin');
-                            $lockDranef   = ($effectiveDranefCode) && !$isAdmin;
-                            $lockDpanef   = $userDpanefCode  && !$isAdmin;
-                            $lockZdtf     = $userZdtfCode    && !$isAdmin;
-                            $lockDfp      = $userDfpCode     && !$isAdmin;
-                            $lockProvince = $userProvinceId  && !$isAdmin;
+                            $lockDranef   = (bool) $effectiveDranefCode;
+                            $lockDpanef   = (bool) $userDpanefCode;
+                            $lockZdtf     = (bool) $userZdtfCode;
+                            $lockDfp      = (bool) $userDfpCode;
+                            $lockProvince = (bool) $userProvinceId;
                             $lockCommune  = $userCommuneId   && !$isAdmin;
                         @endphp
 

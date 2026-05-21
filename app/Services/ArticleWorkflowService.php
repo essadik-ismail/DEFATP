@@ -197,8 +197,7 @@ class ArticleWorkflowService
             self::TAXES_PAID             => $this->requireTaxesPaid($article),
             self::PERMIT_ISSUED          => $this->requirePermitExists($article),
             self::PV_INSTALLATION_DONE   => $this->requirePvInstallationPrereqs($article),
-            self::TRANCHES_IN_PROGRESS   => $this->requireAllColportagesAndConsumption($article),
-            self::RECOLEMENT_PENDING     => $this->requireContractExpired($article),
+            self::RECOLEMENT_PENDING     => $this->requireRecolementPrereqs($article),
             self::MAINLEVEE_DONE         => $this->requireRecolementSubmitted($article),
             self::CLOSED                 => $this->requireMainlevee($article),
             default                      => null,
@@ -366,6 +365,12 @@ class ArticleWorkflowService
         }
 
         return null;
+    }
+
+    private function requireRecolementPrereqs(Article $article): void
+    {
+        $this->requireAllColportagesAndConsumption($article);
+        $this->requireContractExpired($article);
     }
 
     private function requireContractExpired(Article $article): void

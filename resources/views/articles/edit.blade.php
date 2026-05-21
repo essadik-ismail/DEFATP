@@ -158,33 +158,39 @@
                             $userCommuneId   = $currentUser?->commune_id;
                             $effectiveDranefCode = $cessionDranefCode ?? $userDranefCode;
                             $isAdmin      = $currentUser?->hasRole('admin');
-                            $lockDranef   = ($effectiveDranefCode) && !$isAdmin;
-                            $lockDpanef   = $userDpanefCode  && !$isAdmin;
-                            $lockZdtf     = $userZdtfCode    && !$isAdmin;
-                            $lockDfp      = $userDfpCode     && !$isAdmin;
-                            $lockProvince = $userProvinceId  && !$isAdmin;
+                            $lockDranef   = (bool) $effectiveDranefCode;
+                            $lockDpanef   = (bool) $userDpanefCode;
+                            $lockZdtf     = (bool) $userZdtfCode;
+                            $lockDfp      = (bool) $userDfpCode;
+                            $lockProvince = (bool) $userProvinceId;
                             $lockCommune  = $userCommuneId   && !$isAdmin;
                             $articleProvinceId = $article->provinces->first()?->id;
                         @endphp
 
                         <!-- Province -->
                         <div class="form-group">
-                            <label for="province_id" class="block text-sm font-semibold text-gray-700 mb-2">Province</label>
+                            <label for="province_ids" class="block text-sm font-semibold text-gray-700 mb-2">Province</label>
+                            @php $selectedProvinces = collect(old('province_ids', $lockProvince ? [$userProvinceId] : $article->provinces->pluck('id')->toArray())); @endphp
                             @if($lockProvince)
                                 <input type="hidden" name="province_ids[]" value="{{ old('province_ids.0', $userProvinceId) }}">
                             @endif
-                            <select id="province_id" {{ $lockProvince ? 'name="_province_id_readonly" disabled' : 'name="province_ids[]"' }}
+                            @if(!$lockProvince)
+                            <input type="text" placeholder="Rechercher..."
+                                class="form-input w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg"
+                                onkeyup="filterSelectOptions(this, 'province_ids')">
+                            @endif
+                            <select multiple
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $lockProvince ? 'bg-gray-100 cursor-not-allowed' : '' }}"
-                                onchange="{{ $lockProvince ? '' : 'updateCommunes()' }}">
-                                <option value="">Sélectionner une province</option>
+                                id="province_ids" {{ $lockProvince ? 'name="_province_ids_readonly" disabled' : 'name="province_ids[]"' }}
+                                onchange="{{ $lockProvince ? '' : 'renderTags(\'province_ids\',\'province_tags\'); updateCommunes();' }}">
                                 @foreach ($provinces ?? [] as $province)
-                                    @php $selectedProvince = old('province_ids.0', $lockProvince ? $userProvinceId : $articleProvinceId); @endphp
                                     <option value="{{ $province->id }}"
-                                        {{ (string)$selectedProvince === (string)$province->id ? 'selected' : '' }}>
+                                        {{ $selectedProvinces->contains((string) $province->id) ? 'selected' : '' }}>
                                         {{ $province->nom }}
                                     </option>
                                 @endforeach
                             </select>
+                            <div id="province_tags" class="flex flex-wrap gap-1.5 mt-2"></div>
                             @error('province_ids')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
@@ -336,7 +342,8 @@
                                 onkeyup="filterSelectOptions(this, 'foret_ids')">
                             <select multiple
                                 class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                                id="foret_ids" name="foret_ids[]">
+                                id="foret_ids" name="foret_ids[]"
+                                onchange="renderTags('foret_ids','foret_tags');">
                                 @foreach ($forets ?? [] as $foret)
                                     <option value="{{ $foret->id }}"
                                         data-dpanef-id="{{ $foret->dpanef_id }}"
@@ -345,6 +352,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <div id="foret_tags" class="flex flex-wrap gap-1.5 mt-2"></div>
                             @error('foret_ids')
                                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                             @enderror
@@ -520,13 +528,15 @@
                             onkeyup="filterSelectOptions(this, 'depot_ids')">
                         <select multiple
                             class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                            id="depot_ids" name="depot_ids[]">
+                            id="depot_ids" name="depot_ids[]"
+                            onchange="renderTags('depot_ids','depot_tags');">
                             @foreach ($depots ?? [] as $depot)
                                 <option value="{{ $depot->id }}" {{ in_array($depot->id, $selectedDepots) ? 'selected' : '' }}>
                                     {{ $depot->nom }}
                                 </option>
                             @endforeach
                         </select>
+                        <div id="depot_tags" class="flex flex-wrap gap-1.5 mt-2"></div>
                         @error('depot_ids')
                             <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                         @enderror
@@ -893,22 +903,26 @@
         }
 
         function updateCommunes() {
-            const provinceSelect = document.getElementById('province_id');
+            const provinceSelect = document.getElementById('province_ids');
             const communeSelect = document.getElementById('commune_ids');
-            const selectedProvinceId = provinceSelect ? String(provinceSelect.value) : '';
 
             if (!communeSelect) return;
 
+            const selectedProvinceIds = provinceSelect
+                ? Array.from(provinceSelect.selectedOptions).map(o => o.value).filter(Boolean)
+                : [];
+
             Array.from(communeSelect.options).forEach(option => {
-                if (!selectedProvinceId) {
+                if (!selectedProvinceIds.length) {
                     option.style.display = '';
                     return;
                 }
                 const provinceId = String(option.getAttribute('data-province-id') || '');
-                const matches = provinceId === selectedProvinceId;
+                const matches = selectedProvinceIds.includes(provinceId);
                 option.style.display = matches ? '' : 'none';
                 if (!matches && option.selected) option.selected = false;
             });
+            renderTags('commune_ids', 'commune_tags');
         }
 
         function updateDpanefs() {
@@ -1031,9 +1045,12 @@
             }
             updateCommunes();
             toggleDepotByNatureCoupe();
+            renderTags('province_ids', 'province_tags');
             renderTags('commune_ids', 'commune_tags');
+            renderTags('foret_ids', 'foret_tags');
             renderTags('nature_de_coupe_ids', 'nature_coupe_tags');
             renderTags('mode_exploitation_ids', 'mode_exploitation_tags');
+            renderTags('depot_ids', 'depot_tags');
         });
     </script>
 @endpush

@@ -31,6 +31,7 @@ final class Permission
     // ── Contrats de vente ─────────────────────────────────────────────────
     const CONTRACT_SALE_CREATE   = 'contract.sale.create';
     const CONTRACT_SALE_UPDATE   = 'contract.sale.update';
+    const CONTRACT_SALE_VIEW     = 'contract.sale.view';
     const CONTRACT_SALE_GENERATE = 'contract.sale.generate';
 
     // ── Exploitants ───────────────────────────────────────────────────────

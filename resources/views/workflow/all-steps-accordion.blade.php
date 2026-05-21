@@ -4,6 +4,7 @@
 --}}
 @php
 use App\Services\ArticleWorkflowService as WF;
+use App\Enums\Permission as P;
 
 $wfState = $article->workflow_state ?? WF::DRAFT_ARTICLE;
 
@@ -49,7 +50,40 @@ $permisEnleverList = $permisEnlevers ?? collect();
 
 // $steps already contains exactly the 12 LABELS states from getStepStatuses()
 $displaySteps = $steps;
-$visibleStepDefs = $allStepDefs;
+
+// Map each step to the permission required to see it
+$stepPermissions = [
+    WF::DRAFT_ARTICLE          => P::ARTICLE_VIEW,
+    WF::CONTRACT_CREATED       => P::CONTRACT_SALE_VIEW,
+    WF::LETTER_SIGNED_UPLOADED => P::ADJUDICATAIRE_LETTER_VIEW,
+    WF::CAUTION_PAID           => P::CAUTION_PAYMENT_VIEW,
+    WF::TAXES_PAID             => P::TAX_PAYMENT_VIEW,
+    WF::PERMIT_ISSUED          => P::OPERATING_PERMIT_VIEW,
+    WF::PV_INSTALLATION_DONE   => P::INSTALLATION_REPORT_VIEW,
+    WF::TRANCHES_IN_PROGRESS   => P::INSTALLMENT_PAYMENT_VIEW,
+    WF::RECOLEMENT_PENDING     => P::RECOLEMENT_REPORT_VIEW,
+    WF::MAINLEVEE_DONE         => P::RELEASE_VIEW,
+    WF::CLOSED                 => P::CESSION_VIEW,
+];
+
+$visibleStepDefs = collect($allStepDefs)
+    ->filter(fn($def, $state) => auth()->user()->can($stepPermissions[$state] ?? P::CESSION_VIEW))
+    ->all();
+
+// Map each step to the permission required to perform write actions on it
+$stepWritePermissions = [
+    WF::DRAFT_ARTICLE          => P::ARTICLE_UPDATE,
+    WF::CONTRACT_CREATED       => P::CONTRACT_SALE_UPDATE,
+    WF::LETTER_SIGNED_UPLOADED => P::ADJUDICATAIRE_LETTER_UPLOAD_SIGNED,
+    WF::CAUTION_PAID           => P::CAUTION_PAYMENT_UPDATE,
+    WF::TAXES_PAID             => P::TAX_PAYMENT_UPDATE,
+    WF::PERMIT_ISSUED          => P::OPERATING_PERMIT_UPDATE,
+    WF::PV_INSTALLATION_DONE   => P::INSTALLATION_REPORT_UPDATE,
+    WF::TRANCHES_IN_PROGRESS   => P::INSTALLMENT_PAYMENT_UPDATE,
+    WF::RECOLEMENT_PENDING     => P::RECOLEMENT_REPORT_UPDATE,
+    WF::MAINLEVEE_DONE         => P::RELEASE_CREATE,
+    WF::CLOSED                 => P::CESSION_CLOSE,
+];
 
 // For initial panel: open the first active step, falling back to first blocked or step 1
 $stateKeys = array_keys($visibleStepDefs);
@@ -233,7 +267,11 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
 
             {{-- Panel body --}}
             <div class="p-4 sm:p-5">
-                @php $validateBlocked = false; $validateBlockedReason = null; @endphp
+                @php
+                    $validateBlocked = false;
+                    $validateBlockedReason = null;
+                    $canWriteStep = auth()->user()->can($stepWritePermissions[$state] ?? P::CESSION_VIEW);
+                @endphp
 
                 @if($isBlocked)
                     <div class="flex items-center gap-3 py-4 px-3 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-500">
@@ -289,6 +327,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         {{-- Explicit validation button for step 1 --}}
                         <div class="mt-2 pt-4 border-t border-gray-100" x-data="{ showConfirmArticle: false }">
                             <p class="text-sm text-gray-600 mb-3">Vérifiez les informations ci-dessus puis validez la création de l'article pour continuer.</p>
+                            @if($canWriteStep)
                             <div class="flex gap-2 flex-wrap">
                                 <a href="{{ route('articles.edit', $article) }}"
                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -300,6 +339,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                     <i class="fas fa-check"></i> Valider la création de l'article
                                 </button>
                             </div>
+                            @endif
 
                             {{-- Confirmation modal --}}
                             <template x-teleport="body">
@@ -351,6 +391,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         @php $validateBlocked = true; $validateBlockedReason = 'Un contrat de vente doit être créé avant de valider.'; @endphp
                     @endif
                     @if(!$contractVente)
+                        @can(P::CONTRACT_SALE_CREATE)
                         @if(!$articleValidated)
                             {{-- Article not yet validated — block contract creation --}}
                             <div class="flex items-start gap-3 p-4 bg-red-50 rounded-lg border border-red-200 mb-4 text-sm">
@@ -370,6 +411,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 <i class="fas fa-plus"></i> Créer le contrat de vente
                             </a>
                         @endif
+                        @endcan
                     @else
                         <div class="info-tiles grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-4">
                             @foreach([
@@ -401,10 +443,12 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                     <i class="fas fa-eye"></i> Consulter contrat
                                 </a>
                             @else
+                                @can(P::CONTRACT_SALE_UPDATE)
                                 <a href="{{ route('contract-ventes.edit', [$article, $contractVente]) }}"
                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                                     <i class="fas fa-edit text-gray-500"></i> Modifier
                                 </a>
+                                @endcan
                                 <a href="{{ route('contract-ventes.show', [$article, $contractVente]) }}"
                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                                     <i class="fas fa-eye text-gray-500"></i> Consulter
@@ -424,6 +468,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
 
                     {{-- Download generated letter --}}
                     @if($contractVente)
+                        @can(P::ADJUDICATAIRE_LETTER_DOWNLOAD)
                         <div class="flex flex-wrap gap-3 mb-4">
                             <a href="{{ route('articles.lettre-adjudicataire.print', $article) }}"
                                target="_blank"
@@ -431,6 +476,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 <i class="fas fa-print"></i> Imprimer la lettre adjudicataire
                             </a>
                         </div>
+                        @endcan
                         @if($contractVente->letter_generated_at)
                             <p class="text-xs text-gray-500 mb-3">Générée le {{ $contractVente->letter_generated_at->format('d/m/Y à H:i') }}</p>
                         @endif
@@ -451,6 +497,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             <span>Lettre adjudicataire validée — document verrouillé.</span>
                         </div>
                     @elseif($contractVente)
+                        @can(P::ADJUDICATAIRE_LETTER_UPLOAD_SIGNED)
                         {{-- Upload form --}}
                         @if($errors->has('signed_letter'))
                             <div class="flex items-center gap-2 p-3 mb-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
@@ -544,6 +591,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 });
                             </script>
                         @endif
+                        @endcan
                     @endif
 
                 {{-- ============================================================
@@ -621,6 +669,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         </div>
                     @else
                         {{-- ---- FORM: mark caution as paid ---- --}}
+                        @if($canWriteStep)
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
@@ -706,9 +755,9 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             </table>
                         </div>
 
-                        {{-- Déchéance — DRANEF only, shown when overdue --}}
+                        {{-- Déchéance — admin only, shown when overdue --}}
                         @if($cautionOverdue)
-                            @can('forfeiture.create')
+                            @can(P::FORFEITURE_CREATE)
                             <div class="mt-4 pt-4 border-t border-gray-100">
                                 <form action="{{ route('workflow.caution-decheance', $article) }}" method="POST"
                                       onsubmit="return confirm('Confirmez-vous la mise en déchéance ?\n\nCette action est irréversible.')">
@@ -720,6 +769,29 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 </form>
                             </div>
                             @endcan
+                        @endif
+                        @else
+                        {{-- Read-only: show current payment status without the form --}}
+                        @if($cautionCharge)
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-xs text-gray-500 mb-1">Charge</p>
+                                    <p class="font-medium text-gray-800">{{ $cautionCharge->nom }}</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-xs text-gray-500 mb-1">Montant</p>
+                                    <p class="font-medium text-gray-800">{{ number_format($cautionCharge->montant ?? 0, 2) }} MAD</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg col-span-2">
+                                    <p class="text-xs text-gray-500 mb-1">Statut</p>
+                                    @if($cautionPayment?->is_paye)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium"><i class="fas fa-check-circle"></i> Payée</span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium"><i class="fas fa-times-circle"></i> Impayée</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                         @endif
                     @endif
 
@@ -741,7 +813,9 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Montant</th>
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Échéance</th>
                                         <th class="text-left py-2 pr-4 text-gray-600 font-medium">Statut</th>
+                                        @if($canWriteStep)
                                         <th class="text-left py-2 text-gray-600 font-medium">Actions</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
@@ -771,6 +845,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium"><i class="fas fa-times-circle"></i> Impayée</span>
                                                 @endif
                                             </td>
+                                            @if($canWriteStep)
                                             <td class="py-2">
                                                 @if($payment?->is_paye && $taxesValidated)
                                                     {{-- LOCKED: step already validated --}}
@@ -832,6 +907,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                     </form>
                                                 @endif
                                             </td>
+                                            @endif {{-- canWriteStep --}}
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -871,6 +947,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         @endif
 
                         {{-- Signed file upload --}}
+                        @can(P::OPERATING_PERMIT_UPLOAD_SIGNED)
                         <div class="mt-3 mb-3">
                             @if($permisExploiter->fichier_permis_signe)
                                 <div class="flex items-center gap-3 p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 mb-2">
@@ -900,37 +977,44 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 </button>
                             </form>
                         </div>
+                        @endcan
 
                         <div class="flex items-center gap-2 flex-wrap">
                             <a href="{{ route('articles.permis-exploiter', $article) }}"
                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                                 <i class="{{ $isDone ? 'fas fa-eye' : 'fas fa-edit' }} text-gray-500"></i> {{ $isDone ? 'Consulter' : 'Voir / modifier' }}
                             </a>
+                            @can(P::OPERATING_PERMIT_DOWNLOAD_FOR_SIGNATURE)
                             <a href="{{ route('articles.print-permis-exploiter', $article) }}"
                                target="_blank"
                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
                                 <i class="fas fa-print"></i> Imprimer
                             </a>
+                            @endcan
                         </div>
                     @else
                         <p class="text-sm text-gray-600 mb-4">Toutes les obligations financières sont remplies. Vous pouvez maintenant émettre le permis d'exploiter.</p>
+                        @can(P::OPERATING_PERMIT_CREATE)
                         <a href="{{ route('articles.permis-exploiter', $article) }}"
                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
                             <i class="fas fa-file-contract"></i> Gérer le permis d'exploiter
                         </a>
+                        @endcan
                     @endif
 
                 {{-- ============================================================
                      Step 10 ? PV_INSTALLATION_DONE
                 ============================================================ --}}
                 @elseif($state === WF::PV_INSTALLATION_DONE)
-                    @if(!$pvInstallation)
-                        @php $validateBlocked = true; $validateBlockedReason = 'Le PV d\'installation doit être rempli avant de valider.'; @endphp
-                    @elseif(!$pvInstallation->fichier_pv_signe)
-                        @php $validateBlocked = true; $validateBlockedReason = 'Le PV signé doit être importé avant de valider.'; @endphp
-                    @elseif(!empty($tranchesBlockedReason))
-                        @php $validateBlocked = true; $validateBlockedReason = $tranchesBlockedReason; @endphp
+                    @if(!$pvInstallation || !$pvInstallation->fichier_pv_signe)
+                        @php $validateBlocked = true; $validateBlockedReason = $pvInstallation ? 'Le PV signé doit être importé avant de valider.' : 'Le PV d\'installation doit être rempli avant de valider.'; @endphp
                     @endif
+                    @error('fichier_pv_signe')
+                        <div class="flex items-center gap-2 text-sm text-red-600 mb-3">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>{{ $message }}</span>
+                        </div>
+                    @enderror
                     @if($pvInstallation)
                         <div class="info-tiles grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-4">
                             @foreach([
@@ -946,8 +1030,6 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             </div>
                             @endforeach
                         </div>
-
-                        {{-- Signed PV status & upload --}}
                         @if($pvInstallation->fichier_pv_signe)
                             <div class="flex items-center gap-2 text-sm text-emerald-700 mb-4">
                                 <i class="fas fa-check-circle"></i>
@@ -958,13 +1040,8 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 </a>
                             </div>
                         @endif
-                        @error('fichier_pv_signe')
-                            <div class="flex items-center gap-2 text-sm text-red-600 mb-3">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <span>{{ $message }}</span>
-                            </div>
-                        @enderror
                         @if(!$isDone)
+                        @can(P::INSTALLATION_REPORT_UPLOAD_SIGNED)
                         <form action="{{ route('workflow.upload-signed-pv', $article) }}" method="POST"
                               enctype="multipart/form-data" class="flex items-end gap-3 flex-wrap mb-4">
                             @csrf
@@ -980,6 +1057,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 <i class="fas fa-upload"></i> Importer
                             </button>
                         </form>
+                        @endcan
                         @elseif($pvInstallation->fichier_pv_signe)
                             <div class="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-800 mb-4">
                                 <i class="fas fa-lock"></i>
@@ -990,18 +1068,25 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         <p class="text-sm text-gray-600 mb-4">PV d'installation non encore rempli.</p>
                     @endif
                     <div class="flex items-center gap-2 flex-wrap mt-4">
+                        @if($isDone)
                         <a href="{{ route('articles.pv-installation', $article) }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium {{ $isDone ? 'bg-white border border-gray-300 text-gray-700' : 'bg-emerald-600 text-white' }} rounded-lg hover:opacity-90 transition-colors">
-                            <i class="fas {{ $isDone ? 'fa-eye' : 'fa-clipboard-check' }}"></i> {{ $isDone ? 'Consulter le PV' : ($pvInstallation ? 'Voir le PV' : 'Remplir le PV') }}
+                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-300 text-gray-700 rounded-lg hover:opacity-90 transition-colors">
+                            <i class="fas fa-eye"></i> Consulter le PV
                         </a>
-                        @if($pvInstallation && !$isDone)
+                        @else
+                        @can(P::INSTALLATION_REPORT_CREATE)
+                        <a href="{{ route('articles.pv-installation', $article) }}"
+                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:opacity-90 transition-colors">
+                            <i class="fas fa-clipboard-check"></i> {{ $pvInstallation ? 'Voir le PV' : 'Remplir le PV' }}
+                        </a>
+                        @if($pvInstallation)
                         <a href="{{ route('articles.pv-installation', $article) }}?edit=1"
                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                             <i class="fas fa-edit text-gray-500"></i> Modifier
                         </a>
                         @endif
-                        @if(!$isDone)
-                        @can('vehicle.declare')
+                        @endcan
+                        @can(P::VEHICLE_CREATE)
                         <a href="{{ route('vehicles.index', $article) }}"
                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">
                             <i class="fas fa-truck"></i> Gérer les véhicules
@@ -1009,11 +1094,13 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                         @endcan
                         @endif
                         @if($pvInstallation)
+                        @can(P::INSTALLATION_REPORT_DOWNLOAD_FOR_SIGNATURE)
                         <a href="{{ route('articles.pv-installation.print', $article) }}"
                            target="_blank"
                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                             <i class="fas fa-print text-gray-500"></i> Imprimer
                         </a>
+                        @endcan
                         @endif
                     </div>
 
@@ -1067,7 +1154,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                     <span class="text-gray-500">Échéance : {{ \Carbon\Carbon::parse($anefCharge->date_echeance)->format('d/m/Y') }}</span>
                                 @endif
                             </div>
-                            @if(!$isDone)
+                            @if(!$isDone && $canWriteStep)
                             <form action="{{ route('articles.update-charge-payments', $article) }}" method="POST"
                                   enctype="multipart/form-data" class="space-y-2">
                                 @csrf @method('PUT')
@@ -1201,7 +1288,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                     @php
                                                         $hasPermisForDate = $paymentDate && in_array($paymentDate, $permisDates, true);
                                                     @endphp
-                                                    @if(!$tp?->is_paye && !$isDone)
+                                                    @if(!$tp?->is_paye && !$isDone && $canWriteStep)
                                                     <div class="space-y-1">
                                                         <input type="text" name="num_quittance" placeholder="N° quittance *"
                                                                class="block w-32 px-2 py-1 text-xs border border-gray-300 rounded" required>
@@ -1245,6 +1332,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                                 </a>
                                                                 @endif
                                                             @else
+                                                                @can(P::REMOVAL_PERMIT_CREATE)
                                                                 @if($anefPaid)
                                                                 <a href="{{ route('articles.permis-enlever.create', ['article' => $article, 'date_paiement' => $paymentDate]) }}"
                                                                    class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700">
@@ -1256,6 +1344,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                                                     <i class="fas fa-lock"></i> Créer permis d'enlever
                                                                 </span>
                                                                 @endif
+                                                                @endcan
                                                             @endif
                                                         </div>
                                                     @endif
@@ -1354,10 +1443,12 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             <span>Récolement validé — données verrouillées.</span>
                         </div>
                     @else
+                    @can(P::RECOLEMENT_REPORT_CREATE)
                     <a href="{{ route('workflow.recolement.create', $article) }}"
                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
                         <i class="fas fa-plus"></i> {{ $recolement ? 'Modifier le PV' : 'Soumettre le PV de récolement' }}
                     </a>
+                    @endcan
                     @endif
 
                 {{-- ============================================================
@@ -1384,6 +1475,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                     @else
                         <p class="text-sm text-gray-600 mb-4">Mainlevée non encore émise.</p>
                         @if($recolement?->status === 'pv_submitted')
+                        @can(P::RELEASE_CREATE)
                         <form action="{{ route('workflow.mainlevee.issue', $article) }}" method="POST"
                               enctype="multipart/form-data" class="space-y-3 max-w-md">
                             @csrf
@@ -1407,6 +1499,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 <i class="fas fa-stamp"></i> Émettre la mainlevée
                             </button>
                         </form>
+                        @endcan
                         @endif
                     @endif
 
@@ -1425,6 +1518,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                     @else
                         <p class="text-sm text-gray-600 mb-4">Clôturez définitivement ce dossier après émission de la mainlevée.</p>
                         @if($wfState === WF::MAINLEVEE_DONE)
+                        @can(P::CESSION_CLOSE)
                         <form action="{{ route('workflow.close', $article) }}" method="POST"
                               onsubmit="return confirm('Êtes-vous sûr de vouloir clôturer définitivement ce dossier ?')">
                             @csrf
@@ -1433,6 +1527,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                                 <i class="fas fa-archive"></i> Clôturer le dossier
                             </button>
                         </form>
+                        @endcan
                         @endif
                     @endif
                 @endif
@@ -1465,7 +1560,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                     $modalId = 'modal_validate_' . str_replace('_', '', strtolower($state));
                 @endphp
 
-                @if($showTransitionButton)
+                @if($showTransitionButton && $canWriteStep)
                     <div class="mt-5 pt-4 border-t border-gray-100" x-data="{ showConfirm_{{ strtolower($state) }}: false }">
                         @if($validateBlocked)
                             {{-- Blocked: prerequisite not met --}}

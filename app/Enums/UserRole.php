@@ -4,15 +4,18 @@ namespace App\Enums;
 
 enum UserRole: string
 {
-    case Admin      = 'admin';
-    case Central    = 'central';     // Direction Centrale — national oversight
-    case Dranef     = 'dranef';      // Direction Régionale — approves prorogations, issues mainlevée
-    case Dpanef     = 'dpanef';      // Direction Provinciale — supervises provincial operations
-    case ZdtfDpanef = 'zdtfdpanef'; // Superset: union of zdtf + dpanef + cpf permissions
-    case Zdtf       = 'zdtf';        // Zone de Travaux Forestiers — creates/manages articles
-    case Cpf        = 'cpf';         // Commission Provinciale des Forêts — submits PV de récolement
-    case Brigade    = 'brigade';     // Brigade — declares vehicles, issues colportage permits
-    case Dfp        = 'dfp';         // District Forestier Provincial — same field scope as Brigade
+    case Admin       = 'admin';
+    case Central     = 'central';      // Direction Centrale — national oversight
+    case Dranef      = 'dranef';       // Direction Régionale — regional management
+    case Dpanef      = 'dpanef';       // Direction Provinciale — document saisie specialist
+    case ZdtfDpanef  = 'zdtfdpanef';  // Superset: union of dpanef + cpf_zdtf permissions
+    case CpfZdtf     = 'cpf_zdtf';    // Field post — permits only (replaces separate cpf/zdtf)
+    case BrigadeDfp  = 'brigade_dfp'; // Field control — read-only + limited download
+    // Legacy roles kept for backward compatibility; mapped to the same permissions as their replacements
+    case Zdtf        = 'zdtf';
+    case Cpf         = 'cpf';
+    case Brigade     = 'brigade';
+    case Dfp         = 'dfp';
 
     public function label(): string
     {
@@ -22,6 +25,8 @@ enum UserRole: string
             self::Dranef     => 'DRANEF',
             self::Dpanef     => 'DPANEF',
             self::ZdtfDpanef => 'ZDTF/DPANEF',
+            self::CpfZdtf    => 'CPF/ZDTF',
+            self::BrigadeDfp => 'Brigade/DFP',
             self::Zdtf       => 'ZDTF',
             self::Cpf        => 'CPF',
             self::Brigade    => 'Brigade',
