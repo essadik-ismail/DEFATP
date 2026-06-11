@@ -1460,7 +1460,7 @@ class ArticleController extends Controller
      */
     public function permisExploiter(Article $article)
     {
-        $article->load(['essences', 'forets', 'communes']);
+        $article->load(['essences', 'forets', 'communes', 'dfp']);
         
         $contractVente = $article->contractVentes()->with(['chargeApayer.payments', 'permisExploiter'])->first();
         
@@ -1492,7 +1492,9 @@ class ArticleController extends Controller
             ->unique()
             ->implode(', ');
 
-        return view('articles.permis-exploiter', compact('article', 'contractVente', 'permisExploiter', 'percepteurs', 'cautionQuittance', 'taxQuittances'));
+        $dfpLabel = $article->dfp?->dfp ?? $article->dfp_code ?? '';
+
+        return view('articles.permis-exploiter', compact('article', 'contractVente', 'permisExploiter', 'percepteurs', 'cautionQuittance', 'taxQuittances', 'dfpLabel'));
     }
 
     /**
@@ -1583,6 +1585,51 @@ class ArticleController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Erreur lors de la création du permis d\'exploiter: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update an existing Permis d'Exploiter
+     */
+    public function updatePermisExploiter(Request $request, Article $article)
+    {
+        $validated = $request->validate([
+            'num_assurance' => 'required|string|max:255',
+            'num_quittance' => 'required|string|max:255',
+            'percepteur' => 'nullable|string|max:255',
+            'date_expiration_assurance' => 'nullable|date',
+            'article_ccs' => 'nullable|string|max:255',
+            'dfp' => 'nullable|string|max:255',
+            'clature' => 'nullable|boolean',
+        ]);
+
+        try {
+            $contractVente = $article->contractVentes()->with('permisExploiter')->first();
+
+            if (!$contractVente || !$contractVente->permisExploiter) {
+                return redirect()->back()->with('error', 'Permis d\'exploiter introuvable.');
+            }
+
+            $contractVente->permisExploiter->update([
+                'num_assurance' => $validated['num_assurance'],
+                'num_quittance' => $validated['num_quittance'],
+                'percepteur' => $validated['percepteur'],
+                'date_expiration_assurance' => $validated['date_expiration_assurance'] ?? null,
+                'article_ccs' => $validated['article_ccs'] ?? null,
+                'dfp' => $validated['dfp'] ?? null,
+                'clature' => $validated['clature'] ?? false,
+            ]);
+
+            ActivityLogger::log('update', 'Permis d\'exploiter mis à jour', PermisExploiter::class, $contractVente->permisExploiter->id);
+
+            return redirect()->route('articles.permis-exploiter', $article)
+                ->with('success', 'Permis d\'exploiter mis à jour avec succès.');
+
+        } catch (\Exception $e) {
+            \Log::error('Error updating Permis d\'exploiter: ' . $e->getMessage(), ['exception' => $e]);
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage());
         }
     }
 

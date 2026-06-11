@@ -288,6 +288,11 @@ class ArticleWorkflowService
         if (!$contract || !$contract->permisExploiter()->exists()) {
             throw new \RuntimeException('Le permis d\'exploiter doit être créé avant cette étape.');
         }
+
+        $permis = $contract->permisExploiter;
+        if (!$permis->fichier_permis_signe) {
+            throw new \RuntimeException('Le permis d\'exploiter signé doit être importé avant de valider cette étape.');
+        }
     }
 
     private function requirePvInstallationPrereqs(Article $article): void

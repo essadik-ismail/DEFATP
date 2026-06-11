@@ -152,6 +152,7 @@ Route::middleware('auth')->group(function () {
         Route::get('{article}/permis-enlever/{permiEnlever}', [ArticleController::class, 'showPermisEnlever'])->name('permis-enlever.show');
         Route::get('{article}/permis-exploiter', [ArticleController::class, 'permisExploiter'])->name('permis-exploiter');
         Route::post('{article}/permis-exploiter', [ArticleController::class, 'storePermisExploiter'])->name('store-permis-exploiter');
+        Route::put('{article}/permis-exploiter', [ArticleController::class, 'updatePermisExploiter'])->name('update-permis-exploiter');
         Route::post('{article}/permis-exploiter/upload-signe', [ArticleController::class, 'uploadPermisExploiterSigne'])->name('permis-exploiter.upload-signe');
         Route::get('{article}/permis-exploiter/print', [ArticleController::class, 'printPermisExploiter'])->name('print-permis-exploiter');
         Route::get('{article}/permis-colportage/create', [ArticleController::class, 'permisColportageCreate'])->name('permis-colportage.create');

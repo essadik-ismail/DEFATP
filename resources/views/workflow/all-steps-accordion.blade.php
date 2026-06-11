@@ -1007,7 +1007,7 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                 ============================================================ --}}
                 @elseif($state === WF::PV_INSTALLATION_DONE)
                     @if(!$pvInstallation || !$pvInstallation->fichier_pv_signe)
-                        @php $validateBlocked = true; $validateBlockedReason = $pvInstallation ? 'Le PV signé doit être importé avant de valider.' : 'Le PV d\'installation doit être rempli avant de valider.'; @endphp
+                        @php $validateBlocked = true; $validateBlockedReason = 'Le PV d\'installation signé doit être importé avant de valider.'; @endphp
                     @endif
                     @error('fichier_pv_signe')
                         <div class="flex items-center gap-2 text-sm text-red-600 mb-3">
@@ -1015,94 +1015,52 @@ $articleValidated = in_array($wfState, [WF::ARTICLE_READY, ...array_slice(array_
                             <span>{{ $message }}</span>
                         </div>
                     @enderror
-                    @if($pvInstallation)
-                        <div class="info-tiles grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-4">
-                            @foreach([
-                                'N° PV'        => $pvInstallation->pvn ?? '—',
-                                'Date'         => $pvInstallation->date ? \Carbon\Carbon::parse($pvInstallation->date)->format('d/m/Y') : '—',
-                                'Exploitant'   => $pvInstallation->exploitant ?? '—',
-                                'Participants' => $pvInstallation->participants ?? '—',
-                                'Réserve'      => $pvInstallation->reserve ?? '—',
-                            ] as $label => $value)
-                            <div class="bg-gray-50 rounded-lg px-3 py-2">
-                                <p class="text-xs text-gray-500 mb-0.5">{{ $label }}</p>
-                                <p class="font-semibold text-gray-800">{{ $value }}</p>
-                            </div>
-                            @endforeach
-                        </div>
-                        @if($pvInstallation->fichier_pv_signe)
-                            <div class="flex items-center gap-2 text-sm text-emerald-700 mb-4">
-                                <i class="fas fa-check-circle"></i>
-                                <span>PV signé importé le {{ $pvInstallation->pv_signed_at?->format('d/m/Y') ?? '—' }}</span>
-                                <a href="{{ route('workflow.view-signed-pv', $article) }}" target="_blank"
-                                   class="ml-2 inline-flex items-center gap-1 text-blue-600 hover:underline text-xs font-medium">
-                                    <i class="fas fa-file-pdf text-red-500"></i> Ouvrir le fichier
-                                </a>
-                            </div>
-                        @endif
-                        @if(!$isDone)
-                        @can(P::INSTALLATION_REPORT_UPLOAD_SIGNED)
-                        <form action="{{ route('workflow.upload-signed-pv', $article) }}" method="POST"
-                              enctype="multipart/form-data" class="flex items-end gap-3 flex-wrap mb-4">
-                            @csrf
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">
-                                    {{ $pvInstallation->fichier_pv_signe ? 'Remplacer le PV signé (PDF / JPG / PNG)' : 'PV signé (PDF / JPG / PNG)' }}
-                                </label>
-                                <input type="file" name="fichier_pv_signe" accept=".pdf,.jpg,.jpeg,.png"
-                                       class="block text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700 file:font-medium hover:file:bg-emerald-100">
-                            </div>
-                            <button type="submit"
-                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
-                                <i class="fas fa-upload"></i> Importer
-                            </button>
-                        </form>
-                        @endcan
-                        @elseif($pvInstallation->fichier_pv_signe)
-                            <div class="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-800 mb-4">
-                                <i class="fas fa-lock"></i>
-                                <span>Document verrouillé — le PV d'installation a été validé.</span>
-                            </div>
-                        @endif
-                    @else
-                        <p class="text-sm text-gray-600 mb-4">PV d'installation non encore rempli.</p>
-                    @endif
-                    <div class="flex items-center gap-2 flex-wrap mt-4">
-                        @if($isDone)
-                        <a href="{{ route('articles.pv-installation', $article) }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-300 text-gray-700 rounded-lg hover:opacity-90 transition-colors">
-                            <i class="fas fa-eye"></i> Consulter le PV
-                        </a>
-                        @else
-                        @can(P::INSTALLATION_REPORT_CREATE)
-                        <a href="{{ route('articles.pv-installation', $article) }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:opacity-90 transition-colors">
-                            <i class="fas fa-clipboard-check"></i> {{ $pvInstallation ? 'Voir le PV' : 'Remplir le PV' }}
-                        </a>
-                        @if($pvInstallation)
-                        <a href="{{ route('articles.pv-installation', $article) }}?edit=1"
-                           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-edit text-gray-500"></i> Modifier
-                        </a>
-                        @endif
-                        @endcan
-                        @can(P::VEHICLE_CREATE)
+
+                    {{-- Gérer les véhicules --}}
+                    @can(P::VEHICLE_CREATE)
+                    <div class="flex items-center gap-2 flex-wrap mb-4">
                         <a href="{{ route('vehicles.index', $article) }}"
                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors">
                             <i class="fas fa-truck"></i> Gérer les véhicules
                         </a>
-                        @endcan
-                        @endif
-                        @if($pvInstallation)
-                        @can(P::INSTALLATION_REPORT_DOWNLOAD_FOR_SIGNATURE)
-                        <a href="{{ route('articles.pv-installation.print', $article) }}"
-                           target="_blank"
-                           class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-print text-gray-500"></i> Imprimer
-                        </a>
-                        @endcan
-                        @endif
                     </div>
+                    @endcan
+
+                    {{-- Importer le PV d'installation signé --}}
+                    @if($pvInstallation?->fichier_pv_signe)
+                        <div class="flex items-center gap-2 text-sm text-emerald-700 mb-3">
+                            <i class="fas fa-check-circle"></i>
+                            <span>PV signé importé le {{ $pvInstallation->pv_signed_at?->format('d/m/Y') ?? '—' }}</span>
+                            <a href="{{ route('workflow.view-signed-pv', $article) }}" target="_blank"
+                               class="ml-2 inline-flex items-center gap-1 text-blue-600 hover:underline text-xs font-medium">
+                                <i class="fas fa-file-pdf text-red-500"></i> Ouvrir le fichier
+                            </a>
+                        </div>
+                    @endif
+                    @if(!$isDone)
+                    @can(P::INSTALLATION_REPORT_UPLOAD_SIGNED)
+                    <form action="{{ route('workflow.upload-signed-pv', $article) }}" method="POST"
+                          enctype="multipart/form-data" class="flex items-end gap-3 flex-wrap">
+                        @csrf
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">
+                                {{ $pvInstallation?->fichier_pv_signe ? 'Remplacer le PV signé (PDF / JPG / PNG)' : 'Importer le PV d\'installation signé (PDF / JPG / PNG)' }}
+                            </label>
+                            <input type="file" name="fichier_pv_signe" accept=".pdf,.jpg,.jpeg,.png"
+                                   class="block text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700 file:font-medium hover:file:bg-emerald-100">
+                        </div>
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+                            <i class="fas fa-upload"></i> Importer
+                        </button>
+                    </form>
+                    @endcan
+                    @elseif($pvInstallation?->fichier_pv_signe)
+                        <div class="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-800">
+                            <i class="fas fa-lock"></i>
+                            <span>Document verrouillé — le PV d'installation a été validé.</span>
+                        </div>
+                    @endif
 
                 {{-- ============================================================
                      Étape 8 — TRANCHES_IN_PROGRESS

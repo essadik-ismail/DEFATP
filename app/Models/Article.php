@@ -85,6 +85,11 @@ class Article extends Model
         return $this->belongsTo(Cession::class, 'groupe_cession_id');
     }
 
+    public function dfp(): BelongsTo
+    {
+        return $this->belongsTo(Dfp::class, 'dfp_code', 'code');
+    }
+
     /**
      * Get the contract ventes for this article.
      */

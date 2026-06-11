@@ -55,6 +55,9 @@
                 <button class="sb-close" id="sbCloseBtn" onclick="closeSidebar()" aria-label="Fermer le menu">
                     <i class="fas fa-times" style="font-size:0.625rem;pointer-events:none;"></i>
                 </button>
+                <button class="sb-collapse-btn" id="sbCollapseBtn" onclick="toggleSidebarCollapse()" aria-label="Réduire le menu">
+                    <i class="fas fa-chevron-left" style="font-size:0.625rem;pointer-events:none;"></i>
+                </button>
             </div>
 
             {{-- Navigation --}}
@@ -356,6 +359,26 @@
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') closeSidebar();
         });
+
+        /* ── Desktop sidebar collapse ───────────────────────────────── */
+        (function () {
+            const collapsed = localStorage.getItem('sb-collapsed') === '1';
+            if (collapsed) document.getElementById('sidebar')?.classList.add('collapsed');
+        })();
+
+        function toggleSidebarCollapse() {
+            if (window.innerWidth < 1024) return;
+            const sb = document.getElementById('sidebar');
+            const btn = document.getElementById('sbCollapseBtn');
+            const isCollapsed = sb.classList.toggle('collapsed');
+            localStorage.setItem('sb-collapsed', isCollapsed ? '1' : '0');
+            if (btn) {
+                btn.querySelector('i').className = isCollapsed
+                    ? 'fas fa-chevron-right'
+                    : 'fas fa-chevron-left';
+                btn.setAttribute('aria-label', isCollapsed ? 'Agrandir le menu' : 'Réduire le menu');
+            }
+        }
 
         /* ── Exploitation submenu ────────────────────────────────────── */
         document.getElementById('toggle-exploitation')?.addEventListener('click', function() {

@@ -176,7 +176,9 @@ class WorkflowController extends Controller
         ]);
 
         $contract = $article->contractVentes()->latest()->firstOrFail();
-        $pvInstallation = $contract->pvInstallations()->latest()->firstOrFail();
+        $pvInstallation = $contract->pvInstallations()->latest()->firstOrCreate(
+            ['contract_vente_id' => $contract->id]
+        );
 
         if ($pvInstallation->fichier_pv_signe && Storage::disk('public')->exists($pvInstallation->fichier_pv_signe)) {
             Storage::disk('public')->delete($pvInstallation->fichier_pv_signe);

@@ -1699,6 +1699,61 @@ body {
     cursor: pointer; margin-left: auto;
     transition: background 0.15s, color 0.15s; flex-shrink: 0;
 }
+
+.sb-collapse-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 1.75rem; height: 1.75rem;
+    background: rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.10);
+    border-radius: 6px;
+    color: rgba(0,0,0,0.45);
+    cursor: pointer; margin-left: auto;
+    transition: background 0.15s, color 0.15s; flex-shrink: 0;
+}
+.sb-collapse-btn:hover { background: rgba(0,0,0,0.10); color: rgba(0,0,0,0.85); }
+
+/* ── Collapsed sidebar (desktop icon-only mode) ───────────────────────────── */
+.sidebar {
+    transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.sidebar.collapsed {
+    width: 56px;
+}
+.sidebar.collapsed .sb-brand-text,
+.sidebar.collapsed .sb-label,
+.sidebar.collapsed .sb-section,
+.sidebar.collapsed .sb-chevron,
+.sidebar.collapsed .sb-user-info,
+.sidebar.collapsed .sb-footer form,
+.sidebar.collapsed .sb-status-strip,
+.sidebar.collapsed .sb-sub-link span,
+.sidebar.collapsed .sb-submenu {
+    display: none;
+}
+.sidebar.collapsed .sb-brand {
+    justify-content: center;
+    gap: 0;
+    padding: 1.125rem 0 1rem;
+    position: relative;
+}
+.sidebar.collapsed .sb-brand-mark { margin: 0 auto; }
+.sidebar.collapsed .sb-collapse-btn {
+    position: absolute;
+    right: 0.375rem;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+}
+.sidebar.collapsed .sb-item { margin: 1px 4px; }
+.sidebar.collapsed .sb-link,
+.sidebar.collapsed .sb-group-btn {
+    justify-content: center;
+    padding: 0.5rem;
+}
+.sidebar.collapsed .sb-icon { margin: 0; }
+.sidebar.collapsed .sb-footer { padding: 0.5rem 0; }
+.sidebar.collapsed .sb-user { justify-content: center; padding: 0.5rem 0; }
+.sidebar.collapsed .sb-avatar { margin: 0; }
 .sb-close:hover { background: rgba(0,0,0,0.10); color: rgba(0,0,0,0.85); }
 
 .sb-nav { flex: 1; padding: 0.75rem 0 1rem; overflow-y: auto; overflow-x: hidden; }
